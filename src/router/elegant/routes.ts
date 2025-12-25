@@ -51,6 +51,28 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'ai',
+    path: '/ai',
+    component: 'layout.base',
+    meta: {
+      title: 'ai',
+      i18nKey: 'route.ai',
+      icon: 'carbon:bot',
+      order: 2
+    },
+    children: [
+      {
+        name: 'ai_model-manager',
+        path: '/ai/model-manager',
+        component: 'view.ai_model-manager',
+        meta: {
+          title: 'ai_model-manager',
+          i18nKey: 'route.ai_model-manager'
+        }
+      }
+    ]
+  },
+  {
     name: 'demo',
     path: '/demo',
     component: 'layout.base',
