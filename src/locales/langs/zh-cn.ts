@@ -297,7 +297,9 @@ const local: App.I18n.Schema = {
     exception_500: '500',
     tool: '系统工具',
     tool_gen: '代码生成',
-    about: '关于'
+    about: '关于',
+    ai: 'AI',
+    'ai_model-manager': '模型管理'
   },
   menu: {
     system_tenant: '租户管理',

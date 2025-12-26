@@ -301,7 +301,9 @@ const local: App.I18n.Schema = {
     exception_500: '500',
     tool: 'System Tools',
     tool_gen: 'Code Generation',
-    about: 'About'
+    about: 'About',
+    ai: 'AI',
+    'ai_model-manager': 'Model Manager'
   },
   menu: {
     system_tenant: 'Tenant Management',
