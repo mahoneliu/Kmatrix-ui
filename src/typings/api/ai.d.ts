@@ -29,6 +29,7 @@ declare namespace Api {
             status: '0' | '1';
             isBuiltin: 'Y' | 'N';
             modelSource: '1' | '2'; // 1: 公有模型, 2: 本地模型
+            providerIcon?: string;
             remark: string;
         }
     }

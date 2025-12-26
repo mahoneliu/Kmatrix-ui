@@ -2,6 +2,7 @@
 import { computed, ref, watch, h } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import { fetchModels, deleteModels } from '@/service/api/ai';
+import SvgIcon from '@/components/custom/svg-icon.vue';
 import ModelModal from './model-modal.vue';
 
 interface Props {
@@ -93,7 +94,7 @@ function handleDelete(item: Api.AI.Model) {
       </div>
       <NButton type="primary" @click="handleAdd">
         <template #icon>
-          <div class="i-carbon-add"></div>
+          <SvgIcon icon="carbon:add" />
         </template>
         新增模型
       </NButton>
@@ -112,7 +113,10 @@ function handleDelete(item: Api.AI.Model) {
               <div class="flex flex-col gap-4">
                 <div class="flex items-start justify-between">
                   <div class="flex items-center gap-3">
-                    <div :class="item.modelType === '1' ? 'i-carbon-chat' : 'i-carbon-data-blob'" class="text-primary text-2xl"></div>
+                    <div class="flex-center w-8 h-8 flex-shrink-0">
+                      <img v-if="item.providerIcon" :src="item.providerIcon" class="w-full h-full object-contain" :alt="item.modelName" />
+                      <SvgIcon v-else :icon="item.modelType === '1' ? 'carbon:chat' : 'carbon:data-blob'" class="text-primary text-2xl" />
+                    </div>
                     <div>
                       <div class="font-bold text-base leading-tight">{{ item.modelName }}</div>
                       <div class="flex items-center gap-2 mt-1.5">
@@ -128,14 +132,14 @@ function handleDelete(item: Api.AI.Model) {
                   <NDropdown
                     trigger="click"
                     :options="[
-                      { label: '编辑', key: 'edit', icon: () => h('div', { class: 'i-carbon-edit' }) },
-                      { label: '删除', key: 'delete', icon: () => h('div', { class: 'i-carbon-trash-can text-error' }), labelProps: { class: 'text-error' } }
+                      { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { icon: 'carbon:edit' }) },
+                      { label: '删除', key: 'delete', icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }), labelProps: { class: 'text-error' } }
                     ]"
                     @select="(key) => key === 'edit' ? handleEdit(item) : handleDelete(item)"
                   >
-                    <NButton quaternary circle size="small" class="text-gray-500 hover:text-primary">
+                    <NButton quaternary size="small" class="text-gray-500 hover:text-primary">
                       <template #icon>
-                        <div class="i-carbon-overflow-menu-horizontal text-lg"></div>
+                        <SvgIcon icon="carbon:overflow-menu-horizontal" />
                       </template>
                     </NButton>
                   </NDropdown>

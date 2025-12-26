@@ -27,13 +27,17 @@ const modelForm = reactive<any>({
   modelSource: '1'
 });
 
-const rules = {
-  providerId: { required: true, type: 'integer' as const, message: '请选择供应商', trigger: 'change' },
-  modelName: { required: true, message: '请输入模型名称', trigger: 'blur' },
-  modelKey: { required: true, message: '请输入或选择基础模型', trigger: ['blur', 'change'] },
-  modelType: { required: true, message: '请选择模型类型', trigger: 'change' },
-  modelSource: { required: true, message: '请选择模型来源', trigger: 'change' }
-};
+const rules = computed(() => {
+  return {
+    providerId: { required: true, type: 'integer' as const, message: '请选择供应商', trigger: 'change' },
+    modelName: { required: true, message: '请输入模型名称', trigger: 'blur' },
+    modelKey: { required: true, message: '请输入或选择基础模型', trigger: ['blur', 'change'] },
+    modelType: { required: true, message: '请选择模型类型', trigger: 'change' },
+    modelSource: { required: true, message: '请选择模型来源', trigger: 'change' },
+    apiKey: { required: modelForm.modelSource === '1', message: '请输入apiKey', trigger: 'blur' },
+    apiBase: { required: modelForm.modelSource === '2', message: '请输入apiBase 地址', trigger: 'blur' }
+  };
+});
 
 const formRef = ref<any>(null);
 
@@ -54,7 +58,14 @@ const filteredProviders = computed(() => {
   return providers.value.filter(p => p.providerType === modelForm.modelSource);
 });
 
-// 监听模型来源变化，清空供应商和模型标识
+
+// 计算当前选中的供应商
+const selectedProvider = computed(() => {
+  return providers.value.find(p => p.providerId === modelForm.providerId);
+});
+
+
+// 监听模型来源变化，清空供应商和基础模型
 watch(() => modelForm.modelSource, (newVal, oldVal) => {
   if (isInitializing.value) return;
   if (newVal !== oldVal) {
@@ -63,20 +74,15 @@ watch(() => modelForm.modelSource, (newVal, oldVal) => {
   }
 });
 
-// 监听模型类型变化,自动清空模型标识
+// 监听模型类型变化,自动清空基础模型
 watch(() => modelForm.modelType, () => {
   if (isInitializing.value) return;
-  // 当模型类型改变时,清空已选择的模型标识
+  // 当模型类型改变时,清空已选择的基础模型
   modelForm.modelKey = '';
 });
 
 onMounted(() => {
   loadProviders();
-});
-
-// 计算当前选中的供应商
-const selectedProvider = computed(() => {
-  return providers.value.find(p => p.providerId === modelForm.providerId);
 });
 
 // 计算当前选中供应商支持的模型列表(根据模型类型过滤)
@@ -175,7 +181,7 @@ const testingConnection = ref(false);
 async function handleTestConnection() {
   // 简单校验必要字段
   if (!modelForm.providerId || !modelForm.modelKey) {
-    message.warning('请先选择供应商和模型标识');
+    message.warning('请先选择供应商和基础模型');
     return;
   }
   
@@ -192,43 +198,42 @@ async function handleTestConnection() {
 }
 
 async function handleSubmit() {
-  formRef.value?.validate(async (errors: any) => {
-    if (!errors) {
-      loading.value = true;
-      const api = type.value === 'add' ? addModel : updateModel;
-      
-      const submitData = { ...modelForm };
-      
-      // 根据模型类型构建配置
-      let configObj = {};
-      if (modelForm.modelType === '1') {
-        // 语言模型参数
-        configObj = {
-          temperature: submitData.temperature,
-          maxTokens: submitData.maxTokens
-        };
-      } else {
-        // 其他模型参数 (暂无)
-        configObj = {};
-      }
-      
-      // 清理提交数据中的临时字段 (temperature/maxTokens 虽然在 modelForm 中，但后端可能不需要直接接收，而是通过 config)
-      // 这里保留原逻辑的清理方式，或者直接覆盖 config
-      submitData.config = JSON.stringify(configObj);
-
-      // 注意：如果后端实体没有 temperature/maxTokens 字段，axios 发送多余字段通常问题不大，
-      // 但为了整洁，可以 delete submitData.temperature 等。
-      // 为保持原有逻辑的一致性，这里不做过度清理，只确保 config 正确。
-
-      const { error } = await api(submitData);
-      if (!error) {
-        message.success(type.value === 'add' ? '新增成功' : '修改成功');
-        show.value = false;
-        emit('success');
-      }
-      loading.value = false;
+  await formRef.value?.validate();
+  
+  loading.value = true;
+  try {
+    const api = type.value === 'add' ? addModel : updateModel;
+    
+    const submitData = { ...modelForm };
+    
+    // 根据模型类型构建配置
+    let configObj = {};
+    if (modelForm.modelType === '1') {
+      // 语言模型参数
+      configObj = {
+        temperature: submitData.temperature,
+        maxTokens: submitData.maxTokens
+      };
+    } else {
+      // 其他模型参数 (暂无)
+      configObj = {};
     }
-  });
+    
+    // 清理提交数据中的临时字段 (temperature/maxTokens 虽然在 modelForm 中，但后端可能不需要直接接收，而是通过 config)
+    submitData.config = JSON.stringify(configObj);
+
+    const { error } = await api(submitData);
+    if (!error) {
+      message.success(type.value === 'add' ? '新增成功' : '修改成功');
+      show.value = false;
+      emit('success');
+    }
+  } catch (err) {
+    // 校验失败或请求失败
+    console.error('Submit failed:', err);
+  } finally {
+    loading.value = false;
+  }
 }
 
 defineExpose({ open });
@@ -238,6 +243,8 @@ defineExpose({ open });
   <NModal
     v-model:show="show"
     preset="card"
+    :auto-focus="false"
+    :mask-closable="false"
     :title="type === 'add' ? '新增模型' : '编辑模型'"
     class="w-650px rounded-12px"
     :segmented="{ content: true, action: true }"
@@ -253,8 +260,12 @@ defineExpose({ open });
                 <NRadioButton value="2">本地模型</NRadioButton>
               </NRadioGroup>
             </NFormItem>
+            <NFormItem label="模型名称" path="modelName">
+              <NInput v-model:value="modelForm.modelName" placeholder="如：千问Max，方便记忆" />
+            </NFormItem>
             <NFormItem label="供应商" path="providerId">
               <NSelect
+                :key="modelForm.modelSource"
                 v-model:value="modelForm.providerId"
                 :options="filteredProviders"
                 label-field="providerName"
@@ -263,9 +274,6 @@ defineExpose({ open });
                 filterable
                 clearable
               />
-            </NFormItem>
-            <NFormItem label="模型名称" path="modelName">
-              <NInput v-model:value="modelForm.modelName" placeholder="如：GPT-4o" />
             </NFormItem>
             <NFormItem label="模型类型" path="modelType">
               <NSelect
@@ -288,7 +296,7 @@ defineExpose({ open });
             <NFormItem label="API Key" path="apiKey">
               <div class="flex flex-col w-full gap-1">
                 <NInput v-model:value="modelForm.apiKey" type="password" show-password-on="click" placeholder="请输入 API Key" />
-                <div v-if="selectedProvider?.siteUrl" class="flex items-center gap-1 text-xs text-gray-500">
+                <div v-if="selectedProvider?.siteUrl && modelForm.modelSource === '1' " class="flex items-center gap-1 text-xs text-gray-500">
                   <span class="i-carbon-information" />
                   <span>没有 API Key？前往</span>
                   <a :href="selectedProvider.siteUrl" target="_blank" class="text-primary hover:underline flex items-center gap-0.5">
@@ -300,7 +308,7 @@ defineExpose({ open });
               </div>
             </NFormItem>
             <NFormItem label="API Base" path="apiBase">
-              <NInput v-model:value="modelForm.apiBase" placeholder="可选，留空使用供应商默认值" />
+              <NInput v-model:value="modelForm.apiBase" :placeholder="modelForm.modelSource === '1' ? '可选，留空使用供应商默认值' : '请填写本地部署的大模型的 API Base 地址'" />
             </NFormItem>
             <NFormItem label="状态">
               <NSwitch v-model:value="modelForm.status" checked-value="0" unchecked-value="1">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { fetchModelProviders } from '@/service/api/ai';
+import SvgIcon from '@/components/custom/svg-icon.vue';
 
 // 定义事件
 const emit = defineEmits(['select']);
@@ -77,7 +78,7 @@ onMounted(() => {
           <NTab name="0" tab="全部">
             <template #default>
               <div class="flex items-center gap-2">
-                <div class="i-carbon-model-alt text-lg" />
+                <SvgIcon icon="carbon:grid" class="text-lg" />
                 <span>全部</span>
               </div>
             </template>
@@ -85,7 +86,7 @@ onMounted(() => {
           <NTab name="1" tab="公用">
             <template #default>
               <div class="flex items-center gap-2">
-                <div class="i-carbon-cloud text-lg" />
+                <SvgIcon icon="carbon:cloud" class="text-lg" />
                 <span>公用</span>
               </div>
             </template>
@@ -93,7 +94,7 @@ onMounted(() => {
           <NTab name="2" tab="本地">
             <template #default>
               <div class="flex items-center gap-2">
-                <div class="i-carbon-server text-lg" />
+                <SvgIcon icon="carbon:laptop" class="text-lg" />
                 <span>本地</span>
               </div>
             </template>
@@ -118,7 +119,9 @@ onMounted(() => {
                 <div class="font-bold text-sm truncate">{{ item.providerName }}</div>
                 <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div>
               </div>
-              <div v-if="activeId === item.providerId" class="i-carbon-chevron-right text-primary text-base animate-fade-in"></div>
+              <div v-if="activeId === item.providerId" class="text-primary text-base animate-fade-in text-lg">
+                <SvgIcon icon="carbon:chevron-right" />
+              </div>
             </div>
           </NListItem>
         </NList>
