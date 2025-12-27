@@ -2,6 +2,7 @@
 import { reactive, ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useMessage } from 'naive-ui';
 import { addModel, updateModel, fetchModelProviders, testModelConnection } from '@/service/api/ai';
+import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
 
 const emit = defineEmits(['success']);
 
@@ -78,6 +79,13 @@ watch(() => modelForm.modelSource, (newVal, oldVal) => {
 watch(() => modelForm.modelType, () => {
   if (isInitializing.value) return;
   // 当模型类型改变时,清空已选择的基础模型
+  modelForm.modelKey = '';
+});
+
+// 监听供应商变化,自动清空基础模型
+watch(() => modelForm.providerId, () => {
+  if (isInitializing.value) return;
+  // 当供应商改变时,清空已选择的基础模型
   modelForm.modelKey = '';
 });
 
@@ -246,18 +254,19 @@ defineExpose({ open });
     :auto-focus="false"
     :mask-closable="false"
     :title="type === 'add' ? '新增模型' : '编辑模型'"
-    class="w-650px rounded-12px"
+    class="w-650px rounded-8px"
     :segmented="{ content: true, action: true }"
   >
     <NForm ref="formRef" :model="modelForm" :rules="rules" label-placement="left" label-width="100">
       <NTabs type="line" animated>
         <NTabPane name="basic" tab="基础设置">
-          <!-- ... omitted ... -->
-          <div class="pt-4 flex flex-col">
+          <!-- 基础设置表单 -->
+          <div class="pt-4 flex flex-col min-h-[580px] pr-3">
             <NFormItem label="模型来源" path="modelSource">
               <NRadioGroup v-model:value="modelForm.modelSource" :disabled="isSourceLocked">
-                <NRadioButton value="1">公有模型</NRadioButton>
-                <NRadioButton value="2">本地模型</NRadioButton>
+                <NRadioButton v-for="option in aiProviderTypeOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </NRadioButton>
               </NRadioGroup>
             </NFormItem>
             <NFormItem label="模型名称" path="modelName">
@@ -278,10 +287,7 @@ defineExpose({ open });
             <NFormItem label="模型类型" path="modelType">
               <NSelect
                 v-model:value="modelForm.modelType"
-                :options="[
-                  { label: '语言模型 (LLM)', value: '1' },
-                  { label: '向量模型 (Embedding)', value: '2' }
-                ]"
+                :options="aiModelTypeOptions"
               />
             </NFormItem>
             <NFormItem label="基础模型" path="modelKey">
@@ -319,7 +325,7 @@ defineExpose({ open });
           </div>
         </NTabPane>
         <NTabPane name="advanced" tab="高级参数">
-          <div class="pt-4 flex flex-col h-480px">
+          <div class="pt-4 flex flex-col min-h-[580px] pr-3">
             <!-- 语言模型参数 (Type 1) -->
             <template v-if="modelForm.modelType === '1'">
               <NFormItem label="最大 Token" path="maxTokens">
@@ -346,7 +352,10 @@ defineExpose({ open });
       <div class="flex justify-end gap-2 w-full">
         <div class="flex-1">
            <NButton secondary :loading="testingConnection" @click="handleTestConnection">
-             <template #icon><span class="i-carbon-connection-signal" /></template>
+             <!-- <template #icon><span class="i-carbon-network-overlay" /></template> -->
+              <template #icon>
+             <SvgIcon icon="carbon:network-overlay" />
+             </template>  
              测试连接
            </NButton>
         </div>
@@ -358,3 +367,4 @@ defineExpose({ open });
 </template>
 
 <style scoped></style>
+

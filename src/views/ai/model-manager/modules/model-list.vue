@@ -3,6 +3,7 @@ import { computed, ref, watch, h } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import { fetchModels, deleteModels } from '@/service/api/ai';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
 import ModelModal from './model-modal.vue';
 
 interface Props {
@@ -83,52 +84,41 @@ function handleDelete(item: Api.AI.Model) {
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <!-- <NInput v-model:value="searchText" placeholder="搜索模型名称或基础模型" clearable class="w-60">
-          <template #prefix>
-            <div class="i-carbon-search"></div>
-          </template>
-        </NInput> -->
-      </div>
-      <NButton type="primary" @click="handleAdd">
-        <template #icon>
-          <SvgIcon icon="carbon:add" />
-        </template>
-        新增模型
-      </NButton>
-    </div>
+  <div class="h-full">
+    <NCard
+      :bordered="false"
+      size="small"
+      title="模型列表"
+      class="h-full card-wrapper"
+      content-class="flex flex-col h-full overflow-hidden"
+    >
+      <template #header-extra>
+        <div class="flex items-center gap-3">
+          <!-- <NInput v-model:value="searchText" placeholder="搜索模型名称或基础模型" clearable size="small" class="w-60">
+            <template #prefix>
+              <div class="i-carbon-search"></div>
+            </template>
+          </NInput> -->
+          <NButton type="primary" ghost size="small" @click="handleAdd">
+            <template #icon>
+              <SvgIcon icon="carbon:add" />
+            </template>
+            新增模型
+          </NButton>
+        </div>
+      </template>
 
-    <NSpin :show="loading" class="flex-1 min-h-0">
-      <NScrollbar class="h-full pr-2">
-        <NEmpty v-if="filteredModels.length === 0" description="暂无模型数据" class="mt-20" />
-        <NGrid v-else cols="1 s:1 m:2 l:3" x-gap="16" y-gap="16" responsive="screen">
-          <NGi v-for="item in filteredModels" :key="item.modelId">
-            <NCard
-              hoverable
-              class="rounded-md shadow-sm transition-all duration-300 hover:shadow-md border-gray-100 dark:border-gray-800"
-              content-style="padding: 16px;"
-            >
-              <div class="flex flex-col gap-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="flex-center w-8 h-8 flex-shrink-0">
-                      <img v-if="item.providerIcon" :src="item.providerIcon" class="w-full h-full object-contain" :alt="item.modelName" />
-                      <SvgIcon v-else :icon="item.modelType === '1' ? 'carbon:chat' : 'carbon:data-blob'" class="text-primary text-2xl" />
-                    </div>
-                    <div>
-                      <div class="font-bold text-base leading-tight">{{ item.modelName }}</div>
-                      <div class="flex items-center gap-2 mt-1.5">
-                        <NTag :type="item.modelType === '1' ? 'info' : 'success'" size="small" bordered>
-                          {{ item.modelType === '1' ? '语言模型' : '向量模型' }}
-                        </NTag>
-                        <NTag :type="item.modelSource === '1' ? 'warning' : 'info'" size="small" bordered>
-                          {{ item.modelSource === '1' ? '公有' : '本地' }}
-                        </NTag>
-                      </div>
-                    </div>
-                  </div>
+      <NSpin :show="loading" class="flex-1 min-h-0">
+        <NScrollbar class="h-full" content-class="p-4">
+          <NEmpty v-if="filteredModels.length === 0" description="暂无模型数据" class="mt-20" />
+          <NGrid v-else cols="1 s:1 m:2 l:3" x-gap="16" y-gap="16" responsive="screen">
+            <NGi v-for="item in filteredModels" :key="item.modelId">
+              <NCard
+                :bordered="false"
+                class="group relative rounded-lg !border !border-solid !border-gray-300 dark:!border-gray-700 bg-gray-50 dark:bg-white/5 shadow-[0_4px_10px_0_rgba(0,0,0,0.1)]"
+                content-class="p-4"
+              >
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                   <NDropdown
                     trigger="click"
                     :options="[
@@ -145,30 +135,52 @@ function handleDelete(item: Api.AI.Model) {
                   </NDropdown>
                 </div>
 
-                <div class="text-sm flex flex-col gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/50">
-                  <div class="flex items-center justify-between">
-                    <span class="text-gray-400">基础模型</span>
-                    <span class="font-mono text-xs text-gray-600 dark:text-gray-300">{{ item.modelKey }}</span>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-gray-400">状态</span>
-                    <div class="flex items-center gap-1.5">
-                      <div :class="item.status === '0' ? 'bg-success' : 'bg-gray-400'" class="w-1.5 h-1.5 rounded-full"></div>
-                      <span :class="item.status === '0' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'">
-                        {{ item.status === '0' ? '启用' : '禁用' }}
-                      </span>
+                <div class="flex flex-col gap-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="flex-center w-12 h-12 flex-shrink-0">
+                        <img v-if="item.providerIcon" :src="item.providerIcon" class="h-full w-auto object-contain" :alt="item.modelName" />
+                        <!-- <SvgIcon v-else :icon="item.modelType === '1' ? 'carbon:chat' : 'carbon:data-blob'" class="text-primary text-2xl" /> -->
+                      </div>
+                      <div>
+                        <div class="font-bold text-base leading-tight">{{ item.modelName }}</div>
+                        <div class="flex items-center gap-2 mt-1.5">
+                          <NTag type='default' size="small" bordered>
+                            {{ aiModelTypeRecord[item.modelType] }}
+                          </NTag>
+                          <NTag type='default'  size="small" bordered>
+                            {{ aiProviderTypeRecord[item.modelSource] }}
+                          </NTag>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="truncate text-xs text-gray-400" v-if="item.apiBase">
-                    {{ item.apiBase }}
+
+                  <div class="text-sm flex flex-col gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/50">
+                    <div class="flex items-center justify-start gap-4">
+                      <span class="text-gray-400 flex-shrink-0">基础模型</span>
+                      <span class="font-mono text-xs text-gray-600 dark:text-gray-300 truncate" :title="item.modelKey">{{ item.modelKey }}</span>
+                    </div>
+                    <div class="flex items-center justify-start gap-4">
+                      <span class="text-gray-400 flex-shrink-0">状&emsp;态&emsp;</span>
+                      <div class="flex items-center gap-1.5">
+                        <div :class="item.status === '0' ? 'bg-success' : 'bg-gray-400'" class="w-1.5 h-1.5 rounded-full"></div>
+                        <span :class="item.status === '0' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'">
+                          {{ item.status === '0' ? '启用' : '禁用' }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="truncate text-xs text-gray-400" v-if="item.apiBase">
+                      {{ item.apiBase }}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </NCard>
-          </NGi>
-        </NGrid>
-      </NScrollbar>
-    </NSpin>
+              </NCard>
+            </NGi>
+          </NGrid>
+        </NScrollbar>
+      </NSpin>
+    </NCard>
 
     <ModelModal ref="modalRef" @success="loadModels" />
   </div>
@@ -180,3 +192,4 @@ function handleDelete(item: Api.AI.Model) {
   overflow: hidden;
 }
 </style>
+

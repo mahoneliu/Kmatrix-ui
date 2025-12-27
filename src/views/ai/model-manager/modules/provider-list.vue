@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { fetchModelProviders } from '@/service/api/ai';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import { aiProviderTypeRecord } from '@/constants/business';
 
 // 定义事件
 const emit = defineEmits(['select']);
@@ -9,7 +10,7 @@ const emit = defineEmits(['select']);
 const providers = ref<Api.AI.ModelProvider[]>([]);
 const loading = ref(false);
 const activeId = ref<number | null>(null);
-const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=公用, '2'=本地
+const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=aiProviderTypeRecord['1'], '2'=aiProviderTypeRecord['2']
 
 // 根据当前 Tab 过滤供应商
 const filteredProviders = computed(() => {
@@ -71,50 +72,47 @@ onMounted(() => {
 </script>
 
 <template>
-  <NCard class="h-full rounded-md shadow-sm flex flex-col" content-style="padding: 0; flex: 1; min-height: 0; display: flex; flex-direction: column;">
-    <template #header>
-      <div class="px-2">
-        <NTabs v-model:value="activeTab" type="segment" @update:value="handleTabChange" class="w-full">
-          <NTab name="0" tab="全部">
-            <template #default>
-              <div class="flex items-center gap-2">
-                <SvgIcon icon="carbon:grid" class="text-lg" />
-                <span>全部</span>
-              </div>
-            </template>
-          </NTab>
-          <NTab name="1" tab="公用">
-            <template #default>
-              <div class="flex items-center gap-2">
-                <SvgIcon icon="carbon:cloud" class="text-lg" />
-                <span>公用</span>
-              </div>
-            </template>
-          </NTab>
-          <NTab name="2" tab="本地">
-            <template #default>
-              <div class="flex items-center gap-2">
-                <SvgIcon icon="carbon:laptop" class="text-lg" />
-                <span>本地</span>
-              </div>
-            </template>
-          </NTab>
-        </NTabs>
-      </div>
-    </template>
+  <div class="h-full flex flex-col gap-2">
+    <NTabs v-model:value="activeTab" type="segment" @update:value="handleTabChange" class="w-full">
+      <NTab name="0" tab="全部">
+        <template #default>
+          <div class="flex items-center gap-2">
+            <SvgIcon icon="carbon:grid" class="text-xs" />
+            <span>全部</span>
+          </div>
+        </template>
+      </NTab>
+      <NTab name="1" :tab="aiProviderTypeRecord['1']">
+        <template #default>
+          <div class="flex items-center gap-2">
+            <SvgIcon icon="carbon:cloud" class="text-xs" />
+            <span>{{ aiProviderTypeRecord['1'] }}</span>
+          </div>
+        </template>
+      </NTab>
+      <NTab name="2" :tab="aiProviderTypeRecord['2']">
+        <template #default>
+          <div class="flex items-center gap-2">
+            <SvgIcon icon="carbon:laptop" class="text-xs" />
+            <span>{{ aiProviderTypeRecord['2'] }}</span>
+          </div>
+        </template>
+      </NTab>
+    </NTabs>
 
-    <NSpin :show="loading" class="flex-1 h-full overflow-hidden" content-class="h-full">
+    <NSpin :show="loading" class="flex-1 overflow-hidden" content-class="h-full">
       <NScrollbar class="h-full">
         <NEmpty v-if="filteredProviders.length === 0" description="暂无供应商" class="mt-20" />
         <NList v-else hoverable clickable>
           <NListItem
             v-for="item in filteredProviders"
             :key="item.providerId"
+            class="rounded-none"
             :class="{ 'bg-primary/10!': activeId === item.providerId }"
             @click="handleSelect(item.providerId)"
           >
-            <div class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-300">
-              <img :src="item.iconUrl" class="w-6 h-6 object-contain" :alt="item.providerName" />
+            <div class="flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors duration-300">
+              <img :src="item.iconUrl" class="w-5 h-5 object-contain" :alt="item.providerName" />
               <div class="flex-1 overflow-hidden">
                 <div class="font-bold text-sm truncate">{{ item.providerName }}</div>
                 <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div>
@@ -127,15 +125,12 @@ onMounted(() => {
         </NList>
       </NScrollbar>
     </NSpin>
-  </NCard>
+  </div>
 </template>
 
 <style scoped>
 :deep(.n-list-item) {
   padding: 0 !important;
-}
-
-:deep(.n-card-header) {
-  padding: 16px 16px 12px !important;
+  border-radius: 0 !important;
 }
 </style>

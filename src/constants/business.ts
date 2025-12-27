@@ -135,4 +135,43 @@ export const dataScopeRecord: Record<Api.System.DataScope, string> = {
   '6': '部门及以下或本人数据权限'
 };
 
+
 export const dataScopeOptions = transformRecordToOption(dataScopeRecord);
+
+/** ai provider type */
+export const aiProviderTypeRecord: Record<string, string> = {
+  '1': '公有',
+  '2': '本地'
+};
+
+export const aiProviderTypeOptions = transformRecordToOption(aiProviderTypeRecord);
+
+/** ai model type */
+export const aiModelTypeRecord: Record<string, string> = {
+  '1': '语言模型',
+  '2': '向量模型',
+  '3': '多路召回',
+  '4': '语音模型',
+  '5': '图像模型',
+  '6': '视频模型'
+};
+
+export const aiModelTypeOptions = transformRecordToOption(aiModelTypeRecord);
+
+/** ai app type */
+export const aiAppTypeRecord: Record<string, string> = {
+  '1': '对话',
+  '2': '工作流',
+  '3': '智能体'
+};
+
+export const aiAppTypeOptions = transformRecordToOption(aiAppTypeRecord);
+
+/** ai document status */
+export const aiDocumentStatusRecord: Record<string, string> = {
+  '0': '解析中',
+  '1': '完成',
+  '2': '失败'
+};
+
+export const aiDocumentStatusOptions = transformRecordToOption(aiDocumentStatusRecord);

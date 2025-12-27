@@ -13,17 +13,15 @@ function handleSelectProvider(data: { id: number | null; type: '1' | '2' | null 
 </script>
 
 <template>
-  <div class="h-full flex gap-4 overflow-hidden">
+  <TableSiderLayout default-expanded sider-title="供应商列表">
     <!-- 左侧供应商列表 -->
-    <div class="w-64 flex-shrink-0">
+    <template #sider>
       <ProviderList @select="handleSelectProvider" />
-    </div>
+    </template>
 
     <!-- 右侧模型列表 -->
-    <div class="flex-1 overflow-hidden">
-      <ModelList :provider-id="currentProviderId" :provider-type="currentProviderType" />
-    </div>
-  </div>
+    <ModelList :provider-id="currentProviderId" :provider-type="currentProviderType" />
+  </TableSiderLayout>
 </template>
 
 <style scoped></style>
