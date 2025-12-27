@@ -112,7 +112,7 @@ onMounted(() => {
             @click="handleSelect(item.providerId)"
           >
             <div class="flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors duration-300">
-              <img :src="item.iconUrl" class="w-5 h-5 object-contain" :alt="item.providerName" />
+              <img :src="item.iconUrl" class="w-9 h-9 object-contain" :alt="item.providerName" />
               <div class="flex-1 overflow-hidden">
                 <div class="font-bold text-sm truncate">{{ item.providerName }}</div>
                 <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div>

@@ -88,7 +88,7 @@ function handleDelete(item: Api.AI.Model) {
     <NCard
       :bordered="false"
       size="small"
-      title="模型列表"
+      title="模型"
       class="h-full card-wrapper"
       content-class="flex flex-col h-full overflow-hidden"
     >
@@ -115,10 +115,10 @@ function handleDelete(item: Api.AI.Model) {
             <NGi v-for="item in filteredModels" :key="item.modelId">
               <NCard
                 :bordered="false"
-                class="group relative rounded-lg !border !border-solid !border-gray-300 dark:!border-gray-700 bg-gray-50 dark:bg-white/5 shadow-[0_4px_10px_0_rgba(0,0,0,0.1)]"
+                class="group relative rounded-lg !border !border-solid !border-gray-300 dark:!border-gray-700 dark:bg-white/5 shadow-[0_4px_10px_0_rgba(0,0,0,0.1)]"
                 content-class="p-4"
               >
-                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                   <NDropdown
                     trigger="click"
                     :options="[

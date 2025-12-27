@@ -13,7 +13,7 @@ function handleSelectProvider(data: { id: number | null; type: '1' | '2' | null 
 </script>
 
 <template>
-  <TableSiderLayout default-expanded sider-title="供应商列表">
+  <TableSiderLayout default-expanded sider-title="供应商">
     <!-- 左侧供应商列表 -->
     <template #sider>
       <ProviderList @select="handleSelectProvider" />
