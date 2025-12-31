@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch, h } from 'vue';
-import { useMessage, useDialog } from 'naive-ui';
-import { fetchModels, deleteModels } from '@/service/api/ai';
-import SvgIcon from '@/components/custom/svg-icon.vue';
+import { computed, h, ref, watch } from 'vue';
+import { useDialog, useMessage } from 'naive-ui';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
+import { deleteModels, fetchModels } from '@/service/api/ai';
+import SvgIcon from '@/components/custom/svg-icon.vue';
 import ModelModal from './model-modal.vue';
 
 interface Props {
-  providerId: number | null;
+  providerId: CommonType.IdType | null;
   providerType: '1' | '2' | null;
 }
 
@@ -22,9 +22,10 @@ const searchText = ref('');
 
 const filteredModels = computed(() => {
   if (!searchText.value) return models.value;
-  return models.value.filter(m => 
-    m.modelName.toLowerCase().includes(searchText.value.toLowerCase()) ||
-    m.modelKey.toLowerCase().includes(searchText.value.toLowerCase())
+  return models.value.filter(
+    m =>
+      m.modelName.toLowerCase().includes(searchText.value.toLowerCase()) ||
+      m.modelKey.toLowerCase().includes(searchText.value.toLowerCase())
   );
 });
 
@@ -46,14 +47,21 @@ async function loadModels() {
   loading.value = false;
 }
 
-watch(() => props.providerId, () => {
-  loadModels();
-}, { immediate: true });
+watch(
+  () => props.providerId,
+  () => {
+    loadModels();
+  },
+  { immediate: true }
+);
 
 // 监听 providerType 变化也需要重新加载，因为切换Tab但不选供应商时 providerId 都是 null
-watch(() => props.providerType, () => {
-  loadModels();
-});
+watch(
+  () => props.providerType,
+  () => {
+    loadModels();
+  }
+);
 
 // 弹窗相关
 const modalRef = ref<InstanceType<typeof ModelModal> | null>(null);
@@ -73,7 +81,7 @@ function handleDelete(item: Api.AI.Model) {
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: async () => {
-      const { error } = await deleteModels([item.modelId]);
+      const { error } = await deleteModels([Number(item.modelId)]);
       if (!error) {
         message.success('删除成功');
         loadModels();
@@ -94,11 +102,13 @@ function handleDelete(item: Api.AI.Model) {
     >
       <template #header-extra>
         <div class="flex items-center gap-3">
-          <!-- <NInput v-model:value="searchText" placeholder="搜索模型名称或基础模型" clearable size="small" class="w-60">
+          <!--
+ <NInput v-model:value="searchText" placeholder="搜索模型名称或基础模型" clearable size="small" class="w-60">
             <template #prefix>
               <div class="i-carbon-search"></div>
             </template>
-          </NInput> -->
+          </NInput>
+-->
           <NButton type="primary" ghost size="small" @click="handleAdd">
             <template #icon>
               <SvgIcon icon="carbon:add" />
@@ -108,24 +118,31 @@ function handleDelete(item: Api.AI.Model) {
         </div>
       </template>
 
-      <NSpin :show="loading" class="flex-1 min-h-0">
+      <NSpin :show="loading" class="min-h-0 flex-1">
         <NScrollbar class="h-full" content-class="p-4">
           <NEmpty v-if="filteredModels.length === 0" description="暂无模型数据" class="mt-20" />
           <NGrid v-else cols="1 s:1 m:2 l:3" x-gap="16" y-gap="16" responsive="screen">
             <NGi v-for="item in filteredModels" :key="item.modelId">
               <NCard
                 :bordered="false"
-                class="group relative rounded-lg !border !border-solid !border-gray-300 dark:!border-gray-700 dark:bg-white/5 shadow-[0_4px_10px_0_rgba(0,0,0,0.1)]"
+                class="group relative rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] !border !border-gray-300 !border-solid dark:bg-white/5 dark:!border-gray-700"
                 content-class="p-4"
               >
-                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                <div
+                  class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                >
                   <NDropdown
                     trigger="click"
                     :options="[
                       { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { icon: 'carbon:edit' }) },
-                      { label: '删除', key: 'delete', icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }), labelProps: { class: 'text-error' } }
+                      {
+                        label: '删除',
+                        key: 'delete',
+                        icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
+                        labelProps: { class: 'text-error' }
+                      }
                     ]"
-                    @select="(key) => key === 'edit' ? handleEdit(item) : handleDelete(item)"
+                    @select="key => (key === 'edit' ? handleEdit(item) : handleDelete(item))"
                   >
                     <NButton quaternary size="small" class="text-gray-500 hover:text-primary">
                       <template #icon>
@@ -138,17 +155,22 @@ function handleDelete(item: Api.AI.Model) {
                 <div class="flex flex-col gap-4">
                   <div class="flex items-start justify-between">
                     <div class="flex items-center gap-3">
-                      <div class="flex-center w-12 h-12 flex-shrink-0">
-                        <img v-if="item.providerIcon" :src="item.providerIcon" class="h-full w-auto object-contain" :alt="item.modelName" />
+                      <div class="h-12 w-12 flex-center flex-shrink-0">
+                        <img
+                          v-if="item.providerIcon"
+                          :alt="item.modelName"
+                          :src="item.providerIcon"
+                          class="h-full w-auto object-contain"
+                        />
                         <!-- <SvgIcon v-else :icon="item.modelType === '1' ? 'carbon:chat' : 'carbon:data-blob'" class="text-primary text-2xl" /> -->
                       </div>
                       <div>
-                        <div class="font-bold text-base leading-tight">{{ item.modelName }}</div>
-                        <div class="flex items-center gap-2 mt-1.5">
-                          <NTag type='default' size="small" bordered>
+                        <div class="text-base font-bold leading-tight">{{ item.modelName }}</div>
+                        <div class="mt-1.5 flex items-center gap-2">
+                          <NTag bordered size="small" type="default">
                             {{ aiModelTypeRecord[item.modelType] }}
                           </NTag>
-                          <NTag type='default'  size="small" bordered>
+                          <NTag bordered size="small" type="default">
                             {{ aiProviderTypeRecord[item.modelSource] }}
                           </NTag>
                         </div>
@@ -156,21 +178,26 @@ function handleDelete(item: Api.AI.Model) {
                     </div>
                   </div>
 
-                  <div class="text-sm flex flex-col gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/50">
+                  <div class="flex flex-col gap-2 border-t border-gray-100 pt-2 text-sm dark:border-gray-800/50">
                     <div class="flex items-center justify-start gap-4">
-                      <span class="text-gray-400 flex-shrink-0">基础模型</span>
-                      <span class="font-mono text-xs text-gray-600 dark:text-gray-300 truncate" :title="item.modelKey">{{ item.modelKey }}</span>
+                      <span class="flex-shrink-0 text-gray-400">基础模型</span>
+                      <span :title="item.modelKey" class="truncate text-xs text-gray-600 font-mono dark:text-gray-300">
+                        {{ item.modelKey }}
+                      </span>
                     </div>
                     <div class="flex items-center justify-start gap-4">
-                      <span class="text-gray-400 flex-shrink-0">状&emsp;态&emsp;</span>
+                      <span class="flex-shrink-0 text-gray-400">状&emsp;态&emsp;</span>
                       <div class="flex items-center gap-1.5">
-                        <div :class="item.status === '0' ? 'bg-success' : 'bg-gray-400'" class="w-1.5 h-1.5 rounded-full"></div>
+                        <div
+                          :class="item.status === '0' ? 'bg-success' : 'bg-gray-400'"
+                          class="h-1.5 w-1.5 rounded-full"
+                        ></div>
                         <span :class="item.status === '0' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'">
                           {{ item.status === '0' ? '启用' : '禁用' }}
                         </span>
                       </div>
                     </div>
-                    <div class="truncate text-xs text-gray-400" v-if="item.apiBase">
+                    <div v-if="item.apiBase" class="truncate text-xs text-gray-400">
                       {{ item.apiBase }}
                     </div>
                   </div>
@@ -192,4 +219,3 @@ function handleDelete(item: Api.AI.Model) {
   overflow: hidden;
 }
 </style>
-

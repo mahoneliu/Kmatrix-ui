@@ -3,10 +3,10 @@ import { ref } from 'vue';
 import ProviderList from './modules/provider-list.vue';
 import ModelList from './modules/model-list.vue';
 
-const currentProviderId = ref<number | null>(null);
+const currentProviderId = ref<CommonType.IdType | null>(null);
 const currentProviderType = ref<'1' | '2' | null>('1');
 
-function handleSelectProvider(data: { id: number | null; type: '1' | '2' | null }) {
+function handleSelectProvider(data: { id: CommonType.IdType | null; type: '1' | '2' | null }) {
   currentProviderId.value = data.id;
   currentProviderType.value = data.type;
 }

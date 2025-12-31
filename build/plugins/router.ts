@@ -27,7 +27,7 @@ export function setupElegantRouter() {
     onRouteMetaGen(routeName) {
       const key = routeName as RouteKey;
 
-      const constantRoutes: RouteKey[] = ['login', '403', '404', '500'];
+      const constantRoutes: RouteKey[] = ['login', '403', '404', '500', 'ai_chat', 'ai_app-manager_workflow'];
 
       const meta: Partial<RouteMeta> = {
         title: key,

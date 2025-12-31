@@ -303,7 +303,10 @@ const local: App.I18n.Schema = {
     tool_gen: 'Code Generation',
     about: 'About',
     ai: 'AI',
-    'ai_model-manager': 'Model Manager'
+    'ai_model-manager': 'Model Manager',
+    'ai_app-manager': 'App Manager',
+    'ai_app-manager_workflow': 'Workflow',
+    ai_chat: 'AI Chat'
   },
   menu: {
     system_tenant: 'Tenant Management',

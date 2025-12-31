@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { aiProviderTypeRecord } from '@/constants/business';
 import { fetchModelProviders } from '@/service/api/ai';
 import SvgIcon from '@/components/custom/svg-icon.vue';
-import { aiProviderTypeRecord } from '@/constants/business';
 
 // 定义事件
-const emit = defineEmits(['select']);
+const emit = defineEmits<{
+  (e: 'select', payload: { id: CommonType.IdType | null; type: '1' | '2' | null }): void;
+}>();
 
 const providers = ref<Api.AI.ModelProvider[]>([]);
 const loading = ref(false);
-const activeId = ref<number | null>(null);
+const activeId = ref<CommonType.IdType | null>(null);
 const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=aiProviderTypeRecord['1'], '2'=aiProviderTypeRecord['2']
 
 // 根据当前 Tab 过滤供应商
@@ -31,11 +33,11 @@ async function loadProviders() {
   loading.value = false;
 }
 
-function handleSelect(id: number | null) {
+function handleSelect(id: CommonType.IdType | null) {
   activeId.value = id;
   // 计算要传递的 type
   let type: '1' | '2' | null = null;
-  
+
   if (id) {
     // 如果选中了供应商，优先使用供应商的类型
     const provider = providers.value.find(p => p.providerId === id);
@@ -46,7 +48,7 @@ function handleSelect(id: number | null) {
     // 如果没选中供应商，使用当前 Tab 的类型 (全部模型Tab对应null)
     type = activeTab.value === '0' ? null : (activeTab.value as '1' | '2');
   }
-  
+
   emit('select', { id, type });
 }
 
@@ -56,16 +58,6 @@ function handleTabChange(value: '0' | '1' | '2') {
   handleSelect(null);
 }
 
-// 解析 models JSON 字符串为数组
-function parseModels(modelsJson: string | undefined): string[] {
-  if (!modelsJson) return [];
-  try {
-    return JSON.parse(modelsJson);
-  } catch {
-    return [];
-  }
-}
-
 onMounted(() => {
   loadProviders();
 });
@@ -73,7 +65,7 @@ onMounted(() => {
 
 <template>
   <div class="h-full flex flex-col gap-2">
-    <NTabs v-model:value="activeTab" type="segment" @update:value="handleTabChange" class="w-full">
+    <NTabs v-model:value="activeTab" class="w-full" type="segment" @update:value="handleTabChange">
       <NTab name="0" tab="全部">
         <template #default>
           <div class="flex items-center gap-2">
@@ -92,7 +84,7 @@ onMounted(() => {
       </NTab>
       <NTab name="2" :tab="aiProviderTypeRecord['2']">
         <template #default>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap2">
             <SvgIcon icon="carbon:laptop" class="text-xs" />
             <span>{{ aiProviderTypeRecord['2'] }}</span>
           </div>
@@ -100,37 +92,30 @@ onMounted(() => {
       </NTab>
     </NTabs>
 
-    <NSpin :show="loading" class="flex-1 overflow-hidden" content-class="h-full">
+    <NSpin :show="loading" class="flex-1 overflow-hidden py-1" content-class="h-full">
       <NScrollbar class="h-full">
         <NEmpty v-if="filteredProviders.length === 0" description="暂无供应商" class="mt-20" />
-        <NList v-else hoverable clickable>
-          <NListItem
+        <div v-else class="flex flex-col">
+          <div
             v-for="item in filteredProviders"
             :key="item.providerId"
-            class="rounded-none"
+            class="transition-colors duration-300 hover:bg-primary/5"
             :class="{ 'bg-primary/10!': activeId === item.providerId }"
             @click="handleSelect(item.providerId)"
           >
-            <div class="flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors duration-300">
-              <img :src="item.iconUrl" class="w-9 h-9 object-contain" :alt="item.providerName" />
+            <div class="flex cursor-pointer items-center gap-3 px-3 py-3">
+              <img :alt="item.providerName" :src="item.iconUrl" class="h-5 w-5 object-contain" />
               <div class="flex-1 overflow-hidden">
-                <div class="font-bold text-sm truncate">{{ item.providerName }}</div>
-                <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div>
+                <div class="truncate text-sm font-bold">{{ item.providerName }}</div>
+                <!-- <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div> -->
               </div>
-              <div v-if="activeId === item.providerId" class="text-primary text-base animate-fade-in text-lg">
+              <div v-if="activeId === item.providerId" class="animate-fade-in text-base text-lg text-primary">
                 <SvgIcon icon="carbon:chevron-right" />
               </div>
             </div>
-          </NListItem>
-        </NList>
+          </div>
+        </div>
       </NScrollbar>
     </NSpin>
   </div>
 </template>
-
-<style scoped>
-:deep(.n-list-item) {
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-</style>

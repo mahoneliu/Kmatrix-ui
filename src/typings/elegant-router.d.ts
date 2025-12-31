@@ -26,6 +26,9 @@ declare module "@elegant-router/types" {
     "500": "/500";
     "about": "/about";
     "ai": "/ai";
+    "ai_app-manager": "/ai/app-manager";
+    "ai_app-manager_workflow": "/ai/app-manager/workflow";
+    "ai_chat": "/ai/chat";
     "ai_model-manager": "/ai/model-manager";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
@@ -130,6 +133,9 @@ declare module "@elegant-router/types" {
     | "social-callback"
     | "user-center"
     | "about"
+    | "ai_app-manager"
+    | "ai_app-manager_workflow"
+    | "ai_chat"
     | "ai_model-manager"
     | "demo_demo"
     | "demo_tree"

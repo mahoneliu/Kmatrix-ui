@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { reactive, ref, computed, watch, onMounted, nextTick } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
-import { addModel, updateModel, fetchModelProviders, testModelConnection } from '@/service/api/ai';
 import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
+import { addModel, fetchModelProviders, testModelConnection, updateModel } from '@/service/api/ai';
 
-const emit = defineEmits(['success']);
+const emit = defineEmits<{
+  (e: 'success'): void;
+}>();
 
 const message = useMessage();
 
@@ -59,35 +61,42 @@ const filteredProviders = computed(() => {
   return providers.value.filter(p => p.providerType === modelForm.modelSource);
 });
 
-
 // 计算当前选中的供应商
 const selectedProvider = computed(() => {
   return providers.value.find(p => p.providerId === modelForm.providerId);
 });
 
-
 // 监听模型来源变化，清空供应商和基础模型
-watch(() => modelForm.modelSource, (newVal, oldVal) => {
-  if (isInitializing.value) return;
-  if (newVal !== oldVal) {
-    modelForm.providerId = undefined;
-    modelForm.modelKey = '';
+watch(
+  () => modelForm.modelSource,
+  (newVal, oldVal) => {
+    if (isInitializing.value) return;
+    if (newVal !== oldVal) {
+      modelForm.providerId = undefined;
+      modelForm.modelKey = '';
+    }
   }
-});
+);
 
 // 监听模型类型变化,自动清空基础模型
-watch(() => modelForm.modelType, () => {
-  if (isInitializing.value) return;
-  // 当模型类型改变时,清空已选择的基础模型
-  modelForm.modelKey = '';
-});
+watch(
+  () => modelForm.modelType,
+  () => {
+    if (isInitializing.value) return;
+    // 当模型类型改变时,清空已选择的基础模型
+    modelForm.modelKey = '';
+  }
+);
 
 // 监听供应商变化,自动清空基础模型
-watch(() => modelForm.providerId, () => {
-  if (isInitializing.value) return;
-  // 当供应商改变时,清空已选择的基础模型
-  modelForm.modelKey = '';
-});
+watch(
+  () => modelForm.providerId,
+  () => {
+    if (isInitializing.value) return;
+    // 当供应商改变时,清空已选择的基础模型
+    modelForm.modelKey = '';
+  }
+);
 
 onMounted(() => {
   loadProviders();
@@ -109,7 +118,7 @@ const modelOptions = computed(() => {
           // 兼容旧格式(纯字符串数组),全部显示
           return typeof m === 'string';
         });
-        
+
         return filtered.map((m: any) => {
           if (typeof m === 'object') {
             return { label: m.modelKey, value: m.modelKey };
@@ -117,8 +126,8 @@ const modelOptions = computed(() => {
           return { label: m, value: m };
         });
       }
-    } catch (e) {
-      console.error('解析供应商模型列表失败', e);
+    } catch {
+      // ignore
     }
   }
   return [];
@@ -129,7 +138,7 @@ const modelOptions = computed(() => {
 async function open(modalType: 'add' | 'edit', data?: any) {
   isInitializing.value = true;
   type.value = modalType;
-  
+
   if (modalType === 'add') {
     // 基础初始化
     Object.assign(modelForm, {
@@ -142,7 +151,7 @@ async function open(modalType: 'add' | 'edit', data?: any) {
       status: '0',
       config: '{}',
       temperature: 0.7,
-      maxTokens: 2048,
+      maxTokens: 2048
     });
 
     // 单独处理 modelSource 以设置锁定状态
@@ -163,7 +172,6 @@ async function open(modalType: 'add' | 'edit', data?: any) {
     } else {
       modelForm.providerId = undefined;
     }
-    
   } else {
     isSourceLocked.value = true;
     const editData = { ...data };
@@ -171,13 +179,13 @@ async function open(modalType: 'add' | 'edit', data?: any) {
       try {
         const configObj = JSON.parse(editData.config);
         Object.assign(editData, configObj);
-      } catch (e) {
-        console.error('解析模型配置失败', e);
+      } catch {
+        // ignore
       }
     }
     Object.assign(modelForm, editData);
   }
-  
+
   // 使用 nextTick 确保 watcher 不会在初始化期间触发副作用
   await nextTick();
   isInitializing.value = false;
@@ -192,13 +200,13 @@ async function handleTestConnection() {
     message.warning('请先选择供应商和基础模型');
     return;
   }
-  
+
   testingConnection.value = true;
   try {
     const submitData = { ...modelForm };
     const { error, data } = await testModelConnection(submitData);
     if (!error) {
-       message.success(data || '连接测试成功');
+      message.success(data || '连接测试成功');
     }
   } finally {
     testingConnection.value = false;
@@ -207,13 +215,13 @@ async function handleTestConnection() {
 
 async function handleSubmit() {
   await formRef.value?.validate();
-  
+
   loading.value = true;
   try {
     const api = type.value === 'add' ? addModel : updateModel;
-    
+
     const submitData = { ...modelForm };
-    
+
     // 根据模型类型构建配置
     let configObj = {};
     if (modelForm.modelType === '1') {
@@ -226,7 +234,7 @@ async function handleSubmit() {
       // 其他模型参数 (暂无)
       configObj = {};
     }
-    
+
     // 清理提交数据中的临时字段 (temperature/maxTokens 虽然在 modelForm 中，但后端可能不需要直接接收，而是通过 config)
     submitData.config = JSON.stringify(configObj);
 
@@ -236,9 +244,9 @@ async function handleSubmit() {
       show.value = false;
       emit('success');
     }
-  } catch (err) {
+  } catch {
     // 校验失败或请求失败
-    console.error('Submit failed:', err);
+    // console.error('Submit failed:', err);
   } finally {
     loading.value = false;
   }
@@ -261,7 +269,7 @@ defineExpose({ open });
       <NTabs type="line" animated>
         <NTabPane name="basic" tab="基础设置">
           <!-- 基础设置表单 -->
-          <div class="pt-4 flex flex-col min-h-[580px] pr-3">
+          <div class="min-h-[580px] flex flex-col pr-3 pt-4">
             <NFormItem label="模型来源" path="modelSource">
               <NRadioGroup v-model:value="modelForm.modelSource" :disabled="isSourceLocked">
                 <NRadioButton v-for="option in aiProviderTypeOptions" :key="option.value" :value="option.value">
@@ -285,10 +293,7 @@ defineExpose({ open });
               />
             </NFormItem>
             <NFormItem label="模型类型" path="modelType">
-              <NSelect
-                v-model:value="modelForm.modelType"
-                :options="aiModelTypeOptions"
-              />
+              <NSelect v-model:value="modelForm.modelType" :options="aiModelTypeOptions" />
             </NFormItem>
             <NFormItem label="基础模型" path="modelKey">
               <NSelect
@@ -300,12 +305,25 @@ defineExpose({ open });
               />
             </NFormItem>
             <NFormItem label="API Key" path="apiKey">
-              <div class="flex flex-col w-full gap-1">
-                <NInput v-model:value="modelForm.apiKey" type="password" show-password-on="click" placeholder="请输入 API Key" />
-                <div v-if="selectedProvider?.siteUrl && modelForm.modelSource === '1' " class="flex items-center gap-1 text-xs text-gray-500">
+              <div class="w-full flex flex-col gap-1">
+                <NInput
+                  v-model:value="modelForm.apiKey"
+                  placeholder="请输入 API Key"
+                  show-password-on="click"
+                  type="password"
+                />
+                <div
+                  v-if="selectedProvider?.siteUrl && modelForm.modelSource === '1'"
+                  class="flex items-center gap-1 text-xs text-gray-500"
+                >
                   <span class="i-carbon-information" />
                   <span>没有 API Key？前往</span>
-                  <a :href="selectedProvider.siteUrl" target="_blank" class="text-primary hover:underline flex items-center gap-0.5">
+                  <a
+                    :href="selectedProvider.siteUrl"
+                    class="flex items-center gap-0.5 text-primary hover:underline"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     {{ selectedProvider.providerName }} 官网
                     <span class="i-carbon-launch text-10px" />
                   </a>
@@ -314,7 +332,14 @@ defineExpose({ open });
               </div>
             </NFormItem>
             <NFormItem label="API Base" path="apiBase">
-              <NInput v-model:value="modelForm.apiBase" :placeholder="modelForm.modelSource === '1' ? '可选，留空使用供应商默认值' : '请填写本地部署的大模型的 API Base 地址'" />
+              <NInput
+                v-model:value="modelForm.apiBase"
+                :placeholder="
+                  modelForm.modelSource === '1'
+                    ? '可选，留空使用供应商默认值'
+                    : '请填写本地部署的大模型的 API Base 地址'
+                "
+              />
             </NFormItem>
             <NFormItem label="状态">
               <NSwitch v-model:value="modelForm.status" checked-value="0" unchecked-value="1">
@@ -325,23 +350,35 @@ defineExpose({ open });
           </div>
         </NTabPane>
         <NTabPane name="advanced" tab="高级参数">
-          <div class="pt-4 flex flex-col min-h-[580px] pr-3">
+          <div class="min-h-[580px] flex flex-col pr-3 pt-4">
             <!-- 语言模型参数 (Type 1) -->
             <template v-if="modelForm.modelType === '1'">
               <NFormItem label="最大 Token" path="maxTokens">
-                <NInputNumber v-model:value="modelForm.maxTokens" :min="1" class="w-full" placeholder="默认使用模型上限" />
+                <NInputNumber
+                  v-model:value="modelForm.maxTokens"
+                  :min="1"
+                  class="w-full"
+                  placeholder="默认使用模型上限"
+                />
               </NFormItem>
               <NFormItem label="温度" path="temperature">
-                <div class="flex-1 flex items-center gap-4">
+                <div class="flex flex-1 items-center gap-4">
                   <NSlider v-model:value="modelForm.temperature" :min="0" :max="2" :step="0.1" class="flex-1" />
-                  <NInputNumber v-model:value="modelForm.temperature" :min="0" :max="2" :step="0.1" size="small" class="w-24" />
+                  <NInputNumber
+                    v-model:value="modelForm.temperature"
+                    :max="2"
+                    :min="0"
+                    :step="0.1"
+                    class="w-24"
+                    size="small"
+                  />
                 </div>
               </NFormItem>
             </template>
 
             <!-- 向量模型参数 (Type 2) -->
             <template v-else-if="modelForm.modelType === '2'">
-               <NEmpty description="该模型类型暂无高级参数配置" class="py-8" />
+              <NEmpty class="py-8" description="该模型类型暂无高级参数配置" />
             </template>
           </div>
         </NTabPane>
@@ -349,15 +386,15 @@ defineExpose({ open });
     </NForm>
 
     <template #action>
-      <div class="flex justify-end gap-2 w-full">
+      <div class="w-full flex justify-end gap-2">
         <div class="flex-1">
-           <NButton secondary :loading="testingConnection" @click="handleTestConnection">
-             <!-- <template #icon><span class="i-carbon-network-overlay" /></template> -->
-              <template #icon>
-             <SvgIcon icon="carbon:network-overlay" />
-             </template>  
-             测试连接
-           </NButton>
+          <NButton :loading="testingConnection" secondary @click="handleTestConnection">
+            <!-- <template #icon><span class="i-carbon-network-overlay" /></template> -->
+            <template #icon>
+              <SvgIcon icon="carbon:network-overlay" />
+            </template>
+            测试连接
+          </NButton>
         </div>
         <NButton @click="show = false">取消</NButton>
         <NButton type="primary" :loading="loading" @click="handleSubmit">提交</NButton>
@@ -367,4 +404,3 @@ defineExpose({ open });
 </template>
 
 <style scoped></style>
-

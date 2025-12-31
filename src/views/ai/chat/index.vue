@@ -1,0 +1,508 @@
+<script lang="ts" setup>
+import { nextTick, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  NButton,
+  NCard,
+  NEmpty,
+  NInput,
+  NPopconfirm,
+  NScrollbar,
+  NSpace,
+  NSplit,
+  NTooltip,
+  useMessage
+} from 'naive-ui';
+import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai-chat';
+import { fetchAppDetail } from '@/service/api/ai-app';
+import { localStg } from '@/utils/storage';
+import { getServiceBaseURL } from '@/utils/service';
+import SvgIcon from '@/components/custom/svg-icon.vue';
+import MarkdownRenderer from '@/components/ai/MarkdownRenderer.vue';
+import SessionList from '@/components/ai/SessionList.vue';
+
+const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
+const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
+
+const route = useRoute();
+const router = useRouter();
+const message = useMessage();
+
+// 应用信息
+const appId = ref<string>(route.query.appId as string);
+const appInfo = ref<Api.AI.App | null>(null);
+
+// 会话相关
+const sessionId = ref<string | undefined>();
+const sessions = ref<Api.AI.Chat.Session[]>([]);
+const messages = ref<Api.AI.Chat.Message[]>([]);
+const inputMessage = ref('');
+const scrollbarRef = ref();
+
+// SSE相关
+const isStreaming = ref(false);
+const currentStreamMessage = ref('');
+
+// LocalStorage键
+const STORAGE_SESSION_KEY = `chat_session_${appId.value}`;
+
+// 获取应用信息
+async function getAppInfo() {
+  try {
+    const { data } = await fetchAppDetail(appId.value);
+    if (data) {
+      appInfo.value = data;
+    }
+  } catch {
+    message.error('加载应用信息失败');
+  }
+}
+
+// 加载会话列表
+async function loadSessions() {
+  try {
+    const { data } = await fetchSessionList(appId.value);
+    if (data) {
+      sessions.value = data;
+    }
+  } catch {
+    // console.error('加载会话列表失败:', error);
+  }
+}
+
+// 滚动到底部
+function scrollToBottom() {
+  nextTick(() => {
+    scrollbarRef.value?.scrollTo({ top: 99999, behavior: 'smooth' });
+  });
+}
+
+// 发送消息
+async function handleSend() {
+  if (!inputMessage.value.trim()) return;
+
+  const userMessage = inputMessage.value.trim();
+  inputMessage.value = '';
+
+  // 添加用户消息
+  messages.value.push({
+    sessionId: sessionId.value || '0',
+    role: 'user',
+    content: userMessage,
+    createTime: new Date().toISOString()
+  });
+
+  scrollToBottom();
+
+  // 使用SSE流式对话
+  await streamChat(userMessage);
+}
+
+// 处理SSE事件参数接口
+interface SSEHandlerOptions {
+  reader: ReadableStreamDefaultReader<Uint8Array>;
+  onMessage: (msg: string) => void;
+  onDone: () => Promise<void>;
+  onError: () => void;
+}
+
+// 解析SSE事件
+function parseSSEEvent(event: string) {
+  if (!event.trim()) return null;
+
+  const lines = event.split('\n');
+  let eventType = 'message';
+  const dataLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith('event:')) {
+      eventType = line.substring(6).trim();
+    } else if (line.startsWith('data:')) {
+      dataLines.push(line.substring(5));
+    }
+  }
+
+  return { eventType, data: dataLines.join('\n') };
+}
+
+// SSE回调接口
+interface SSECallbacks {
+  onMessage: (msg: string) => void;
+  onDone: () => Promise<void>;
+  onError: () => void;
+}
+
+// 处理单个SSE事件
+async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<boolean> {
+  const { onMessage, onDone, onError } = callbacks;
+  const result = parseSSEEvent(event);
+  if (!result) return false;
+
+  const { eventType, data } = result;
+
+  if (eventType === 'done') {
+    await onDone();
+    return true; // Stop processing
+  }
+
+  if (eventType === 'error') {
+    onError();
+    return true; // Stop processing
+  }
+
+  if (data && data.trim() !== '[DONE]') {
+    onMessage(data);
+  }
+
+  return false;
+}
+
+// 处理SSE事件
+async function handleSSEEvents(options: SSEHandlerOptions) {
+  const { reader, onMessage, onDone, onError } = options;
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // eslint-disable-next-line no-await-in-loop
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split('\n\n');
+      buffer = events.pop() || '';
+
+      for (const event of events) {
+        // eslint-disable-next-line no-await-in-loop
+        const shouldStop = await processSSEEvent(event, { onMessage, onDone, onError });
+        if (shouldStop) return;
+      }
+    }
+  } catch {
+    onError();
+  }
+}
+
+// 流式对话
+async function streamChat(userMessage: string) {
+  isStreaming.value = true;
+  currentStreamMessage.value = '';
+
+  // 添加AI消息占位
+  const aiMessage: Api.AI.Chat.Message = {
+    sessionId: sessionId.value || '0',
+    role: 'assistant',
+    content: '',
+    streaming: true,
+    createTime: new Date().toISOString()
+  };
+  messages.value.push(aiMessage);
+
+  const token = localStg.get('token') || '';
+  const clientId = import.meta.env.VITE_APP_CLIENT_ID;
+
+  const requestBody = {
+    appId: appId.value,
+    sessionId: sessionId.value,
+    message: userMessage,
+    stream: true
+  };
+
+  try {
+    const response = await fetch(`${baseURL}/ai/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        clientid: clientId || ''
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('无法读取响应流');
+
+    await handleSSEEvents({
+      reader,
+      onMessage: msg => {
+        currentStreamMessage.value += msg;
+        const lastMsg = messages.value[messages.value.length - 1];
+        if (lastMsg && lastMsg.role === 'assistant') {
+          lastMsg.content = currentStreamMessage.value;
+          scrollToBottom();
+        }
+      },
+      onDone: async () => {
+        const lastMsg = messages.value[messages.value.length - 1];
+        if (lastMsg) lastMsg.streaming = false;
+        await loadSessions();
+      },
+      onError: () => {
+        throw new Error('服务器返回错误');
+      }
+    });
+
+    aiMessage.streaming = false;
+  } catch (err: any) {
+    message.error(`对话失败: ${err.message}`);
+    messages.value = messages.value.filter(m => m !== aiMessage);
+  } finally {
+    isStreaming.value = false;
+    currentStreamMessage.value = '';
+  }
+}
+
+// 加载历史消息
+async function loadHistory() {
+  if (!sessionId.value) return;
+
+  try {
+    const { data } = await fetchChatHistory(sessionId.value);
+    if (data) {
+      messages.value = data;
+      scrollToBottom();
+    }
+  } catch {
+    message.error('加载历史消息失败');
+  }
+}
+
+// 选择会话
+function handleSelectSession(newSessionId: string) {
+  sessionId.value = newSessionId;
+  loadHistory();
+  // 更新URL
+  router.push({ name: 'ai_chat', query: { appId: appId.value, sessionId: newSessionId } });
+}
+
+// 删除会话
+async function handleDeleteSession(deletedSessionId: string) {
+  try {
+    await clearChatHistory(deletedSessionId);
+    message.success('已删除会话');
+
+    // 如果删除的是当前会话,清空消息并切换到新会话
+    if (deletedSessionId === sessionId.value) {
+      messages.value = [];
+      sessionId.value = undefined;
+      router.push({ name: 'ai_chat', query: { appId: appId.value } });
+    }
+
+    // 重新加载会话列表
+    await loadSessions();
+  } catch {
+    message.error('删除会话失败');
+  }
+}
+
+// 清空当前对话
+async function handleClear() {
+  if (!sessionId.value) {
+    messages.value = [];
+    return;
+  }
+
+  try {
+    await clearChatHistory(sessionId.value);
+    messages.value = [];
+    sessionId.value = undefined;
+    router.push({ name: 'ai_chat', query: { appId: appId.value } });
+    message.success('已清空对话');
+    await loadSessions();
+  } catch {
+    message.error('清空对话失败');
+  }
+}
+
+// 复制消息
+function handleCopyMessage(content: string) {
+  navigator.clipboard.writeText(content).then(() => {
+    message.success('已复制');
+  });
+}
+
+// 按Enter发送
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+    e.preventDefault();
+    handleSend();
+  }
+}
+
+// 监听sessionId变化,保存到LocalStorage
+watch(sessionId, newVal => {
+  if (newVal) {
+    localStg.set(STORAGE_SESSION_KEY as any, newVal);
+  } else {
+    localStg.remove(STORAGE_SESSION_KEY as any);
+  }
+});
+
+onMounted(async () => {
+  await getAppInfo();
+  await loadSessions();
+
+  // 尝试从路由参数或LocalStorage恢复会话
+  const routeSessionId = route.query.sessionId as string;
+  const cachedSessionId = localStg.get(STORAGE_SESSION_KEY as any);
+
+  if (routeSessionId) {
+    sessionId.value = routeSessionId;
+    await loadHistory();
+  } else if (cachedSessionId) {
+    sessionId.value = cachedSessionId;
+    await loadHistory();
+    // 更新URL
+    router.push({ name: 'ai_chat', query: { appId: appId.value, sessionId: cachedSessionId } });
+  }
+});
+</script>
+
+<template>
+  <div class="h-full flex">
+    <!-- 左侧会话列表 -->
+    <NSplit :default-size="0.25" :max="400" :min="200" class="h-full w-full" direction="horizontal">
+      <template #1>
+        <div class="h-full border-r border-gray-200 border-solid dark:border-gray-700">
+          <SessionList
+            :app-id="appId"
+            :current-session-id="sessionId"
+            :sessions="sessions"
+            @delete="handleDeleteSession"
+            @refresh="loadSessions"
+            @select="handleSelectSession"
+          />
+        </div>
+      </template>
+
+      <template #2>
+        <!-- 右侧聊天区域 -->
+        <div class="h-full flex flex-col">
+          <!-- 顶部应用信息 -->
+          <NCard :bordered="false" class="flex-shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
+                  <img v-if="appInfo?.icon" :src="appInfo.icon" class="h-full w-full rounded-lg object-cover" />
+                  <SvgIcon v-else icon="carbon:application" />
+                </div>
+                <div>
+                  <div class="text-lg font-bold">{{ appInfo?.appName || '加载中...' }}</div>
+                  <div class="text-xs text-gray-400">{{ appInfo?.description || '' }}</div>
+                </div>
+              </div>
+              <NPopconfirm @positive-click="handleClear">
+                <template #trigger>
+                  <NButton circle quaternary>
+                    <template #icon>
+                      <SvgIcon icon="carbon:trash-can" />
+                    </template>
+                  </NButton>
+                </template>
+                确定清空当前对话吗?
+              </NPopconfirm>
+            </div>
+          </NCard>
+
+          <!-- 消息列表 -->
+          <div class="flex-1 overflow-hidden">
+            <NScrollbar ref="scrollbarRef" class="h-full px-4 py-4">
+              <NEmpty v-if="messages.length === 0" class="mt-20" description="开始新对话吧">
+                <template #icon>
+                  <SvgIcon class="text-6xl" icon="carbon:chat" />
+                </template>
+              </NEmpty>
+
+              <div v-for="(msg, index) in messages" :key="index" class="group mb-4">
+                <!-- 用户消息 -->
+                <div v-if="msg.role === 'user'" class="flex items-start justify-end gap-2">
+                  <NTooltip>
+                    <template #trigger>
+                      <NButton
+                        circle
+                        class="opacity-0 transition-opacity group-hover:opacity-100"
+                        quaternary
+                        size="small"
+                        @click="handleCopyMessage(msg.content)"
+                      >
+                        <template #icon>
+                          <SvgIcon icon="carbon:copy" />
+                        </template>
+                      </NButton>
+                    </template>
+                    复制
+                  </NTooltip>
+                  <div class="max-w-[70%] rounded-lg bg-primary px-4 py-2 text-white">
+                    <div class="whitespace-pre-wrap break-words">{{ msg.content }}</div>
+                  </div>
+                </div>
+
+                <!-- AI消息 -->
+                <div v-else class="flex items-start justify-start gap-2">
+                  <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+                    <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" />
+                  </div>
+                  <NTooltip>
+                    <template #trigger>
+                      <NButton
+                        circle
+                        class="opacity-0 transition-opacity group-hover:opacity-100"
+                        quaternary
+                        size="small"
+                        @click="handleCopyMessage(msg.content)"
+                      >
+                        <template #icon>
+                          <SvgIcon icon="carbon:copy" />
+                        </template>
+                      </NButton>
+                    </template>
+                    复制
+                  </NTooltip>
+                </div>
+              </div>
+            </NScrollbar>
+          </div>
+
+          <!-- 输入框 -->
+          <NCard :bordered="false" class="flex-shrink-0">
+            <NSpace vertical>
+              <NInput
+                v-model:value="inputMessage"
+                :autosize="{ minRows: 1, maxRows: 4 }"
+                :disabled="isStreaming"
+                :placeholder="isStreaming ? 'AI正在回复...' : '输入消息 (Enter发送, Shift+Enter换行)'"
+                type="textarea"
+                @keydown="handleKeyDown"
+              />
+              <div class="flex justify-end">
+                <NButton
+                  :disabled="!inputMessage.trim() || isStreaming"
+                  :loading="isStreaming"
+                  type="primary"
+                  @click="handleSend"
+                >
+                  <template #icon>
+                    <SvgIcon icon="carbon:send" />
+                  </template>
+                  发送
+                </NButton>
+              </div>
+            </NSpace>
+          </NCard>
+        </div>
+      </template>
+    </NSplit>
+  </div>
+</template>
+
+<style scoped>
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+</style>

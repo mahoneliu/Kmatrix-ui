@@ -135,7 +135,6 @@ export const dataScopeRecord: Record<Api.System.DataScope, string> = {
   '6': '部门及以下或本人数据权限'
 };
 
-
 export const dataScopeOptions = transformRecordToOption(dataScopeRecord);
 
 /** ai provider type */
