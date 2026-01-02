@@ -13,6 +13,25 @@ declare namespace Api.AI.Chat {
     createTime?: string;
     /** 是否正在流式输出 */
     streaming?: boolean;
+    /** 工作流实例ID */
+    instanceId?: string;
+    /** 节点执行记录 */
+    executions?: Api.AI.Chat.NodeExecution[];
+    /** 是否展开节点详情(前端UI状态) */
+    expanded?: boolean;
+    /** 当前执行节点名称(前端UI状态) */
+    currentNode?: string | null;
+  }
+
+  /** 节点执行记录 */
+  interface NodeExecution {
+    executionId: string;
+    nodeId: string;
+    nodeName: string;
+    nodeType: string;
+    status: 'running' | 'completed' | 'failed';
+    startTime: string;
+    endTime?: string;
   }
 
   /** 发送消息请求 */

@@ -102,7 +102,8 @@ async function handleSend() {
 interface SSEHandlerOptions {
   reader: ReadableStreamDefaultReader<Uint8Array>;
   onMessage: (msg: string) => void;
-  onDone: () => Promise<void>;
+  onNodeStatus: (nodeName: string | null) => void;
+  onDone: (sessionId?: string) => Promise<void>;
   onError: () => void;
 }
 
@@ -128,28 +129,60 @@ function parseSSEEvent(event: string) {
 // SSE回调接口
 interface SSECallbacks {
   onMessage: (msg: string) => void;
-  onDone: () => Promise<void>;
+  onNodeStatus: (nodeName: string | null) => void;
+  onDone: (sessionId?: string) => Promise<void>;
   onError: () => void;
 }
 
 // 处理单个SSE事件
 async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<boolean> {
-  const { onMessage, onDone, onError } = callbacks;
+  const { onMessage, onNodeStatus, onDone, onError } = callbacks;
   const result = parseSSEEvent(event);
   if (!result) return false;
 
   const { eventType, data } = result;
 
-  if (eventType === 'done') {
-    await onDone();
+  // 处理节点状态事件
+  if (eventType === 'node_start') {
+    try {
+      const eventData = JSON.parse(data);
+      onNodeStatus(eventData.nodeName);
+    } catch {
+      // 忽略解析错误
+    }
+    return false;
+  }
+
+  if (eventType === 'node_complete') {
+    onNodeStatus(null);
+    return false;
+  }
+
+  // 处理 done 事件
+  if (eventType === 'done' || eventType === 'workflow_complete') {
+    onNodeStatus(null);
+    // 如果data包含sessionId,尝试解析
+    let newSessionId: string | undefined;
+    if (data && data.trim()) {
+      try {
+        const eventData = JSON.parse(data);
+        newSessionId = eventData.sessionId || data.trim();
+      } catch {
+        newSessionId = data.trim();
+      }
+    }
+    await onDone(newSessionId);
     return true; // Stop processing
   }
 
-  if (eventType === 'error') {
+  // 处理错误事件
+  if (eventType === 'error' || eventType === 'node_error') {
+    onNodeStatus(null);
     onError();
     return true; // Stop processing
   }
 
+  // 处理消息内容（默认事件或 message 事件）
   if (data && data.trim() !== '[DONE]') {
     onMessage(data);
   }
@@ -159,7 +192,7 @@ async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<
 
 // 处理SSE事件
 async function handleSSEEvents(options: SSEHandlerOptions) {
-  const { reader, onMessage, onDone, onError } = options;
+  const { reader, onMessage, onNodeStatus, onDone, onError } = options;
   const decoder = new TextDecoder();
   let buffer = '';
 
@@ -176,7 +209,7 @@ async function handleSSEEvents(options: SSEHandlerOptions) {
 
       for (const event of events) {
         // eslint-disable-next-line no-await-in-loop
-        const shouldStop = await processSSEEvent(event, { onMessage, onDone, onError });
+        const shouldStop = await processSSEEvent(event, { onMessage, onNodeStatus, onDone, onError });
         if (shouldStop) return;
       }
     }
@@ -196,7 +229,9 @@ async function streamChat(userMessage: string) {
     role: 'assistant',
     content: '',
     streaming: true,
-    createTime: new Date().toISOString()
+    createTime: new Date().toISOString(),
+    executions: [],
+    expanded: true
   };
   messages.value.push(aiMessage);
 
@@ -238,10 +273,66 @@ async function streamChat(userMessage: string) {
           scrollToBottom();
         }
       },
-      onDone: async () => {
+      onNodeStatus: (nodeName: string | null) => {
         const lastMsg = messages.value[messages.value.length - 1];
-        if (lastMsg) lastMsg.streaming = false;
+        if (lastMsg && lastMsg.role === 'assistant') {
+          if (!lastMsg.executions) lastMsg.executions = [];
+
+          if (nodeName) {
+            // 将上一个 running 状态改为 completed
+            const lastExec = lastMsg.executions[lastMsg.executions.length - 1];
+            if (lastExec && lastExec.status === 'running') {
+              lastExec.status = 'completed';
+            }
+
+            // 添加新节点并设为 running
+            lastMsg.executions.push({
+              executionId: Date.now().toString(),
+              nodeId: '',
+              nodeName,
+              nodeType: '',
+              status: 'running',
+              startTime: new Date().toISOString()
+            });
+            lastMsg.currentNode = nodeName;
+          } else {
+            // 节点完成逻辑
+            const lastExec = lastMsg.executions[lastMsg.executions.length - 1];
+            if (lastExec && lastExec.status === 'running') {
+              lastExec.status = 'completed';
+            }
+            lastMsg.currentNode = null;
+          }
+        }
+      },
+      onDone: async (newSessionId?: string) => {
+        const lastMsg = messages.value[messages.value.length - 1];
+        if (lastMsg) {
+          lastMsg.streaming = false;
+          lastMsg.expanded = false;
+        }
+
+        // 是否是新创建的会话
+        const isNewSession = Boolean(newSessionId && !sessionId.value);
+
+        // 保存sessionId(如果是新创建的)
+        if (newSessionId && !sessionId.value) {
+          sessionId.value = newSessionId;
+          // 更新URL
+          router.push({
+            name: 'ai_chat',
+            query: { appId: appId.value, sessionId: newSessionId }
+          });
+        }
+
         await loadSessions();
+
+        // 如果是首次对话,延迟2秒后再刷新一次会话列表,以获取自动生成的标题
+        if (isNewSession) {
+          setTimeout(() => {
+            loadSessions();
+          }, 2000);
+        }
       },
       onError: () => {
         throw new Error('服务器返回错误');
@@ -343,6 +434,24 @@ watch(sessionId, newVal => {
     localStg.remove(STORAGE_SESSION_KEY as any);
   }
 });
+
+// 监听路由变化,同步sessionId(支持"新建对话"场景)
+watch(
+  () => route.query.sessionId,
+  newSessionId => {
+    if (newSessionId) {
+      // 切换到已有会话
+      if (sessionId.value !== newSessionId) {
+        sessionId.value = newSessionId as string;
+        loadHistory();
+      }
+    } else {
+      // 新建对话:清空sessionId和消息
+      sessionId.value = undefined;
+      messages.value = [];
+    }
+  }
+);
 
 onMounted(async () => {
   await getAppInfo();
@@ -446,6 +555,46 @@ onMounted(async () => {
                 <!-- AI消息 -->
                 <div v-else class="flex items-start justify-start gap-2">
                   <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+                    <!-- 节点执行状态（可折叠） -->
+                    <div v-if="msg.executions && msg.executions.length > 0" class="mb-2">
+                      <!-- 折叠头部 -->
+                      <div
+                        class="flex cursor-pointer items-center gap-2 text-xs text-blue-500 dark:text-blue-400"
+                        @click="msg.expanded = !msg.expanded"
+                      >
+                        <SvgIcon
+                          :icon="msg.expanded ? 'carbon:chevron-down' : 'carbon:chevron-right'"
+                          class="text-sm"
+                        />
+                        <span v-if="msg.expanded">节点执行记录 ({{ msg.executions.length }})</span>
+                        <span v-else>
+                          {{ msg.currentNode || `已执行 ${msg.executions.length} 个节点` }}
+                        </span>
+                        <SvgIcon v-if="msg.streaming && msg.currentNode" class="animate-spin" icon="carbon:task" />
+                      </div>
+
+                      <!-- 展开内容 -->
+                      <div v-if="msg.expanded" class="ml-5 mt-2 space-y-1">
+                        <div
+                          v-for="(item, idx) in msg.executions"
+                          :key="idx"
+                          class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
+                        >
+                          <SvgIcon
+                            :icon="
+                              item.status === 'running'
+                                ? 'carbon:task'
+                                : item.status === 'failed'
+                                  ? 'carbon:error'
+                                  : 'carbon:checkmark'
+                            "
+                            :class="item.status === 'running' ? 'animate-spin text-blue-500' : 'text-green-500'"
+                          />
+                          <span>{{ item.nodeName }}</span>
+                        </div>
+                      </div>
+                    </div>
+
                     <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" />
                   </div>
                   <NTooltip>

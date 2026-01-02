@@ -60,3 +60,14 @@ export function fetchSessionList(appId: CommonType.IdType) {
 export function getStreamChatUrl(baseUrl: string, token: string, clientId: string) {
   return `${baseUrl}${CHAT_API_BASE}/stream?Authorization=Bearer ${token}&clientid=${clientId}`;
 }
+
+/**
+ * 更新会话标题
+ */
+export function updateSessionTitle(sessionId: CommonType.IdType, title: string) {
+  return request<any>({
+    url: `${CHAT_API_BASE}/session/${sessionId}/title`,
+    method: 'put',
+    data: { title }
+  });
+}
