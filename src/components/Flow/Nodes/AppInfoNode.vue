@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { onMounted, reactive, watch } from 'vue';
 import { NForm, NFormItem, NInput } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
@@ -8,30 +8,69 @@ import BaseNode from './BaseNode.vue';
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
 
-// 表单数据绑定到节点配置
-const formModel = computed({
-  get: () => {
-    const config = props.data.config as Workflow.AppInfoConfig | undefined;
-    return {
-      appName: config?.appName || '',
-      description: config?.description || '',
-      icon: config?.icon || '',
-      prologue: config?.prologue || ''
-    };
-  },
-  set: value => {
-    workflowStore.updateNodeConfig(props.id, value);
-  }
+// 局部表单数据，避免直接与 Store 双向绑定导致的循环更新
+const formModel = reactive<Workflow.AppInfoConfig>({
+  appName: '',
+  description: '',
+  icon: '',
+  prologue: ''
 });
 
-// 监听表单变化,自动更新节点配置
+// 初始化数据
+function initData() {
+  const config = props.data.config as Workflow.AppInfoConfig | undefined;
+  if (config) {
+    formModel.appName = config.appName || '';
+    formModel.description = config.description || '';
+    formModel.icon = config.icon || '';
+    formModel.prologue = config.prologue || '';
+  }
+}
+
+// 监听局部表单变化, 同步到 Store
 watch(
   formModel,
   newValue => {
-    workflowStore.updateNodeConfig(props.id, newValue);
+    // 检查是否有实际变化, 避免不必要的 Store 更新
+    const currentConfig = props.data.config as Workflow.AppInfoConfig | undefined;
+    if (
+      newValue.appName !== currentConfig?.appName ||
+      newValue.description !== currentConfig?.description ||
+      newValue.icon !== currentConfig?.icon ||
+      newValue.prologue !== currentConfig?.prologue
+    ) {
+      workflowStore.updateNodeConfig(props.id, { ...newValue });
+    }
   },
   { deep: true }
 );
+
+// 监听外部配置变化 (如 DSL 加载时), 同步到局部表单
+watch(
+  () => props.data.config,
+  newConfig => {
+    const config = newConfig as Workflow.AppInfoConfig | undefined;
+    if (config) {
+      // 只有当外部数据真的与当前表单不同时才更新，防止循环
+      if (
+        config.appName !== formModel.appName ||
+        config.description !== formModel.description ||
+        config.icon !== formModel.icon ||
+        config.prologue !== formModel.prologue
+      ) {
+        formModel.appName = config.appName || '';
+        formModel.description = config.description || '';
+        formModel.icon = config.icon || '';
+        formModel.prologue = config.prologue || '';
+      }
+    }
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  initData();
+});
 </script>
 
 <template>

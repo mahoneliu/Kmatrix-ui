@@ -32,7 +32,7 @@ watch(
       <NInput v-model:value="config.content" type="textarea" :rows="6" placeholder="输入固定的回复文本内容..." />
     </NFormItem>
 
-    <div class="mt-2 text-xs text-gray-500">
+    <div class="mt-2 text-xs c-gray-5 dark:c-gray-4">
       <div class="mb-1 font-bold">支持变量替换:</div>
       <ul class="list-disc list-inside">
         <li>

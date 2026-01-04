@@ -81,7 +81,7 @@ onMounted(() => {
 
     <NFormItem label="温度 (Temperature)">
       <NSlider v-model:value="config.temperature" :min="0" :max="2" :step="0.1" :marks="{ 0: '0', 1: '1', 2: '2' }" />
-      <div class="mt-1 text-xs text-gray-500">当前值: {{ config.temperature }}</div>
+      <div class="mt-1 text-xs c-gray-5 dark:c-gray-4">当前值: {{ config.temperature }}</div>
     </NFormItem>
 
     <NFormItem label="最大 Token 数">
@@ -92,7 +92,7 @@ onMounted(() => {
         :step="100"
         :marks="{ 100: '100', 2000: '2000', 4000: '4000' }"
       />
-      <div class="mt-1 text-xs text-gray-500">当前值: {{ config.maxTokens }}</div>
+      <div class="mt-1 text-xs c-gray-5 dark:c-gray-4">当前值: {{ config.maxTokens }}</div>
     </NFormItem>
   </NForm>
 </template>

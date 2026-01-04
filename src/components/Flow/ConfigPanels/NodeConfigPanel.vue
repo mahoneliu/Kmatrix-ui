@@ -42,9 +42,9 @@ function handleUpdateConfig(config: Record<string, any>) {
 </script>
 
 <template>
-  <div class="node-config-panel h-full flex flex-col">
+  <div class="h-full flex flex-col bg-white dark:bg-dark-1">
     <div v-if="!selectedNode" class="flex flex-1 items-center justify-center">
-      <div class="text-center text-gray-400">
+      <div class="text-center c-gray-4 dark:c-gray-5">
         <div class="i-mdi:cursor-default-click mb-2 text-4xl" />
         <div>请选择节点进行配置</div>
       </div>
@@ -52,9 +52,9 @@ function handleUpdateConfig(config: Record<string, any>) {
 
     <div v-else class="flex flex-col flex-1 overflow-hidden">
       <!-- 节点标题 -->
-      <div class="border-b border-gray-200 px-4 py-3">
-        <div class="text-base font-bold">{{ nodeTitle }}</div>
-        <div class="mt-1 text-xs text-gray-500">ID: {{ selectedNode.id }}</div>
+      <div class="b-b b-gray-2 b-solid px-4 py-3 dark:b-dark-3">
+        <div class="text-base c-gray-8 font-bold dark:c-gray-1">{{ nodeTitle }}</div>
+        <div class="mt-1 text-xs c-gray-5 dark:c-gray-4">ID: {{ selectedNode.id }}</div>
       </div>
 
       <!-- 配置表单 -->
@@ -67,9 +67,3 @@ function handleUpdateConfig(config: Record<string, any>) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.node-config-panel {
-  background: white;
-}
-</style>

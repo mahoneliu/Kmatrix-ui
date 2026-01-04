@@ -47,7 +47,7 @@ watch(
 
 <template>
   <NForm label-placement="top" :show-feedback="false">
-    <div class="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-700">
+    <div class="bg-primary-1 dark:c-primary-1 mb-4 rounded p-3 text-sm c-primary dark:bg-primary/10">
       <div class="mb-1 font-bold">条件表达式说明:</div>
       <div>支持 JavaScript 表达式，可使用变量:</div>
       <ul class="mt-1 list-disc list-inside">

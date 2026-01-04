@@ -32,7 +32,8 @@ export const NODE_TYPE_REGISTRY: Record<Workflow.NodeType, NodeTypeConfig> = {
     icon: 'mdi:play-circle',
     color: '#10b981',
     description: '工作流开始节点',
-    category: 'basic'
+    category: 'basic',
+    isSystem: true // 系统自动创建，不在组件库中显示
   },
   END: {
     type: 'END',
@@ -40,7 +41,8 @@ export const NODE_TYPE_REGISTRY: Record<Workflow.NodeType, NodeTypeConfig> = {
     icon: 'mdi:stop-circle',
     color: '#ef4444',
     description: '工作流结束节点',
-    category: 'basic'
+    category: 'basic',
+    isSystem: true // 结束节点可通过计算得出，不在组件库中显示
   },
   LLM_CHAT: {
     type: 'LLM_CHAT',
