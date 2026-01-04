@@ -1,8 +1,21 @@
 <script lang="ts" setup>
 import { h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { NButton, NCard, NDropdown, NGrid, NGridItem, NInput, NSpace, NTag, useMessage } from 'naive-ui';
-import { deleteApp, fetchAppList } from '@/service/api/ai-app';
+import {
+  NButton,
+  NCard,
+  NCollapse,
+  NCollapseItem,
+  NDropdown,
+  NGrid,
+  NGridItem,
+  NInput,
+  NScrollbar,
+  NSpace,
+  NTag,
+  useMessage
+} from 'naive-ui';
+import { deleteApp, fetchAppList } from '@/service/api/ai/admin/app';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import AppOperateModal from './modules/app-operate-modal.vue';
 
@@ -65,17 +78,38 @@ function handleChat(item: Api.AI.App) {
   });
 }
 
-function handleWorkflow(item: Api.AI.App) {
+function handleSettings(item: Api.AI.App) {
   if (!item.appId) return;
-  router.push({
-    name: 'ai_app-manager_workflow',
-    query: { appId: item.appId.toString() }
-  });
+  // 如果是工作流类型,跳转到工作流编排页面
+  if (item.appType === '2') {
+    router.push({
+      name: 'ai_app-manager_workflow',
+      query: { appId: item.appId.toString() }
+    });
+  } else {
+    // 基础对话类型,打开编辑弹窗
+    handleEdit(item);
+  }
 }
 
-function onModalClose() {
+function onModalClose(createdAppId?: number, appType?: '1' | '2') {
   modalVisible.value = false;
   getData();
+
+  // 如果是新建的工作流应用,自动打开工作流编排页面
+  if (createdAppId && appType === '2') {
+    router.push({
+      name: 'ai_app-manager_workflow',
+      query: { appId: createdAppId.toString() }
+    });
+  }
+}
+
+// 格式化日期
+function formatDate(dateStr: string) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 onMounted(() => {
@@ -84,18 +118,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-full flex-col">
-    <NCard :bordered="false" class="mb-4">
-      <NSpace justify="space-between">
-        <NSpace>
-          <NInput v-model:value="searchParams.appName" clearable placeholder="请输入应用名称" @keyup.enter="getData" />
-          <NButton type="primary" @click="getData">
-            <template #icon>
-              <icon-ic-round-search />
-            </template>
-            搜索
-          </NButton>
-        </NSpace>
+  <div class="h-full flex flex-col">
+    <!-- 可折叠的搜索区域 -->
+    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+      <NCollapse default-expanded-names="search">
+        <NCollapseItem title="搜索" name="search">
+          <NSpace>
+            <NInput
+              v-model:value="searchParams.appName"
+              clearable
+              placeholder="请输入应用名称"
+              @keyup.enter="getData"
+            />
+            <NButton type="primary" @click="getData">
+              <template #icon>
+                <icon-ic-round-search />
+              </template>
+              搜索
+            </NButton>
+          </NSpace>
+        </NCollapseItem>
+      </NCollapse>
+    </NCard>
+
+    <!-- 应用列表区域 -->
+    <NCard
+      :bordered="false"
+      size="small"
+      title="应用列表"
+      class="flex-1 card-wrapper"
+      content-class="flex flex-col h-full overflow-hidden"
+    >
+      <template #header-extra>
         <NDropdown
           :options="[
             { label: '基础对话', key: '1', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
@@ -104,97 +158,105 @@ onMounted(() => {
           trigger="click"
           @select="key => handleAdd(key as '1' | '2')"
         >
-          <NButton secondary type="primary">
-            <div class="flex items-center gap-1">
+          <NButton type="primary" ghost size="small">
+            <template #icon>
               <SvgIcon icon="carbon:add" />
-              <span>新建应用</span>
-              <SvgIcon class="ml-0.5" icon="carbon:chevron-down" />
-            </div>
+            </template>
+            新建应用
           </NButton>
         </NDropdown>
-      </NSpace>
-    </NCard>
+      </template>
 
-    <div class="flex-1 overflow-y-auto">
-      <NGrid cols="1 640:2 1024:3 1280:4" responsive="screen" x-gap="16" y-gap="16">
-        <NGridItem v-for="item in appList" :key="item.appId">
-          <NCard
-            :bordered="false"
-            class="group h-full cursor-pointer rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] transition-all duration-300 !border !border-gray-300 !border-solid dark:bg-white/5 hover:shadow-[0_6px_16px_0_rgba(0,0,0,0.15)] dark:!border-gray-700"
-            content-class="pb-12"
-            hoverable
-          >
-            <template #header>
-              <div class="flex items-center gap-3">
-                <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-                  <span v-if="!item.icon" class="i-carbon-application" />
-                  <img v-else :src="item.icon" class="h-full w-full rounded-lg object-cover" />
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="truncate text-lg font-bold">{{ item.appName }}</div>
-                  <div class="text-xs text-gray-400">
-                    <NTag
-                      :bordered="false"
-                      :type="item.status === '1' ? 'success' : 'warning'"
-                      class="mr-2"
-                      size="small"
-                    >
-                      {{ item.status === '1' ? '已发布' : '草稿' }}
-                    </NTag>
-                    {{ item.appType === '2' ? '工作流' : '基础对话' }}
+      <NScrollbar class="h-full" content-class="p-4">
+        <NGrid :cols="3" responsive="screen" x-gap="16" y-gap="16">
+          <NGridItem v-for="item in appList" :key="item.appId">
+            <NCard
+              :bordered="false"
+              class="group relative h-full cursor-pointer rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] transition-all duration-300 !border !border-gray-300 !border-solid dark:bg-white/5 hover:shadow-[0_6px_16px_0_rgba(0,0,0,0.15)] dark:!border-gray-700"
+              content-class="pb-2"
+              hoverable
+            >
+              <!-- 右上角应用类型标签 -->
+              <div class="absolute right-3 top-3 z-10">
+                <NTag :bordered="false" :type="item.appType === '2' ? 'warning' : 'info'" size="small">
+                  {{ item.appType === '2' ? '工作流' : '简单应用' }}
+                </NTag>
+              </div>
+
+              <template #header>
+                <div class="flex items-center gap-3 pr-20">
+                  <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
+                    <span v-if="!item.icon" class="i-carbon-application" />
+                    <img v-else :src="item.icon" class="h-full w-full rounded-lg object-cover" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="truncate text-base font-bold">{{ item.appName }}</div>
+                    <div class="text-xs text-gray-400">创建者: {{ item.createByName }}</div>
                   </div>
                 </div>
+              </template>
+
+              <div class="line-clamp-2 mb-8 min-h-14 text-sm text-gray-500">
+                {{ item.description || '暂无描述' }}
               </div>
-            </template>
 
-            <div class="line-clamp-2 mb-4 h-14 text-sm text-gray-500">
-              {{ item.description || '暂无描述' }}
-            </div>
+              <!-- 左下角状态和时间 -->
+              <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1">
+                  <!--
+ <span
+                  :class="item.status === '1' ? 'i-carbon-checkmark-filled text-success' : 'i-carbon-circle-dash text-warning'"
+                /> 
+-->
+                  <SvgIcon
+                    :icon="item.status === '1' ? 'carbon:checkmark-filled' : 'carbon:error-outline'"
+                    :class="item.status === '1' ? 'text-success' : ''"
+                  />
+                  <span :class="item.status === '1' ? 'text-success' : 'text-warning'">
+                    {{ item.status === '1' ? '已发布' : '未发布' }}
+                  </span>
+                </div>
+                <span class="text-gray-400">|</span>
+                <span class="text-gray-400">{{ formatDate(item.updateTime || item.createTime) }}</span>
+              </div>
 
-            <div
-              class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-            >
-              <NDropdown
-                :options="
-                  [
-                    { label: '设置', key: 'edit', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) },
+              <!-- 右下角操作菜单 -->
+              <div
+                class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              >
+                <NDropdown
+                  :options="[
+                    { label: '设置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) },
                     { label: '去对话', key: 'chat', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
-                    {
-                      label: item.appType === '2' ? '编排' : null,
-                      key: 'workflow',
-                      icon: () => h(SvgIcon, { icon: 'carbon:workflow-automation' }),
-                      show: item.appType === '2'
-                    },
-                    { type: 'divider', show: item.appType === '2' },
+                    { type: 'divider' },
                     {
                       label: '删除',
                       key: 'delete',
                       icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
                       labelProps: { class: 'text-error' }
                     }
-                  ].filter(opt => opt.show !== false)
-                "
-                trigger="click"
-                @select="
-                  key => {
-                    if (key === 'edit') handleEdit(item);
-                    else if (key === 'chat') handleChat(item);
-                    else if (key === 'workflow') handleWorkflow(item);
-                    else if (key === 'delete') handleDelete(item);
-                  }
-                "
-              >
-                <NButton class="text-gray-500 hover:text-primary" quaternary size="small" @click.stop>
-                  <template #icon>
-                    <SvgIcon icon="carbon:overflow-menu-horizontal" />
-                  </template>
-                </NButton>
-              </NDropdown>
-            </div>
-          </NCard>
-        </NGridItem>
-      </NGrid>
-    </div>
+                  ]"
+                  trigger="click"
+                  @select="
+                    key => {
+                      if (key === 'settings') handleSettings(item);
+                      else if (key === 'chat') handleChat(item);
+                      else if (key === 'delete') handleDelete(item);
+                    }
+                  "
+                >
+                  <NButton class="text-gray-500 hover:text-primary" quaternary size="small" @click.stop>
+                    <template #icon>
+                      <SvgIcon icon="carbon:overflow-menu-horizontal" />
+                    </template>
+                  </NButton>
+                </NDropdown>
+              </div>
+            </NCard>
+          </NGridItem>
+        </NGrid>
+      </NScrollbar>
+    </NCard>
 
     <AppOperateModal v-model:visible="modalVisible" :data="editingData" :type="operateType" @success="onModalClose" />
   </div>

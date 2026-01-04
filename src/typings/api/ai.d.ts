@@ -1,100 +1,36 @@
-declare namespace Api {
-  namespace AI {
-    /** 模型供应商 */
-    interface ModelProvider {
-      providerId: CommonType.IdType;
-      providerName: string;
-      providerKey: string;
-      providerType?: '1' | '2'; // 1: 公用模型, 2: 本地模型
-      default_endpoint: string;
-      siteUrl: string;
-      iconUrl: string;
-      configSchema: string;
-      models: string; // 支持的模型标识 (JSON 字符串)
-      status: '0' | '1';
-      sort: number;
-      remark: string;
-    }
+/**
+ * AI 模块类型定义 - 向后兼容层
+ * @description 为了保持向后兼容，将新的 Api.AI.Admin 和 Api.AI.Chat 命名空间下的类型导出到 Api.AI 命名空间
+ * @deprecated 请直接使用 Api.AI.Admin 或 Api.AI.Chat 命名空间下的类型
+ */
 
-    /** AI 模型配置 */
-    interface Model {
-      modelId: CommonType.IdType;
-      providerId: CommonType.IdType;
-      modelName: string;
-      modelType: '1' | '2'; // 1: 语言模型, 2: 向量模型
-      modelKey: string;
-      apiKey: string;
-      apiBase: string;
-      config: string;
-      status: '0' | '1';
-      isBuiltin: 'Y' | 'N';
-      modelSource: '1' | '2'; // 1: 公有模型, 2: 本地模型
-      providerIcon?: string;
-      remark: string;
-    }
+declare namespace Api.AI {
+  // ========== 管理端类型（Admin） - 向后兼容 ==========
 
-    /** 模型配置 */
-    interface AppModelConfig {
-      prompt: string;
-      temperature: number;
-      top_p: number;
-      max_tokens: number;
-      opening_statement: string;
-    }
+  /** @deprecated 请使用 Api.AI.Admin.ModelProvider */
+  export type ModelProvider = Api.AI.Admin.ModelProvider;
 
-    /** 知识库配置 */
-    interface AppKnowledgeConfig {
-      topK: number;
-      similarityThreshold: number;
-      searchMode: 'embedding' | 'fulltext' | 'hybrid';
-      maxParagraphChar: number;
-      returnDirectlyWhenNoRef: boolean;
-      showCitation: boolean;
-    }
+  /** @deprecated 请使用 Api.AI.Admin.Model */
+  export type Model = Api.AI.Admin.Model;
 
-    /** 工作流配置 */
-    interface AppWorkflowConfig {
-      showProcess: boolean;
-    }
+  /** @deprecated 请使用 Api.AI.Admin.AppModelConfig */
+  export type AppModelConfig = Api.AI.Admin.AppModelConfig;
 
-    /** AI 应用 */
-    interface App {
-      appId?: CommonType.IdType;
-      appName: string;
-      description: string;
-      icon: string;
-      appType: '1' | '2'; // 1: 基础对话, 2: 工作流
-      status: '0' | '1'; // 0: 草稿, 1: 发布
-      prologue: string;
-      modelSetting: AppModelConfig;
-      knowledgeSetting: AppKnowledgeConfig;
-      workflowConfig: AppWorkflowConfig;
-      modelId: CommonType.IdType;
-      knowledgeIds?: string; // 用于前端传参
-      remark: string;
-      createTime: string;
-      updateTime: string;
-    }
+  /** @deprecated 请使用 Api.AI.Admin.AppKnowledgeConfig */
+  export type AppKnowledgeConfig = Api.AI.Admin.AppKnowledgeConfig;
 
-    /** 搜索参数 */
-    interface AppSearchParams {
-      appName?: string;
-      appType?: string;
-      status?: string;
-      pageNo?: number;
-      pageSize?: number;
-    }
+  /** @deprecated 请使用 Api.AI.Admin.AppWorkflowConfig */
+  export type AppWorkflowConfig = Api.AI.Admin.AppWorkflowConfig;
 
-    /** 工作流 */
-    interface Workflow {
-      flowId: CommonType.IdType;
-      appId: CommonType.IdType;
-      graphData: string;
-      dslData: string;
-      version: number;
-      isActive: 'Y' | 'N';
-      remark: string;
-      createTime: string;
-    }
-  }
+  /** @deprecated 请使用 Api.AI.Admin.App */
+  export type App = Api.AI.Admin.App;
+
+  /** @deprecated 请使用 Api.AI.Admin.AppSearchParams */
+  export type AppSearchParams = Api.AI.Admin.AppSearchParams;
+
+  /** @deprecated 请使用 Api.AI.Admin.Workflow */
+  export type Workflow = Api.AI.Admin.Workflow;
+
+  // ========== 聊天端类型（Chat） - 向后兼容 ==========
+  // Chat 命名空间已经保持不变，无需额外的兼容层
 }

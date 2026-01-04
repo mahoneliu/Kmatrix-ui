@@ -13,8 +13,8 @@ import {
   NTooltip,
   useMessage
 } from 'naive-ui';
-import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai-chat';
-import { fetchAppDetail } from '@/service/api/ai-app';
+import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai/chat/chat';
+import { fetchAppDetail } from '@/service/api/ai/admin/app';
 import { localStg } from '@/utils/storage';
 import { getServiceBaseURL } from '@/utils/service';
 import SvgIcon from '@/components/custom/svg-icon.vue';

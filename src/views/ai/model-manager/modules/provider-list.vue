@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { aiProviderTypeRecord } from '@/constants/business';
-import { fetchModelProviders } from '@/service/api/ai';
+import { fetchModelProviders } from '@/service/api/ai/admin/model';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 // 定义事件

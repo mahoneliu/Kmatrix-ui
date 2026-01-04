@@ -2,7 +2,7 @@
 import { computed, h, ref, watch } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
-import { deleteModels, fetchModels } from '@/service/api/ai';
+import { deleteModels, fetchModels } from '@/service/api/ai/admin/model';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import ModelModal from './model-modal.vue';
 
@@ -17,7 +17,7 @@ const message = useMessage();
 const dialog = useDialog();
 
 const loading = ref(false);
-const models = ref<Api.AI.Model[]>([]);
+const models = ref<Api.AI.Admin.Model[]>([]);
 const searchText = ref('');
 
 const filteredModels = computed(() => {
@@ -38,9 +38,10 @@ async function loadModels() {
     // 如果没有特定供应商ID，但有类型（公用/本地），则按类型过滤
     params.modelSource = props.providerType;
   }
-  const { data } = await fetchModels(params);
-  if (data) {
-    models.value = data;
+  const res = await fetchModels(params);
+  if (res.data && Array.isArray(res.data)) {
+    // fetchModels 使用兼容函数，返回数组格式
+    models.value = res.data;
   } else {
     models.value = [];
   }

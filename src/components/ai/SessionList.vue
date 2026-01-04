@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { NButton, NEmpty, NInput, NList, NListItem, NTime, NTooltip, useMessage } from 'naive-ui';
-import { updateSessionTitle } from '@/service/api/ai-chat';
+import { updateSessionTitle } from '@/service/api/ai/chat/chat';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {

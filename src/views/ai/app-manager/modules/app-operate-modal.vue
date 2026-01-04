@@ -13,8 +13,8 @@ import {
   NTabs,
   useMessage
 } from 'naive-ui';
-import { addApp, updateApp } from '@/service/api/ai-app';
-import { fetchModels } from '@/service/api/ai';
+import { addApp, updateApp } from '@/service/api/ai/admin/app';
+import { fetchModels } from '@/service/api/ai/admin/model';
 
 interface Props {
   visible: boolean;
@@ -24,8 +24,11 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', visible: boolean): void;
-  (e: 'success'): void;
+  (e: 'success', appId?: number, appType?: '1' | '2'): void;
 }
+
+/** 应用表单模型（省略审计字段） */
+type AppFormModel = Omit<Api.AI.App, 'createBy' | 'createByName' | 'updateBy' | 'updateByName'>;
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'add',
@@ -39,7 +42,7 @@ const formRef = ref<(HTMLElement & { validate: () => Promise<void> }) | null>(nu
 
 const modelOptions = ref<Array<{ label: string; value: CommonType.IdType }>>([]);
 
-const formModel = ref<Api.AI.App>({
+const formModel = ref<AppFormModel>({
   appId: undefined,
   appName: '',
   description: '',
@@ -88,9 +91,9 @@ const searchModeOptions = [
 ];
 
 async function getModelList() {
-  const { data } = await fetchModels();
-  if (data) {
-    modelOptions.value = data.map(item => ({
+  const res = await fetchModels();
+  if (res.data && Array.isArray(res.data)) {
+    modelOptions.value = res.data.map((item: Api.AI.Admin.Model) => ({
       label: item.modelName,
       value: item.modelId
     }));
@@ -100,15 +103,21 @@ async function getModelList() {
 async function handleSubmit() {
   await formRef.value?.validate();
 
+  let createdAppId: number | undefined;
+  const appType = formModel.value.appType;
+
   if (props.type === 'add') {
-    await addApp(formModel.value);
+    const res = await addApp(formModel.value);
     message.success('创建成功');
+    // 获取创建的应用ID
+    createdAppId = res.data?.appId ? Number(res.data.appId) : undefined;
   } else {
     await updateApp(formModel.value);
     message.success('更新成功');
   }
-  emit('success');
-  // emit('update:visible', false); // Optional: if success closes
+
+  emit('success', createdAppId, appType);
+  emit('update:visible', false);
 }
 
 function handleClose() {

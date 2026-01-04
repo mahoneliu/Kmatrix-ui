@@ -1,4 +1,10 @@
-import { request } from '../request';
+/**
+ * AI 聊天 API (Chat)
+ * @author Mahone
+ * @date 2026-01-04
+ */
+
+import { request } from '@/service/request';
 
 /** 聊天API基础路径 */
 const CHAT_API_BASE = '/ai/chat';
