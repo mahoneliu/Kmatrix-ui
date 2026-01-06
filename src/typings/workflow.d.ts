@@ -20,11 +20,13 @@ declare namespace Workflow {
   /** 节点数据结构 */
   interface NodeData {
     id: string;
-    type: NodeType;
+    nodeType: NodeType;
     label: string;
     config?: Record<string, any>;
     status?: NodeStatus;
     icon?: string;
+    /** 参数绑定配置 */
+    paramBindings?: ParamBinding[];
   }
 
   /** 边数据结构 */
@@ -127,5 +129,65 @@ declare namespace Workflow {
     description: string;
     icon: string;
     prologue: string;
+    /** 全局参数定义 */
+    globalParams?: ParamDefinition[];
+  }
+
+  // ========== 参数配置相关类型 ==========
+
+  /** 参数数据类型 */
+  type ParamDataType = 'string' | 'number' | 'boolean' | 'object' | 'array';
+
+  /** 参数定义 */
+  interface ParamDefinition {
+    /** 参数键名 */
+    key: string;
+    /** 参数显示名称 */
+    label: string;
+    /** 参数数据类型 */
+    type: ParamDataType;
+    /** 是否必填 */
+    required: boolean;
+    /** 默认值 */
+    defaultValue?: any;
+    /** 参数描述 */
+    description?: string;
+  }
+
+  /** 参数绑定来源类型 */
+  type ParamSourceType = 'global' | 'node';
+
+  /** 参数绑定配置 */
+  interface ParamBinding {
+    /** 当前节点的参数键 */
+    paramKey: string;
+    /** 来源类型 */
+    sourceType: ParamSourceType;
+    /** 来源键（全局参数键 或 节点ID） */
+    sourceKey: string;
+    /** 如果是节点来源，指定节点的输出参数键 */
+    sourceParam?: string;
+  }
+
+  /** 参数来源（用于参数选择器） */
+  interface ParamSource {
+    /** 来源类型 */
+    type: ParamSourceType;
+    /** 来源键（'global' 或 节点ID） */
+    sourceKey: string;
+    /** 来源显示名称 */
+    sourceName: string;
+    /** 可用参数列表 */
+    params: ParamDefinition[];
+  }
+
+  /** 节点类型参数定义 */
+  interface NodeTypeParams {
+    /** 节点类型 */
+    type: NodeType;
+    /** 输入参数定义 */
+    inputParams: ParamDefinition[];
+    /** 输出参数定义 */
+    outputParams: ParamDefinition[];
   }
 }

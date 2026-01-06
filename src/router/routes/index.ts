@@ -8,21 +8,7 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: CustomRoute[] = [
-  {
-    // @ts-expect-error route name not generated yet
-    name: 'test-flow',
-    // @ts-expect-error route path not generated yet
-    path: '/demo/test',
-    // @ts-expect-error component key not generated yet
-    component: 'layout.blank$view.demo_test',
-    meta: {
-      title: '测试页面',
-      constant: true,
-      hideInMenu: true
-    }
-  }
-];
+const customRoutes: CustomRoute[] = [];
 
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {

@@ -67,7 +67,7 @@ const nodeColor = computed(() => {
     CONDITION: '#f59e0b',
     FIXED_RESPONSE: '#6b7280'
   };
-  return colorMap[props.data.type] || '#6b7280';
+  return colorMap[props.data.nodeType] || '#6b7280';
 });
 
 function handleClick() {
@@ -124,7 +124,7 @@ function handleMouseLeave() {
   >
     <!-- 输入连接点 (左侧) -->
     <Handle
-      v-if="data.type !== 'START' && data.type !== 'APP_INFO'"
+      v-if="data.nodeType !== 'START' && data.nodeType !== 'APP_INFO'"
       :position="Position.Left"
       type="target"
       :connectable-start="false"
@@ -138,7 +138,7 @@ function handleMouseLeave() {
       <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{{ data.label }}</span>
       <!-- 操作菜单 -->
       <NDropdown
-        v-if="data.type !== 'APP_INFO'"
+        v-if="data.nodeType !== 'APP_INFO'"
         :options="menuOptions"
         trigger="click"
         placement="bottom-end"
@@ -181,7 +181,7 @@ function handleMouseLeave() {
 
     <!-- 输出连接点 (右侧) -->
     <Handle
-      v-if="data.type !== 'END' && data.type !== 'APP_INFO'"
+      v-if="data.nodeType !== 'END' && data.nodeType !== 'APP_INFO'"
       :position="Position.Right"
       type="source"
       class="custom-handle custom-handle-source"
@@ -225,9 +225,4 @@ function handleMouseLeave() {
   font-size: 14px;
   color: #9ca3af;
 }
-
-/* 加号样式 (无连接时显示) */
-/* :deep(.vue-flow__handle.custom-handle.show-plus)::after {
-  content: '';
-} */
 </style>

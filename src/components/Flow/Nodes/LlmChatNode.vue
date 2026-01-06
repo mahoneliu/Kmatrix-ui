@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
-import { NForm, NFormItem, NInput, NSelect, NSlider, useMessage } from 'naive-ui';
+import { defineAsyncComponent, onMounted, reactive, ref, watch } from 'vue';
+import { NForm, NFormItem, NInput, NSelect, NSlider, NTabPane, NTabs, useMessage } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchModelList } from '@/service/api/ai/admin/model';
 import { useWorkflowStore } from '@/store/modules/workflow';
+import { getNodeInputParams } from '@/utils/workflow/node-params';
 import BaseNode from './BaseNode.vue';
+
+const ParamSelector = defineAsyncComponent(() => import('@/components/Flow/ParamSelector.vue'));
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
@@ -17,6 +20,12 @@ const formModel = reactive<Workflow.LlmNodeConfig>({
   temperature: 0.7,
   maxTokens: 2000
 });
+
+// 参数绑定配置
+const paramBindings = ref<Workflow.ParamBinding[]>([]);
+
+// 获取节点输入参数定义
+const inputParams = getNodeInputParams('LLM_CHAT');
 
 // 模型选项
 const modelOptions = ref<Array<{ label: string; value: CommonType.IdType }>>([]);
@@ -49,7 +58,25 @@ function initData() {
     formModel.temperature = config.temperature || 0.7;
     formModel.maxTokens = config.maxTokens || 2000;
   }
+
+  // 初始化参数绑定
+  paramBindings.value = props.data.paramBindings || [];
 }
+
+// 监听参数绑定变化
+watch(
+  paramBindings,
+  newBindings => {
+    workflowStore.updateNode(props.id, {
+      ...workflowStore.nodes.find(n => n.id === props.id),
+      data: {
+        ...props.data,
+        paramBindings: newBindings
+      }
+    });
+  },
+  { deep: true }
+);
 
 // 监听局部表单变化, 同步到 Store
 watch(
@@ -99,48 +126,89 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:robot' }" class="llm-chat-node">
     <div class="w-96 p-3">
-      <NForm :model="formModel" label-placement="top" size="small" :show-feedback="false">
-        <NFormItem label="选择模型">
-          <NSelect
-            v-model:value="formModel.modelId"
-            :options="modelOptions"
-            :loading="loading"
-            placeholder="请选择 LLM 模型"
-            clearable
-          />
-        </NFormItem>
+      <NTabs type="line" size="small">
+        <!-- 基础配置标签页 -->
+        <NTabPane name="config" tab="基础配置">
+          <NForm :model="formModel" label-placement="top" size="small" :show-feedback="false">
+            <NFormItem label="选择模型">
+              <NSelect
+                v-model:value="formModel.modelId"
+                :options="modelOptions"
+                :loading="loading"
+                placeholder="请选择 LLM 模型"
+                clearable
+              />
+            </NFormItem>
 
-        <NFormItem label="系统提示词">
-          <NInput
-            v-model:value="formModel.systemPrompt"
-            type="textarea"
-            :rows="3"
-            placeholder="输入系统提示词，定义 AI 的角色和行为..."
-          />
-        </NFormItem>
+            <NFormItem label="系统提示词">
+              <NInput
+                v-model:value="formModel.systemPrompt"
+                type="textarea"
+                :rows="3"
+                placeholder="输入系统提示词，定义 AI 的角色和行为..."
+              />
+            </NFormItem>
 
-        <NFormItem label="温度 (Temperature)">
-          <NSlider
-            v-model:value="formModel.temperature"
-            :min="0"
-            :max="2"
-            :step="0.1"
-            :marks="{ 0: '0', 1: '1', 2: '2' }"
-          />
-          <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.temperature }}</div>
-        </NFormItem>
+            <NFormItem label="温度 (Temperature)">
+              <NSlider
+                v-model:value="formModel.temperature"
+                :min="0"
+                :max="2"
+                :step="0.1"
+                :marks="{ 0: '0', 1: '1', 2: '2' }"
+              />
+              <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.temperature }}</div>
+            </NFormItem>
 
-        <NFormItem label="最大 Token 数">
-          <NSlider
-            v-model:value="formModel.maxTokens"
-            :min="100"
-            :max="4000"
-            :step="100"
-            :marks="{ 100: '100', 2000: '2000', 4000: '4000' }"
-          />
-          <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.maxTokens }}</div>
-        </NFormItem>
-      </NForm>
+            <NFormItem label="最大 Token 数">
+              <NSlider
+                v-model:value="formModel.maxTokens"
+                :min="100"
+                :max="4000"
+                :step="100"
+                :marks="{ 100: '100', 2000: '2000', 4000: '4000' }"
+              />
+              <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.maxTokens }}</div>
+            </NFormItem>
+          </NForm>
+        </NTabPane>
+
+        <!-- 参数绑定标签页 -->
+        <NTabPane name="params" tab="参数绑定">
+          <div class="flex flex-col gap-3">
+            <div class="text-xs c-gray-5">配置节点输入参数的来源，可以从全局参数或上游节点输出中选择。</div>
+
+            <div v-for="param in inputParams" :key="param.key" class="flex flex-col gap-1">
+              <label class="text-xs c-gray-7 font-500 dark:c-gray-3">
+                {{ param.label }}
+                <span v-if="param.required" class="c-red-5">*</span>
+              </label>
+              <ParamSelector
+                :node-id="props.id"
+                :param-def="param"
+                :binding="paramBindings.find(b => b.paramKey === param.key)"
+                @update:binding="
+                  binding => {
+                    const index = paramBindings.findIndex(b => b.paramKey === param.key);
+                    if (binding) {
+                      if (index >= 0) {
+                        paramBindings[index] = binding;
+                      } else {
+                        paramBindings.push(binding);
+                      }
+                    } else if (index >= 0) {
+                      paramBindings.splice(index, 1);
+                    }
+                  }
+                "
+              />
+              <div v-if="param.description" class="text-xs c-gray-4">
+                {{ param.description }}
+              </div>
+            </div>
+          </div>
+        </NTabPane>
+      </NTabs>
     </div>
   </BaseNode>
 </template>

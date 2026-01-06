@@ -15,17 +15,19 @@ import { NODE_TYPE_MAPPING, NODE_TYPE_REVERSE_MAPPING } from './node-registry';
  */
 export function graphToDsl(graphData: any, workflowName: string): Workflow.WorkflowDSL {
   // 查找开始节点作为入口点
-  const startNode = graphData.nodes.find((node: any) => node.data?.type === 'START');
+  const startNode = graphData.nodes.find((node: any) => node.data?.nodeType === 'START');
   const entryPoint = startNode?.id || graphData.nodes[0]?.id || 'start';
 
   // 转换节点
   const nodes: Workflow.DslNodeConfig[] = graphData.nodes.map((node: any) => ({
     id: node.id,
-    type: NODE_TYPE_MAPPING[node.data?.type] || node.data?.type || 'LLM_CHAT',
+    type: NODE_TYPE_MAPPING[node.data?.nodeType] || node.data?.nodeType || 'LLM_CHAT',
     name: node.data?.label || node.id,
     config: node.data?.config || {},
     inputs: {},
-    condition: undefined
+    condition: undefined,
+    // 添加参数绑定配置
+    paramBindings: node.data?.paramBindings || []
   }));
 
   // 转换边
@@ -59,10 +61,12 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
       position: calculateNodePosition(index, dsl.nodes.length),
       data: {
         id: node.id,
-        type: nodeType,
+        nodeType,
         label: node.name,
         config: node.config || {},
-        status: 'idle' as Workflow.NodeStatus
+        status: 'idle' as Workflow.NodeStatus,
+        // 恢复参数绑定配置
+        paramBindings: (node as any).paramBindings || []
       }
     };
   });
@@ -170,7 +174,7 @@ export function validateGraph(graphData: any): { valid: boolean; errors: string[
   }
 
   // 检查是否有开始节点
-  const hasStartNode = graphData.nodes.some((node: any) => node.data?.type === 'START');
+  const hasStartNode = graphData.nodes.some((node: any) => node.data?.nodeType === 'START');
   if (!hasStartNode) {
     errors.push('必须包含一个开始节点');
   }

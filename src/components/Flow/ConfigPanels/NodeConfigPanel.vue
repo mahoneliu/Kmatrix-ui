@@ -12,7 +12,7 @@ const selectedNode = computed(() => workflowStore.selectedNode);
 const configComponent = computed(() => {
   if (!selectedNode.value || !selectedNode.value.data) return null;
 
-  const nodeType = selectedNode.value.data.type as Workflow.NodeType;
+  const nodeType = selectedNode.value.data.nodeType as Workflow.NodeType;
 
   const componentMap: Record<Workflow.NodeType, () => Promise<any>> = {
     APP_INFO: () => import('./AppInfoNodeConfig.vue'),

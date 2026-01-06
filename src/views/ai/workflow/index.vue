@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { markRaw, onMounted, ref } from 'vue';
+import { defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NButton, NCard, NSpace, useMessage } from 'naive-ui';
 import { VueFlow } from '@vue-flow/core';
@@ -16,7 +16,7 @@ import ComponentLibraryModal from '@/components/Flow/ComponentLibraryModal.vue';
 import AppInfoNode from '@/components/Flow/Nodes/AppInfoNode.vue';
 import StartNode from '@/components/Flow/Nodes/StartNode.vue';
 import EndNode from '@/components/Flow/Nodes/EndNode.vue';
-import LlmChatNode from '@/components/Flow/Nodes/LlmChatNode.vue';
+// import LlmChatNode from '@/components/Flow/Nodes/LlmChatNode.vue';
 import IntentClassifierNode from '@/components/Flow/Nodes/IntentClassifierNode.vue';
 import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
 import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
@@ -26,6 +26,8 @@ import '@vue-flow/core/dist/style.css';
 import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 import ComponentLibraryPanel from '@/components/Flow/ComponentLibraryPanel.vue';
+
+const LlmChatNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/LlmChatNode.vue'));
 
 const route = useRoute();
 const message = useMessage();
@@ -79,8 +81,6 @@ function onPaneReady(instance: any) {
     }
 
     // 获取鼠标位置
-    // const clientX = 'touches' in event ? event.changedTouches[0].clientX : event.clientX;
-    // const clientY = 'touches' in event ? event.changedTouches[0].clientY : event.clientY;
     const clientX = event.clientX;
     const clientY = event.clientY;
 
@@ -114,15 +114,16 @@ function onPaneReady(instance: any) {
             animated: false
           });
         } else {
-          const sourceType = connectingSourceNode.data.type as Workflow.NodeType;
-          const targetType = targetNode.data.type as Workflow.NodeType;
+          const sourceType = connectingSourceNode.data.nodeType as Workflow.NodeType;
+          const targetType = targetNode.data.nodeType as Workflow.NodeType;
           if (!isValidConnection(sourceType, targetType)) {
             message.warning('该节点类型不允许连接到目标节点');
           }
         }
       }
     } else {
-      handleSourceHandleClick(event, connectingSourceNode.id);
+      // 与connection-radius="100"冲突，暂时不启用
+      // handleSourceHandleClick(event, connectingSourceNode.id);
     }
 
     connectingSourceNode = null;
@@ -150,8 +151,8 @@ function onPaneReady(instance: any) {
       const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
 
       if (targetNode && connectingSourceNode && connectingSourceNode.id !== targetNodeId) {
-        const sourceType = connectingSourceNode.data.type as Workflow.NodeType;
-        const targetType = targetNode.data.type as Workflow.NodeType;
+        const sourceType = connectingSourceNode.data.nodeType as Workflow.NodeType;
+        const targetType = targetNode.data.nodeType as Workflow.NodeType;
 
         // 使用统一的验证函数
         if (!isValidConnection(sourceType, targetType)) {
@@ -177,8 +178,8 @@ function validateConnection(connection: Connection) {
 
   if (!sourceNode || !targetNode) return false;
 
-  const sourceType = sourceNode.data.type as Workflow.NodeType;
-  const targetType = targetNode.data.type as Workflow.NodeType;
+  const sourceType = sourceNode.data.nodeType as Workflow.NodeType;
+  const targetType = targetNode.data.nodeType as Workflow.NodeType;
 
   // 基础规则验证
   if (!isValidConnection(sourceType, targetType)) return false;
@@ -225,11 +226,12 @@ function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: n
     position,
     data: {
       id: `${nodeType.toLowerCase()}-${timestamp}`,
-      type: nodeType,
+      nodeType,
       label: nodeConfig.label,
       icon: nodeConfig.icon,
       status: 'idle' as Workflow.NodeStatus,
-      config: {}
+      config: {},
+      paramBindings: []
     }
   };
 }
@@ -270,7 +272,7 @@ async function loadWorkflow() {
           position: { x: 500, y: 150 }, // 向右移动,避开左上角的基础信息节点
           data: {
             id: 'start',
-            type: 'START' as Workflow.NodeType,
+            nodeType: 'START' as Workflow.NodeType,
             label: '开始',
             status: 'idle' as Workflow.NodeStatus
           }
@@ -298,11 +300,11 @@ async function handleSave() {
   }
 
   // 获取基础信息节点的配置
-  const appInfoNode = workflowStore.nodes.find(n => n.data.type === 'APP_INFO');
+  const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
   const appInfoConfig = appInfoNode?.data.config as Workflow.AppInfoConfig | undefined;
 
   // 过滤掉基础信息节点(不属于工作流)
-  const workflowNodes = workflowStore.nodes.filter(n => n.data.type !== 'APP_INFO');
+  const workflowNodes = workflowStore.nodes.filter(n => n.data.nodeType !== 'APP_INFO');
   const graphData = {
     nodes: workflowNodes,
     edges: workflowStore.edges
@@ -353,7 +355,7 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
       position: { x: 50, y: 50 },
       data: {
         id: 'app-info',
-        type: 'APP_INFO' as Workflow.NodeType,
+        nodeType: 'APP_INFO' as Workflow.NodeType,
         label: '基础信息',
         icon: 'mdi:information',
         status: 'idle' as Workflow.NodeStatus,
@@ -391,14 +393,14 @@ function handleDuplicateNode(nodeId: string) {
   const timestamp = Date.now();
   const newNode = {
     ...originalNode,
-    id: `${originalNode.data.type.toLowerCase()}-${timestamp}`,
+    id: `${originalNode.data.nodeType.toLowerCase()}-${timestamp}`,
     position: {
       x: originalNode.position.x + 50,
       y: originalNode.position.y + 50
     },
     data: {
       ...originalNode.data,
-      id: `${originalNode.data.type.toLowerCase()}-${timestamp}`
+      id: `${originalNode.data.nodeType.toLowerCase()}-${timestamp}`
     }
   };
 
@@ -597,7 +599,7 @@ onMounted(() => {
         v-model:nodes="workflowStore.nodes"
         v-model:edges="workflowStore.edges"
         :edge-types="edgeTypes"
-        :connection-radius="30"
+        :connection-radius="100"
         class="h-full w-full"
         @pane-ready="onPaneReady"
       >
@@ -608,12 +610,15 @@ onMounted(() => {
         <!-- 自定义节点模板 -->
         <template #node-custom="nodeProps">
           <component
-            :is="getNodeComponent(nodeProps.data.type)"
+            :is="getNodeComponent(nodeProps.data.nodeType)"
             v-bind="nodeProps"
             @delete-node="handleDeleteNode"
             @duplicate-node="handleDuplicateNode"
             @source-handle-click="handleSourceHandleClick"
           />
+          <div v-if="false" class="absolute left-0 z-50 whitespace-pre bg-black p-1 text-xs text-white -top-10">
+            Type: {{ nodeProps.data.nodeType }} Data: {{ JSON.stringify(nodeProps.data, null, 2) }}
+          </div>
         </template>
       </VueFlow>
 
@@ -638,11 +643,6 @@ onMounted(() => {
 </template>
 
 <style>
-/* 非法连接目标的禁止鼠标样式 - 必须是全局样式才能影响 VueFlow 节点 */
-/* .vue-flow__node.connection-invalid {
-  cursor: not-allowed !important;
-} */
-
 .vue-flow__node.connection-invalid::after {
   content: '❌';
   position: absolute;
