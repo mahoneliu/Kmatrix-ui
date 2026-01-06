@@ -26,7 +26,7 @@ function onMouseLeave() {
   hoverTimer = window.setTimeout(() => {
     isHovered.value = false;
     hoverTimer = null;
-  }, 50);
+  }, 200);
 }
 
 function deleteEdge() {

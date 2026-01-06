@@ -301,7 +301,7 @@ const local: App.I18n.Schema = {
     ai: 'AI',
     'ai_model-manager': '模型管理',
     'ai_app-manager': '应用管理',
-    'ai_app-manager_workflow': '工作流编排',
+    ai_workflow: '工作流编排',
     ai_chat: 'AI对话'
   },
   menu: {

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { NPopover } from 'naive-ui';
-import { getAllNodeTypes } from '@/utils/workflow/node-registry';
-import SvgIcon from '@/components/custom/svg-icon.vue';
+import ComponentLibraryPanel from './ComponentLibraryPanel.vue';
 
 interface Emits {
   (e: 'select', nodeType: Workflow.NodeType): void;
@@ -13,68 +12,14 @@ const emit = defineEmits<Emits>();
 
 const showPopover = ref(false);
 
-// 获取所有可用的节点类型(排除系统节点)
-const availableNodeTypes = getAllNodeTypes().filter(n => !n.isSystem);
-
-// 定义分类配置
-const categories = [
-  { key: 'basic', label: '基础节点' },
-  { key: 'ai', label: 'AI 节点' },
-  { key: 'logic', label: '逻辑节点' },
-  { key: 'action', label: '动作节点' }
-] as const;
-
-// 按分类组织节点类型
-const nodeTypesByCategory = computed(() =>
-  categories
-    .map(category => ({
-      ...category,
-      nodes: availableNodeTypes.filter(n => n.category === category.key)
-    }))
-    .filter(category => category.nodes.length > 0)
-);
-
-// 从组件库选择节点
-function handleSelectNode(nodeType: Workflow.NodeType) {
+function handleSelect(nodeType: Workflow.NodeType) {
   emit('select', nodeType);
   showPopover.value = false;
 }
 
-// 处理鼠标按下，检测拖拽或点击
-function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
-  const startX = e.clientX;
-  const startY = e.clientY;
-  let isDrag = false;
-
-  // eslint-disable-next-line prefer-const
-  let onMove: (mv: MouseEvent) => void;
-  // eslint-disable-next-line prefer-const
-  let onUp: () => void;
-
-  const cleanup = () => {
-    window.removeEventListener('mousemove', onMove);
-    window.removeEventListener('mouseup', onUp);
-  };
-
-  onMove = (mv: MouseEvent) => {
-    // 移动超过 5px 视为拖拽
-    if (!isDrag && Math.hypot(mv.clientX - startX, mv.clientY - startY) > 5) {
-      isDrag = true;
-      showPopover.value = false; // 拖拽开始时关闭 Popover
-      emit('dragStart', { type: nodeType, x: startX, y: startY });
-      cleanup();
-    }
-  };
-
-  onUp = () => {
-    if (!isDrag) {
-      handleSelectNode(nodeType);
-    }
-    cleanup();
-  };
-
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onUp);
+function handleDragStart(data: { type: Workflow.NodeType; x: number; y: number }) {
+  showPopover.value = false;
+  emit('dragStart', data);
 }
 </script>
 
@@ -91,60 +36,6 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
       <slot name="trigger" />
     </template>
 
-    <div class="max-h-125 w-110 overflow-y-auto rounded-2 bg-container p-4 shadow-lg">
-      <!-- 循环渲染所有分类 -->
-      <div
-        v-for="(category, index) in nodeTypesByCategory"
-        :key="category.key"
-        :class="{ 'mb-4': index < nodeTypesByCategory.length - 1 }"
-      >
-        <div class="mb-2 pl-1 text-3 c-gray-6 font-bold">{{ category.label }}</div>
-        <div class="grid grid-cols-2 gap-2">
-          <!-- 循环渲染分类下的节点 -->
-          <!-- 循环渲染分类下的节点 -->
-          <NPopover
-            v-for="nodeType in category.nodes"
-            :key="nodeType.type"
-            placement="right"
-            trigger="hover"
-            :show-arrow="false"
-            :delay="1000"
-            raw
-          >
-            <template #trigger>
-              <div
-                class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-white px-3 py-2 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
-                @mousedown="handleMouseDown($event, nodeType.type)"
-              >
-                <div
-                  class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
-                  :style="{ backgroundColor: nodeType.color + '20', color: nodeType.color }"
-                >
-                  <SvgIcon :icon="nodeType.icon" class="text-lg" />
-                </div>
-                <div class="flex-1 text-3.5 c-gray-7 font-500 leading-tight dark:c-gray-2">
-                  {{ nodeType.label }}
-                </div>
-              </div>
-            </template>
-            <!-- Popover 详情 -->
-            <div class="max-w-65 rounded-2 bg-container p-3 shadow-md">
-              <!-- 上部：图标 + 标题 -->
-              <div class="mb-2 flex items-center gap-2.5">
-                <div
-                  class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
-                  :style="{ backgroundColor: nodeType.color + '20', color: nodeType.color }"
-                >
-                  <SvgIcon :icon="nodeType.icon" class="text-xl" />
-                </div>
-                <div class="text-3.75 c-base-text font-600">{{ nodeType.label }}</div>
-              </div>
-              <!-- 下部：描述 -->
-              <div class="text-3.25 c-base-text leading-normal op-70">{{ nodeType.description }}</div>
-            </div>
-          </NPopover>
-        </div>
-      </div>
-    </div>
+    <ComponentLibraryPanel @select="handleSelect" @drag-start="handleDragStart" />
   </NPopover>
 </template>

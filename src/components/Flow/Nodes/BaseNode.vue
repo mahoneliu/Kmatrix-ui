@@ -18,6 +18,7 @@ const emit = defineEmits<{
   nodeClick: [id: string];
   deleteNode: [id: string];
   duplicateNode: [id: string];
+  sourceHandleClick: [event: MouseEvent, id: string];
 }>();
 
 const workflowStore = useWorkflowStore();
@@ -27,12 +28,12 @@ const hasSourceConnection = computed(() => {
   return workflowStore.edges.some(e => e.source === props.id);
 });
 
-const hasTargetConnection = computed(() => {
-  return workflowStore.edges.some(e => e.target === props.id);
-});
-
 // 折叠状态
 const collapsed = ref(false);
+
+// Handle 显示状态（用于延时隐藏）
+const showHandles = ref(false);
+let handleHideTimer: number | null = null;
 
 // 菜单选项
 const menuOptions: DropdownOption[] = [
@@ -48,10 +49,9 @@ const menuOptions: DropdownOption[] = [
   }
 ];
 
-// 根据状态计算样式类
+// 计算样式类
 const statusClass = computed(() => {
-  const status = props.data.status || 'idle';
-  const classes = [`status-${status}`];
+  const classes = [];
   if (props.selected) classes.push('selected');
   return classes.join(' ');
 });
@@ -86,22 +86,50 @@ function handleMenuSelect(key: string) {
     emit('duplicateNode', props.id);
   }
 }
+
+function handleSourceHandleClick(e: MouseEvent) {
+  e.stopPropagation();
+  emit('sourceHandleClick', e, props.id);
+}
+
+// 鼠标进入节点
+function handleMouseEnter() {
+  if (handleHideTimer) {
+    clearTimeout(handleHideTimer);
+    handleHideTimer = null;
+  }
+  showHandles.value = true;
+}
+
+// 鼠标离开节点
+function handleMouseLeave() {
+  if (hasSourceConnection.value) {
+    showHandles.value = false;
+    return;
+  }
+  handleHideTimer = window.setTimeout(() => {
+    showHandles.value = false;
+  }, 1000);
+}
 </script>
 
 <template>
   <div
     class="workflow-node min-w-45 cursor-pointer rounded-2 b-solid bg-white p-3 shadow-sm transition-all dark:bg-dark-2 hover:shadow-md"
-    :class="[statusClass, selected ? 'b-2' : 'b-1 hover:b-2']"
+    :class="[statusClass, selected ? 'b-2' : 'b-1 hover:b-2', { 'handles-visible': showHandles || selected }]"
     :style="{ borderColor: nodeColor }"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
     <!-- 输入连接点 (左侧) -->
     <Handle
       v-if="data.type !== 'START' && data.type !== 'APP_INFO'"
       :position="Position.Left"
       type="target"
-      class="custom-handle"
-      :class="{ 'show-plus': !hasTargetConnection }"
+      :connectable-start="false"
+      :connectable-end="true"
+      class="custom-handle custom-handle-target"
     />
 
     <!-- 节点头部 -->
@@ -117,7 +145,7 @@ function handleMenuSelect(key: string) {
         @select="handleMenuSelect"
       >
         <button
-          class="h-5 w-5 flex items-center justify-center rounded transition-colors hover:bg-gray-1 dark:hover:bg-dark-3"
+          class="h-5 w-5 flex items-center justify-center rounded bg-white transition-colors dark:bg-dark-3 hover:bg-gray-1 dark:hover:bg-dark-4"
           @click.stop
         >
           <SvgIcon icon="mdi:dots-vertical" class="text-4 c-gray-5" />
@@ -126,7 +154,7 @@ function handleMenuSelect(key: string) {
       <!-- 折叠按钮 -->
       <button
         v-if="$slots.default"
-        class="h-5 w-5 flex items-center justify-center rounded transition-colors hover:bg-gray-1 dark:hover:bg-dark-3"
+        class="h-5 w-5 flex items-center justify-center rounded bg-white transition-colors dark:bg-dark-3 hover:bg-gray-1 dark:hover:bg-dark-4"
         @click="toggleCollapse"
       >
         <SvgIcon :icon="collapsed ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="text-4 c-gray-5" />
@@ -156,89 +184,50 @@ function handleMenuSelect(key: string) {
       v-if="data.type !== 'END' && data.type !== 'APP_INFO'"
       :position="Position.Right"
       type="source"
-      class="custom-handle"
-      :class="{ 'show-plus': !hasSourceConnection }"
+      class="custom-handle custom-handle-source"
+      :class="[{ 'show-plus': !hasSourceConnection }, { 'handles-visible': showHandles || selected }]"
+      @click="handleSourceHandleClick"
     />
   </div>
 </template>
 
 <style scoped>
-/* Handle 基础样式 */
-:deep(.vue-flow__handle.custom-handle) {
-  width: 10px;
-  height: 10px;
-  background: #fff;
-  border: 2px solid #9ca3af; /* gray-400 */
-  border-radius: 50%;
-  opacity: 0; /* 默认隐藏 */
-  transition: all 0.2s;
-  z-index: 10;
+/* Handle 基础样式 - 默认隐藏 */
+.workflow-node :deep(.vue-flow__handle.custom-handle) {
+  width: 0px !important;
+  height: 0px !important;
+  border-radius: 50% !important;
 }
 
-/* Hover 或 Selected 时显示 Handle */
-.workflow-node:hover :deep(.vue-flow__handle),
-.workflow-node.selected :deep(.vue-flow__handle) {
-  opacity: 1;
+/* Hover 或 Selected 或 JavaScript 控制时显示完整 Handle */
+.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle.custom-handle-source) {
+  right: -10px !important; /* 向外突出 */
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid !important;
+  opacity: 1 !important;
+  border-color: #9ba0a1 !important;
 }
 
-/* 加上加号的样式 (无连接时) */
-:deep(.vue-flow__handle.custom-handle.show-plus)::after {
+/* 显示状态下 Target Handle 样式和位置 */
+.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle-target) {
+  background: #9ba0a1 !important;
+  pointer-events: none !important;
+}
+
+/* 加号样式 (无连接时显示) */
+.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle.show-plus)::after {
   content: '+';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 10px;
+  font-size: 14px;
   color: #9ca3af;
-  line-height: 1;
-  pointer-events: none;
 }
 
-:deep(.vue-flow__handle.custom-handle.show-plus) {
-  width: 14px;
-  height: 14px;
-  border-width: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f9fafb; /* gray-50 */
-}
-
-/* 运行状态动画 - 保留少量原生 CSS 用于动画 */
-.workflow-node.status-running {
-  border-width: 3px;
-  animation: pulse 2s infinite;
-}
-
-.workflow-node.status-success {
-  border-color: #10b981 !important;
-}
-
-.workflow-node.status-error {
-  border-color: #ef4444 !important;
-  animation: shake 0.5s;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
-  }
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  75% {
-    transform: translateX(4px);
-  }
-}
+/* 加号样式 (无连接时显示) */
+/* :deep(.vue-flow__handle.custom-handle.show-plus)::after {
+  content: '';
+} */
 </style>

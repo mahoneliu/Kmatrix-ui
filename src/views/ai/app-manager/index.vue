@@ -23,16 +23,16 @@ const router = useRouter();
 const message = useMessage();
 const modalVisible = ref(false);
 const operateType = ref<'add' | 'edit'>('add');
-const editingData = ref<Api.AI.App | null>(null);
+const editingData = ref<Api.AI.Admin.App | null>(null);
 
-const searchParams = ref<Api.AI.AppSearchParams>({
+const searchParams = ref<Api.AI.Admin.AppSearchParams>({
   pageNo: 1,
   pageSize: 20,
   appName: '',
   status: undefined
 });
 
-const appList = ref<Api.AI.App[]>([]);
+const appList = ref<Api.AI.Admin.App[]>([]);
 const loading = ref(false);
 
 async function getData() {
@@ -49,17 +49,17 @@ async function getData() {
 
 function handleAdd(appType: '1' | '2' = '1') {
   operateType.value = 'add';
-  editingData.value = { appType } as Api.AI.App;
+  editingData.value = { appType } as Api.AI.Admin.App;
   modalVisible.value = true;
 }
 
-function handleEdit(item: Api.AI.App) {
+function handleEdit(item: Api.AI.Admin.App) {
   operateType.value = 'edit';
   editingData.value = { ...item };
   modalVisible.value = true;
 }
 
-async function handleDelete(item: Api.AI.App) {
+async function handleDelete(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   try {
     await deleteApp([Number(item.appId)]);
@@ -70,7 +70,7 @@ async function handleDelete(item: Api.AI.App) {
   }
 }
 
-function handleChat(item: Api.AI.App) {
+function handleChat(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
     name: 'ai_chat',
@@ -78,12 +78,12 @@ function handleChat(item: Api.AI.App) {
   });
 }
 
-function handleSettings(item: Api.AI.App) {
+function handleSettings(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   // 如果是工作流类型,跳转到工作流编排页面
   if (item.appType === '2') {
     router.push({
-      name: 'ai_app-manager_workflow',
+      name: 'ai_workflow',
       query: { appId: item.appId.toString() }
     });
   } else {
@@ -99,7 +99,7 @@ function onModalClose(createdAppId?: number, appType?: '1' | '2') {
   // 如果是新建的工作流应用,自动打开工作流编排页面
   if (createdAppId && appType === '2') {
     router.push({
-      name: 'ai_app-manager_workflow',
+      name: 'ai_workflow',
       query: { appId: createdAppId.toString() }
     });
   }
