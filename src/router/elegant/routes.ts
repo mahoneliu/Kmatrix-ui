@@ -91,6 +91,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_node-definition',
+        path: '/ai/node-definition',
+        component: 'view.ai_node-definition',
+        meta: {
+          title: 'ai_node-definition',
+          i18nKey: 'route.ai_node-definition'
+        }
+      },
+      {
         name: 'ai_workflow',
         path: '/ai/workflow',
         component: 'view.ai_workflow',
@@ -99,7 +108,18 @@ export const generatedRoutes: GeneratedRoute[] = [
           i18nKey: 'route.ai_workflow',
           hideInMenu: true,
           constant: true
-        }
+        },
+        children: [
+          {
+            name: 'ai_workflow_node',
+            path: '/ai/workflow/node',
+            component: 'view.ai_workflow_node',
+            meta: {
+              title: 'ai_workflow_node',
+              i18nKey: 'route.ai_workflow_node'
+            }
+          }
+        ]
       }
     ]
   },

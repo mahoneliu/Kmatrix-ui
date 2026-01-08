@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { NPopover } from 'naive-ui';
-import { getAllNodeTypes } from '@/utils/workflow/node-registry';
+import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Emits {
@@ -11,8 +11,27 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-// 获取所有可用的节点类型(排除系统节点)
-const availableNodeTypes = getAllNodeTypes().filter(n => !n.isSystem);
+// 使用 store
+const nodeDefinitionStore = useNodeDefinitionStore();
+
+// 在组件挂载时加载节点定义
+onMounted(async () => {
+  console.log('[ComponentLibraryPanel] onMounted - loaded:', nodeDefinitionStore.loaded);
+  if (!nodeDefinitionStore.loaded) {
+    console.log('[ComponentLibraryPanel] 开始加载节点定义...');
+    await nodeDefinitionStore.loadNodeDefinitions();
+    console.log('[ComponentLibraryPanel] 加载完成，节点数量:', nodeDefinitionStore.nodeDefinitions.length);
+  }
+  console.log('[ComponentLibraryPanel] 所有节点:', nodeDefinitionStore.getAllNodeTypes());
+});
+
+// 获取所有可用的节点类型(排除系统节点) - 使用 computed 确保响应式
+const availableNodeTypes = computed(() => {
+  const allNodes = nodeDefinitionStore.getAllNodeTypes();
+  const filtered = allNodes.filter(n => !n.isSystem);
+  console.log('[ComponentLibraryPanel] availableNodeTypes computed - 总数:', allNodes.length, '可用:', filtered.length);
+  return filtered;
+});
 
 // 定义分类配置
 const categories = [
@@ -27,7 +46,7 @@ const nodeTypesByCategory = computed(() =>
   categories
     .map(category => ({
       ...category,
-      nodes: availableNodeTypes.filter(n => n.category === category.key)
+      nodes: availableNodeTypes.value.filter(n => n.category === category.key)
     }))
     .filter(category => category.nodes.length > 0)
 );

@@ -302,6 +302,8 @@ const local: App.I18n.Schema = {
     'ai_model-manager': '模型管理',
     'ai_app-manager': '应用管理',
     ai_workflow: '工作流编排',
+    'ai_node-definition': '节点定义管理',
+    ai_workflow_node: '节点管理',
     ai_chat: 'AI对话'
   },
   menu: {
@@ -1204,6 +1206,34 @@ const local: App.I18n.Schema = {
         importSuccess: '导入成功',
         statusChangeSuccess: '状态修改成功'
       }
+    },
+    nodeDefinition: {
+      title: '节点定义管理',
+      tableView: '表格视图',
+      jsonView: 'JSON 视图',
+      import: '导入配置',
+      export: '导出配置',
+      save: '保存配置',
+      reset: '重置',
+      formatJson: '格式化',
+      searchPlaceholder: '搜索节点类型、标签、描述...',
+      filterCategory: '筛选分类',
+      listTitle: '节点定义列表',
+      jsonEditorTitle: 'JSON 编辑器',
+      confirmSaveTitle: '确认保存',
+      confirmSaveContent: '确定要保存 {count} 个节点定义吗?保存后会立即生效。',
+      confirmResetTitle: '确认重置',
+      confirmResetContent: '确定要重置所有修改吗?未保存的更改将丢失。',
+      saveSuccess: '保存成功',
+      saveFail: '保存失败',
+      importSuccess: '导入成功',
+      importFail: '导入失败',
+      exportSuccess: '导出成功',
+      exportFail: '导出失败',
+      jsonParseSuccess: 'JSON 解析成功',
+      jsonParseFail: 'JSON 解析失败',
+      jsonFormatError: 'JSON 格式错误: 缺少 nodeTypes 数组',
+      editTip: '编辑功能开发中...'
     },
     about: {
       title: '关于',

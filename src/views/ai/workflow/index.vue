@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
+import { computed, defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NButton, NCard, NSpace, useMessage } from 'naive-ui';
 import { VueFlow } from '@vue-flow/core';
@@ -9,7 +9,7 @@ import { MiniMap } from '@vue-flow/minimap';
 import type { Connection } from '@vue-flow/core';
 import { fetchAppDetail, updateApp } from '@/service/api/ai/admin/app';
 import { useWorkflowStore } from '@/store/modules/workflow';
-import { getAllNodeTypes } from '@/utils/workflow/node-registry';
+import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/workflow/dsl-converter';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
 import ComponentLibraryModal from '@/components/Flow/ComponentLibraryModal.vue';
@@ -34,6 +34,8 @@ const message = useMessage();
 const appId = route.query.appId as unknown as CommonType.IdType;
 
 const workflowStore = useWorkflowStore();
+const nodeDefinitionStore = useNodeDefinitionStore();
+
 // 拖拽容器 Ref
 const flowWrapper = ref<HTMLElement | null>(null);
 const vueFlowInstance = ref<any>(null);
@@ -197,8 +199,10 @@ const appName = ref('');
 const showHandlePanel = ref(false);
 const handlePanelPosition = ref({ x: 0, y: 0 });
 
-// 获取所有可用的节点类型
-const availableNodeTypes = getAllNodeTypes();
+// 获取所有可用的节点类型 - 使用 computed 确保响应式
+const availableNodeTypes = computed(() => nodeDefinitionStore.getAllNodeTypes());
+
+const DynamicNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/DynamicNode.vue'));
 
 // 根据节点类型获取对应的组件
 function getNodeComponent(nodeType: Workflow.NodeType) {
@@ -211,12 +215,12 @@ function getNodeComponent(nodeType: Workflow.NodeType) {
     FIXED_RESPONSE: markRaw(FixedResponseNode),
     APP_INFO: markRaw(AppInfoNode)
   };
-  return componentMap[nodeType] || markRaw(StartNode);
+  return componentMap[nodeType] || markRaw(DynamicNode);
 }
 
 // 创建新节点数据
 function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: number }) {
-  const nodeConfig = availableNodeTypes.find(n => n.type === nodeType);
+  const nodeConfig = availableNodeTypes.value.find(n => n.type === nodeType);
   if (!nodeConfig) return null;
 
   const timestamp = Date.now();
@@ -482,7 +486,7 @@ function handlePanelDragStart(data: { type: Workflow.NodeType; x: number; y: num
 
 // 手动拖拽处理 (绕过 HTML5 DnD 限制)
 function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: number; y: number }) {
-  const nodeConfig = availableNodeTypes.find(n => n.type === type);
+  const nodeConfig = availableNodeTypes.value.find(n => n.type === type);
 
   // 创建跟随鼠标的 Ghost 元素
   const ghost = document.createElement('div');
@@ -557,8 +561,17 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
 }
 
 // 组件挂载时加载工作流
-onMounted(() => {
-  loadWorkflow();
+onMounted(async () => {
+  try {
+    // 先加载节点定义
+    await nodeDefinitionStore.loadNodeDefinitions();
+    // 再加载工作流
+    await loadWorkflow();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('初始化失败:', error);
+    message.error('初始化失败,请刷新页面重试');
+  }
 });
 </script>
 

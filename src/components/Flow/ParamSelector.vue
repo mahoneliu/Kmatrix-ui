@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NSelect, NTag } from 'naive-ui';
-import type { SelectOption } from 'naive-ui';
+import { NCascader, NTag } from 'naive-ui';
+import type { CascaderOption } from 'naive-ui';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import {
   filterParamSourcesByType,
@@ -42,9 +42,9 @@ const availableSources = computed(() => {
   return sources;
 });
 
-// 转换为 Select 选项
-const selectOptions = computed<SelectOption[]>(() => {
-  const options: SelectOption[] = [];
+// 转换为 Cascader 选项 (两级联动)
+const cascaderOptions = computed<CascaderOption[]>(() => {
+  const options: CascaderOption[] = [];
 
   availableSources.value.forEach(source => {
     // 确保 params 存在
@@ -52,61 +52,96 @@ const selectOptions = computed<SelectOption[]>(() => {
       return;
     }
 
-    // 创建分组选项,使用 children 属性
-    const groupOption: SelectOption = {
-      type: 'group',
+    // 创建第一级选项(参数来源)
+    const sourceOption: CascaderOption = {
       label: source.sourceName,
-      key: `group-${source.sourceKey}`,
+      value: source.sourceKey,
       children: source.params.map(param => {
-        const value = source.type === 'global' ? `global::${param.key}` : `node::${source.sourceKey}::${param.key}`;
-
+        // 第二级选项(具体参数)
         return {
           label: `${param.label} (${param.type})`,
-          value,
-          disabled: false
+          value: param.key
         };
       })
     };
 
-    options.push(groupOption);
+    options.push(sourceOption);
   });
 
   return options;
 });
 
-// 当前选中值
-const selectedValue = computed({
-  get() {
-    if (!props.binding) return null;
+// 当前选中值 (两级数组)
+const selectedValue = computed(() => {
+  if (!props.binding) return null;
 
-    if (props.binding.sourceType === 'global') {
-      return `global::${props.binding.sourceKey}`;
-    }
-    return `node::${props.binding.sourceKey}::${props.binding.sourceParam}`;
-  },
-  set(value: string | null) {
-    if (!value) {
-      emit('update:binding', undefined);
-      return;
-    }
+  if (props.binding.sourceType === 'global') {
+    return ['global', props.binding.sourceKey];
+  }
+  return [props.binding.sourceKey, props.binding.sourceParam || ''];
+});
 
-    const parts = value.split('::');
-    if (parts[0] === 'global') {
-      emit('update:binding', {
-        paramKey: props.paramDef.key,
-        sourceType: 'global',
-        sourceKey: parts[1]
-      });
-    } else if (parts[0] === 'node') {
-      emit('update:binding', {
-        paramKey: props.paramDef.key,
-        sourceType: 'node',
-        sourceKey: parts[1],
-        sourceParam: parts[2]
-      });
+// 处理值变化
+function handleValueChange(
+  value: string | number | Array<string | number> | null,
+  option: CascaderOption | null | Array<CascaderOption | null>
+) {
+  console.log('ParamSelector value changed:', value);
+  console.log('ParamSelector option:', option);
+
+  if (!value || !option) {
+    emit('update:binding', undefined);
+    return;
+  }
+
+  // option 可能是单个对象或数组,我们需要获取路径
+  // 由于 Cascader 返回的是叶子节点,我们需要从 value 本身推断路径
+  // 但实际上我们应该从选项结构中查找父节点
+
+  // 简化方案:在 value 中编码完整路径
+  // 由于当前 value 只是叶子节点的值,我们需要遍历 options 找到对应的父节点
+  const paramKey = String(value);
+
+  // 在所有来源中查找包含这个参数的来源
+  let foundSource: Workflow.ParamSource | null = null;
+  let foundParam: Workflow.ParamDefinition | null = null;
+
+  for (const source of availableSources.value) {
+    const param = source.params?.find(p => p.key === paramKey);
+    if (param) {
+      foundSource = source;
+      foundParam = param;
+      break;
     }
   }
-});
+
+  console.log('Found source:', foundSource);
+  console.log('Found param:', foundParam);
+
+  if (!foundSource || !foundParam) {
+    emit('update:binding', undefined);
+    return;
+  }
+
+  if (foundSource.type === 'global') {
+    const binding = {
+      paramKey: props.paramDef.key,
+      sourceType: 'global' as const,
+      sourceKey: paramKey
+    };
+    console.log('Emitting global binding:', binding);
+    emit('update:binding', binding);
+  } else {
+    const binding = {
+      paramKey: props.paramDef.key,
+      sourceType: 'node' as const,
+      sourceKey: foundSource.sourceKey,
+      sourceParam: paramKey
+    };
+    console.log('Emitting node binding:', binding);
+    emit('update:binding', binding);
+  }
+}
 
 // 显示文本
 const displayText = computed(() => {
@@ -117,18 +152,21 @@ const displayText = computed(() => {
 
 <template>
   <div class="param-selector">
-    <NSelect
-      v-model:value="selectedValue"
-      :options="selectOptions"
+    <NCascader
+      :value="selectedValue"
+      :options="cascaderOptions"
       :placeholder="`选择 ${paramDef.label} 的来源`"
       clearable
       filterable
       size="small"
+      expand-trigger="hover"
+      show-path
+      @update:value="handleValueChange"
     >
       <template #empty>
         <div class="py-2 text-center text-xs c-gray-4">暂无可用参数来源</div>
       </template>
-    </NSelect>
+    </NCascader>
 
     <!-- 当前绑定显示 -->
     <div v-if="binding" class="mt-1 flex items-center gap-1">

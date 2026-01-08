@@ -1013,6 +1013,34 @@ declare namespace App {
             statusChangeSuccess: string;
           };
         };
+        nodeDefinition: {
+          title: string;
+          tableView: string;
+          jsonView: string;
+          import: string;
+          export: string;
+          save: string;
+          reset: string;
+          formatJson: string;
+          searchPlaceholder: string;
+          filterCategory: string;
+          listTitle: string;
+          jsonEditorTitle: string;
+          confirmSaveTitle: string;
+          confirmSaveContent: string;
+          confirmResetTitle: string;
+          confirmResetContent: string;
+          saveSuccess: string;
+          saveFail: string;
+          importSuccess: string;
+          importFail: string;
+          exportSuccess: string;
+          exportFail: string;
+          jsonParseSuccess: string;
+          jsonParseFail: string;
+          jsonFormatError: string;
+          editTip: string;
+        };
         about: {
           title: string;
           introduction: string;

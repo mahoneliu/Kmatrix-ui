@@ -306,6 +306,8 @@ const local: App.I18n.Schema = {
     'ai_model-manager': 'Model Manager',
     'ai_app-manager': 'App Manager',
     ai_workflow: 'Workflow',
+    'ai_node-definition': 'Node Definition',
+    ai_workflow_node: 'Node Management',
     ai_chat: 'AI Chat'
   },
   menu: {
@@ -1212,6 +1214,35 @@ const local: App.I18n.Schema = {
         importSuccess: 'Import successful',
         statusChangeSuccess: 'Status modified successfully'
       }
+    },
+    nodeDefinition: {
+      title: 'Node Definition Management',
+      tableView: 'Table View',
+      jsonView: 'JSON View',
+      import: 'Import Config',
+      export: 'Export Config',
+      save: 'Save Config',
+      reset: 'Reset Config',
+      formatJson: 'Format JSON',
+      searchPlaceholder: 'Search node type, label, description...',
+      filterCategory: 'Filter Category',
+      listTitle: 'Node Definition List',
+      jsonEditorTitle: 'JSON Editor',
+      confirmSaveTitle: 'Confirm Save',
+      confirmSaveContent:
+        'Are you sure you want to save {count} node definitions? Existing definitions may be overwritten.',
+      confirmResetTitle: 'Confirm Reset',
+      confirmResetContent: 'Resetting will reload data from the server and discard unsaved changes. Continue?',
+      saveSuccess: 'Saved successfully',
+      saveFail: 'Save failed',
+      importSuccess: 'Imported successfully',
+      importFail: 'Import failed',
+      exportSuccess: 'Exported successfully',
+      exportFail: 'Export failed',
+      jsonParseSuccess: 'JSON parsed successfully',
+      jsonParseFail: 'JSON parse failed',
+      jsonFormatError: 'JSON format error',
+      editTip: 'Editing node definition...'
     },
     about: {
       title: 'About',

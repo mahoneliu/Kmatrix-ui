@@ -21,7 +21,7 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
   // 转换节点
   const nodes: Workflow.DslNodeConfig[] = graphData.nodes.map((node: any) => ({
     id: node.id,
-    type: NODE_TYPE_MAPPING[node.data?.nodeType] || node.data?.nodeType || 'LLM_CHAT',
+    type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || 'LLM_CHAT',
     name: node.data?.label || node.id,
     config: node.data?.config || {},
     inputs: {},

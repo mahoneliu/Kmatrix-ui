@@ -7,7 +7,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import { GlobalComponents } from 'vue'
 
-export {}
+export { }
 
 /* prettier-ignore */
 declare module 'vue' {
@@ -34,6 +34,7 @@ declare module 'vue' {
     DictRadio: typeof import('./../components/custom/dict-radio.vue')['default']
     DictSelect: typeof import('./../components/custom/dict-select.vue')['default']
     DictTag: typeof import('./../components/custom/dict-tag.vue')['default']
+    DynamicNode: typeof import('./../components/Flow/Nodes/DynamicNode.vue')['default']
     EndNode: typeof import('./../components/Flow/Nodes/EndNode.vue')['default']
     EndNodeConfig: typeof import('./../components/Flow/ConfigPanels/EndNodeConfig.vue')['default']
     ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']
@@ -49,6 +50,7 @@ declare module 'vue' {
     IconGridiconsFullscreen: typeof import('~icons/gridicons/fullscreen')['default']
     IconGridiconsFullscreenExit: typeof import('~icons/gridicons/fullscreen-exit')['default']
     IconHugeiconsConfiguration01: typeof import('~icons/hugeicons/configuration01')['default']
+    IconIcRoundDelete: typeof import('~icons/ic/round-delete')['default']
     IconIcRoundPlus: typeof import('~icons/ic/round-plus')['default']
     IconIcRoundRefresh: typeof import('~icons/ic/round-refresh')['default']
     IconIcRoundSearch: typeof import('~icons/ic/round-search')['default']
@@ -64,6 +66,16 @@ declare module 'vue' {
     IconMaterialSymbolsSyncOutline: typeof import('~icons/material-symbols/sync-outline')['default']
     IconMaterialSymbolsUploadRounded: typeof import('~icons/material-symbols/upload-rounded')['default']
     IconMaterialSymbolsWarningOutlineRounded: typeof import('~icons/material-symbols/warning-outline-rounded')['default']
+    'IconMdi:codeBraces': typeof import('~icons/mdi/code-braces')['default']
+    'IconMdi:codeJson': typeof import('~icons/mdi/code-json')['default']
+    'IconMdi:contentSave': typeof import('~icons/mdi/content-save')['default']
+    'IconMdi:delete': typeof import('~icons/mdi/delete')['default']
+    'IconMdi:download': typeof import('~icons/mdi/download')['default']
+    'IconMdi:magnify': typeof import('~icons/mdi/magnify')['default']
+    'IconMdi:plus': typeof import('~icons/mdi/plus')['default']
+    'IconMdi:refresh': typeof import('~icons/mdi/refresh')['default']
+    'IconMdi:table': typeof import('~icons/mdi/table')['default']
+    'IconMdi:upload': typeof import('~icons/mdi/upload')['default']
     IconMdiArrowDownThin: typeof import('~icons/mdi/arrow-down-thin')['default']
     IconMdiArrowUpThin: typeof import('~icons/mdi/arrow-up-thin')['default']
     IconMdiDrag: typeof import('~icons/mdi/drag')['default']
@@ -208,6 +220,7 @@ declare global {
   const DictRadio: typeof import('./../components/custom/dict-radio.vue')['default']
   const DictSelect: typeof import('./../components/custom/dict-select.vue')['default']
   const DictTag: typeof import('./../components/custom/dict-tag.vue')['default']
+  const DynamicNode: typeof import('./../components/Flow/Nodes/DynamicNode.vue')['default']
   const EndNode: typeof import('./../components/Flow/Nodes/EndNode.vue')['default']
   const EndNodeConfig: typeof import('./../components/Flow/ConfigPanels/EndNodeConfig.vue')['default']
   const ExceptionBase: typeof import('./../components/common/exception-base.vue')['default']
@@ -223,6 +236,7 @@ declare global {
   const IconGridiconsFullscreen: typeof import('~icons/gridicons/fullscreen')['default']
   const IconGridiconsFullscreenExit: typeof import('~icons/gridicons/fullscreen-exit')['default']
   const IconHugeiconsConfiguration01: typeof import('~icons/hugeicons/configuration01')['default']
+  const IconIcRoundDelete: typeof import('~icons/ic/round-delete')['default']
   const IconIcRoundPlus: typeof import('~icons/ic/round-plus')['default']
   const IconIcRoundRefresh: typeof import('~icons/ic/round-refresh')['default']
   const IconIcRoundSearch: typeof import('~icons/ic/round-search')['default']
@@ -238,6 +252,7 @@ declare global {
   const IconMaterialSymbolsSyncOutline: typeof import('~icons/material-symbols/sync-outline')['default']
   const IconMaterialSymbolsUploadRounded: typeof import('~icons/material-symbols/upload-rounded')['default']
   const IconMaterialSymbolsWarningOutlineRounded: typeof import('~icons/material-symbols/warning-outline-rounded')['default']
+
   const IconMdiArrowDownThin: typeof import('~icons/mdi/arrow-down-thin')['default']
   const IconMdiArrowUpThin: typeof import('~icons/mdi/arrow-up-thin')['default']
   const IconMdiDrag: typeof import('~icons/mdi/drag')['default']
