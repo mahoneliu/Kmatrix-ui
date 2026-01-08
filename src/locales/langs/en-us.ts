@@ -307,7 +307,6 @@ const local: App.I18n.Schema = {
     'ai_app-manager': 'App Manager',
     ai_workflow: 'Workflow',
     'ai_node-definition': 'Node Definition',
-    ai_workflow_node: 'Node Management',
     ai_chat: 'AI Chat'
   },
   menu: {

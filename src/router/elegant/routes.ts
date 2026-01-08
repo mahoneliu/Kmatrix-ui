@@ -108,18 +108,7 @@ export const generatedRoutes: GeneratedRoute[] = [
           i18nKey: 'route.ai_workflow',
           hideInMenu: true,
           constant: true
-        },
-        children: [
-          {
-            name: 'ai_workflow_node',
-            path: '/ai/workflow/node',
-            component: 'view.ai_workflow_node',
-            meta: {
-              title: 'ai_workflow_node',
-              i18nKey: 'route.ai_workflow_node'
-            }
-          }
-        ]
+        }
       }
     ]
   },

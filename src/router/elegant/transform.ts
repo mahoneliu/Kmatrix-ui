@@ -177,7 +177,6 @@ const routeMap: RouteMap = {
   "ai_model-manager": "/ai/model-manager",
   "ai_node-definition": "/ai/node-definition",
   "ai_workflow": "/ai/workflow",
-  "ai_workflow_node": "/ai/workflow/node",
   "demo": "/demo",
   "demo_demo": "/demo/demo",
   "demo_tree": "/demo/tree",
