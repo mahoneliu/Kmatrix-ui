@@ -31,8 +31,8 @@ async function loadModels() {
   loading.value = true;
   try {
     const res = await fetchModelList({ modelType: '1', pageNo: 1, pageSize: 100 });
-    if (res.data && res.data.rows) {
-      modelOptions.value = res.data.rows.map((m: Api.AI.Model) => ({
+    if (res.data && (res.data as any).rows) {
+      modelOptions.value = (res.data as any).rows.map((m: Api.AI.Model) => ({
         label: m.modelName,
         value: m.modelId
       }));

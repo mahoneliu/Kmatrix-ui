@@ -19,7 +19,7 @@ export interface ModelListParams {
  * 获取模型列表
  */
 export function fetchModelList(params?: ModelListParams) {
-  return request<App.Service.Response<Api.AI.Admin.Model>>({
+  return request<Api.AI.Admin.Model[]>({
     url: '/ai/model/list',
     method: 'get',
     params

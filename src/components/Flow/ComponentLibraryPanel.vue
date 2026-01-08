@@ -28,7 +28,7 @@ onMounted(async () => {
 // 获取所有可用的节点类型(排除系统节点) - 使用 computed 确保响应式
 const availableNodeTypes = computed(() => {
   const allNodes = nodeDefinitionStore.getAllNodeTypes();
-  const filtered = allNodes.filter(n => !n.isSystem);
+  const filtered = allNodes.filter(n => n.isSystem !== '1');
   console.log('[ComponentLibraryPanel] availableNodeTypes computed - 总数:', allNodes.length, '可用:', filtered.length);
   return filtered;
 });

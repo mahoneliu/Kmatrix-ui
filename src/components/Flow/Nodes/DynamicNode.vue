@@ -16,7 +16,7 @@ const nodeDef = computed(() => nodeDefinitionStore.getNodeDefinition(props.data.
 
 // Input params from definition
 const inputParams = computed(() => {
-  if (!nodeDef.value) return [];
+  if (!nodeDef.value?.inputParams) return [];
   return nodeDef.value.inputParams.map(param => ({
     key: param.key,
     label: param.label,
@@ -60,7 +60,7 @@ function updateBinding(paramKey: string, binding: Workflow.ParamBinding | null) 
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="{ ...data, icon: nodeDef?.icon || data.icon }">
+  <BaseNode v-bind="props" :data="{ ...data, icon: nodeDef?.nodeIcon || data.icon }">
     <div class="max-w-300px min-w-200px flex flex-col gap-2">
       <div v-if="nodeDef?.description" class="mb-2 text-xs text-gray-500">
         {{ nodeDef.description }}

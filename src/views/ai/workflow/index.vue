@@ -16,7 +16,6 @@ import ComponentLibraryModal from '@/components/Flow/ComponentLibraryModal.vue';
 import AppInfoNode from '@/components/Flow/Nodes/AppInfoNode.vue';
 import StartNode from '@/components/Flow/Nodes/StartNode.vue';
 import EndNode from '@/components/Flow/Nodes/EndNode.vue';
-// import LlmChatNode from '@/components/Flow/Nodes/LlmChatNode.vue';
 import IntentClassifierNode from '@/components/Flow/Nodes/IntentClassifierNode.vue';
 import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
 import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
@@ -66,10 +65,12 @@ function onPaneReady(instance: any) {
 
   // 跟踪当前连接的源节点（用于连接验证和视觉反馈）
   let connectingSourceNode: any = null;
+  let connectingSourceHandle: string | null = null;
 
   // 连接开始：记录源节点
   instance.onConnectStart((params: any) => {
     connectingSourceNode = workflowStore.nodes.find(n => n.id === params.nodeId) || null;
+    connectingSourceHandle = params.handleId || null;
   });
 
   // 连接结束：检测鼠标附近的节点并创建连接
@@ -100,20 +101,30 @@ function onPaneReady(instance: any) {
         const connectionParams: Connection = {
           source: connectingSourceNode.id,
           target: targetNodeId as string,
-          sourceHandle: null,
+          sourceHandle: connectingSourceHandle,
           targetHandle: null
         };
 
+        console.log('connectionParams', connectionParams);
         // 使用统一的验证函数 (包括类型验证和重复验证)
         if (validateConnection(connectionParams)) {
+          const edgeId = `e-${connectingSourceNode.id}-${connectingSourceHandle || ''}-${targetNodeId}`;
+
+          // 根据源节点类型和 sourceHandle 生成条件表达式
+          const condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
+
           workflowStore.addEdge({
-            id: `e-${connectingSourceNode.id}-${targetNodeId}`,
+            id: edgeId,
             source: connectingSourceNode.id,
             target: targetNodeId as string,
-            sourceHandle: null,
+            sourceHandle: connectingSourceHandle,
             targetHandle: null,
             type: 'custom',
-            animated: false
+            animated: false,
+            label: condition,
+            data: {
+              condition
+            }
           });
         } else {
           const sourceType = connectingSourceNode.data.nodeType as Workflow.NodeType;
@@ -129,6 +140,7 @@ function onPaneReady(instance: any) {
     }
 
     connectingSourceNode = null;
+    connectingSourceHandle = null;
     // 移除所有节点的禁止样式
     document.querySelectorAll('.vue-flow__node').forEach(node => {
       node.classList.remove('connection-invalid');
@@ -162,7 +174,10 @@ function onPaneReady(instance: any) {
         } else {
           // 检测是否已经存在连接
           const exists = workflowStore.edges.some(
-            e => e.source === connectingSourceNode.id && e.target === targetNodeId
+            e =>
+              e.source === connectingSourceNode.id &&
+              e.target === targetNodeId &&
+              (e.sourceHandle === connectingSourceHandle || (!e.sourceHandle && !connectingSourceHandle))
           );
           if (exists) {
             nodeEl.classList.add('connection-invalid');
@@ -187,9 +202,48 @@ function validateConnection(connection: Connection) {
   if (!isValidConnection(sourceType, targetType)) return false;
 
   // 重复连接验证
-  const exists = workflowStore.edges.some(e => e.source === connection.source && e.target === connection.target);
+  const exists = workflowStore.edges.some(
+    e =>
+      e.source === connection.source &&
+      e.target === connection.target &&
+      (e.sourceHandle === connection.sourceHandle || (!e.sourceHandle && !connection.sourceHandle))
+  );
 
   return !exists;
+}
+
+/**
+ * 根据源节点类型和 sourceHandle 生成条件表达式
+ * @param sourceNode 源节点
+ * @param sourceHandle 源 Handle ID
+ * @returns 条件表达式字符串,如果不需要条件则返回 undefined
+ */
+function generateEdgeCondition(sourceNode: any, sourceHandle: string | null): string | undefined {
+  if (!sourceHandle) return undefined;
+
+  const nodeType = sourceNode.data.nodeType as Workflow.NodeType;
+
+  // 意图分类器节点: 根据 sourceHandle 生成条件
+  if (nodeType === 'INTENT_CLASSIFIER') {
+    if (sourceHandle === 'else') {
+      return "intent == 'else'";
+    }
+    // sourceHandle 格式: intent-0, intent-1, ...
+    const match = sourceHandle.match(/^intent-(\d+)$/);
+    if (match) {
+      const intentIndex = Number.parseInt(match[1], 10);
+      const config = sourceNode.data.config as Workflow.IntentClassifierConfig;
+      if (config?.intents && config.intents[intentIndex]) {
+        const intentName = config.intents[intentIndex];
+        return `intent == '${intentName}'`;
+      }
+    }
+  }
+
+  // 条件节点: 类似逻辑(如果需要的话)
+  // if (nodeType === 'CONDITION') { ... }
+
+  return undefined;
 }
 
 const loading = ref(false);
@@ -233,6 +287,10 @@ function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: n
       nodeType,
       label: nodeConfig.label,
       icon: nodeConfig.icon,
+      description: nodeConfig.description,
+      nodeColor: nodeConfig.color,
+      category: nodeConfig.category,
+      isSystem: nodeConfig.isSystem,
       status: 'idle' as Workflow.NodeStatus,
       config: {},
       paramBindings: []
@@ -257,6 +315,7 @@ async function loadWorkflow() {
       // 优先使用 GraphData (包含坐标信息), 如果没有则使用 DSL (坐标会丢失)
       if (res.data.graphData) {
         const graphData = JSON.parse(res.data.graphData);
+
         workflowStore.setNodes(graphData.nodes);
         // 强制使用自定义 Edge，且为实线
         const edges = graphData.edges.map((e: any) => ({ ...e, type: 'custom', animated: false }));
@@ -264,6 +323,7 @@ async function loadWorkflow() {
       } else if (res.data.dslData) {
         const dsl = JSON.parse(res.data.dslData);
         const graphData = dslToGraph(dsl);
+
         workflowStore.setNodes(graphData.nodes);
         // 强制使用自定义 Edge，且为实线
         const edges = graphData.edges.map((e: any) => ({ ...e, type: 'custom', animated: false }));
@@ -307,6 +367,7 @@ async function handleSave() {
   const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
   const appInfoConfig = appInfoNode?.data.config as Workflow.AppInfoConfig | undefined;
 
+  console.log('workflowStore.edges:', workflowStore.edges);
   // 过滤掉基础信息节点(不属于工作流)
   const workflowNodes = workflowStore.nodes.filter(n => n.data.nodeType !== 'APP_INFO');
   const graphData = {
@@ -612,7 +673,7 @@ onMounted(async () => {
         v-model:nodes="workflowStore.nodes"
         v-model:edges="workflowStore.edges"
         :edge-types="edgeTypes"
-        :connection-radius="100"
+        :connection-radius="30"
         class="h-full w-full"
         @pane-ready="onPaneReady"
       >

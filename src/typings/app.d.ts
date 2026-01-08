@@ -398,6 +398,7 @@ declare namespace App {
         anyRecords: string;
         clear: string;
         noSelectRecord: string;
+        copy: string;
       };
       request: {
         logout: string;

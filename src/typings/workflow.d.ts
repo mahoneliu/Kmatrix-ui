@@ -25,6 +25,11 @@ declare namespace Workflow {
     config?: Record<string, any>;
     status?: NodeStatus;
     icon?: string;
+    description?: string;
+    nodeColor?: string;
+    category?: string;
+    isSystem?: string;
+    isEnabled?: string;
     /** 参数绑定配置 */
     paramBindings?: ParamBinding[];
   }
@@ -102,11 +107,7 @@ declare namespace Workflow {
   /** 意图分类节点配置 */
   interface IntentClassifierConfig extends NodeConfigFormData {
     modelId: CommonType.IdType;
-    intents: Array<{
-      name: string;
-      description: string;
-      examples: string[];
-    }>;
+    intents: string[];
   }
 
   /** 条件节点配置 */

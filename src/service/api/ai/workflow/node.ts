@@ -4,7 +4,7 @@ import { request } from '@/service/request';
  * 获取所有节点类型定义
  */
 export function fetchNodeDefinitions() {
-  return request<Api.AI.Workflow.NodeTypeDefinition[]>({
+  return request<Api.AI.Workflow.KmNodeDefinitionBo[]>({
     url: '/ai/workflow/node/definitions',
     method: 'get'
   });
@@ -13,7 +13,7 @@ export function fetchNodeDefinitions() {
 /**
  * 更新所有节点定义
  */
-export function updateNodeDefinitions(data: Api.AI.Workflow.NodeTypeDefinition[]) {
+export function updateNodeDefinitions(data: Api.AI.Workflow.KmNodeDefinitionBo[]) {
   return request({
     url: '/ai/workflow/node/definitions',
     method: 'put',
@@ -24,7 +24,7 @@ export function updateNodeDefinitions(data: Api.AI.Workflow.NodeTypeDefinition[]
 /**
  * 验证节点定义
  */
-export function validateNodeDefinitions(data: Api.AI.Workflow.NodeTypeDefinition[]) {
+export function validateNodeDefinitions(data: Api.AI.Workflow.KmNodeDefinitionBo[]) {
   return request({
     url: '/ai/workflow/node/definitions/validate',
     method: 'post',
@@ -61,16 +61,8 @@ export function importNodeDefinitions(json: string) {
 /**
  * 分页查询节点定义列表
  */
-export function fetchNodeDefinitionList(params?: {
-  pageNum?: number;
-  pageSize?: number;
-  nodeType?: string;
-  nodeLabel?: string;
-  category?: string;
-  isSystem?: string;
-  isEnabled?: string;
-}) {
-  return request<App.Service.Response<Api.AI.Workflow.NodeTypeDefinition>>({
+export function fetchNodeDefinitionList(params?: Api.AI.Workflow.NodeDefinitionSearchParams) {
+  return request<Api.AI.Workflow.NodeDefinitionList>({
     url: '/ai/workflow/node/definition/list',
     method: 'get',
     params
@@ -81,7 +73,7 @@ export function fetchNodeDefinitionList(params?: {
  * 获取节点定义详情
  */
 export function fetchNodeDefinitionDetail(nodeDefId: CommonType.IdType) {
-  return request<Api.AI.Workflow.NodeTypeDefinition>({
+  return request<Api.AI.Workflow.KmNodeDefinitionBo>({
     url: `/ai/workflow/node/definition/${nodeDefId}`,
     method: 'get'
   });

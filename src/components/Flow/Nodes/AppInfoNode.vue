@@ -121,9 +121,6 @@ onMounted(() => {
             <NFormItem label="应用描述" path="description">
               <NInput v-model:value="formModel.description" type="textarea" :rows="2" placeholder="请输入应用描述" />
             </NFormItem>
-            <NFormItem label="应用图标" path="icon">
-              <NInput v-model:value="formModel.icon" placeholder="请输入图标URL" />
-            </NFormItem>
             <NFormItem label="开场白" path="prologue">
               <NInput v-model:value="formModel.prologue" type="textarea" :rows="3" placeholder="请输入开场白" />
             </NFormItem>

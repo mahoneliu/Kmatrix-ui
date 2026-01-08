@@ -18,32 +18,7 @@ declare namespace Api.AI.Workflow {
     description?: string;
   }
 
-  /** 节点类型定义 */
-  interface NodeTypeDefinition {
-    /** 节点定义ID */
-    nodeDefId?: CommonType.IdType;
-    id?: CommonType.IdType; // For compatibility if mixed usage
-    /** 节点类型 */
-    type: string;
-    /** 节点显示名称 */
-    label: string;
-    /** 节点图标 */
-    icon: string;
-    /** 节点颜色 */
-    color: string;
-    /** 节点分类 */
-    category: 'basic' | 'ai' | 'logic' | 'action';
-    /** 节点描述 */
-    description: string;
-    /** 是否为系统节点 */
-    isSystem: boolean;
-    /** 输入参数定义 */
-    inputParams: NodeParamDefinition[];
-    /** 输出参数定义 */
-    outputParams: NodeParamDefinition[];
-  }
-
-  /** 节点定义业务对象 (用于新增和更新) */
+  /** 节点定义业务对象 (用于新增、更新和列表展示) */
   interface KmNodeDefinitionBo {
     /** 节点定义ID (更新时使用) */
     nodeDefId?: CommonType.IdType;
@@ -59,6 +34,8 @@ declare namespace Api.AI.Workflow {
     category: string;
     /** 节点描述 */
     description?: string;
+    /** 是否系统节点 (0否/1是) */
+    isSystem?: string;
     /** 是否启用 */
     isEnabled?: string;
     /** 输入参数定义 */
@@ -68,4 +45,15 @@ declare namespace Api.AI.Workflow {
     /** 备注 */
     remark?: string;
   }
+
+  /** 节点定义列表 */
+  type NodeDefinitionList = Common.PaginatingQueryRecord<KmNodeDefinitionBo>;
+
+  /** 节点定义查询参数 */
+  type NodeDefinitionSearchParams = CommonType.RecordNullable<
+    Pick<KmNodeDefinitionBo, 'nodeType' | 'nodeLabel' | 'category' | 'isEnabled'> & {
+      /** 是否系统节点 */
+      isSystem?: string;
+    } & Api.Common.CommonSearchParams
+  >;
 }

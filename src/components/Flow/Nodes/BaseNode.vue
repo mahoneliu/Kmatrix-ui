@@ -56,20 +56,6 @@ const statusClass = computed(() => {
   return classes.join(' ');
 });
 
-// 根据节点类型获取颜色
-const nodeColor = computed(() => {
-  const colorMap: Record<Workflow.NodeType, string> = {
-    APP_INFO: '#10b981',
-    START: '#10b981',
-    END: '#ef4444',
-    LLM_CHAT: '#3b82f6',
-    INTENT_CLASSIFIER: '#8b5cf6',
-    CONDITION: '#f59e0b',
-    FIXED_RESPONSE: '#6b7280'
-  };
-  return colorMap[props.data.nodeType] || '#6b7280';
-});
-
 function handleClick() {
   emit('nodeClick', props.id);
 }
@@ -85,6 +71,11 @@ function handleMenuSelect(key: string) {
   } else if (key === 'duplicate') {
     emit('duplicateNode', props.id);
   }
+}
+
+// 检查 Handle 是否连接
+function isHandleConnected(handleId: string) {
+  return workflowStore.edges.some(e => e.source === props.id && e.sourceHandle === handleId);
 }
 
 function handleSourceHandleClick(e: MouseEvent) {
@@ -117,7 +108,7 @@ function handleMouseLeave() {
   <div
     class="workflow-node min-w-45 cursor-pointer rounded-2 b-solid bg-white p-3 shadow-sm transition-all dark:bg-dark-2 hover:shadow-md"
     :class="[statusClass, selected ? 'b-2' : 'b-1 hover:b-2', { 'handles-visible': showHandles || selected }]"
-    :style="{ borderColor: nodeColor }"
+    :style="{ borderColor: data.nodeColor }"
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
@@ -136,9 +127,17 @@ function handleMouseLeave() {
     <div class="flex items-center gap-2 text-3.5 c-gray-8 font-600 dark:c-gray-1">
       <SvgIcon v-if="data.icon" :icon="data.icon" class="h-5 w-5" />
       <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{{ data.label }}</span>
+      <NTooltip v-if="data.description" trigger="hover">
+        <template #trigger>
+          <span class="inline-flex items-center">
+            <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
+          </span>
+        </template>
+        {{ data.description }}
+      </NTooltip>
       <!-- 操作菜单 -->
       <NDropdown
-        v-if="data.nodeType !== 'APP_INFO'"
+        v-if="!['START', 'APP_INFO', 'END'].includes(data.nodeType)"
         :options="menuOptions"
         trigger="click"
         placement="bottom-end"
@@ -148,7 +147,7 @@ function handleMouseLeave() {
           class="h-5 w-5 flex items-center justify-center rounded bg-white transition-colors dark:bg-dark-3 hover:bg-gray-1 dark:hover:bg-dark-4"
           @click.stop
         >
-          <SvgIcon icon="mdi:dots-vertical" class="text-4 c-gray-5" />
+          <SvgIcon icon="mdi:dots-horizontal" class="text-4 c-gray-5" />
         </button>
       </NDropdown>
       <!-- 折叠按钮 -->
@@ -166,7 +165,11 @@ function handleMouseLeave() {
       v-if="!collapsed && $slots.default"
       class="mt-2 b-t b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
     >
-      <slot />
+      <slot
+        :show-handles="showHandles"
+        :has-source-connection="hasSourceConnection"
+        :is-handle-connected="isHandleConnected"
+      />
     </div>
 
     <!-- 状态指示器 -->
@@ -181,7 +184,7 @@ function handleMouseLeave() {
 
     <!-- 输出连接点 (右侧) -->
     <Handle
-      v-if="data.nodeType !== 'END' && data.nodeType !== 'APP_INFO'"
+      v-if="!['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION'].includes(data.nodeType)"
       :position="Position.Right"
       type="source"
       class="custom-handle custom-handle-source"
@@ -190,39 +193,3 @@ function handleMouseLeave() {
     />
   </div>
 </template>
-
-<style scoped>
-/* Handle 基础样式 - 默认隐藏 */
-.workflow-node :deep(.vue-flow__handle.custom-handle) {
-  width: 0px !important;
-  height: 0px !important;
-  border-radius: 50% !important;
-}
-
-/* Hover 或 Selected 或 JavaScript 控制时显示完整 Handle */
-.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle.custom-handle-source) {
-  right: -10px !important; /* 向外突出 */
-  width: 20px !important;
-  height: 20px !important;
-  border: 2px solid !important;
-  opacity: 1 !important;
-  border-color: #9ba0a1 !important;
-}
-
-/* 显示状态下 Target Handle 样式和位置 */
-.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle-target) {
-  background: #9ba0a1 !important;
-  pointer-events: none !important;
-}
-
-/* 加号样式 (无连接时显示) */
-.workflow-node.handles-visible :deep(.vue-flow__handle.custom-handle.show-plus)::after {
-  content: '+';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 14px;
-  color: #9ca3af;
-}
-</style>

@@ -1,0 +1,52 @@
+/* 统一的节点 Handle 样式 */
+.workflow-node {
+  /* Handle 基础样式 - 默认隐藏/最小化 */
+  .vue-flow__handle.custom-handle {
+    width: 0px !important;
+    height: 0px !important;
+    border-radius: 50% !important;
+    opacity: 0;
+    // transition: all 0.2s;
+    // border: none;
+    // min-width: 0;
+    // min-height: 0;
+  }
+
+  /* 激活状态（Hover 或 Selected 或强制显示） */
+  &.handles-visible {
+    // .vue-flow__handle.custom-handle {
+    //     opacity: 1;
+    // }
+
+    /* 源节点 (Right) 样式 */
+    .vue-flow__handle.custom-handle-source {
+      right: -10px !important;
+      width: 20px !important;
+      height: 20px !important;
+      opacity: 1;
+      border: 2px solid #9ba0a1 !important;
+      background: #fff;
+      /* 默认位置修正，BaseNode 和多数节点通常在这个位置 */
+    }
+
+    /* 目标节点 (Left) 样式 */
+    .vue-flow__handle.custom-handle-target {
+      width: 2px !important;
+      height: 2px !important;
+      background: #9ba0a1 !important;
+      pointer-events: none !important;
+      opacity: 1;
+    }
+
+    /* 加号样式 (无连接时显示) */
+    .vue-flow__handle.custom-handle.show-plus::after {
+      content: '+';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      color: #9ca3af;
+    }
+  }
+}

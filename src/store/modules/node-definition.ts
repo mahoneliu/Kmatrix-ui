@@ -4,7 +4,7 @@ import { fetchNodeDefinitions } from '@/service/api/ai/workflow/node';
 
 export const useNodeDefinitionStore = defineStore('node-definition', () => {
   // 节点定义列表
-  const nodeDefinitions = ref<Api.AI.Workflow.NodeTypeDefinition[]>([]);
+  const nodeDefinitions = ref<Api.AI.Workflow.KmNodeDefinitionBo[]>([]);
 
   // 加载状态
   const loading = ref(false);
@@ -58,7 +58,7 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
    * 根据类型获取节点定义
    */
   function getNodeDefinition(type: string) {
-    return nodeDefinitions.value.find(def => def.type === type);
+    return nodeDefinitions.value.find(def => def.nodeType === type);
   }
 
   /**
@@ -71,10 +71,10 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
       return [];
     }
     const result = nodeDefinitions.value.map(def => ({
-      type: def.type as Workflow.NodeType,
-      label: def.label,
-      icon: def.icon,
-      color: def.color,
+      type: def.nodeType as Workflow.NodeType,
+      label: def.nodeLabel,
+      icon: def.nodeIcon,
+      color: def.nodeColor,
       category: def.category,
       description: def.description,
       isSystem: def.isSystem
@@ -88,7 +88,7 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
    */
   function getNodeInputParams(nodeType: string): Workflow.ParamDefinition[] {
     const definition = getNodeDefinition(nodeType);
-    if (!definition) return [];
+    if (!definition || !definition.inputParams) return [];
 
     return definition.inputParams.map(param => ({
       key: param.key,
@@ -105,7 +105,7 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
    */
   function getNodeOutputParams(nodeType: string): Workflow.ParamDefinition[] {
     const definition = getNodeDefinition(nodeType);
-    if (!definition) return [];
+    if (!definition || !definition.outputParams) return [];
 
     return definition.outputParams.map(param => ({
       key: param.key,

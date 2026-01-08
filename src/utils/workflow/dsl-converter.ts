@@ -72,18 +72,31 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
   });
 
   // 转换边
-  const edges = dsl.edges.map((edge, index) => ({
-    id: `edge-${index}`,
-    source: edge.from,
-    target: edge.to,
-    label: edge.condition,
-    data: {
+  const edges = dsl.edges.map((edge, index) => {
+    // 从条件表达式反推 sourceHandle (用于意图分类器等节点)
+    let sourceHandle: string | null = null;
+    if (edge.condition) {
+      const sourceNode = dsl.nodes.find(n => n.id === edge.from);
+      if (sourceNode) {
+        sourceHandle = extractSourceHandleFromCondition(edge.condition, sourceNode);
+      }
+    }
+
+    return {
       id: `edge-${index}`,
       source: edge.from,
       target: edge.to,
-      condition: edge.condition
-    }
-  }));
+      sourceHandle,
+      targetHandle: null,
+      label: edge.condition,
+      data: {
+        id: `edge-${index}`,
+        source: edge.from,
+        target: edge.to,
+        condition: edge.condition
+      }
+    };
+  });
 
   return {
     nodes,
@@ -94,6 +107,38 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
       zoom: 1
     }
   };
+}
+
+/**
+ * 从条件表达式反推 sourceHandle
+ * @param condition 条件表达式
+ * @param sourceNode 源节点配置
+ * @returns sourceHandle ID,如果无法反推则返回 null
+ */
+function extractSourceHandleFromCondition(condition: string, sourceNode: Workflow.DslNodeConfig): string | null {
+  const nodeType = NODE_TYPE_REVERSE_MAPPING[sourceNode.type] || sourceNode.type;
+
+  // 意图分类器节点: 从条件反推 sourceHandle
+  if (nodeType === 'INTENT_CLASSIFIER') {
+    // 格式: intent == 'intentName' 或 intent == 'else'
+    const match = condition.match(/intent\s*==\s*['"](.+?)['"]/);
+    if (match) {
+      const intentValue = match[1];
+      if (intentValue === 'else') {
+        return 'else';
+      }
+      // 从节点配置中查找意图索引
+      const config = sourceNode.config as any;
+      if (config?.intents) {
+        const intentIndex = config.intents.findIndex((intent: any) => intent.name === intentValue);
+        if (intentIndex !== -1) {
+          return `intent-${intentIndex}`;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 /**

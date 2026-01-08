@@ -71,7 +71,8 @@ const local: App.I18n.Schema = {
     selected: 'selected',
     anyRecords: 'records',
     clear: 'Clear',
-    noSelectRecord: 'No Records Selected'
+    noSelectRecord: 'No Records Selected',
+    copy: 'Copy'
   },
   request: {
     logout: 'Logout user after request failed',

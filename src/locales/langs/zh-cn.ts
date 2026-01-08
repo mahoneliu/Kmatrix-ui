@@ -71,7 +71,8 @@ const local: App.I18n.Schema = {
     selected: '已选择',
     anyRecords: '条记录',
     clear: '清空',
-    noSelectRecord: '未选中任何记录'
+    noSelectRecord: '未选中任何记录',
+    copy: '复制'
   },
   request: {
     logout: '请求失败后登出用户',

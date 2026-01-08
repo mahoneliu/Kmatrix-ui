@@ -22,7 +22,7 @@ const searchParams = reactive({
   nodeLabel: ''
 });
 
-const { columns, data, getData, getDataByPage, loading, mobilePagination } = useNaivePaginatedTable({
+const { columns, data, getData, getDataByPage, loading, mobilePagination, scrollX } = useNaivePaginatedTable({
   api: () => fetchNodeDefinitionList(searchParams),
   transform: response => defaultTransform(response as any),
   onPaginationParamsChange: params => {
@@ -36,27 +36,27 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination } = use
       width: 48
     },
     {
-      key: 'type',
-      title: 'Node Type',
+      key: 'nodeType',
+      title: '类型',
       align: 'center',
       width: 150
     },
     {
-      key: 'label',
-      title: 'Label',
+      key: 'nodeLabel',
+      title: '名称',
       align: 'center',
       width: 150
     },
     {
-      key: 'icon',
-      title: 'Icon',
+      key: 'nodeIcon',
+      title: '图标',
       align: 'center',
       width: 60,
-      render: row => h(SvgIcon, { icon: row.icon, style: { fontSize: '24px', color: row.color } })
+      render: row => h(SvgIcon, { icon: row.nodeIcon, style: { fontSize: '24px', color: row.nodeColor } })
     },
     {
       key: 'category',
-      title: 'Category',
+      title: '类别',
       align: 'center',
       width: 100,
       render: row => {
@@ -71,22 +71,22 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination } = use
     },
     {
       key: 'isSystem',
-      title: 'System',
+      title: '系统保留',
       align: 'center',
       width: 80,
       render: row =>
         h(
           NTag,
-          { type: row.isSystem ? 'error' : 'success', bordered: false },
-          { default: () => (row.isSystem ? 'Yes' : 'No') }
+          { type: row.isSystem === '1' ? 'error' : 'success', bordered: false },
+          { default: () => (row.isSystem === '1' ? 'Yes' : 'No') }
         )
     },
     {
       key: 'operate',
-      title: $t('common.operate'),
+      title: '操作',
       align: 'center',
       width: 220,
-      render: (row: Api.AI.Workflow.NodeTypeDefinition) =>
+      render: (row: Api.AI.Workflow.KmNodeDefinitionBo) =>
         h(
           NSpace,
           { justify: 'center' },
@@ -107,7 +107,6 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination } = use
                   size: 'small',
                   onClick: () => handleCopy(row)
                 },
-                // @ts-expect-error: copy button prop mismatch
                 { default: () => $t('common.copy') }
               ),
               h(
@@ -123,7 +122,7 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination } = use
                       {
                         size: 'small',
                         type: 'error',
-                        disabled: row.isSystem // Prevent deleting system nodes
+                        disabled: row.isSystem === '1' // Prevent deleting system nodes
                       },
                       { default: () => $t('common.delete') }
                     )
@@ -156,7 +155,7 @@ const {
   openDrawer
 } = useTableOperate(data, 'nodeDefId', getData);
 
-function handleCopy(row: Api.AI.Workflow.NodeTypeDefinition) {
+function handleCopy(row: Api.AI.Workflow.KmNodeDefinitionBo) {
   operateType.value = 'copy' as any;
   editingData.value = { ...row };
   openDrawer();
@@ -175,13 +174,13 @@ async function handleBatchDelete() {
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="Node Definition Search" :bordered="false" size="small" class="card-wrapper">
+    <NCard title="节点检索" :bordered="false" size="small" class="card-wrapper">
       <NForm :model="searchParams" inline label-placement="left" :label-width="80">
-        <NFormItem label="Type" path="nodeType">
-          <NInput v-model:value="searchParams.nodeType" placeholder="Input Node Type" />
+        <NFormItem label="类型" path="nodeType">
+          <NInput v-model:value="searchParams.nodeType" placeholder="类型" />
         </NFormItem>
-        <NFormItem label="Label" path="nodeLabel">
-          <NInput v-model:value="searchParams.nodeLabel" placeholder="Input Node Label" />
+        <NFormItem label="名称" path="nodeLabel">
+          <NInput v-model:value="searchParams.nodeLabel" placeholder="名称" />
         </NFormItem>
         <NFormItem>
           <NSpace>
@@ -198,7 +197,7 @@ async function handleBatchDelete() {
       </NForm>
     </NCard>
 
-    <NCard title="Node Definitions" :bordered="false" size="small" class="flex-1-hidden card-wrapper">
+    <NCard title="节点定义" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace>
           <NButton type="primary" @click="handleAdd">
@@ -218,11 +217,12 @@ async function handleBatchDelete() {
         :data="data"
         size="small"
         :flex-height="!appStore.isMobile"
-        :scroll-x="960"
+        :scroll-x="scrollX"
         :loading="loading"
         remote
         :row-key="row => row.nodeDefId || (row as any).id"
         :pagination="mobilePagination"
+        class="sm:h-full"
       />
 
       <NodeOperateDrawer
