@@ -2,12 +2,17 @@
 import { computed, onMounted } from 'vue';
 import { NPopover } from 'naive-ui';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
+import { isValidConnection } from '@/utils/workflow/connection-rules';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Emits {
   (e: 'select', nodeType: Workflow.NodeType): void;
   (e: 'dragStart', data: { type: Workflow.NodeType; x: number; y: number }): void;
 }
+
+const props = defineProps<{
+  sourceNode?: any;
+}>();
 
 const emit = defineEmits<Emits>();
 
@@ -28,7 +33,14 @@ onMounted(async () => {
 // 获取所有可用的节点类型(排除系统节点) - 使用 computed 确保响应式
 const availableNodeTypes = computed(() => {
   const allNodes = nodeDefinitionStore.getAllNodeTypes();
-  const filtered = allNodes.filter(n => n.isSystem !== '1');
+  let filtered = allNodes.filter(n => n.isSystem !== '1');
+
+  // 如果有源节点，过滤掉不允许连接的节点
+  if (props.sourceNode) {
+    const sourceType = props.sourceNode.data.nodeType as Workflow.NodeType;
+    filtered = filtered.filter(n => isValidConnection(sourceType, n.type));
+  }
+
   console.log('[ComponentLibraryPanel] availableNodeTypes computed - 总数:', allNodes.length, '可用:', filtered.length);
   return filtered;
 });

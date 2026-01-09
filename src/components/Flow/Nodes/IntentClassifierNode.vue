@@ -9,7 +9,7 @@ import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
 const emit = defineEmits<{
-  sourceHandleClick: [event: MouseEvent, id: string];
+  sourceHandleClick: [event: MouseEvent, id: string, handleId: string];
 }>();
 
 const workflowStore = useWorkflowStore();
@@ -94,14 +94,13 @@ function removeIntent(index: number) {
 }
 
 // 处理 Handle 点击
-function handleSourceHandleClick(e: MouseEvent, _index: number) {
+function handleSourceHandleClick(e: MouseEvent, index: number) {
   // 阻止冒泡，避免触发节点点击
   e.stopPropagation();
-  // 触发 BaseNode 约定的事件，传递 ID 和事件对象
-  // 注意：这里我们需要构建一个符合 BaseNode 预期的行为
-  // index.vue 中监听的是 @source-handle-click="(e, id) => ..."
-  // IntentClassifierNode 需要将此事件向上传递
-  emit('sourceHandleClick', e, props.id);
+  // 构建 handle ID
+  const handleId = index === -1 ? 'else' : `intent-${index}`;
+  // 触发事件，传递 event, nodeId, handleId
+  emit('sourceHandleClick', e, props.id, handleId);
 }
 
 onMounted(() => {
@@ -152,14 +151,11 @@ onMounted(() => {
 
           <!-- 删除按钮 -->
           <NButton text type="error" size="tiny" @click="removeIntent(index)">
-            <!-- <template #icon><div class="i-mdi:close" /></template> -->
             <SvgIcon icon="carbon:trash-can" class="mr-4 h-4 w-4 c-gray-5" />
           </NButton>
 
           <!-- 右侧输出点 (Handle) -->
           <!-- 使用 BaseNode 样式类 custom-handle custom-handle-source 以保持一致性 -->
-          <!-- 使用 !static 让 handle 居中于 wrapper -->
-          <!-- wrapper 使用 absolute positioning 手动对齐 (p-3 = 12px, handle 20px -> center at 0 -> wrapper right at -22px) -->
           <div class="right-1 h-full flex items-center justify-center">
             <Handle
               :id="`intent-${index}`"
@@ -170,14 +166,13 @@ onMounted(() => {
                 { connected: isHandleConnected(`intent-${index}`) },
                 { 'show-plus': !isHandleConnected(`intent-${index}`) && showHandles }
               ]"
-              @mousedown="(e: MouseEvent) => handleSourceHandleClick(e, index)"
+              @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
             />
           </div>
         </div>
 
         <!-- 默认/其他 分支 -->
         <div class="relative mt-1 flex items-center justify-between gap-2">
-          <!-- <div class="flex-1 text-sm c-gray-5 pl-2">其他 (Else)</div> -->
           <NInput value="其他 (Else)" size="small" disabled class="mr-12 flex-1" />
           <div class="right-1 h-full flex items-center justify-center">
             <Handle

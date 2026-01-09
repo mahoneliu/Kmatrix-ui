@@ -106,9 +106,12 @@ function handleMouseLeave() {
 
 <template>
   <div
-    class="workflow-node min-w-45 cursor-pointer rounded-2 b-solid bg-white p-3 shadow-sm transition-all dark:bg-dark-2 hover:shadow-md"
-    :class="[statusClass, selected ? 'b-2' : 'b-1 hover:b-2', { 'handles-visible': showHandles || selected }]"
-    :style="{ borderColor: data.nodeColor }"
+    class="workflow-node min-w-45 cursor-pointer rounded-2 bg-white p-3 shadow-sm dark:bg-dark-2 hover:shadow-lg"
+    :class="[statusClass, { 'handles-visible': showHandles || selected }]"
+    :style="{
+      outline: selected ? `2px solid ${data.nodeColor}` : `1px solid ${data.nodeColor}`,
+      outlineOffset: '-1px'
+    }"
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
@@ -163,7 +166,7 @@ function handleMouseLeave() {
     <!-- 节点内容插槽 -->
     <div
       v-if="!collapsed && $slots.default"
-      class="mt-2 b-t b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
+      class="nodrag mt-2 b-t b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
     >
       <slot
         :show-handles="showHandles"
@@ -193,3 +196,14 @@ function handleMouseLeave() {
     />
   </div>
 </template>
+
+<style scoped>
+/* 禁用所有过渡动画，确保悬停效果是瞬间的 */
+.workflow-node {
+  transition: none !important;
+}
+
+.workflow-node * {
+  transition: none !important;
+}
+</style>

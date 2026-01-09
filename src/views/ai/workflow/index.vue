@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+/* eslint-disable max-depth */
 import { computed, defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NButton, NCard, NSpace, useMessage } from 'naive-ui';
@@ -21,6 +22,7 @@ import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
 import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import CustomEdge from '@/components/Flow/Edges/CustomEdge.vue';
+import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
@@ -40,7 +42,7 @@ const flowWrapper = ref<HTMLElement | null>(null);
 const vueFlowInstance = ref<any>(null);
 
 // 跟踪source Handle事件后源节点（用于创建连接）
-let sourceNodeByHandle: any = null;
+const sourceNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
 
 // 面板关闭定时器
 let panelCloseTimer: number | null = null;
@@ -49,6 +51,53 @@ let panelCloseTimer: number | null = null;
 const edgeTypes = {
   custom: markRaw(CustomEdge)
 };
+
+// 连接成功标志(用于避免连接成功后弹出面板)
+let connectionSucceeded = false;
+
+// 处理连接事件(当连线成功吸附到 handle 时触发)
+// function handleConnect(connection: Connection) {
+//   console.log('handleConnect triggered', connection);
+
+//   // 验证连接
+//   if (!validateConnection(connection)) {
+//     const sourceNode = workflowStore.nodes.find(n => n.id === connection.source);
+//     const targetNode = workflowStore.nodes.find(n => n.id === connection.target);
+//     if (sourceNode && targetNode) {
+//       const sourceType = sourceNode.data.nodeType as Workflow.NodeType;
+//       const targetType = targetNode.data.nodeType as Workflow.NodeType;
+//       if (!isValidConnection(sourceType, targetType)) {
+//         message.warning('该节点类型不允许连接到目标节点');
+//       } else {
+//         message.warning('该连接已存在');
+//       }
+//     }
+//     return;
+//   }
+
+//   // 生成边的条件标签
+//   const sourceNode = workflowStore.nodes.find(n => n.id === connection.source);
+//   const condition = sourceNode ? generateEdgeCondition(sourceNode, connection.sourceHandle) : undefined;
+
+//   // 创建边
+//   const edgeId = `e-${connection.source}-${connection.sourceHandle || ''}-${connection.target}`;
+//   workflowStore.addEdge({
+//     id: edgeId,
+//     source: connection.source,
+//     target: connection.target,
+//     sourceHandle: connection.sourceHandle,
+//     targetHandle: connection.targetHandle,
+//     type: 'custom',
+//     animated: false,
+//     label: condition,
+//     data: {
+//       condition
+//     }
+//   });
+
+//   // 标记连接成功,避免弹出面板
+//   connectionSucceeded = true;
+// }
 
 // VueFlow 加载完成回调
 function onPaneReady(instance: any) {
@@ -63,17 +112,18 @@ function onPaneReady(instance: any) {
     workflowStore.selectNode(node.id);
   });
 
-  // 跟踪当前连接的源节点（用于连接验证和视觉反馈）
+  // 跟踪当前连接的源节点(用于连接验证和视觉反馈)
   let connectingSourceNode: any = null;
   let connectingSourceHandle: string | null = null;
 
-  // 连接开始：记录源节点
+  // 连接开始:记录源节点
   instance.onConnectStart((params: any) => {
     connectingSourceNode = workflowStore.nodes.find(n => n.id === params.nodeId) || null;
     connectingSourceHandle = params.handleId || null;
+    connectionSucceeded = false; // 重置标志
   });
 
-  // 连接结束：检测鼠标附近的节点并创建连接
+  // 连接结束:检测是否在空白区域,如果是则显示组件面板;如果在节点上但未连接,则手动创建连接
   instance.onConnectEnd((event: MouseEvent) => {
     if (!connectingSourceNode) {
       // 移除所有节点的禁止样式
@@ -83,64 +133,87 @@ function onPaneReady(instance: any) {
       return;
     }
 
-    // 获取鼠标位置
-    const clientX = event.clientX;
-    const clientY = event.clientY;
+    // 如果连接已成功,不需要额外处理
+    if (!connectionSucceeded) {
+      // 获取鼠标位置下的元素
+      const target = document.elementFromPoint(event.clientX, event.clientY);
+      const nodeEl = target?.closest('.vue-flow__node');
+      const handleEl = target?.closest('.vue-flow__handle');
 
-    // 获取鼠标位置下的元素
-    const target = document.elementFromPoint(clientX, clientY);
-    const nodeEl = target?.closest('.vue-flow__node');
+      if (nodeEl) {
+        // 在节点上（无论是否在 handle 上），如果没有原生连接成功，则尝试手动连接
+        const targetNodeId = nodeEl.getAttribute('data-id');
+        const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
 
-    if (nodeEl) {
-      const targetNodeId = nodeEl.getAttribute('data-id');
-      const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
+        if (targetNode && targetNodeId !== connectingSourceNode.id) {
+          let targetHandle: string | null = null;
 
-      // 确保不是自连接，且目标节点存在
-      if (targetNode && targetNodeId !== connectingSourceNode.id) {
-        // 构建临时连接对象用于验证
-        const connectionParams: Connection = {
-          source: connectingSourceNode.id,
-          target: targetNodeId as string,
-          sourceHandle: connectingSourceHandle,
-          targetHandle: null
-        };
+          if (handleEl) {
+            // 如果已经在 handle 上，直接使用该 handle
+            targetHandle = handleEl.getAttribute('data-handleid');
+          } else {
+            // 否则查找目标节点上最近的 target handle
+            const handles = nodeEl.querySelectorAll('.vue-flow__handle-target');
 
-        console.log('connectionParams', connectionParams);
-        // 使用统一的验证函数 (包括类型验证和重复验证)
-        if (validateConnection(connectionParams)) {
-          const edgeId = `e-${connectingSourceNode.id}-${connectingSourceHandle || ''}-${targetNodeId}`;
+            if (handles.length > 0) {
+              let minDistance = Infinity;
+              handles.forEach((handle: Element) => {
+                const rect = handle.getBoundingClientRect();
+                const handleCenterX = rect.left + rect.width / 2;
+                const handleCenterY = rect.top + rect.height / 2;
+                const distance = Math.sqrt((event.clientX - handleCenterX) ** 2 + (event.clientY - handleCenterY) ** 2);
 
-          // 根据源节点类型和 sourceHandle 生成条件表达式
-          const condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
+                if (distance < minDistance) {
+                  minDistance = distance;
+                  targetHandle = handle.getAttribute('data-handleid');
+                }
+              });
+            }
+          }
 
-          workflowStore.addEdge({
-            id: edgeId,
+          // 构建连接对象
+          const connection: Connection = {
             source: connectingSourceNode.id,
             target: targetNodeId as string,
             sourceHandle: connectingSourceHandle,
-            targetHandle: null,
-            type: 'custom',
-            animated: false,
-            label: condition,
-            data: {
-              condition
+            targetHandle
+          };
+
+          // 验证并创建连接
+          // 注意：这里需要确保 validateConnection 逻辑与 ConnectionLine 中的一致
+          if (validateConnection(connection)) {
+            const condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
+            const edgeId = `e-${connectingSourceNode.id}-${connectingSourceHandle || ''}-${targetNodeId}`;
+
+            workflowStore.addEdge({
+              id: edgeId,
+              source: connectingSourceNode.id,
+              target: targetNodeId as string,
+              sourceHandle: connectingSourceHandle,
+              targetHandle,
+              type: 'custom',
+              animated: false,
+              label: condition,
+              data: { condition }
+            });
+          } else {
+            const sourceType = connectingSourceNode.data.nodeType as Workflow.NodeType;
+            const targetType = targetNode.data.nodeType as Workflow.NodeType;
+            if (!isValidConnection(sourceType, targetType)) {
+              message.warning('该节点类型不允许连接到目标节点');
             }
-          });
-        } else {
-          const sourceType = connectingSourceNode.data.nodeType as Workflow.NodeType;
-          const targetType = targetNode.data.nodeType as Workflow.NodeType;
-          if (!isValidConnection(sourceType, targetType)) {
-            message.warning('该节点类型不允许连接到目标节点');
           }
         }
+      } else if (!nodeEl && !handleEl) {
+        // 在空白区域,显示组件选择面板
+        handleSourceHandleClick(event, connectingSourceNode.id, connectingSourceHandle);
       }
-    } else {
-      // 与connection-radius="100"冲突，暂时不启用
-      // handleSourceHandleClick(event, connectingSourceNode.id);
     }
 
+    // 清理状态
     connectingSourceNode = null;
     connectingSourceHandle = null;
+    connectionSucceeded = false;
     // 移除所有节点的禁止样式
     document.querySelectorAll('.vue-flow__node').forEach(node => {
       node.classList.remove('connection-invalid');
@@ -218,7 +291,7 @@ function validateConnection(connection: Connection) {
  * @param sourceHandle 源 Handle ID
  * @returns 条件表达式字符串,如果不需要条件则返回 undefined
  */
-function generateEdgeCondition(sourceNode: any, sourceHandle: string | null): string | undefined {
+function generateEdgeCondition(sourceNode: any, sourceHandle: string | null | undefined): string | undefined {
   if (!sourceHandle) return undefined;
 
   const nodeType = sourceNode.data.nodeType as Workflow.NodeType;
@@ -330,6 +403,7 @@ async function loadWorkflow() {
         workflowStore.setEdges(edges);
       } else {
         // 初始化一个开始节点
+        const startNodeDef = nodeDefinitionStore.getNodeDefinition('START');
         const startNode = {
           id: 'start',
           type: 'custom',
@@ -338,6 +412,8 @@ async function loadWorkflow() {
             id: 'start',
             nodeType: 'START' as Workflow.NodeType,
             label: '开始',
+            nodeColor: startNodeDef?.nodeColor,
+            icon: startNodeDef?.nodeIcon,
             status: 'idle' as Workflow.NodeStatus
           }
         };
@@ -414,6 +490,7 @@ async function handleSave() {
 function createAppInfoNode(appData: Api.AI.Admin.App) {
   if (appData) {
     // 如果不存在,添加基础信息节点
+    const appInfoNodeDef = nodeDefinitionStore.getNodeDefinition('APP_INFO');
     const newAppInfoNode = {
       id: 'app-info',
       type: 'custom',
@@ -422,7 +499,8 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
         id: 'app-info',
         nodeType: 'APP_INFO' as Workflow.NodeType,
         label: '基础信息',
-        icon: 'mdi:information',
+        nodeColor: appInfoNodeDef?.nodeColor,
+        icon: appInfoNodeDef?.nodeIcon || 'mdi:information',
         status: 'idle' as Workflow.NodeStatus,
         config: {
           appName: appData.appName || '',
@@ -473,9 +551,15 @@ function handleDuplicateNode(nodeId: string) {
 }
 
 // 处理 Source Handle 点击
-function handleSourceHandleClick(e: MouseEvent, id: string) {
-  // 记录源节点
-  sourceNodeByHandle = workflowStore.nodes.find(n => n.id === id);
+function handleSourceHandleClick(e: MouseEvent, id: string, handleId?: string | null) {
+  // 记录源节点和 handle ID
+  const node = workflowStore.nodes.find(n => n.id === id);
+  if (node) {
+    sourceNodeByHandle.value = {
+      node,
+      handleId: handleId || null
+    };
+  }
   // 计算面板位置（鼠标右侧）
   handlePanelPosition.value = {
     x: e.clientX + 10,
@@ -486,7 +570,7 @@ function handleSourceHandleClick(e: MouseEvent, id: string) {
 
 function handleSourceHandleClose() {
   // 清除源节点
-  sourceNodeByHandle = null;
+  sourceNodeByHandle.value = null;
   showHandlePanel.value = false;
   if (panelCloseTimer) {
     clearTimeout(panelCloseTimer);
@@ -523,17 +607,17 @@ function handlePanelSelectNode(nodeType: Workflow.NodeType) {
     if (newNode) {
       workflowStore.addNode(newNode);
       // 创建连接
-      if (sourceNodeByHandle) {
+      if (sourceNodeByHandle.value) {
         workflowStore.addEdge({
-          id: `e-${sourceNodeByHandle.id}-${newNode.id}`,
-          source: sourceNodeByHandle.id,
+          id: `e-${sourceNodeByHandle.value.node.id}-${newNode.id}`,
+          source: sourceNodeByHandle.value.node.id,
           target: newNode.id,
-          sourceHandle: null,
+          sourceHandle: sourceNodeByHandle.value.handleId,
           targetHandle: null,
           type: 'custom',
           animated: false
         });
-        sourceNodeByHandle = null;
+        sourceNodeByHandle.value = null;
       }
     }
   }
@@ -595,17 +679,17 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
         if (newNode) {
           workflowStore.addNode(newNode);
           // 如果有sourceNodeByHandle，说明是handle点击或拖拽，创建连接
-          if (sourceNodeByHandle) {
+          if (sourceNodeByHandle.value) {
             workflowStore.addEdge({
-              id: `e-${sourceNodeByHandle.id}-${newNode.id}`,
-              source: sourceNodeByHandle.id,
+              id: `e-${sourceNodeByHandle.value.node.id}-${newNode.id}`,
+              source: sourceNodeByHandle.value.node.id,
               target: newNode.id,
               sourceHandle: null,
               targetHandle: null,
               type: 'custom',
               animated: false
             });
-            sourceNodeByHandle = null;
+            sourceNodeByHandle.value = null;
           }
         }
       }
@@ -673,13 +757,18 @@ onMounted(async () => {
         v-model:nodes="workflowStore.nodes"
         v-model:edges="workflowStore.edges"
         :edge-types="edgeTypes"
-        :connection-radius="30"
+        :connection-radius="1"
         class="h-full w-full"
         @pane-ready="onPaneReady"
       >
         <Background />
         <Controls />
         <MiniMap />
+
+        <!-- 自定义连接线(拖动时显示) -->
+        <template #connection-line="connectionLineProps">
+          <ConnectionLine v-bind="connectionLineProps" />
+        </template>
 
         <!-- 自定义节点模板 -->
         <template #node-custom="nodeProps">
@@ -707,7 +796,11 @@ onMounted(async () => {
         @mouseenter="handlePanelMouseEnter"
         @mouseleave="handlePanelMouseLeave"
       >
-        <ComponentLibraryPanel @select="handlePanelSelectNode" @drag-start="handlePanelDragStart" />
+        <ComponentLibraryPanel
+          :source-node="sourceNodeByHandle?.node"
+          @select="handlePanelSelectNode"
+          @drag-start="handlePanelDragStart"
+        />
       </div>
 
       <!-- 点击遮罩关闭面板 -->

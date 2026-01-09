@@ -22,8 +22,7 @@ import AppOperateModal from './modules/app-operate-modal.vue';
 const router = useRouter();
 const message = useMessage();
 const modalVisible = ref(false);
-const operateType = ref<'add' | 'edit'>('add');
-const editingData = ref<Api.AI.Admin.App | null>(null);
+const appType = ref<'1' | '2'>('1');
 
 const searchParams = ref<Api.AI.Admin.AppSearchParams>({
   pageNo: 1,
@@ -47,22 +46,15 @@ async function getData() {
   }
 }
 
-function handleAdd(appType: '1' | '2' = '1') {
-  operateType.value = 'add';
-  editingData.value = { appType } as Api.AI.Admin.App;
-  modalVisible.value = true;
-}
-
-function handleEdit(item: Api.AI.Admin.App) {
-  operateType.value = 'edit';
-  editingData.value = { ...item };
+function handleAdd(type: '1' | '2') {
+  appType.value = type;
   modalVisible.value = true;
 }
 
 async function handleDelete(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   try {
-    await deleteApp([Number(item.appId)]);
+    await deleteApp([item.appId]);
     message.success('删除成功');
     getData();
   } catch {
@@ -80,28 +72,29 @@ function handleChat(item: Api.AI.Admin.App) {
 
 function handleSettings(item: Api.AI.Admin.App) {
   if (!item.appId) return;
-  // 如果是工作流类型,跳转到工作流编排页面
-  if (item.appType === '2') {
-    router.push({
-      name: 'ai_workflow',
-      query: { appId: item.appId.toString() }
-    });
-  } else {
-    // 基础对话类型,打开编辑弹窗
-    handleEdit(item);
-  }
+  // 调用统一跳转逻辑
+  jumpToAppSettings(item.appId, item.appType);
 }
 
-function onModalClose(createdAppId?: number, appType?: '1' | '2') {
-  modalVisible.value = false;
-  getData();
+function jumpToAppSettings(appId?: CommonType.IdType, type?: string) {
+  if (!appId) return;
+  // 如果是新建的应用,自动打开工作流编排页面；
+  // 如果是简单对话知识库RAG应用,打开编辑弹窗，加载表单页面设置固定工作流模板
+  console.log('jumpToAppSettings:', appId, type);
+  router.push({
+    name: type === '2' ? 'ai_workflow' : 'ai_simple_rag',
+    query: { appId: appId.toString() }
+  });
+}
 
-  // 如果是新建的工作流应用,自动打开工作流编排页面
-  if (createdAppId && appType === '2') {
-    router.push({
-      name: 'ai_workflow',
-      query: { appId: createdAppId.toString() }
-    });
+function onModalClose(createdAppId?: CommonType.IdType, type?: string) {
+  modalVisible.value = false;
+  console.log('onModalClose:', createdAppId, type);
+  if (createdAppId) {
+    jumpToAppSettings(createdAppId, type);
+  } else {
+    // 如果是编辑的应用,刷新列表
+    getData();
   }
 }
 
@@ -203,11 +196,6 @@ onMounted(() => {
               <!-- 左下角状态和时间 -->
               <div class="flex items-center gap-2 text-xs">
                 <div class="flex items-center gap-1">
-                  <!--
- <span
-                  :class="item.status === '1' ? 'i-carbon-checkmark-filled text-success' : 'i-carbon-circle-dash text-warning'"
-                /> 
--->
                   <SvgIcon
                     :icon="item.status === '1' ? 'carbon:checkmark-filled' : 'carbon:error-outline'"
                     :class="item.status === '1' ? 'text-success' : ''"
@@ -258,7 +246,7 @@ onMounted(() => {
       </NScrollbar>
     </NCard>
 
-    <AppOperateModal v-model:visible="modalVisible" :data="editingData" :type="operateType" @success="onModalClose" />
+    <AppOperateModal v-model:visible="modalVisible" :app-type="appType" @success="id => onModalClose(id, appType)" />
   </div>
 </template>
 

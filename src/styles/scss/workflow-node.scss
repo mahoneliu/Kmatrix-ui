@@ -34,8 +34,24 @@
       width: 2px !important;
       height: 2px !important;
       background: #9ba0a1 !important;
-      pointer-events: none !important;
+      pointer-events: auto !important;
+      /* 确保能接收鼠标事件 */
       opacity: 1;
+      /* 确保伪元素相对于 handle 定位 */
+
+      /* 扩大点击区域 */
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background: transparent;
+        border-radius: 50%;
+        z-index: 10;
+      }
     }
 
     /* 加号样式 (无连接时显示) */
