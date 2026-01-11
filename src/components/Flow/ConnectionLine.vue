@@ -93,6 +93,7 @@ const currentConnectionStatus = computed(() => {
   // 重复连接检查
   const exists = workflowStore.edges.some(
     e =>
+      e.id !== workflowStore.updatingEdgeId && // 排除正在更新的边
       e.source === sourceNode.id &&
       e.target === targetNode.id &&
       (e.sourceHandle === sourceHandle.id || (!e.sourceHandle && !sourceHandle.id))

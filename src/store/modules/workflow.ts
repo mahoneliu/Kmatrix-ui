@@ -12,6 +12,8 @@ interface WorkflowState {
   nodes: Node[];
   /** 边列表 */
   edges: Edge[];
+  /** 当前正在更新的边ID (用于边更新时的验证) */
+  updatingEdgeId: string | null;
   /** 当前选中的节点 ID */
   selectedNodeId: string | null;
   /** 节点执行状态 */
@@ -26,6 +28,7 @@ export const useWorkflowStore = defineStore('workflow', {
   state: (): WorkflowState => ({
     nodes: [],
     edges: [],
+    updatingEdgeId: null,
     selectedNodeId: null,
     executionStatus: {},
     workflowName: '新工作流',
@@ -102,6 +105,11 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 删除边 */
     removeEdge(edgeId: string) {
       this.edges = this.edges.filter(e => e.id !== edgeId);
+    },
+
+    /** 设置正在更新的边ID */
+    setUpdatingEdgeId(edgeId: string | null) {
+      this.updatingEdgeId = edgeId;
     },
 
     /** 设置节点执行状态 */
