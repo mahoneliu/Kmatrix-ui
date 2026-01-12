@@ -19,16 +19,30 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
   const entryPoint = startNode?.id || graphData.nodes[0]?.id || 'start';
 
   // 转换节点
-  const nodes: Workflow.DslNodeConfig[] = graphData.nodes.map((node: any) => ({
-    id: node.id,
-    type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || 'LLM_CHAT',
-    name: node.data?.label || node.id,
-    config: node.data?.config || {},
-    inputs: {},
-    condition: undefined,
-    // 添加参数绑定配置
-    paramBindings: node.data?.paramBindings || []
-  }));
+  const nodes: Workflow.DslNodeConfig[] = graphData.nodes.map((node: any) => {
+    // 转换参数绑定为 inputs 格式
+    const inputs: Record<string, string> = {};
+    if (node.data?.paramBindings && Array.isArray(node.data.paramBindings)) {
+      node.data.paramBindings.forEach((binding: Workflow.ParamBinding) => {
+        if (binding.sourceType === 'node' && binding.sourceKey && binding.sourceParam) {
+          // 节点参数: ${nodeId.paramName}
+          inputs[binding.paramKey] = `\${${binding.sourceKey}.${binding.sourceParam}}`;
+        } else if (binding.sourceType === 'global') {
+          // 全局参数: ${globalKey}
+          inputs[binding.paramKey] = `\${${binding.sourceKey}}`;
+        }
+      });
+    }
+
+    return {
+      id: node.id,
+      type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || '',
+      name: node.data?.label || node.id,
+      config: node.data?.config || {},
+      inputs,
+      condition: undefined
+    };
+  });
 
   // 转换边
   const edges: Workflow.DslEdgeConfig[] = graphData.edges.map((edge: any) => ({
@@ -55,6 +69,34 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
   const nodes = dsl.nodes.map((node, index) => {
     const nodeType = NODE_TYPE_REVERSE_MAPPING[node.type] || 'LLM_CHAT';
 
+    // 从 inputs 恢复 paramBindings
+    const paramBindings: Workflow.ParamBinding[] = [];
+    if (node.inputs) {
+      Object.entries(node.inputs).forEach(([paramKey, value]) => {
+        if (typeof value === 'string' && value.startsWith('${') && value.endsWith('}')) {
+          const expression = value.slice(2, -1); // 移除 ${ 和 }
+          const parts = expression.split('.');
+
+          if (parts.length === 2) {
+            // 节点参数: nodeId.paramName
+            paramBindings.push({
+              paramKey,
+              sourceType: 'node',
+              sourceKey: parts[0],
+              sourceParam: parts[1]
+            });
+          } else if (parts.length === 1) {
+            // 全局参数: globalKey
+            paramBindings.push({
+              paramKey,
+              sourceType: 'global',
+              sourceKey: parts[0]
+            });
+          }
+        }
+      });
+    }
+
     return {
       id: node.id,
       type: 'custom', // 使用自定义节点组件
@@ -65,8 +107,7 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
         label: node.name,
         config: node.config || {},
         status: 'idle' as Workflow.NodeStatus,
-        // 恢复参数绑定配置
-        paramBindings: (node as any).paramBindings || []
+        paramBindings
       }
     };
   });
@@ -223,6 +264,58 @@ export function validateGraph(graphData: any): { valid: boolean; errors: string[
   if (!hasStartNode) {
     errors.push('必须包含一个开始节点');
   }
+
+  // 检查 END 节点的存在性和唯一性
+  const endNodes = graphData.nodes.filter((node: any) => node.data?.nodeType === 'END');
+  if (endNodes.length === 0) {
+    errors.push('工作流必须包含一个 END 节点');
+  } else if (endNodes.length > 1) {
+    errors.push('工作流只能有一个 END 节点');
+  }
+
+  // 检查 END 节点不能有出边
+  if (endNodes.length === 1 && graphData.edges) {
+    const endNodeId = endNodes[0].id;
+    const hasOutgoingEdge = graphData.edges.some((edge: any) => edge.source === endNodeId);
+    if (hasOutgoingEdge) {
+      errors.push('END 节点不能有出边');
+    }
+  }
+
+  // 检查所有终端节点(没有出边的节点)
+  if (graphData.nodes && graphData.edges) {
+    // 收集所有有出边的节点
+    const nodesWithOutgoingEdges = new Set<string>();
+    graphData.edges.forEach((edge: any) => {
+      nodesWithOutgoingEdges.add(edge.source);
+    });
+
+    // 找出所有终端节点(没有出边的节点)
+    const terminalNodes = graphData.nodes.filter((node: any) => !nodesWithOutgoingEdges.has(node.id));
+
+    // 终端节点只能有一个,且必须是 END 类型
+    if (terminalNodes.length > 1) {
+      const terminalNodeLabels = terminalNodes.map((node: any) => node.data.label).join(', ');
+      errors.push(`工作流只能有一个终端节点(没有出边的节点),当前有多个: ${terminalNodeLabels}`);
+    } else if (terminalNodes.length === 1) {
+      const terminalNode = terminalNodes[0];
+      if (terminalNode.data?.nodeType !== 'END') {
+        errors.push(`终端节点必须是 END 类型,当前终端节点 ${terminalNode.id} 的类型是: ${terminalNode.data?.nodeType}`);
+      }
+    }
+  }
+
+  // 检查需要模型的节点是否已选择模型
+  const nodesRequiringModel = ['LLM_CHAT', 'APP_INFO'];
+  graphData.nodes.forEach((node: any) => {
+    if (nodesRequiringModel.includes(node.data?.nodeType)) {
+      const config = node.data?.config;
+      if (!config?.modelId) {
+        const nodeLabel = node.data?.label || node.id;
+        errors.push(`节点 "${nodeLabel}" 必须选择模型`);
+      }
+    }
+  });
 
   // 检查边的节点引用是否有效
   if (graphData.edges) {

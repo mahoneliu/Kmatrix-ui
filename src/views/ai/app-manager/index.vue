@@ -80,7 +80,7 @@ function jumpToAppSettings(appId?: CommonType.IdType, type?: string) {
   if (!appId) return;
   // 如果是新建的应用,自动打开工作流编排页面；
   // 如果是简单对话知识库RAG应用,打开编辑弹窗，加载表单页面设置固定工作流模板
-  console.log('jumpToAppSettings:', appId, type);
+
   router.push({
     name: type === '2' ? 'ai_workflow' : 'ai_simple_rag',
     query: { appId: appId.toString() }
@@ -89,7 +89,6 @@ function jumpToAppSettings(appId?: CommonType.IdType, type?: string) {
 
 function onModalClose(createdAppId?: CommonType.IdType, type?: string) {
   modalVisible.value = false;
-  console.log('onModalClose:', createdAppId, type);
   if (createdAppId) {
     jumpToAppSettings(createdAppId, type);
   } else {

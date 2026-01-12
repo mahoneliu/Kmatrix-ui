@@ -1,18 +1,7 @@
 <script lang="ts" setup>
 import { nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  NButton,
-  NCard,
-  NEmpty,
-  NInput,
-  NPopconfirm,
-  NScrollbar,
-  NSpace,
-  NSplit,
-  NTooltip,
-  useMessage
-} from 'naive-ui';
+import { NButton, NCard, NInput, NPopconfirm, NScrollbar, NSpace, NSplit, NTooltip, useMessage } from 'naive-ui';
 import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai/chat/chat';
 import { fetchAppDetail } from '@/service/api/ai/admin/app';
 import { localStg } from '@/utils/storage';
@@ -42,6 +31,9 @@ const scrollbarRef = ref();
 // SSE相关
 const isStreaming = ref(false);
 const currentStreamMessage = ref('');
+
+// 调试模式
+const debugMode = ref(false);
 
 // LocalStorage键
 const STORAGE_SESSION_KEY = `chat_session_${appId.value}`;
@@ -147,6 +139,33 @@ async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<
     try {
       const eventData = JSON.parse(data);
       onNodeStatus(eventData.nodeName);
+    } catch {
+      // 忽略解析错误
+    }
+    return false;
+  }
+
+  // 处理节点执行详情事件
+  if (eventType === 'node_execution_detail') {
+    try {
+      const eventData = JSON.parse(data);
+      const lastMsg = messages.value[messages.value.length - 1];
+      if (lastMsg && lastMsg.role === 'assistant') {
+        if (!lastMsg.executions) lastMsg.executions = [];
+
+        // 添加节点执行详情
+        lastMsg.executions.push({
+          executionId: Date.now().toString(),
+          nodeId: '',
+          nodeName: eventData.nodeName,
+          nodeType: eventData.nodeType,
+          status: 'completed',
+          startTime: new Date().toISOString(),
+          inputParams: eventData.inputs,
+          outputParams: eventData.outputs,
+          durationMs: eventData.durationMs
+        });
+      }
     } catch {
       // 忽略解析错误
     }
@@ -449,6 +468,17 @@ watch(
       // 新建对话:清空sessionId和消息
       sessionId.value = undefined;
       messages.value = [];
+      // 如果有开场白,插入开场白消息
+      if (appInfo.value?.prologue) {
+        messages.value = [
+          {
+            sessionId: '0',
+            role: 'assistant',
+            content: appInfo.value.prologue,
+            createTime: new Date().toISOString()
+          }
+        ];
+      }
     }
   }
 );
@@ -469,6 +499,16 @@ onMounted(async () => {
     await loadHistory();
     // 更新URL
     router.push({ name: 'ai_chat', query: { appId: appId.value, sessionId: cachedSessionId } });
+  } else if (appInfo.value?.prologue) {
+    // 如果是新会话且有开场白,插入开场白消息
+    messages.value = [
+      {
+        sessionId: '0',
+        role: 'assistant',
+        content: appInfo.value.prologue,
+        createTime: new Date().toISOString()
+      }
+    ];
   }
 });
 </script>
@@ -506,27 +546,43 @@ onMounted(async () => {
                   <div class="text-xs text-gray-400">{{ appInfo?.description || '' }}</div>
                 </div>
               </div>
-              <NPopconfirm @positive-click="handleClear">
-                <template #trigger>
-                  <NButton circle quaternary>
-                    <template #icon>
-                      <SvgIcon icon="carbon:trash-can" />
-                    </template>
-                  </NButton>
-                </template>
-                确定清空当前对话吗?
-              </NPopconfirm>
+              <NSpace>
+                <!-- 调试模式开关 -->
+                <NTooltip>
+                  <template #trigger>
+                    <NButton
+                      :type="debugMode ? 'primary' : 'default'"
+                      circle
+                      quaternary
+                      @click="debugMode = !debugMode"
+                    >
+                      <template #icon>
+                        <SvgIcon icon="carbon:debug" />
+                      </template>
+                    </NButton>
+                  </template>
+                  {{ debugMode ? '关闭调试模式' : '开启调试模式' }}
+                </NTooltip>
+
+                <NPopconfirm @positive-click="handleClear">
+                  <template #trigger>
+                    <NButton circle quaternary>
+                      <template #icon>
+                        <SvgIcon icon="carbon:trash-can" />
+                      </template>
+                    </NButton>
+                  </template>
+                  确定清空当前对话吗?
+                </NPopconfirm>
+              </NSpace>
             </div>
           </NCard>
 
           <!-- 消息列表 -->
           <div class="flex-1 overflow-hidden">
             <NScrollbar ref="scrollbarRef" class="h-full px-4 py-4">
-              <NEmpty v-if="messages.length === 0" class="mt-20" description="开始新对话吧">
-                <template #icon>
-                  <SvgIcon class="text-6xl" icon="carbon:chat" />
-                </template>
-              </NEmpty>
+              <!-- 空状态与开场白 -->
+              <!-- 开场白已作为真实消息插入到 messages 数组中 -->
 
               <div v-for="(msg, index) in messages" :key="index" class="group mb-4">
                 <!-- 用户消息 -->
@@ -555,8 +611,8 @@ onMounted(async () => {
                 <!-- AI消息 -->
                 <div v-else class="flex items-start justify-start gap-2">
                   <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
-                    <!-- 节点执行状态（可折叠） -->
-                    <div v-if="msg.executions && msg.executions.length > 0" class="mb-2">
+                    <!-- 节点执行状态（可折叠，仅调试模式显示） -->
+                    <div v-if="debugMode && msg.executions && msg.executions.length > 0" class="mb-2">
                       <!-- 折叠头部 -->
                       <div
                         class="flex cursor-pointer items-center gap-2 text-xs text-blue-500 dark:text-blue-400"
@@ -574,23 +630,37 @@ onMounted(async () => {
                       </div>
 
                       <!-- 展开内容 -->
-                      <div v-if="msg.expanded" class="ml-5 mt-2 space-y-1">
+                      <div v-if="msg.expanded" class="ml-5 mt-2 space-y-2">
                         <div
                           v-for="(item, idx) in msg.executions"
                           :key="idx"
-                          class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
+                          class="border border-gray-200 rounded p-2 text-xs dark:border-gray-700"
                         >
-                          <SvgIcon
-                            :icon="
-                              item.status === 'running'
-                                ? 'carbon:task'
-                                : item.status === 'failed'
-                                  ? 'carbon:error'
-                                  : 'carbon:checkmark'
-                            "
-                            :class="item.status === 'running' ? 'animate-spin text-blue-500' : 'text-green-500'"
-                          />
-                          <span>{{ item.nodeName }}</span>
+                          <div class="mb-1 flex items-center gap-2 font-500">
+                            <SvgIcon
+                              :icon="
+                                item.status === 'running'
+                                  ? 'carbon:task'
+                                  : item.status === 'failed'
+                                    ? 'carbon:error'
+                                    : 'carbon:checkmark'
+                              "
+                              :class="item.status === 'running' ? 'animate-spin text-blue-500' : 'text-green-500'"
+                            />
+                            <span>{{ item.nodeName }}</span>
+                            <span v-if="item.durationMs" class="text-gray-400">({{ item.durationMs }}ms)</span>
+                          </div>
+                          <!-- 输入输出参数 -->
+                          <div v-if="item.inputParams || item.outputParams" class="ml-5 mt-1 text-gray-500 space-y-1">
+                            <div v-if="item.inputParams">
+                              <span class="font-500">输入:</span>
+                              {{ JSON.stringify(item.inputParams) }}
+                            </div>
+                            <div v-if="item.outputParams">
+                              <span class="font-500">输出:</span>
+                              {{ JSON.stringify(item.outputParams) }}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

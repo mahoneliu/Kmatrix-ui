@@ -32,6 +32,12 @@ declare namespace Api.AI.Chat {
     status: 'running' | 'completed' | 'failed';
     startTime: string;
     endTime?: string;
+    /** 输入参数 */
+    inputParams?: Record<string, any>;
+    /** 输出参数 */
+    outputParams?: Record<string, any>;
+    /** 执行耗时(毫秒) */
+    durationMs?: number;
   }
 
   /** 发送消息请求 */

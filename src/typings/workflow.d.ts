@@ -129,6 +129,7 @@ declare namespace Workflow {
     appName: string;
     description: string;
     icon: string;
+    modelId: CommonType.IdType;
     prologue: string;
     /** 全局参数定义 */
     globalParams?: ParamDefinition[];

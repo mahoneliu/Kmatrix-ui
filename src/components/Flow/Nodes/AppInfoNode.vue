@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, watch } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NSelect, NTabPane, NTabs } from 'naive-ui';
+import { NButton, NInput, NSelect, NTabPane, NTabs } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
+import ModelSelector from '@/components/ai/ModelSelector.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -13,6 +14,7 @@ const formModel = reactive<Workflow.AppInfoConfig>({
   appName: '',
   description: '',
   icon: '',
+  modelId: null as any,
   prologue: '',
   globalParams: []
 });
@@ -33,6 +35,7 @@ function initData() {
     formModel.appName = config.appName || '';
     formModel.description = config.description || '';
     formModel.icon = config.icon || '';
+    formModel.modelId = (config.modelId || null) as any;
     formModel.prologue = config.prologue || '';
     formModel.globalParams = config.globalParams || [];
   }
@@ -67,6 +70,7 @@ watch(
       newValue.appName !== currentConfig?.appName ||
       newValue.description !== currentConfig?.description ||
       newValue.icon !== currentConfig?.icon ||
+      newValue.modelId !== currentConfig?.modelId ||
       newValue.prologue !== currentConfig?.prologue ||
       JSON.stringify(newValue.globalParams) !== JSON.stringify(currentConfig?.globalParams);
 
@@ -88,6 +92,7 @@ watch(
         config.appName !== formModel.appName ||
         config.description !== formModel.description ||
         config.icon !== formModel.icon ||
+        config.modelId !== formModel.modelId ||
         config.prologue !== formModel.prologue ||
         JSON.stringify(config.globalParams) !== JSON.stringify(formModel.globalParams);
 
@@ -95,6 +100,7 @@ watch(
         formModel.appName = config.appName || '';
         formModel.description = config.description || '';
         formModel.icon = config.icon || '';
+        formModel.modelId = (config.modelId || null) as any;
         formModel.prologue = config.prologue || '';
         formModel.globalParams = config.globalParams || [];
       }
@@ -114,17 +120,27 @@ onMounted(() => {
       <NTabs type="line" size="small">
         <!-- 基础信息标签页 -->
         <NTabPane name="basic" tab="基础信息">
-          <NForm :model="formModel" label-placement="top" size="small">
-            <NFormItem label="应用名称" path="appName">
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs c-gray-5">应用名称</label>
               <NInput v-model:value="formModel.appName" placeholder="请输入应用名称" />
-            </NFormItem>
-            <NFormItem label="应用描述" path="description">
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs c-gray-5">应用描述</label>
               <NInput v-model:value="formModel.description" type="textarea" :rows="2" placeholder="请输入应用描述" />
-            </NFormItem>
-            <NFormItem label="开场白" path="prologue">
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs c-gray-5">选择模型</label>
+              <ModelSelector v-model="formModel.modelId" />
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs c-gray-5">开场白</label>
               <NInput v-model:value="formModel.prologue" type="textarea" :rows="3" placeholder="请输入开场白" />
-            </NFormItem>
-          </NForm>
+            </div>
+          </div>
         </NTabPane>
 
         <!-- 全局参数标签页 -->

@@ -7,7 +7,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import { GlobalComponents } from 'vue'
 
-export { }
+export {}
 
 /* prettier-ignore */
 declare module 'vue' {
@@ -91,6 +91,7 @@ declare module 'vue' {
     MenuToggler: typeof import('./../components/common/menu-toggler.vue')['default']
     MenuTree: typeof import('./../components/custom/menu-tree.vue')['default']
     MenuTreeSelect: typeof import('./../components/custom/menu-tree-select.vue')['default']
+    ModelSelector: typeof import('./../components/ai/ModelSelector.vue')['default']
     NA: typeof import('naive-ui')['NA']
     NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
@@ -163,6 +164,7 @@ declare module 'vue' {
     NUploadDragger: typeof import('naive-ui')['NUploadDragger']
     NWatermark: typeof import('naive-ui')['NWatermark']
     OssUpload: typeof import('./../components/custom/oss-upload.vue')['default']
+    ParamBindingPanel: typeof import('./../components/Flow/ParamBindingPanel.vue')['default']
     ParamSelector: typeof import('./../components/Flow/ParamSelector.vue')['default']
     PinToggler: typeof import('./../components/common/pin-toggler.vue')['default']
     PostSelect: typeof import('./../components/custom/post-select.vue')['default']
@@ -270,6 +272,7 @@ declare global {
   const MenuToggler: typeof import('./../components/common/menu-toggler.vue')['default']
   const MenuTree: typeof import('./../components/custom/menu-tree.vue')['default']
   const MenuTreeSelect: typeof import('./../components/custom/menu-tree-select.vue')['default']
+  const ModelSelector: typeof import('./../components/ai/ModelSelector.vue')['default']
   const NA: typeof import('naive-ui')['NA']
   const NAlert: typeof import('naive-ui')['NAlert']
   const NAvatar: typeof import('naive-ui')['NAvatar']
@@ -342,6 +345,7 @@ declare global {
   const NUploadDragger: typeof import('naive-ui')['NUploadDragger']
   const NWatermark: typeof import('naive-ui')['NWatermark']
   const OssUpload: typeof import('./../components/custom/oss-upload.vue')['default']
+  const ParamBindingPanel: typeof import('./../components/Flow/ParamBindingPanel.vue')['default']
   const ParamSelector: typeof import('./../components/Flow/ParamSelector.vue')['default']
   const PinToggler: typeof import('./../components/common/pin-toggler.vue')['default']
   const PostSelect: typeof import('./../components/custom/post-select.vue')['default']

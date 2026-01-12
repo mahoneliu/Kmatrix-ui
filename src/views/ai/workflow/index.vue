@@ -12,6 +12,7 @@ import { fetchAppDetail, updateApp } from '@/service/api/ai/admin/app';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/workflow/dsl-converter';
+import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
 import ComponentLibraryModal from '@/components/Flow/ComponentLibraryModal.vue';
 import AppInfoNode from '@/components/Flow/Nodes/AppInfoNode.vue';
@@ -44,13 +45,13 @@ const vueFlowInstance = ref<any>(null);
 // 跟踪source Handle事件后源节点（用于创建连接）
 const sourceNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
 // 跟踪target Handle事件后目标节点（用于创建反向连接）
-const targetNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
+// const targetNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
 
 // 面板关闭定时器
 let panelCloseTimer: number | null = null;
 
 // 注册 Edge 类型
-const edgeTypes = {
+const edgeTypes: any = {
   custom: markRaw(CustomEdge)
 };
 
@@ -73,14 +74,14 @@ function onPaneReady(instance: any) {
   // 跟踪当前连接的源/目标节点(用于连接验证和视觉反馈)
   let connectingSourceNode: any = null;
   let connectingSourceHandle: string | null = null;
-  let connectingHandleType: 'source' | 'target' = 'source';
+  // let connectingHandleType: 'source' | 'target' = 'source';
   const updatingEdge = ref<any>(null); // Use ref for reliability
 
   // 连接开始:记录源节点
   instance.onConnectStart((params: any) => {
     connectingSourceNode = workflowStore.nodes.find(n => n.id === params.nodeId) || null;
     connectingSourceHandle = params.handleId || null;
-    connectingHandleType = 'source'; // 默认是正向连接
+    // connectingHandleType = 'source'; // 默认是正向连接
     connectionSucceeded = false; // 重置标志
   });
 
@@ -88,7 +89,6 @@ function onPaneReady(instance: any) {
   instance.onConnectEnd((event: MouseEvent) => {
     // 如果正在更新边，不处理（由 onEdgeUpdateEnd 处理）
     if (updatingEdge.value) {
-      console.log('onConnectEnd: Skipping because edge update is in progress');
       return;
     }
 
@@ -134,32 +134,28 @@ function onPaneReady(instance: any) {
       const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
 
       if (targetNode && connectingSourceNode && connectingSourceNode.id !== targetNodeId) {
-        let sourceType: Workflow.NodeType;
-        let targetType: Workflow.NodeType;
-        let exists = false;
-
-        if (connectingHandleType === 'source') {
-          sourceType = connectingSourceNode.data.nodeType;
-          targetType = targetNode.data.nodeType;
-          exists = workflowStore.edges.some(
-            e =>
-              e.id !== updatingEdge.value?.id && // 排除当前正在更新的边
-              e.source === connectingSourceNode.id &&
-              e.target === targetNodeId &&
-              (e.sourceHandle === connectingSourceHandle || (!e.sourceHandle && !connectingSourceHandle))
-          );
-        } else {
-          // 反向连接：targetNode 是源，connectingSourceNode 是目标
-          sourceType = targetNode.data.nodeType;
-          targetType = connectingSourceNode.data.nodeType;
-          exists = workflowStore.edges.some(
-            e =>
-              e.id !== updatingEdge.value?.id && // 排除当前正在更新的边
-              e.source === targetNodeId &&
-              e.target === connectingSourceNode.id &&
-              (e.targetHandle === connectingSourceHandle || (!e.targetHandle && !connectingSourceHandle))
-          );
-        }
+        // if (connectingHandleType === 'source') {
+        const sourceType = connectingSourceNode.data.nodeType;
+        const targetType = targetNode.data.nodeType;
+        const exists = workflowStore.edges.some(
+          e =>
+            e.id !== updatingEdge.value?.id && // 排除当前正在更新的边
+            e.source === connectingSourceNode.id &&
+            e.target === targetNodeId &&
+            (e.sourceHandle === connectingSourceHandle || (!e.sourceHandle && !connectingSourceHandle))
+        );
+        // } else {
+        //   // 反向连接：targetNode 是源，connectingSourceNode 是目标
+        //   sourceType = targetNode.data.nodeType;
+        //   targetType = connectingSourceNode.data.nodeType;
+        //   exists = workflowStore.edges.some(
+        //     e =>
+        //       e.id !== updatingEdge.value?.id && // 排除当前正在更新的边
+        //       e.source === targetNodeId &&
+        //       e.target === connectingSourceNode.id &&
+        //       (e.targetHandle === connectingSourceHandle || (!e.targetHandle && !connectingSourceHandle))
+        //   );
+        // }
 
         // 如果是正在更新的边，且回到了原来的目标，则不视为重复
         const isRestoring =
@@ -168,17 +164,6 @@ function onPaneReady(instance: any) {
           updatingEdge.value.target === targetNodeId &&
           (updatingEdge.value.sourceHandle === connectingSourceHandle ||
             (!updatingEdge.value.sourceHandle && !connectingSourceHandle));
-
-        if (isRestoring) {
-          console.log('Restoring to original target:', {
-            edgeId: updatingEdge.value.id,
-            source: updatingEdge.value.source,
-            target: updatingEdge.value.target,
-            targetNodeId,
-            exists,
-            willShowRedX: exists && !isRestoring
-          });
-        }
 
         // 使用统一的验证函数
         if (!isValidConnection(sourceType, targetType)) {
@@ -191,10 +176,9 @@ function onPaneReady(instance: any) {
   });
 
   // 监听连接线更新开始
-  instance.onEdgeUpdateStart(({ edge, handleType }: any) => {
+  instance.onEdgeUpdateStart(({ edge }: any) => {
     updatingEdge.value = edge; // 记录当前正在更新的边
     workflowStore.setUpdatingEdgeId(edge.id); // 设置到 store 供 ConnectionLine 使用
-    console.log('EdgeUpdateStart:', edge.id, 'handleType:', handleType);
 
     // 隐藏旧连接 (视觉上删除)
     const edgeItem = workflowStore.edges.find(e => e.id === edge.id);
@@ -202,18 +186,17 @@ function onPaneReady(instance: any) {
 
     // 初始化连接状态
     // 注意：Vue Flow 1.x 的 handleType 可能为 undefined
-    // 由于我们设置了 updatable: true，默认假设从 target handle 拖动
+    // 由于我们设置了 updatable: target，默认假设从 target handle 拖动
     // 拖拽 target handle -> 源头是 Source Node
     connectingSourceNode = workflowStore.nodes.find(n => n.id === edge.source) || null;
     connectingSourceHandle = edge.sourceHandle;
-    connectingHandleType = 'source'; // 模拟从 source 向 target 拖动
+    // connectingHandleType = 'source'; // 模拟从 source 向 target 拖动
     connectionSucceeded = false;
   });
 
   // 监听连接线更新成功 (拖动到有效把手)
   instance.onEdgeUpdate(({ edge, connection }: any) => {
     connectionSucceeded = true; // 标记更新成功
-    console.log('EdgeUpdate triggered:', { oldEdge: edge.id, newConnection: connection });
 
     // 验证新连接
     if (validateConnection(connection, updatingEdge.value?.id)) {
@@ -239,8 +222,6 @@ function onPaneReady(instance: any) {
       const currentEdges = workflowStore.edges.filter(e => e.id !== edge.id);
       currentEdges.push(newEdge);
       workflowStore.setEdges(currentEdges);
-
-      console.log('Edge updated successfully:', { removed: edge.id, added: edgeId });
     } else {
       message.warning('无效的连接');
       // 无效连接 -> 移除旧边
@@ -251,25 +232,20 @@ function onPaneReady(instance: any) {
 
   // 监听连接线更新结束 (处理空白处或节点上的释放)
   instance.onEdgeUpdateEnd(({ edge, event }: any) => {
-    console.log('EdgeUpdateEnd:', { edgeId: edge.id, connectionSucceeded });
-
     // 如果没有触发 onEdgeUpdate (即 connectionSucceeded = false)
     if (!connectionSucceeded) {
       // 尝试手动处理连接逻辑
       const actionTaken = handleManualConnectEnd(event as MouseEvent);
-      console.log('Manual connect end:', { actionTaken });
 
       const currentEdges = [...workflowStore.edges];
       const index = currentEdges.findIndex(e => e.id === edge.id);
 
       if (actionTaken) {
         // 如果执行了动作（连上了新节点 或 打开了面板），则确保移除旧边
-        console.log('Action taken, removing old edge:', edge.id);
         if (index !== -1) {
           // 使用同步操作删除
           currentEdges.splice(index, 1);
           workflowStore.setEdges(currentEdges);
-          console.log('Old edge removed successfully');
         } else {
           // Fallback
           const fallbackIndex = currentEdges.findIndex(
@@ -282,19 +258,14 @@ function onPaneReady(instance: any) {
           if (fallbackIndex !== -1) {
             currentEdges.splice(fallbackIndex, 1);
             workflowStore.setEdges(currentEdges);
-            console.log('Old edge removed via fallback');
           }
         }
-      } else {
+      } else if (index !== -1) {
         // 如果没有动作（比如拖回去原节点，或拖到无效区域但未打开面板），则恢复旧边
-        console.log('No action, restoring edge:', edge.id);
-        if (index !== -1) {
-          const edgeItem = currentEdges[index];
-          if (edgeItem.hidden) {
-            edgeItem.hidden = false;
-            workflowStore.setEdges([...currentEdges]);
-            console.log('Edge restored');
-          }
+        const edgeItem = currentEdges[index];
+        if (edgeItem.hidden) {
+          edgeItem.hidden = false;
+          workflowStore.setEdges([...currentEdges]);
         }
       }
     }
@@ -355,33 +326,32 @@ function onPaneReady(instance: any) {
   ) {
     const { nodeEl, handleEl } = dropElements;
     let connection: Connection | null = null;
-    let condition: string | undefined;
 
-    if (connectingHandleType === 'source') {
-      const targetHandle = handleEl?.getAttribute('data-handleid') || findNearestHandle(nodeEl, event, 'target');
-      if (targetHandle || !handleEl) {
-        connection = {
-          source: connectingSourceNode!.id,
-          target: targetNode.id,
-          sourceHandle: connectingSourceHandle,
-          targetHandle
-        };
-      }
-      condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
-    } else {
-      const sourceHandle =
-        (handleEl?.classList.contains('vue-flow__handle-source') && handleEl.getAttribute('data-handleid')) ||
-        findNearestHandle(nodeEl, event, 'source');
-      if (sourceHandle || !handleEl) {
-        connection = {
-          source: targetNode.id,
-          target: connectingSourceNode!.id,
-          sourceHandle,
-          targetHandle: connectingSourceHandle
-        };
-      }
-      condition = generateEdgeCondition(targetNode, sourceHandle);
+    // if (connectingHandleType === 'source') {
+    const targetHandle = handleEl?.getAttribute('data-handleid') || findNearestHandle(nodeEl, event, 'target');
+    if (targetHandle || !handleEl) {
+      connection = {
+        source: connectingSourceNode!.id,
+        target: targetNode.id,
+        sourceHandle: connectingSourceHandle,
+        targetHandle
+      };
     }
+    const condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
+    // } else {
+    //   const sourceHandle =
+    //     (handleEl?.classList.contains('vue-flow__handle-source') && handleEl.getAttribute('data-handleid')) ||
+    //     findNearestHandle(nodeEl, event, 'source');
+    //   if (sourceHandle || !handleEl) {
+    //     connection = {
+    //       source: targetNode.id,
+    //       target: connectingSourceNode!.id,
+    //       sourceHandle,
+    //       targetHandle: connectingSourceHandle
+    //     };
+    //   }
+    //   condition = generateEdgeCondition(targetNode, sourceHandle);
+    // }
     return { connection, condition };
   }
 
@@ -393,26 +363,17 @@ function onPaneReady(instance: any) {
     const { targetNodeId, nodeEl, handleEl } = dropData;
     const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
 
-    console.log('Dropped on node:', {
-      targetNodeId,
-      foundNode: Boolean(targetNode),
-      isSameAsSource: targetNodeId === connectingSourceNode?.id
-    });
-
     if (!targetNode || !connectingSourceNode || targetNodeId === connectingSourceNode.id) return false;
 
     const { connection, condition } = buildConnectionInfo(targetNode, { nodeEl, handleEl }, event);
-    console.log('Connection built:', connection);
 
     if (!connection) return false;
 
     if (checkIfRestoring(connection)) {
-      console.log('Restoring to original connection, returning false to restore edge');
       return false;
     }
 
     if (validateConnection(connection, updatingEdge.value?.id)) {
-      console.log('Connection valid! Creating edge...');
       workflowStore.addEdge({
         id: `e-${connection.source}-${connection.sourceHandle || ''}-${connection.target}`,
         source: connection.source,
@@ -428,26 +389,18 @@ function onPaneReady(instance: any) {
       connectionSucceeded = true;
       return true;
     }
-    console.log('Connection invalid or validation failed');
     return false;
   }
 
   // 辅助函数: 手动处理连接结束逻辑
   // 返回 boolean: true 表示有了实质性操作（连接或打开面板），false 表示无操作（可能需要恢复旧边）
   function handleManualConnectEnd(event: MouseEvent): boolean {
-    console.log('handleManualConnectEnd called', { connectingSourceNode: connectingSourceNode?.id });
     if (!connectingSourceNode) return false;
 
     // 获取鼠标位置下的元素
     const target = document.elementFromPoint(event.clientX, event.clientY);
     const nodeEl = target?.closest('.vue-flow__node');
     const handleEl = target?.closest('.vue-flow__handle');
-
-    console.log('Drop location:', {
-      hasNodeEl: Boolean(nodeEl),
-      hasHandleEl: Boolean(handleEl),
-      targetNodeId: nodeEl?.getAttribute('data-id')
-    });
 
     if (nodeEl) {
       return handleConnectionDropOnNode(
@@ -456,16 +409,14 @@ function onPaneReady(instance: any) {
       );
     } else if (!nodeEl && !handleEl) {
       // 空白处 -> 打开组件面板
-      console.log('Dropped on blank space, opening panel');
-      if (connectingHandleType === 'source') {
-        handleSourceHandleClick(event, connectingSourceNode.id, connectingSourceHandle);
-        return true; // Action Taken
-      }
-      handleTargetHandleDrop(event, connectingSourceNode.id, connectingSourceHandle);
+      // if (connectingHandleType === 'source') {
+      handleSourceHandleClick(event, connectingSourceNode.id, connectingSourceHandle);
       return true; // Action Taken
+      // }
+      // handleTargetHandleDrop(event, connectingSourceNode.id, connectingSourceHandle);
+      // return true; // Action Taken
     }
 
-    console.log('No action taken, returning false');
     return false; // No Action
   }
 }
@@ -638,6 +589,23 @@ async function loadWorkflow() {
           }
         };
         workflowStore.addNode(startNode);
+
+        // 初始化一个结束节点
+        const endNodeDef = nodeDefinitionStore.getNodeDefinition('END');
+        const endNode = {
+          id: 'end',
+          type: 'custom',
+          position: { x: 1000, y: 150 }, // 在 START 节点右侧
+          data: {
+            id: 'end',
+            nodeType: 'END' as Workflow.NodeType,
+            label: '结束',
+            nodeColor: endNodeDef?.nodeColor,
+            icon: endNodeDef?.nodeIcon,
+            status: 'idle' as Workflow.NodeStatus
+          }
+        };
+        workflowStore.addNode(endNode);
       }
 
       // 确保基础信息节点存在并更新配置(在 DSL 加载后执行,防止被覆盖)
@@ -662,8 +630,6 @@ async function handleSave() {
   // 获取基础信息节点的配置
   const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
   const appInfoConfig = appInfoNode?.data.config as Workflow.AppInfoConfig | undefined;
-
-  console.log('workflowStore.edges:', workflowStore.edges);
   // 过滤掉基础信息节点(不属于工作流)
   const workflowNodes = workflowStore.nodes.filter(n => n.data.nodeType !== 'APP_INFO');
   const graphData = {
@@ -679,6 +645,18 @@ async function handleSave() {
     return;
   }
 
+  // 验证必填参数
+  const paramValidation = validateWorkflow(workflowNodes);
+
+  if (!paramValidation.valid) {
+    const errorMessage = formatValidationErrors(paramValidation);
+    message.error(errorMessage, {
+      duration: 5000,
+      closable: true
+    });
+    return;
+  }
+
   // 转换为 DSL
   const dsl = graphToDsl(graphData, workflowStore.workflowName);
 
@@ -686,6 +664,7 @@ async function handleSave() {
     // 保存工作流数据和基础信息
     await updateApp({
       appId,
+      modelId: appInfoConfig?.modelId,
       graphData: JSON.stringify(graphData),
       dslData: JSON.stringify(dsl),
       // 同步基础信息到应用数据
@@ -714,7 +693,7 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
     const newAppInfoNode = {
       id: 'app-info',
       type: 'custom',
-      position: { x: 50, y: 50 },
+      position: { x: 30, y: 30 },
       data: {
         id: 'app-info',
         nodeType: 'APP_INFO' as Workflow.NodeType,
@@ -745,6 +724,19 @@ function handleSelectNode(nodeType: Workflow.NodeType) {
 
 // 删除节点
 function handleDeleteNode(nodeId: string) {
+  const node = workflowStore.nodes.find(n => n.id === nodeId);
+
+  // 禁止删除 START 和 END 节点
+  if (node?.data.nodeType === 'START') {
+    message.warning('START 节点不能删除');
+    return;
+  }
+
+  if (node?.data.nodeType === 'END') {
+    message.warning('END 节点不能删除');
+    return;
+  }
+
   workflowStore.removeNode(nodeId);
 }
 
@@ -788,20 +780,20 @@ function handleSourceHandleClick(e: MouseEvent, id: string, handleId?: string | 
   showHandlePanel.value = true;
 }
 
-function handleTargetHandleDrop(e: MouseEvent, id: string, handleId?: string | null) {
-  const node = workflowStore.nodes.find(n => n.id === id);
-  if (node) {
-    targetNodeByHandle.value = { node, handleId: handleId || null };
-  }
-  // 计算面板位置
-  handlePanelPosition.value = { x: e.clientX, y: e.clientY };
-  showHandlePanel.value = true;
-}
+// function handleTargetHandleDrop(e: MouseEvent, id: string, handleId?: string | null) {
+//   const node = workflowStore.nodes.find(n => n.id === id);
+//   if (node) {
+//     targetNodeByHandle.value = { node, handleId: handleId || null };
+//   }
+//   // 计算面板位置
+//   handlePanelPosition.value = { x: e.clientX, y: e.clientY };
+//   showHandlePanel.value = true;
+// }
 
 function handleSourceHandleClose() {
   // 清除源节点
   sourceNodeByHandle.value = null;
-  targetNodeByHandle.value = null;
+  // targetNodeByHandle.value = null;
   showHandlePanel.value = false;
   if (panelCloseTimer) {
     clearTimeout(panelCloseTimer);
@@ -839,31 +831,38 @@ function handlePanelSelectNode(nodeType: Workflow.NodeType) {
       workflowStore.addNode(newNode);
       // 创建连接
       if (sourceNodeByHandle.value) {
+        const condition = generateEdgeCondition(sourceNodeByHandle.value.node, sourceNodeByHandle.value.handleId);
         workflowStore.addEdge({
-          id: `e-${sourceNodeByHandle.value.node.id}-${newNode.id}`,
+          id: `e-${sourceNodeByHandle.value.node.id}-${sourceNodeByHandle.value.handleId || ''}-${newNode.id}`,
           source: sourceNodeByHandle.value.node.id,
           target: newNode.id,
           sourceHandle: sourceNodeByHandle.value.handleId,
           targetHandle: null,
           type: 'custom',
           animated: false,
-          updatable: 'target' as const
+          updatable: 'target' as const,
+          label: condition,
+          data: { condition }
         });
         sourceNodeByHandle.value = null;
-      } else if (targetNodeByHandle.value) {
-        // 反向创建: NewNode -> TargetNode
-        workflowStore.addEdge({
-          id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
-          source: newNode.id,
-          target: targetNodeByHandle.value.node.id,
-          sourceHandle: null,
-          targetHandle: targetNodeByHandle.value.handleId,
-          type: 'custom',
-          animated: false,
-          updatable: 'target' as const
-        });
-        targetNodeByHandle.value = null;
       }
+      // else if (targetNodeByHandle.value) {
+      //   // 反向创建: NewNode -> TargetNode
+      //   const condition = generateEdgeCondition(newNode, null);
+      //   workflowStore.addEdge({
+      //     id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
+      //     source: newNode.id,
+      //     target: targetNodeByHandle.value.node.id,
+      //     sourceHandle: null,
+      //     targetHandle: targetNodeByHandle.value.handleId,
+      //     type: 'custom',
+      //     animated: false,
+      //     updatable: 'target' as const,
+      //     label: condition,
+      //     data: { condition }
+      //   });
+      //   targetNodeByHandle.value = null;
+      // }
     }
   }
 }
@@ -925,30 +924,38 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
           workflowStore.addNode(newNode);
           // 如果有sourceNodeByHandle，说明是handle点击或拖拽，创建连接
           if (sourceNodeByHandle.value) {
+            const condition = generateEdgeCondition(sourceNodeByHandle.value.node, sourceNodeByHandle.value.handleId);
             workflowStore.addEdge({
-              id: `e-${sourceNodeByHandle.value.node.id}-${newNode.id}`,
+              id: `e-${sourceNodeByHandle.value.node.id}-${sourceNodeByHandle.value.handleId || ''}-${newNode.id}`,
               source: sourceNodeByHandle.value.node.id,
               target: newNode.id,
-              sourceHandle: null,
+              sourceHandle: sourceNodeByHandle.value.handleId,
               targetHandle: null,
               type: 'custom',
               animated: false,
-              updatable: 'target' as const
+              updatable: 'target' as const,
+              label: condition,
+              data: { condition }
             });
             sourceNodeByHandle.value = null;
-          } else if (targetNodeByHandle.value) {
-            workflowStore.addEdge({
-              id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
-              source: newNode.id,
-              target: targetNodeByHandle.value.node.id,
-              sourceHandle: null,
-              targetHandle: targetNodeByHandle.value.handleId,
-              type: 'custom',
-              animated: false,
-              updatable: 'target' as const
-            });
-            targetNodeByHandle.value = null;
           }
+          // else if (targetNodeByHandle.value) {
+          //   // 反向连接：从新节点到目标节点
+          //   const condition = generateEdgeCondition(newNode, null);
+          //   workflowStore.addEdge({
+          //     id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
+          //     source: newNode.id,
+          //     target: targetNodeByHandle.value.node.id,
+          //     sourceHandle: null,
+          //     targetHandle: targetNodeByHandle.value.handleId,
+          //     type: 'custom',
+          //     animated: false,
+          //     updatable: 'target' as const,
+          //     label: condition,
+          //     data: { condition }
+          //   });
+          //   targetNodeByHandle.value = null;
+          // }
         }
       }
     }
@@ -968,6 +975,8 @@ onMounted(async () => {
   try {
     // 先加载节点定义
     await nodeDefinitionStore.loadNodeDefinitions();
+    // 先清空工作流
+    workflowStore.clearWorkflow();
     // 再加载工作流
     await loadWorkflow();
   } catch (error) {

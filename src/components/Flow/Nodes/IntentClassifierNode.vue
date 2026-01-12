@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { NButton, NInput, NSelect, useMessage } from 'naive-ui';
+import { ref, watch } from 'vue';
+import { NButton, NInput } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
-import { fetchModelList } from '@/service/api/ai/admin/model';
 import { useWorkflowStore } from '@/store/modules/workflow';
+import ModelSelector from '@/components/ai/ModelSelector.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -13,10 +13,9 @@ const emit = defineEmits<{
 }>();
 
 const workflowStore = useWorkflowStore();
-const message = useMessage();
 
 // 防止循环更新的标志位
-let isUpdating = false;
+// let isUpdating = false;
 
 // 本地配置状态
 const localConfig = ref<Workflow.IntentClassifierConfig>({
@@ -24,42 +23,20 @@ const localConfig = ref<Workflow.IntentClassifierConfig>({
   intents: props.data.config?.intents || []
 });
 
-// 模型选项
-const modelOptions = ref<Array<{ label: string; value: CommonType.IdType }>>([]);
-const loading = ref(false);
-
-// 加载模型列表
-async function loadModels() {
-  loading.value = true;
-  try {
-    const res = await fetchModelList({ modelType: '1' });
-    console.log('res:', res);
-    if (res.data) {
-      modelOptions.value = res.data.map((m: Api.AI.Admin.Model) => ({
-        label: m.modelName,
-        value: m.modelId
-      }));
-    }
-  } catch {
-    message.error('加载模型列表失败');
-  } finally {
-    loading.value = false;
-  }
-}
-
 // 监听 props 变化同步到本地
 watch(
   () => props.data.config,
   newVal => {
-    if (isUpdating) return; // 防止循环
-    if (newVal && JSON.stringify(newVal) !== JSON.stringify(localConfig.value)) {
-      isUpdating = true;
-      // 深度合并或替换
+    if (!newVal) return;
+    const isSame =
+      newVal.modelId === localConfig.value.modelId &&
+      JSON.stringify(newVal.intents) === JSON.stringify(localConfig.value.intents);
+
+    if (!isSame) {
       localConfig.value = {
         modelId: newVal.modelId,
-        intents: newVal.intents || []
+        intents: [...(newVal.intents || [])]
       };
-      isUpdating = false;
     }
   },
   { deep: true, immediate: true }
@@ -69,10 +46,13 @@ watch(
 watch(
   localConfig,
   newVal => {
-    if (isUpdating) return; // 防止循环
-    isUpdating = true;
-    workflowStore.updateNodeConfig(props.id, JSON.parse(JSON.stringify(newVal)));
-    isUpdating = false;
+    const isSame =
+      newVal.modelId === props.data.config?.modelId &&
+      JSON.stringify(newVal.intents) === JSON.stringify(props.data.config?.intents);
+
+    if (!isSame) {
+      workflowStore.updateNodeConfig(props.id, JSON.parse(JSON.stringify(newVal)));
+    }
   },
   { deep: true }
 );
@@ -102,10 +82,6 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
   // 触发事件，传递 event, nodeId, handleId
   emit('sourceHandleClick', e, props.id, handleId);
 }
-
-onMounted(() => {
-  loadModels();
-});
 </script>
 
 <template>
@@ -121,14 +97,7 @@ onMounted(() => {
       <!-- 模型选择 -->
       <div class="flex flex-col gap-1">
         <label class="text-xs c-gray-5">模型</label>
-        <NSelect
-          v-model:value="localConfig.modelId"
-          :options="modelOptions"
-          :loading="loading"
-          placeholder="请选择推理模型"
-          size="small"
-          clearable
-        />
+        <ModelSelector v-model:model-value="localConfig.modelId" placeholder="请选择推理模型" />
       </div>
 
       <!-- 意图列表 -->

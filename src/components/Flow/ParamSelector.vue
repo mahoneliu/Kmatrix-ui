@@ -86,37 +86,55 @@ function handleValueChange(
   value: string | number | Array<string | number> | null,
   option: CascaderOption | null | Array<CascaderOption | null>
 ) {
-  console.log('ParamSelector value changed:', value);
-  console.log('ParamSelector option:', option);
-
   if (!value || !option) {
     emit('update:binding', undefined);
     return;
   }
 
-  // option 可能是单个对象或数组,我们需要获取路径
-  // 由于 Cascader 返回的是叶子节点,我们需要从 value 本身推断路径
-  // 但实际上我们应该从选项结构中查找父节点
+  let sourceKey: string;
+  let paramKey: string;
 
-  // 简化方案:在 value 中编码完整路径
-  // 由于当前 value 只是叶子节点的值,我们需要遍历 options 找到对应的父节点
-  const paramKey = String(value);
-
-  // 在所有来源中查找包含这个参数的来源
-  let foundSource: Workflow.ParamSource | null = null;
-  let foundParam: Workflow.ParamDefinition | null = null;
-
-  for (const source of availableSources.value) {
-    const param = source.params?.find(p => p.key === paramKey);
-    if (param) {
-      foundSource = source;
-      foundParam = param;
-      break;
+  // Cascader 可能返回数组或字符串
+  if (Array.isArray(value)) {
+    // 数组格式: [sourceKey, paramKey]
+    if (value.length < 2) {
+      emit('update:binding', undefined);
+      return;
     }
+    sourceKey = String(value[0]);
+    paramKey = String(value[1]);
+  } else {
+    // 字符串格式: 直接是 paramKey,需要从可用参数源中查找对应的 sourceKey
+    paramKey = String(value);
+
+    // 在所有来源中查找包含这个参数的来源
+    const tempSource = availableSources.value.find(source => source.params?.some(p => p.key === paramKey));
+
+    if (!tempSource) {
+      console.warn('Source not found for param:', paramKey);
+      emit('update:binding', undefined);
+      return;
+    }
+
+    sourceKey = tempSource.sourceKey;
   }
 
-  console.log('Found source:', foundSource);
-  console.log('Found param:', foundParam);
+  // 在所有来源中查找对应的来源和参数
+  const foundSource = availableSources.value.find(s => s.sourceKey === sourceKey);
+
+  if (!foundSource) {
+    console.warn('Source not found:', sourceKey);
+    emit('update:binding', undefined);
+    return;
+  }
+
+  const foundParam = foundSource.params?.find(p => p.key === paramKey);
+
+  if (!foundParam) {
+    console.warn('Param not found:', paramKey);
+    emit('update:binding', undefined);
+    return;
+  }
 
   if (!foundSource || !foundParam) {
     emit('update:binding', undefined);
@@ -124,21 +142,19 @@ function handleValueChange(
   }
 
   if (foundSource.type === 'global') {
-    const binding = {
+    const binding: Workflow.ParamBinding = {
       paramKey: props.paramDef.key,
-      sourceType: 'global' as const,
+      sourceType: 'global',
       sourceKey: paramKey
     };
-    console.log('Emitting global binding:', binding);
     emit('update:binding', binding);
   } else {
-    const binding = {
+    const binding: Workflow.ParamBinding = {
       paramKey: props.paramDef.key,
-      sourceType: 'node' as const,
+      sourceType: 'node',
       sourceKey: foundSource.sourceKey,
       sourceParam: paramKey
     };
-    console.log('Emitting node binding:', binding);
     emit('update:binding', binding);
   }
 }

@@ -1,53 +1,37 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, reactive, ref, watch } from 'vue';
-import { NForm, NFormItem, NInput, NSelect, NSlider, NTabPane, NTabs, useMessage } from 'naive-ui';
+import { onMounted, reactive, ref, watch } from 'vue';
+import { NButton, NCollapse, NCollapseItem, NInput, NInputNumber, NModal, NSlider, NSpace } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
-import { fetchModelList } from '@/service/api/ai/admin/model';
 import { useWorkflowStore } from '@/store/modules/workflow';
-import { getNodeInputParams } from '@/utils/workflow/node-params';
+import ModelSelector from '@/components/ai/ModelSelector.vue';
 import BaseNode from './BaseNode.vue';
-
-const ParamSelector = defineAsyncComponent(() => import('@/components/Flow/ParamSelector.vue'));
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
-const message = useMessage();
+
+// 温度预设模式
+type TemperatureMode = 'precise' | 'balanced' | 'creative' | 'custom';
 
 // 局部表单数据
 const formModel = reactive<Workflow.LlmNodeConfig>({
-  modelId: null as any, // 临时使用 any 避免类型冲突
+  modelId: null as any,
   systemPrompt: '',
   temperature: 0.7,
   maxTokens: 2000
 });
 
-// 参数绑定配置
-const paramBindings = ref<Workflow.ParamBinding[]>([]);
+// 温度模式
+const temperatureMode = ref<TemperatureMode>('balanced');
 
-// 获取节点输入参数定义
-const inputParams = getNodeInputParams('LLM_CHAT');
+// 模型设置弹窗
+const showModelSettings = ref(false);
 
-// 模型选项
-const modelOptions = ref<Array<{ label: string; value: CommonType.IdType }>>([]);
-const loading = ref(false);
-
-// 加载模型列表
-async function loadModels() {
-  loading.value = true;
-  try {
-    const res = await fetchModelList({ modelType: '1' });
-    if (res.data && res.data) {
-      modelOptions.value = res.data.map((m: Api.AI.Admin.Model) => ({
-        label: m.modelName,
-        value: m.modelId
-      }));
-    }
-  } catch {
-    message.error('加载模型列表失败');
-  } finally {
-    loading.value = false;
-  }
-}
+// 温度预设值
+const temperaturePresets = {
+  precise: 0.3,
+  balanced: 0.8,
+  creative: 1
+};
 
 // 初始化数据
 function initData() {
@@ -57,26 +41,32 @@ function initData() {
     formModel.systemPrompt = config.systemPrompt || '';
     formModel.temperature = config.temperature || 0.7;
     formModel.maxTokens = config.maxTokens || 2000;
-  }
 
-  // 初始化参数绑定
-  paramBindings.value = props.data.paramBindings || [];
+    // 根据温度值设置模式
+    updateTemperatureMode(formModel.temperature);
+  }
 }
 
-// 监听参数绑定变化
-watch(
-  paramBindings,
-  newBindings => {
-    workflowStore.updateNode(props.id, {
-      ...workflowStore.nodes.find(n => n.id === props.id),
-      data: {
-        ...props.data,
-        paramBindings: newBindings
-      }
-    });
-  },
-  { deep: true }
-);
+// 根据温度值更新模式
+function updateTemperatureMode(temp: number) {
+  if (temp === temperaturePresets.precise) {
+    temperatureMode.value = 'precise';
+  } else if (temp === temperaturePresets.balanced) {
+    temperatureMode.value = 'balanced';
+  } else if (temp === temperaturePresets.creative) {
+    temperatureMode.value = 'creative';
+  } else {
+    temperatureMode.value = 'custom';
+  }
+}
+
+// 切换温度模式
+function handleTemperatureModeChange(mode: TemperatureMode) {
+  temperatureMode.value = mode;
+  if (mode !== 'custom') {
+    formModel.temperature = temperaturePresets[mode];
+  }
+}
 
 // 监听局部表单变化, 同步到 Store
 watch(
@@ -111,6 +101,7 @@ watch(
         formModel.systemPrompt = config.systemPrompt || '';
         formModel.temperature = config.temperature || 0.7;
         formModel.maxTokens = config.maxTokens || 2000;
+        updateTemperatureMode(formModel.temperature);
       }
     }
   },
@@ -119,97 +110,117 @@ watch(
 
 onMounted(() => {
   initData();
-  loadModels();
 });
 </script>
 
 <template>
   <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:robot' }" class="llm-chat-node">
-    <div class="w-96 p-3">
-      <NTabs type="line" size="small">
-        <!-- 基础配置标签页 -->
-        <NTabPane name="config" tab="基础配置">
-          <NForm :model="formModel" label-placement="top" size="small" :show-feedback="false">
-            <NFormItem label="选择模型">
-              <NSelect
-                v-model:value="formModel.modelId"
-                :options="modelOptions"
-                :loading="loading"
-                placeholder="请选择 LLM 模型"
-                clearable
-              />
-            </NFormItem>
+    <div class="w-100 p-2">
+      <NCollapse :default-expanded-names="['config']">
+        <!-- 基础配置 -->
+        <NCollapseItem title="基础配置" name="config">
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-12px font-500">
+                模型
+                <span class="ml-0.5 c-red-5">*</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <ModelSelector v-model="formModel.modelId" class="flex-1" />
+                <NButton quaternary circle @click="showModelSettings = true">
+                  <template #icon>
+                    <SvgIcon icon="mdi:cog" class="text-18px" />
+                  </template>
+                </NButton>
+              </div>
+            </div>
 
-            <NFormItem label="系统提示词">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-12px font-500">系统提示词</label>
               <NInput
                 v-model:value="formModel.systemPrompt"
                 type="textarea"
                 :rows="3"
                 placeholder="输入系统提示词，定义 AI 的角色和行为..."
               />
-            </NFormItem>
-
-            <NFormItem label="温度 (Temperature)">
-              <NSlider
-                v-model:value="formModel.temperature"
-                :min="0"
-                :max="2"
-                :step="0.1"
-                :marks="{ 0: '0', 1: '1', 2: '2' }"
-              />
-              <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.temperature }}</div>
-            </NFormItem>
-
-            <NFormItem label="最大 Token 数">
-              <NSlider
-                v-model:value="formModel.maxTokens"
-                :min="100"
-                :max="4000"
-                :step="100"
-                :marks="{ 100: '100', 2000: '2000', 4000: '4000' }"
-              />
-              <div class="mt-1 text-xs text-gray-500">当前值: {{ formModel.maxTokens }}</div>
-            </NFormItem>
-          </NForm>
-        </NTabPane>
-
-        <!-- 参数绑定标签页 -->
-        <NTabPane name="params" tab="参数绑定">
-          <div class="flex flex-col gap-3">
-            <div class="text-xs c-gray-5">配置节点输入参数的来源，可以从全局参数或上游节点输出中选择。</div>
-
-            <div v-for="param in inputParams" :key="param.key" class="flex flex-col gap-1">
-              <label class="text-xs c-gray-7 font-500 dark:c-gray-3">
-                {{ param.label }}
-                <span v-if="param.required" class="c-red-5">*</span>
-              </label>
-              <ParamSelector
-                :node-id="props.id"
-                :param-def="param"
-                :binding="paramBindings.find(b => b.paramKey === param.key)"
-                @update:binding="
-                  binding => {
-                    const index = paramBindings.findIndex(b => b.paramKey === param.key);
-                    if (binding) {
-                      if (index >= 0) {
-                        paramBindings[index] = binding;
-                      } else {
-                        paramBindings.push(binding);
-                      }
-                    } else if (index >= 0) {
-                      paramBindings.splice(index, 1);
-                    }
-                  }
-                "
-              />
-              <div v-if="param.description" class="text-xs c-gray-4">
-                {{ param.description }}
-              </div>
             </div>
           </div>
-        </NTabPane>
-      </NTabs>
+        </NCollapseItem>
+      </NCollapse>
     </div>
+
+    <!-- 模型设置弹窗 -->
+    <NModal v-model:show="showModelSettings" preset="card" title="模型设置" class="w-140">
+      <NForm :model="formModel" label-placement="left" label-width="120" size="medium">
+        <div class="mb-2 mt-4 text-sm font-500">生成多样性</div>
+        <!-- 生成多样性 -->
+        <div>
+          <div class="w-full flex flex-col items-center gap-3 pb-2">
+            <NSpace>
+              <NButton
+                :type="temperatureMode === 'precise' ? 'primary' : 'default'"
+                @click="handleTemperatureModeChange('precise')"
+              >
+                精确模式
+              </NButton>
+              <NButton
+                :type="temperatureMode === 'balanced' ? 'primary' : 'default'"
+                @click="handleTemperatureModeChange('balanced')"
+              >
+                平衡模式
+              </NButton>
+              <NButton
+                :type="temperatureMode === 'creative' ? 'primary' : 'default'"
+                @click="handleTemperatureModeChange('creative')"
+              >
+                创意模式
+              </NButton>
+              <NButton
+                :type="temperatureMode === 'custom' ? 'primary' : 'default'"
+                @click="handleTemperatureModeChange('custom')"
+              >
+                自定义
+              </NButton>
+            </NSpace>
+          </div>
+        </div>
+
+        <!-- 生成随机性 -->
+        <NFormItem label="生成随机性">
+          <div class="w-full flex items-center gap-3">
+            <NSlider
+              v-model:value="formModel.temperature"
+              :min="0"
+              :max="2"
+              :step="0.1"
+              :disabled="temperatureMode !== 'custom'"
+              class="flex-1"
+              @update:value="(val: number) => val !== undefined && updateTemperatureMode(val)"
+            />
+            <NInputNumber
+              v-model:value="formModel.temperature"
+              :min="0"
+              :max="2"
+              :step="0.1"
+              :disabled="temperatureMode !== 'custom'"
+              class="w-24"
+              @update:value="(val: number | null) => val !== null && updateTemperatureMode(val)"
+            />
+          </div>
+        </NFormItem>
+
+        <!-- 输入及输出设置 -->
+        <div class="mb-2 mt-4 text-sm font-500">输入及输出设置</div>
+
+        <!-- 最大回复长度 -->
+        <NFormItem label="最大回复长度">
+          <div class="w-full flex items-center gap-3">
+            <NSlider v-model:value="formModel.maxTokens" :min="100" :max="8000" :step="100" class="flex-1" />
+            <NInputNumber v-model:value="formModel.maxTokens" :min="100" :max="8000" :step="100" class="w-24" />
+          </div>
+        </NFormItem>
+      </NForm>
+    </NModal>
   </BaseNode>
 </template>
 

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core';
-import type { EdgeProps } from '@vue-flow/core';
+import type { EdgeProps, EdgeUpdatable } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
-const props = defineProps<EdgeProps>();
+interface CustomEdgeProps extends Omit<EdgeProps, 'updatable'> {
+  updatable?: EdgeUpdatable;
+}
+const props = defineProps<CustomEdgeProps>();
 
 const workflowStore = useWorkflowStore();
 

@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue';
-import { NDropdown } from 'naive-ui';
+import { computed, defineAsyncComponent, h, onMounted, ref, watch } from 'vue';
+import { NCollapse, NCollapseItem, NDropdown } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
+import { getNodeInputParams, getNodeOutputParams } from '@/utils/workflow/node-params';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+
+const ParamBindingPanel = defineAsyncComponent(() => import('@/components/Flow/ParamBindingPanel.vue'));
 
 interface Props extends NodeProps {
   id: string;
   data: Workflow.NodeData;
   selected: boolean;
+  showParamBinding?: boolean; // 是否显示参数绑定面板,默认true
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  showParamBinding: true
+});
+
 const emit = defineEmits<{
   nodeClick: [id: string];
   deleteNode: [id: string];
@@ -30,6 +37,58 @@ const hasSourceConnection = computed(() => {
 
 // 折叠状态
 const collapsed = ref(false);
+
+// 参数绑定状态
+const paramBindings = ref<Workflow.ParamBinding[]>([]);
+
+// 输入参数定义
+const inputParams = computed(() => {
+  if (!props.data.nodeType) return [];
+  return getNodeInputParams(props.data.nodeType);
+});
+
+// 输出参数定义
+const outputParams = computed(() => {
+  if (!props.data.nodeType) return [];
+  const params = getNodeOutputParams(props.data.nodeType);
+  // 转换为简化格式
+  return params.map(p => ({
+    key: p.key,
+    label: p.label,
+    type: p.type
+  }));
+});
+
+// 初始化参数绑定
+onMounted(() => {
+  paramBindings.value = props.data.paramBindings || [];
+});
+
+// 监听参数绑定变化,同步到 store
+watch(
+  paramBindings,
+  newBindings => {
+    const node = workflowStore.nodes.find(n => n.id === props.id);
+    if (node) {
+      workflowStore.updateNode(props.id, {
+        ...props.data,
+        paramBindings: newBindings
+      });
+    }
+  },
+  { deep: true }
+);
+
+// 监听外部参数绑定变化
+watch(
+  () => props.data.paramBindings,
+  newBindings => {
+    if (newBindings && JSON.stringify(newBindings) !== JSON.stringify(paramBindings.value)) {
+      paramBindings.value = newBindings;
+    }
+  },
+  { deep: true }
+);
 
 // Handle 显示状态（用于延时隐藏）
 const showHandles = ref(false);
@@ -168,11 +227,31 @@ function handleMouseLeave() {
       v-if="!collapsed && $slots.default"
       class="nodrag mt-2 b-t b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
     >
-      <slot
-        :show-handles="showHandles"
-        :has-source-connection="hasSourceConnection"
-        :is-handle-connected="isHandleConnected"
-      />
+      <NCollapse>
+        <!-- 业务配置插槽 -->
+        <slot
+          :show-handles="showHandles"
+          :has-source-connection="hasSourceConnection"
+          :is-handle-connected="isHandleConnected"
+          :param-bindings="paramBindings"
+          :input-params="inputParams"
+          :output-params="outputParams"
+        />
+
+        <!-- 统一的参数绑定面板 -->
+        <NCollapseItem
+          v-if="showParamBinding && (inputParams.length > 0 || outputParams.length > 0)"
+          title="参数绑定"
+          name="params"
+        >
+          <ParamBindingPanel
+            v-model:bindings="paramBindings"
+            :node-id="id"
+            :input-params="inputParams"
+            :output-params="outputParams"
+          />
+        </NCollapseItem>
+      </NCollapse>
     </div>
 
     <!-- 状态指示器 -->
