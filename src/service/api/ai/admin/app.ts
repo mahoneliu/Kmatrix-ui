@@ -72,38 +72,38 @@ export function publishApp(appId: CommonType.IdType) {
 /**
  * 获取工作流列表
  */
-export function fetchWorkflowList(params?: any) {
-  return request<App.Service.Response<Api.AI.Admin.Workflow>>({
-    url: '/ai/workflow/list',
-    method: 'get',
-    params
-  });
-}
+// export function fetchWorkflowList(params?: any) {
+//   return request<App.Service.Response<Api.AI.Admin.Workflow>>({
+//     url: '/ai/workflow/list',
+//     method: 'get',
+//     params
+//   });
+// }
 
-/**
- * 获取工作流详情
- */
-export function fetchWorkflowDetail(flowId: CommonType.IdType) {
-  return request<Api.AI.Admin.Workflow>({
-    url: `/ai/workflow/${flowId}`,
-    method: 'get'
-  });
-}
+// /**
+//  * 获取工作流详情
+//  */
+// export function fetchWorkflowDetail(flowId: CommonType.IdType) {
+//   return request<Api.AI.Admin.Workflow>({
+//     url: `/ai/workflow/${flowId}`,
+//     method: 'get'
+//   });
+// }
 
-/**
- * 保存工作流 (新增或更新)
- */
-export function saveWorkflow(data: Partial<Api.AI.Admin.Workflow>) {
-  if (data.flowId) {
-    return request<any>({
-      url: '/ai/workflow',
-      method: 'put',
-      data
-    });
-  }
-  return request<any>({
-    url: '/ai/workflow',
-    method: 'post',
-    data
-  });
-}
+// /**
+//  * 保存工作流 (新增或更新)
+//  */
+// export function saveWorkflow(data: Partial<Api.AI.Admin.Workflow>) {
+//   if (data.flowId) {
+//     return request<any>({
+//       url: '/ai/workflow',
+//       method: 'put',
+//       data
+//     });
+//   }
+//   return request<any>({
+//     url: '/ai/workflow',
+//     method: 'post',
+//     data
+//   });
+// }

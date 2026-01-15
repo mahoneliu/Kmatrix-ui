@@ -57,6 +57,8 @@ function createDefaultModel(): Model {
     isEnabled: '1',
     inputParams: [],
     outputParams: [],
+    allowCustomInputParams: '0',
+    allowCustomOutputParams: '0',
     newNodeType: ''
   };
 }
@@ -178,6 +180,20 @@ watch(visible, val => {
 
         <NFormItem label="描述" path="description">
           <NInput v-model:value="model.description" type="textarea" />
+        </NFormItem>
+
+        <NFormItem label="自定义输入" path="allowCustomInputParams">
+          <NRadioGroup v-model:value="model.allowCustomInputParams">
+            <NRadio value="1">允许</NRadio>
+            <NRadio value="0">禁止</NRadio>
+          </NRadioGroup>
+        </NFormItem>
+
+        <NFormItem label="自定义输出" path="allowCustomOutputParams">
+          <NRadioGroup v-model:value="model.allowCustomOutputParams">
+            <NRadio value="1">允许</NRadio>
+            <NRadio value="0">禁止</NRadio>
+          </NRadioGroup>
         </NFormItem>
 
         <NDivider>参数配置</NDivider>

@@ -38,6 +38,10 @@ declare namespace Api.AI.Workflow {
     isSystem?: string;
     /** 是否启用 */
     isEnabled?: string;
+    /** 是否允许自定义输入参数 (0否/1是) */
+    allowCustomInputParams?: string;
+    /** 是否允许自定义输出参数 (0否/1是) */
+    allowCustomOutputParams?: string;
     /** 输入参数定义 */
     inputParams?: NodeParamDefinition[];
     /** 输出参数定义 */

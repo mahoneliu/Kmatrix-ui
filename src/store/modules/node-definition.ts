@@ -64,10 +64,10 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
       return [];
     }
     const result = nodeDefinitions.value.map(def => ({
-      type: def.nodeType as Workflow.NodeType,
-      label: def.nodeLabel,
-      icon: def.nodeIcon,
-      color: def.nodeColor,
+      nodeType: def.nodeType as Workflow.NodeType,
+      nodeLabel: def.nodeLabel,
+      nodeIcon: def.nodeIcon,
+      nodeColor: def.nodeColor,
       category: def.category,
       description: def.description,
       isSystem: def.isSystem

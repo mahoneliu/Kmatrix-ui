@@ -26,6 +26,27 @@ export interface WorkflowValidationResult {
 }
 
 /**
+ * 节点配置必填字段规则
+ * 注意: APP_INFO 节点不在 graphData 中,需要在保存时单独校验
+ */
+const NODE_CONFIG_RULES: Record<
+  Workflow.NodeType,
+  Array<{
+    field: string;
+    label: string;
+    validator?: (value: any) => boolean;
+  }>
+> = {
+  INTENT_CLASSIFIER: [{ field: 'modelId', label: '推理模型' }],
+  LLM_CHAT: [{ field: 'modelId', label: '推理模型' }],
+  FIXED_RESPONSE: [{ field: 'content', label: '回复内容' }],
+  APP_INFO: [], // APP_INFO 节点在保存时单独校验
+  START: [],
+  END: [],
+  CONDITION: []
+};
+
+/**
  * 校验单个节点的参数绑定
  */
 export function validateNodeParams(
@@ -51,6 +72,41 @@ export function validateNodeParams(
 }
 
 /**
+ * 校验节点配置字段
+ */
+export function validateNodeConfig(node: Node<Workflow.NodeData>): ValidationResult {
+  const errors: string[] = [];
+  const nodeType = node.data?.nodeType;
+
+  if (!nodeType) {
+    return { valid: true, errors };
+  }
+
+  const rules = NODE_CONFIG_RULES[nodeType];
+  if (!rules || rules.length === 0) {
+    return { valid: true, errors };
+  }
+
+  const config = node.data?.config || {};
+
+  rules.forEach(rule => {
+    const value = config[rule.field];
+    const isEmpty = value === null || value === undefined || value === '';
+
+    if (isEmpty) {
+      errors.push(`缺少必填配置: ${rule.label}`);
+    } else if (rule.validator && !rule.validator(value)) {
+      errors.push(`配置项 ${rule.label} 不符合要求`);
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
  * 校验整个工作流
  */
 export function validateWorkflow(nodes: Node<Workflow.NodeData>[]): WorkflowValidationResult {
@@ -62,18 +118,23 @@ export function validateWorkflow(nodes: Node<Workflow.NodeData>[]): WorkflowVali
       return;
     }
 
-    // 获取节点的输入参数定义
+    const allErrors: string[] = [];
+
+    // 校验参数绑定
     const inputParams = getNodeInputParams(node.data.nodeType);
+    const paramResult = validateNodeParams(node, inputParams);
+    allErrors.push(...paramResult.errors);
 
-    // 校验节点参数
-    const result = validateNodeParams(node, inputParams);
+    // 校验配置字段
+    const configResult = validateNodeConfig(node);
+    allErrors.push(...configResult.errors);
 
-    if (!result.valid) {
+    if (allErrors.length > 0) {
       nodeErrors.push({
         nodeId: node.id,
-        nodeName: node.data?.label || node.data.nodeType,
+        nodeName: node.data?.nodeLabel || node.data.nodeType,
         nodeType: node.data.nodeType,
-        errors: result.errors
+        errors: allErrors
       });
     }
   });

@@ -6,7 +6,7 @@
     height: 0px !important;
     border-radius: 50% !important;
     opacity: 0;
-    // transition: all 0.2s;
+    transition: none;
     // border: none;
     // min-width: 0;
     // min-height: 0;
@@ -20,7 +20,11 @@
 
     /* 源节点 (Right) 样式 */
     .vue-flow__handle.custom-handle-source {
-      right: -10px !important;
+      content: '+';
+      font-size: 14px;
+      color: #9ca3af;
+
+      // right: -1px !important;
       width: 20px !important;
       height: 20px !important;
       opacity: 1;
@@ -46,8 +50,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 20px;
-        height: 20px;
+        width: 50px;
+        height: 50px;
         background: transparent;
         border-radius: 50%;
         z-index: 10;
@@ -55,14 +59,33 @@
     }
 
     /* 加号样式 (无连接时显示) */
-    .vue-flow__handle.custom-handle.show-plus::after {
+    .vue-flow__handle.custom-handle.handles-visible::after {
       content: '+';
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 800;
       color: #9ca3af;
+    }
+  }
+}
+
+/* 折叠面板箭头左对齐 */
+.workflow-collapse {
+  // 让箭头更靠左,视觉层级更高
+  :deep(.n-collapse-item__header-main) {
+    margin-left: -8px;
+  }
+}
+
+/* 操作按钮统一样式 */
+.workflow-btn {
+  &-add,
+  &-remove {
+    .svg-icon {
+      font-size: 1rem;
     }
   }
 }

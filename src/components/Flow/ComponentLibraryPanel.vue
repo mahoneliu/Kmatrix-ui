@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue';
 import { NPopover } from 'naive-ui';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
+import { getNodeIconBackground } from '@/utils/color';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Emits {
@@ -21,28 +22,22 @@ const nodeDefinitionStore = useNodeDefinitionStore();
 
 // 在组件挂载时加载节点定义
 onMounted(async () => {
-  console.log('[ComponentLibraryPanel] onMounted - loaded:', nodeDefinitionStore.loaded);
   if (!nodeDefinitionStore.loaded) {
-    console.log('[ComponentLibraryPanel] 开始加载节点定义...');
     await nodeDefinitionStore.loadNodeDefinitions();
-    console.log('[ComponentLibraryPanel] 加载完成，节点数量:', nodeDefinitionStore.nodeDefinitions.length);
   }
-  console.log('[ComponentLibraryPanel] 所有节点:', nodeDefinitionStore.getAllNodeTypes());
 });
 
 // 获取所有可用的节点类型(排除系统节点) - 使用 computed 确保响应式
 const availableNodeTypes = computed(() => {
   const allNodes = nodeDefinitionStore.getAllNodeTypes();
-  let filtered = allNodes.filter(n => n.isSystem !== '1');
+  let filteredNodes = allNodes.filter(n => n.isSystem !== '1');
 
   // 如果有源节点，过滤掉不允许连接的节点
   if (props.sourceNode) {
     const sourceType = props.sourceNode.data.nodeType as Workflow.NodeType;
-    filtered = filtered.filter(n => isValidConnection(sourceType, n.type));
+    filteredNodes = filteredNodes.filter(n => isValidConnection(sourceType, n.nodeType));
   }
-
-  console.log('[ComponentLibraryPanel] availableNodeTypes computed - 总数:', allNodes.length, '可用:', filtered.length);
-  return filtered;
+  return filteredNodes;
 });
 
 // 定义分类配置
@@ -112,8 +107,8 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
       <div class="grid grid-cols-2 gap-2">
         <!-- 循环渲染分类下的节点 -->
         <NPopover
-          v-for="nodeType in category.nodes"
-          :key="nodeType.type"
+          v-for="categoryNodes in category.nodes"
+          :key="categoryNodes.nodeType"
           placement="right"
           trigger="hover"
           :show-arrow="false"
@@ -123,16 +118,19 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
           <template #trigger>
             <div
               class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-white px-3 py-2 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
-              @mousedown="handleMouseDown($event, nodeType.type)"
+              @mousedown="handleMouseDown($event, categoryNodes.nodeType)"
             >
               <div
                 class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
-                :style="{ backgroundColor: nodeType.color + '20', color: nodeType.color }"
+                :style="{
+                  backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
+                  color: categoryNodes.nodeColor
+                }"
               >
-                <SvgIcon :icon="nodeType.icon" class="text-lg" />
+                <SvgIcon :icon="categoryNodes.nodeIcon" class="text-lg" />
               </div>
               <div class="flex-1 text-3.5 c-gray-7 font-500 leading-tight dark:c-gray-2">
-                {{ nodeType.label }}
+                {{ categoryNodes.nodeLabel }}
               </div>
             </div>
           </template>
@@ -142,17 +140,24 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
             <div class="mb-2 flex items-center gap-2.5">
               <div
                 class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
-                :style="{ backgroundColor: nodeType.color + '20', color: nodeType.color }"
+                :style="{
+                  backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
+                  color: categoryNodes.nodeColor
+                }"
               >
-                <SvgIcon :icon="nodeType.icon" class="text-xl" />
+                <SvgIcon :icon="categoryNodes.nodeIcon" class="text-xl" />
               </div>
-              <div class="text-3.75 c-base-text font-600">{{ nodeType.label }}</div>
+              <div class="text-3.75 c-base-text font-600">{{ categoryNodes.nodeLabel }}</div>
             </div>
             <!-- 下部：描述 -->
-            <div class="text-3.25 c-base-text leading-normal op-70">{{ nodeType.description }}</div>
+            <div class="text-3.25 c-base-text leading-normal op-70">{{ categoryNodes.description }}</div>
           </div>
         </NPopover>
       </div>
+    </div>
+    <div v-if="nodeTypesByCategory.length < 1" class="text-ms c-gray-5">
+      <SvgIcon icon="carbon:close-filled" class="mr-2 inline-block text-5 text-red-4" />
+      没有节点可添加
     </div>
   </div>
 </template>

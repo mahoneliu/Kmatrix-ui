@@ -8,7 +8,8 @@ interface Props {
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  required?: boolean;
+
+  size?: 'small' | 'medium' | 'large';
 }
 
 interface Emits {
@@ -20,7 +21,8 @@ withDefaults(defineProps<Props>(), {
   placeholder: '请选择 LLM 模型',
   clearable: true,
   disabled: false,
-  required: false
+
+  size: 'small'
 });
 
 const emit = defineEmits<Emits>();
@@ -57,6 +59,8 @@ onMounted(() => {
     :placeholder="placeholder"
     :clearable="clearable"
     :disabled="disabled"
+    :size="size"
+    class="text-11px"
     @update:value="handleUpdateValue"
   />
 </template>

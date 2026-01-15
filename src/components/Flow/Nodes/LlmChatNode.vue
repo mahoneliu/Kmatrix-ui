@@ -114,29 +114,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:robot' }" class="llm-chat-node">
-    <div class="w-100 p-2">
+  <BaseNode v-bind="props" :data="data" class="llm-chat-node">
+    <div class="w-90">
       <NCollapse :default-expanded-names="['config']">
+        <template #arrow>
+          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+        </template>
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="config">
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-12px font-500">
+          <div class="workflow-config-section">
+            <div class="workflow-config-item">
+              <label class="workflow-label">
                 模型
-                <span class="ml-0.5 c-red-5">*</span>
+                <span class="workflow-label-required">*</span>
               </label>
               <div class="flex items-center gap-2">
-                <ModelSelector v-model="formModel.modelId" class="flex-1" />
-                <NButton quaternary circle @click="showModelSettings = true">
+                <ModelSelector v-model:model-value="formModel.modelId" class="flex-1" />
+                <NButton secondary size="tiny" @click="showModelSettings = true">
                   <template #icon>
-                    <SvgIcon icon="mdi:cog" class="text-18px" />
+                    <SvgIcon icon="mdi:cog" />
                   </template>
                 </NButton>
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
-              <label class="text-12px font-500">系统提示词</label>
+            <div class="workflow-config-item">
+              <label class="workflow-label">系统提示词</label>
               <NInput
                 v-model:value="formModel.systemPrompt"
                 type="textarea"

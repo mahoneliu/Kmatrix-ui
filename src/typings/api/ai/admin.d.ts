@@ -70,6 +70,7 @@ declare namespace Api.AI.Admin {
     workflowConfig: AppWorkflowConfig;
     graphData?: string; // 工作流画布数据 (JSON)
     dslData?: string; // 工作流 DSL 数据 (JSON)
+    parameters?: any; // 应用参数配置 (全局/接口/会话)
     modelId: CommonType.IdType;
     knowledgeIds?: string; // 用于前端传参
     remark: string;
@@ -91,14 +92,14 @@ declare namespace Api.AI.Admin {
   }
 
   /** 工作流 */
-  interface Workflow {
-    flowId: CommonType.IdType;
-    appId: CommonType.IdType;
-    graphData: string;
-    dslData: string;
-    version: number;
-    isActive: 'Y' | 'N';
-    remark: string;
-    createTime: string;
-  }
+  // interface Workflow {
+  //   flowId: CommonType.IdType;
+  //   appId: CommonType.IdType;
+  //   graphData: string;
+  //   dslData: string;
+  //   version: number;
+  //   isActive: 'Y' | 'N';
+  //   remark: string;
+  //   createTime: string;
+  // }
 }

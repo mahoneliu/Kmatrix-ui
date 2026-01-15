@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue';
 import type { NodeProps } from '@vue-flow/core';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
@@ -104,4 +104,4 @@ function updateBinding(paramKey: string, binding: Workflow.ParamBinding | null) 
   </BaseNode>
 </template>
 
-<style scoped></style>
+<style scoped></style> -->

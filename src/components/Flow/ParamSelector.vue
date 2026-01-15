@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { NCascader, NTag } from 'naive-ui';
+import { computed, h } from 'vue';
+import { NCascader, NTooltip } from 'naive-ui';
 import type { CascaderOption } from 'naive-ui';
+import { PARAM_SOURCE_COLORS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
-import {
-  filterParamSourcesByType,
-  getAvailableParamsForNode,
-  getParamBindingDisplayText
-} from '@/utils/workflow/param-resolver';
+import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
+import { getNodeIconBackground } from '@/utils/color';
+import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
   /** 当前节点ID */
@@ -52,15 +51,46 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
       return;
     }
 
+    // 确定图标和颜色
+    let icon = 'mdi:cube-outline'; // 默认节点图标
+    let color: string;
+
+    if (source.type === 'global') {
+      icon = 'mdi:earth';
+      color = PARAM_SOURCE_COLORS.global;
+    } else if (source.type === 'interface') {
+      icon = 'mdi:api';
+      color = PARAM_SOURCE_COLORS.interface;
+    } else if (source.type === 'session') {
+      icon = 'mdi:message-text';
+      color = PARAM_SOURCE_COLORS.session;
+    } else if (source.type === 'node') {
+      // 从节点数据中获取图标和颜色
+      const node = workflowStore.nodes.find(n => n.id === source.sourceKey);
+      if (node?.data?.nodeIcon) {
+        icon = node.data.nodeIcon;
+      }
+      // 节点类型:优先使用节点自定义颜色,否则使用默认紫色
+      color = node?.data?.nodeColor || PARAM_SOURCE_COLORS.node;
+    } else {
+      // 其他未知类型使用默认紫色
+      color = PARAM_SOURCE_COLORS.node;
+    }
+
     // 创建第一级选项(参数来源)
     const sourceOption: CascaderOption = {
       label: source.sourceName,
       value: source.sourceKey,
+      icon, // 存储图标信息
+      color, // 存储颜色信息
       children: source.params.map(param => {
         // 第二级选项(具体参数)
+        // 使用复合键确保唯一性: sourceKey|paramKey
         return {
-          label: `${param.label} (${param.type})`,
-          value: param.key
+          paramName: param.label,
+          paramType: param.type,
+          label: `${param.key} (${param.type})`,
+          value: `${source.sourceKey}|${param.key}`
         };
       })
     };
@@ -71,72 +101,81 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
   return options;
 });
 
-// 当前选中值 (两级数组)
+// 当前选中值 (复合键字符串)
 const selectedValue = computed(() => {
   if (!props.binding) return null;
 
   if (props.binding.sourceType === 'global') {
-    return ['global', props.binding.sourceKey];
+    // Global 类型的 sourceKey 存储的是参数名
+    return `global|${props.binding.sourceKey}`;
   }
-  return [props.binding.sourceKey, props.binding.sourceParam || ''];
+
+  // Node 类型
+  return `${props.binding.sourceKey}|${props.binding.sourceParam || ''}`;
 });
 
+// 自定义标签渲染函数
+function renderLabel(option: CascaderOption) {
+  // 只为第一级选项(有 icon 和 color 属性的)渲染带颜色的图标
+  if (option.icon && option.color) {
+    const color = option.color as string;
+    return h('div', { class: 'flex items-center gap-3' }, [
+      // 图标容器,样式与 BaseNode 头部图标一致
+      h(
+        'div',
+        {
+          class: 'h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1',
+          style: {
+            backgroundColor: getNodeIconBackground(color), // 20% 透明度背景
+            color // 图标颜色
+          }
+        },
+        h(SvgIcon, { icon: option.icon as string })
+      ),
+      // 标签文字,不带颜色
+      h('div', { class: 'flex-1 text-12px' }, option.label)
+    ]);
+  }
+
+  // 第二级选项:如果有 paramName,显示 tooltip
+  if (option.paramName) {
+    return h(
+      NTooltip,
+      { trigger: 'hover' },
+      {
+        trigger: () => h('div', { class: 'flex-1 text-12px' }, option.label),
+        default: () => option.paramName
+      }
+    );
+  }
+
+  // 其他情况直接返回文本
+  return h('div', { class: 'flex-1 text-12px' }, option.label);
+}
+
 // 处理值变化
-function handleValueChange(
-  value: string | number | Array<string | number> | null,
-  option: CascaderOption | null | Array<CascaderOption | null>
-) {
-  if (!value || !option) {
+function handleValueChange(value: string | number | Array<string | number> | null) {
+  if (!value) {
     emit('update:binding', undefined);
     return;
   }
 
-  let sourceKey: string;
-  let paramKey: string;
+  // value 应该是复合键字符串 "sourceKey|paramKey"
+  const valStr = String(value);
+  const separatorIndex = valStr.indexOf('|');
 
-  // Cascader 可能返回数组或字符串
-  if (Array.isArray(value)) {
-    // 数组格式: [sourceKey, paramKey]
-    if (value.length < 2) {
-      emit('update:binding', undefined);
-      return;
-    }
-    sourceKey = String(value[0]);
-    paramKey = String(value[1]);
-  } else {
-    // 字符串格式: 直接是 paramKey,需要从可用参数源中查找对应的 sourceKey
-    paramKey = String(value);
-
-    // 在所有来源中查找包含这个参数的来源
-    const tempSource = availableSources.value.find(source => source.params?.some(p => p.key === paramKey));
-
-    if (!tempSource) {
-      console.warn('Source not found for param:', paramKey);
-      emit('update:binding', undefined);
-      return;
-    }
-
-    sourceKey = tempSource.sourceKey;
+  if (separatorIndex === -1) {
+    emit('update:binding', undefined);
+    return;
   }
 
-  // 在所有来源中查找对应的来源和参数
+  const sourceKey = valStr.substring(0, separatorIndex);
+  const paramKey = valStr.substring(separatorIndex + 1);
+
+  // 在所有来源中查找对应的来源
   const foundSource = availableSources.value.find(s => s.sourceKey === sourceKey);
 
   if (!foundSource) {
-    console.warn('Source not found:', sourceKey);
-    emit('update:binding', undefined);
-    return;
-  }
-
-  const foundParam = foundSource.params?.find(p => p.key === paramKey);
-
-  if (!foundParam) {
-    console.warn('Param not found:', paramKey);
-    emit('update:binding', undefined);
-    return;
-  }
-
-  if (!foundSource || !foundParam) {
     emit('update:binding', undefined);
     return;
   }
@@ -145,56 +184,67 @@ function handleValueChange(
     const binding: Workflow.ParamBinding = {
       paramKey: props.paramDef.key,
       sourceType: 'global',
-      sourceKey: paramKey
+      sourceKey: paramKey // Global binding stores paramKey in sourceKey field
     };
     emit('update:binding', binding);
   } else {
     const binding: Workflow.ParamBinding = {
       paramKey: props.paramDef.key,
       sourceType: 'node',
-      sourceKey: foundSource.sourceKey,
+      sourceKey,
       sourceParam: paramKey
     };
     emit('update:binding', binding);
   }
 }
-
-// 显示文本
-const displayText = computed(() => {
-  if (!props.binding) return '未绑定';
-  return getParamBindingDisplayText(props.binding, workflowStore.nodes);
-});
 </script>
 
 <template>
-  <div class="param-selector">
+  <div class="param-selector-wrapper w-full">
     <NCascader
       :value="selectedValue"
       :options="cascaderOptions"
-      :placeholder="`选择 ${paramDef.label} 的来源`"
+      :placeholder="`选择 ${paramDef.key} 来源`"
+      :virtual-scroll="false"
+      :render-label="renderLabel"
       clearable
       filterable
       size="small"
       expand-trigger="hover"
-      show-path
+      check-strategy="child"
+      :show-path="true"
       @update:value="handleValueChange"
     >
       <template #empty>
-        <div class="py-2 text-center text-xs c-gray-4">暂无可用参数来源</div>
+        <div class="py-2 text-center text-xs c-gray-4">无可用参数来源</div>
       </template>
     </NCascader>
-
-    <!-- 当前绑定显示 -->
-    <div v-if="binding" class="mt-1 flex items-center gap-1">
-      <NTag size="small" :bordered="false" type="info">
-        {{ displayText }}
-      </NTag>
-    </div>
   </div>
 </template>
 
 <style scoped>
-.param-selector {
-  width: 100%;
+.param-selector-wrapper :deep(.n-cascader) {
+  font-size: 12px;
+}
+
+.param-selector-wrapper :deep(.n-base-selection-label) {
+  font-size: 12px !important;
+}
+
+.param-selector-wrapper :deep(.n-base-selection-input) {
+  font-size: 12px !important;
+}
+
+/* 下拉菜单选项字体大小 */
+.param-selector-wrapper :deep(.n-cascader-menu) {
+  font-size: 11px !important;
+}
+
+.param-selector-wrapper :deep(.n-cascader-option) {
+  font-size: 11px !important;
+}
+
+.param-selector-wrapper :deep(.n-cascader-option__label) {
+  font-size: 11px !important;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue';
-import { NButton, NInput, NSelect, NTabPane, NTabs } from 'naive-ui';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { NButton, NCollapse, NCollapseItem, NForm, NFormItem, NInput, NModal, NSelect, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import ModelSelector from '@/components/ai/ModelSelector.vue';
@@ -9,14 +9,16 @@ import BaseNode from './BaseNode.vue';
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
 
-// 局部表单数据，避免直接与 Store 双向绑定导致的循环更新
+// 局部表单数据,避免直接与 Store 双向绑定导致的循环更新
 const formModel = reactive<Workflow.AppInfoConfig>({
   appName: '',
   description: '',
   icon: '',
   modelId: null as any,
   prologue: '',
-  globalParams: []
+  globalParams: [],
+  interfaceParams: [],
+  sessionParams: []
 });
 
 // 参数类型选项
@@ -28,6 +30,41 @@ const paramTypeOptions = [
   { label: '数组', value: 'array' }
 ];
 
+// 参数类型映射(用于显示)
+const paramTypeMap: Record<string, string> = {
+  string: '字符串',
+  number: '数字',
+  boolean: '布尔值',
+  object: '对象',
+  array: '数组'
+};
+
+// 编辑参数弹窗
+const showParamModal = ref(false);
+const editingParamIndex = ref<number | null>(null);
+const editingParamType = ref<'global' | 'interface' | 'session'>('global');
+const editingParam = reactive<Workflow.ParamDefinition>({
+  key: '',
+  label: '',
+  type: 'string',
+  required: false,
+  defaultValue: '',
+  description: ''
+});
+
+// 参数类型名称映射
+const paramTypeNameMap: Record<string, string> = {
+  global: '全局参数',
+  interface: '接口参数',
+  session: '会话参数'
+};
+
+// 弹窗标题
+const paramModalTitle = computed(() => {
+  const typeName = paramTypeNameMap[editingParamType.value];
+  return editingParamIndex.value !== null ? `编辑${typeName}` : `添加${typeName}`;
+});
+
 // 初始化数据
 function initData() {
   const config = props.data.config as Workflow.AppInfoConfig | undefined;
@@ -38,26 +75,116 @@ function initData() {
     formModel.modelId = (config.modelId || null) as any;
     formModel.prologue = config.prologue || '';
     formModel.globalParams = config.globalParams || [];
+    formModel.interfaceParams = config.interfaceParams || [];
+    formModel.sessionParams = config.sessionParams || [];
   }
+}
+
+// 添加参数(通用)
+function addParam(type: 'global' | 'interface' | 'session') {
+  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+  if (type === 'interface') paramsKey = 'interfaceParams';
+  else if (type === 'session') paramsKey = 'sessionParams';
+  if (!formModel[paramsKey]) {
+    formModel[paramsKey] = [];
+  }
+  editingParamType.value = type;
+  editingParamIndex.value = null;
+  Object.assign(editingParam, {
+    key: `param${formModel[paramsKey]!.length + 1}`,
+    label: '新参数',
+    type: 'string',
+    required: false,
+    defaultValue: '',
+    description: ''
+  });
+  showParamModal.value = true;
 }
 
 // 添加全局参数
 function addGlobalParam() {
-  if (!formModel.globalParams) {
-    formModel.globalParams = [];
+  addParam('global');
+}
+
+// 添加接口参数
+function addInterfaceParam() {
+  addParam('interface');
+}
+
+// 添加会话参数
+function addSessionParam() {
+  addParam('session');
+}
+
+// 编辑参数(通用)
+function editParam(type: 'global' | 'interface' | 'session', index: number) {
+  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+  if (type === 'interface') paramsKey = 'interfaceParams';
+  else if (type === 'session') paramsKey = 'sessionParams';
+  editingParamType.value = type;
+  editingParamIndex.value = index;
+  const param = formModel[paramsKey]![index];
+  Object.assign(editingParam, { ...param });
+  showParamModal.value = true;
+}
+
+// 编辑全局参数
+function editGlobalParam(index: number) {
+  editParam('global', index);
+}
+
+// 编辑接口参数
+function editInterfaceParam(index: number) {
+  editParam('interface', index);
+}
+
+// 编辑会话参数
+function editSessionParam(index: number) {
+  editParam('session', index);
+}
+
+// 保存参数
+function saveParam() {
+  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+  if (editingParamType.value === 'interface') paramsKey = 'interfaceParams';
+  else if (editingParamType.value === 'session') paramsKey = 'sessionParams';
+
+  if (!formModel[paramsKey]) {
+    formModel[paramsKey] = [];
   }
-  formModel.globalParams.push({
-    key: `param${formModel.globalParams.length + 1}`,
-    label: '新参数',
-    type: 'string',
-    required: false,
-    defaultValue: ''
-  });
+
+  if (editingParamIndex.value !== null) {
+    // 编辑现有参数
+    formModel[paramsKey]![editingParamIndex.value] = { ...editingParam };
+  } else {
+    // 添加新参数
+    formModel[paramsKey]!.push({ ...editingParam });
+  }
+
+  showParamModal.value = false;
+}
+
+// 删除参数(通用)
+function removeParam(type: 'global' | 'interface' | 'session', index: number) {
+  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+  if (type === 'interface') paramsKey = 'interfaceParams';
+  else if (type === 'session') paramsKey = 'sessionParams';
+  formModel[paramsKey]?.splice(index, 1);
 }
 
 // 删除全局参数
 function removeGlobalParam(index: number) {
-  formModel.globalParams?.splice(index, 1);
+  removeParam('global', index);
+}
+
+// 删除接口参数
+function removeInterfaceParam(index: number) {
+  removeParam('interface', index);
+}
+
+// 删除会话参数
+function removeSessionParam(index: number) {
+  removeParam('session', index);
 }
 
 // 监听局部表单变化, 同步到 Store
@@ -72,7 +199,9 @@ watch(
       newValue.icon !== currentConfig?.icon ||
       newValue.modelId !== currentConfig?.modelId ||
       newValue.prologue !== currentConfig?.prologue ||
-      JSON.stringify(newValue.globalParams) !== JSON.stringify(currentConfig?.globalParams);
+      JSON.stringify(newValue.globalParams) !== JSON.stringify(currentConfig?.globalParams) ||
+      JSON.stringify(newValue.interfaceParams) !== JSON.stringify(currentConfig?.interfaceParams) ||
+      JSON.stringify(newValue.sessionParams) !== JSON.stringify(currentConfig?.sessionParams);
 
     if (hasChanged) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
@@ -87,14 +216,16 @@ watch(
   newConfig => {
     const config = newConfig as Workflow.AppInfoConfig | undefined;
     if (config) {
-      // 只有当外部数据真的与当前表单不同时才更新，防止循环
+      // 只有当外部数据真的与当前表单不同时才更新,防止循环
       const hasChanged =
         config.appName !== formModel.appName ||
         config.description !== formModel.description ||
         config.icon !== formModel.icon ||
         config.modelId !== formModel.modelId ||
         config.prologue !== formModel.prologue ||
-        JSON.stringify(config.globalParams) !== JSON.stringify(formModel.globalParams);
+        JSON.stringify(config.globalParams) !== JSON.stringify(formModel.globalParams) ||
+        JSON.stringify(config.interfaceParams) !== JSON.stringify(formModel.interfaceParams) ||
+        JSON.stringify(config.sessionParams) !== JSON.stringify(formModel.sessionParams);
 
       if (hasChanged) {
         formModel.appName = config.appName || '';
@@ -103,6 +234,8 @@ watch(
         formModel.modelId = (config.modelId || null) as any;
         formModel.prologue = config.prologue || '';
         formModel.globalParams = config.globalParams || [];
+        formModel.interfaceParams = config.interfaceParams || [];
+        formModel.sessionParams = config.sessionParams || [];
       }
     }
   },
@@ -115,90 +248,223 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:information' }" class="app-info-node">
-    <div class="w-96 p-2">
-      <NTabs type="line" size="small">
-        <!-- 基础信息标签页 -->
-        <NTabPane name="basic" tab="基础信息">
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-1">
-              <label class="text-xs c-gray-5">应用名称</label>
-              <NInput v-model:value="formModel.appName" placeholder="请输入应用名称" />
+  <BaseNode v-bind="props" :data="data">
+    <div class="w-60">
+      <NCollapse :default-expanded-names="['basic']">
+        <template #arrow>
+          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+        </template>
+        <!-- 基础配置 -->
+        <NCollapseItem title="基础配置" name="basic">
+          <div class="workflow-config-section">
+            <div class="workflow-config-item">
+              <label class="workflow-label">
+                应用名称
+                <span class="workflow-label-required">*</span>
+              </label>
+              <NInput v-model:value="formModel.appName" class="workflow-input" placeholder="请输入应用名称" />
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-xs c-gray-5">应用描述</label>
-              <NInput v-model:value="formModel.description" type="textarea" :rows="2" placeholder="请输入应用描述" />
+            <div class="workflow-config-item">
+              <label class="workflow-label">应用描述</label>
+              <NInput
+                v-model:value="formModel.description"
+                class="workflow-textarea"
+                type="textarea"
+                :rows="2"
+                placeholder="请输入应用描述"
+              />
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-xs c-gray-5">选择模型</label>
-              <ModelSelector v-model="formModel.modelId" />
+            <div class="workflow-config-item">
+              <label class="workflow-label">
+                选择模型
+                <span class="workflow-label-required">*</span>
+              </label>
+              <ModelSelector v-model:model-value="formModel.modelId" class="workflow-input" />
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-xs c-gray-5">开场白</label>
-              <NInput v-model:value="formModel.prologue" type="textarea" :rows="3" placeholder="请输入开场白" />
+            <div class="workflow-config-item">
+              <label class="workflow-label">开场白</label>
+              <NInput
+                v-model:value="formModel.prologue"
+                class="workflow-textarea"
+                type="textarea"
+                :rows="2"
+                placeholder="请输入开场白"
+              />
             </div>
           </div>
-        </NTabPane>
+        </NCollapseItem>
 
-        <!-- 全局参数标签页 -->
-        <NTabPane name="params" tab="全局参数">
+        <!-- 参数 -->
+        <NCollapseItem title="参数" name="params">
           <div class="flex flex-col gap-2">
-            <div class="text-xs c-gray-5">全局参数可在所有节点中使用，用于配置工作流级别的变量。</div>
+            <!-- 全局参数 -->
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">全局参数</div>
+                <NButton secondary size="tiny" @click="addGlobalParam">
+                  <template #icon>
+                    <SvgIcon icon="mdi:plus" />
+                  </template>
+                </NButton>
+              </div>
 
-            <!-- 参数列表 -->
-            <div v-if="formModel.globalParams && formModel.globalParams.length > 0" class="flex flex-col gap-2">
-              <div
-                v-for="(param, index) in formModel.globalParams"
-                :key="index"
-                class="border border-gray-2 rounded p-2 dark:border-dark-3"
-              >
-                <div class="mb-2 flex items-center justify-between">
-                  <div class="text-sm font-500">参数 {{ index + 1 }}</div>
-                  <NButton text type="error" size="tiny" @click="removeGlobalParam(index)">
-                    <template #icon>
-                      <div class="i-mdi:delete" />
-                    </template>
-                    删除
-                  </NButton>
+              <!-- 参数列表 -->
+              <div v-if="formModel.globalParams && formModel.globalParams.length > 0" class="flex flex-col gap-1">
+                <div
+                  v-for="(param, index) in formModel.globalParams"
+                  :key="index"
+                  class="group flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 text-12px hover:bg-gray-1 dark:hover:bg-dark-3"
+                  @click="editGlobalParam(index)"
+                >
+                  <div class="flex flex-1 items-center gap-2 overflow-hidden">
+                    <span class="c-primary font-500 font-mono">{{ param.key }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
+                  </div>
+                  <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <NButton text size="tiny" @click.stop="editGlobalParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:pencil" />
+                      </template>
+                    </NButton>
+                    <NButton text type="error" size="tiny" @click.stop="removeGlobalParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:delete" />
+                      </template>
+                    </NButton>
+                  </div>
                 </div>
+              </div>
+              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">暂无全局参数</div> -->
+            </div>
 
-                <NForm :model="param" label-placement="left" size="small" label-width="60">
-                  <NFormItem label="参数键">
-                    <NInput v-model:value="param.key" placeholder="paramKey" />
-                  </NFormItem>
-                  <NFormItem label="显示名称">
-                    <NInput v-model:value="param.label" placeholder="参数名称" />
-                  </NFormItem>
-                  <NFormItem label="数据类型">
-                    <NSelect v-model:value="param.type" :options="paramTypeOptions" />
-                  </NFormItem>
-                  <NFormItem label="默认值">
-                    <NInput v-model:value="param.defaultValue" placeholder="默认值" />
-                  </NFormItem>
-                  <NFormItem label="描述">
-                    <NInput v-model:value="param.description" type="textarea" :rows="2" placeholder="参数描述" />
-                  </NFormItem>
-                </NForm>
+            <!-- 接口参数 -->
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">接口参数</div>
+                <NButton secondary size="tiny" @click="addInterfaceParam">
+                  <template #icon>
+                    <SvgIcon icon="mdi:plus" />
+                  </template>
+                </NButton>
+              </div>
+
+              <!-- 参数列表 -->
+              <div v-if="formModel.interfaceParams && formModel.interfaceParams.length > 0" class="flex flex-col gap-1">
+                <div
+                  v-for="(param, index) in formModel.interfaceParams"
+                  :key="index"
+                  class="group flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 text-12px hover:bg-gray-1 dark:hover:bg-dark-3"
+                  @click="editInterfaceParam(index)"
+                >
+                  <div class="flex flex-1 items-center gap-1 overflow-hidden">
+                    <span class="c-blue-6 font-500 font-mono">{{ param.key }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
+                  </div>
+                  <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <NButton text size="tiny" @click.stop="editInterfaceParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:pencil" />
+                      </template>
+                    </NButton>
+                    <NButton text type="error" size="tiny" @click.stop="removeInterfaceParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:delete" />
+                      </template>
+                    </NButton>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 空状态 -->
-            <div v-else class="py-4 text-center text-xs c-gray-4">暂无全局参数，点击下方按钮添加</div>
+            <!-- 会话参数 -->
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">会话参数</div>
+                <NButton secondary size="tiny" @click="addSessionParam">
+                  <template #icon>
+                    <SvgIcon icon="mdi:plus" />
+                  </template>
+                </NButton>
+              </div>
 
-            <!-- 添加按钮 -->
-            <NButton block dashed size="small" @click="addGlobalParam">
-              <template #icon>
-                <div class="i-mdi:plus" />
-              </template>
-              添加全局参数
-            </NButton>
+              <!-- 参数列表 -->
+              <div v-if="formModel.sessionParams && formModel.sessionParams.length > 0" class="flex flex-col gap-1">
+                <div
+                  v-for="(param, index) in formModel.sessionParams"
+                  :key="index"
+                  class="group flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 text-12px hover:bg-gray-1 dark:hover:bg-dark-3"
+                  @click="editSessionParam(index)"
+                >
+                  <div class="flex flex-1 items-center gap-1 overflow-hidden">
+                    <span class="c-orange-6 font-500 font-mono">{{ param.key }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-4">·</span>
+                    <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
+                  </div>
+                  <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <NButton text size="tiny" @click.stop="editSessionParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:pencil" />
+                      </template>
+                    </NButton>
+                    <NButton text type="error" size="tiny" @click.stop="removeSessionParam(index)">
+                      <template #icon>
+                        <SvgIcon icon="mdi:delete" />
+                      </template>
+                    </NButton>
+                  </div>
+                </div>
+              </div>
+              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">暂无会话参数</div> -->
+            </div>
           </div>
-        </NTabPane>
-      </NTabs>
+        </NCollapseItem>
+      </NCollapse>
     </div>
+
+    <!-- 参数编辑弹窗 -->
+    <NModal v-model:show="showParamModal" preset="card" :title="paramModalTitle" class="w-120">
+      <NForm :model="editingParam" label-placement="left" label-width="80" size="medium">
+        <NFormItem label="参数键" required>
+          <NInput v-model:value="editingParam.key" placeholder="例如: userName" />
+        </NFormItem>
+        <NFormItem label="参数名称" required>
+          <NInput v-model:value="editingParam.label" placeholder="例如: 用户名称" />
+        </NFormItem>
+        <NFormItem label="数据类型" required>
+          <NSelect v-model:value="editingParam.type" :options="paramTypeOptions" />
+        </NFormItem>
+        <NFormItem label="是否必填">
+          <NSwitch v-model:value="editingParam.required">
+            <template #checked>必填</template>
+            <template #unchecked>可选</template>
+          </NSwitch>
+        </NFormItem>
+        <NFormItem label="默认值">
+          <NInput v-model:value="editingParam.defaultValue" placeholder="参数默认值" />
+        </NFormItem>
+        <NFormItem label="参数描述">
+          <NInput v-model:value="editingParam.description" type="textarea" :rows="3" placeholder="描述参数的用途" />
+        </NFormItem>
+      </NForm>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <NButton @click="showParamModal = false">取消</NButton>
+          <NButton type="primary" @click="saveParam">保存</NButton>
+        </div>
+      </template>
+    </NModal>
   </BaseNode>
 </template>
 

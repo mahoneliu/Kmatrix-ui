@@ -22,6 +22,8 @@ interface WorkflowState {
   workflowName: string;
   /** 工作流 ID */
   workflowId: string | null;
+  /** 折叠所有节点的状态 */
+  collapseAllNodes: boolean | null;
 }
 
 export const useWorkflowStore = defineStore('workflow', {
@@ -32,7 +34,8 @@ export const useWorkflowStore = defineStore('workflow', {
     selectedNodeId: null,
     executionStatus: {},
     workflowName: '新工作流',
-    workflowId: null
+    workflowId: null,
+    collapseAllNodes: null
   }),
 
   getters: {
@@ -168,6 +171,15 @@ export const useWorkflowStore = defineStore('workflow', {
     setWorkflowInfo(name: string, id: string | null = null) {
       this.workflowName = name;
       this.workflowId = id;
+    },
+
+    /** 设置折叠所有节点状态 */
+    setCollapseAllNodes(collapsed: boolean) {
+      this.collapseAllNodes = collapsed;
+      // 使用 setTimeout 确保状态变化被检测到
+      setTimeout(() => {
+        this.collapseAllNodes = null;
+      }, 100);
     }
   }
 });

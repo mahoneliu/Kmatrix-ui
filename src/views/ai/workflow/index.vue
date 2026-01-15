@@ -2,15 +2,16 @@
 /* eslint-disable max-depth */
 import { computed, defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { NButton, NCard, NSpace, useMessage } from 'naive-ui';
-import { VueFlow } from '@vue-flow/core';
+import { NButton, NSpace, useMessage } from 'naive-ui';
+import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
-import { Controls } from '@vue-flow/controls';
+import { ControlButton, Controls } from '@vue-flow/controls';
 import { MiniMap } from '@vue-flow/minimap';
 import type { Connection } from '@vue-flow/core';
 import { fetchAppDetail, updateApp } from '@/service/api/ai/admin/app';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
+import { useWorkflowLayout } from '@/composables/useWorkflowLayout';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/workflow/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
@@ -38,14 +39,26 @@ const appId = route.query.appId as unknown as CommonType.IdType;
 const workflowStore = useWorkflowStore();
 const nodeDefinitionStore = useNodeDefinitionStore();
 
+// Vue Flow composable (提供 getNodes 等方法)
+const { getNodes } = useVueFlow();
+
 // 拖拽容器 Ref
 const flowWrapper = ref<HTMLElement | null>(null);
 const vueFlowInstance = ref<any>(null);
 
+// 框选模式状态
+const isSelectionMode = ref(false);
+
+// 初始化布局管理 composable
+const { handleAutoLayout, handleCollapseAll, handleExpandAll, handleCollapseAndLayout } = useWorkflowLayout({
+  workflowStore,
+  vueFlowInstance,
+  getNodes,
+  message
+});
+
 // 跟踪source Handle事件后源节点（用于创建连接）
 const sourceNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
-// 跟踪target Handle事件后目标节点（用于创建反向连接）
-// const targetNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
 
 // 面板关闭定时器
 let panelCloseTimer: number | null = null;
@@ -144,18 +157,6 @@ function onPaneReady(instance: any) {
             e.target === targetNodeId &&
             (e.sourceHandle === connectingSourceHandle || (!e.sourceHandle && !connectingSourceHandle))
         );
-        // } else {
-        //   // 反向连接：targetNode 是源，connectingSourceNode 是目标
-        //   sourceType = targetNode.data.nodeType;
-        //   targetType = connectingSourceNode.data.nodeType;
-        //   exists = workflowStore.edges.some(
-        //     e =>
-        //       e.id !== updatingEdge.value?.id && // 排除当前正在更新的边
-        //       e.source === targetNodeId &&
-        //       e.target === connectingSourceNode.id &&
-        //       (e.targetHandle === connectingSourceHandle || (!e.targetHandle && !connectingSourceHandle))
-        //   );
-        // }
 
         // 如果是正在更新的边，且回到了原来的目标，则不视为重复
         const isRestoring =
@@ -338,20 +339,6 @@ function onPaneReady(instance: any) {
       };
     }
     const condition = generateEdgeCondition(connectingSourceNode, connectingSourceHandle);
-    // } else {
-    //   const sourceHandle =
-    //     (handleEl?.classList.contains('vue-flow__handle-source') && handleEl.getAttribute('data-handleid')) ||
-    //     findNearestHandle(nodeEl, event, 'source');
-    //   if (sourceHandle || !handleEl) {
-    //     connection = {
-    //       source: targetNode.id,
-    //       target: connectingSourceNode!.id,
-    //       sourceHandle,
-    //       targetHandle: connectingSourceHandle
-    //     };
-    //   }
-    //   condition = generateEdgeCondition(targetNode, sourceHandle);
-    // }
     return { connection, condition };
   }
 
@@ -409,14 +396,9 @@ function onPaneReady(instance: any) {
       );
     } else if (!nodeEl && !handleEl) {
       // 空白处 -> 打开组件面板
-      // if (connectingHandleType === 'source') {
       handleSourceHandleClick(event, connectingSourceNode.id, connectingSourceHandle);
       return true; // Action Taken
-      // }
-      // handleTargetHandleDrop(event, connectingSourceNode.id, connectingSourceHandle);
-      // return true; // Action Taken
     }
-
     return false; // No Action
   }
 }
@@ -473,10 +455,6 @@ function generateEdgeCondition(sourceNode: any, sourceHandle: string | null | un
       }
     }
   }
-
-  // 条件节点: 类似逻辑(如果需要的话)
-  // if (nodeType === 'CONDITION') { ... }
-
   return undefined;
 }
 
@@ -508,23 +486,23 @@ function getNodeComponent(nodeType: Workflow.NodeType) {
 
 // 创建新节点数据
 function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: number }) {
-  const nodeConfig = availableNodeTypes.value.find(n => n.type === nodeType);
+  const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === nodeType);
   if (!nodeConfig) return null;
 
   const timestamp = Date.now();
+  const id = `${nodeType.toLowerCase()}-${timestamp}`;
   return {
-    id: `${nodeType.toLowerCase()}-${timestamp}`,
+    id,
     type: 'custom',
     position,
     data: {
-      id: `${nodeType.toLowerCase()}-${timestamp}`,
+      id,
       nodeType,
-      label: nodeConfig.label,
-      icon: nodeConfig.icon,
-      description: nodeConfig.description,
-      nodeColor: nodeConfig.color,
-      category: nodeConfig.category,
+      nodeLabel: nodeConfig.nodeLabel,
+      nodeIcon: nodeConfig.nodeIcon,
+      nodeColor: nodeConfig.nodeColor,
       isSystem: nodeConfig.isSystem,
+      description: nodeConfig.description,
       status: 'idle' as Workflow.NodeStatus,
       config: {},
       paramBindings: []
@@ -578,13 +556,14 @@ async function loadWorkflow() {
         const startNode = {
           id: 'start',
           type: 'custom',
-          position: { x: 500, y: 150 }, // 向右移动,避开左上角的基础信息节点
+          position: { x: 300, y: 250 }, // 向右移动,避开左上角的基础信息节点
           data: {
             id: 'start',
             nodeType: 'START' as Workflow.NodeType,
-            label: '开始',
-            nodeColor: startNodeDef?.nodeColor,
-            icon: startNodeDef?.nodeIcon,
+            nodeLabel: '开始',
+            nodeColor: startNodeDef?.nodeColor || '#10b981',
+            nodeIcon: startNodeDef?.nodeIcon,
+            description: startNodeDef?.description,
             status: 'idle' as Workflow.NodeStatus
           }
         };
@@ -595,13 +574,14 @@ async function loadWorkflow() {
         const endNode = {
           id: 'end',
           type: 'custom',
-          position: { x: 1000, y: 150 }, // 在 START 节点右侧
+          position: { x: 1000, y: 250 }, // 在 START 节点右侧
           data: {
             id: 'end',
             nodeType: 'END' as Workflow.NodeType,
-            label: '结束',
-            nodeColor: endNodeDef?.nodeColor,
-            icon: endNodeDef?.nodeIcon,
+            nodeLabel: '结束',
+            nodeColor: endNodeDef?.nodeColor || '#ef4444',
+            nodeIcon: endNodeDef?.nodeIcon,
+            description: endNodeDef?.description,
             status: 'idle' as Workflow.NodeStatus
           }
         };
@@ -621,6 +601,7 @@ async function loadWorkflow() {
 }
 
 // 保存工作流
+// eslint-disable-next-line complexity
 async function handleSave() {
   if (!appId) {
     message.error('缺少应用 ID');
@@ -630,11 +611,50 @@ async function handleSave() {
   // 获取基础信息节点的配置
   const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
   const appInfoConfig = appInfoNode?.data.config as Workflow.AppInfoConfig | undefined;
+
+  // 提取应用参数配置
+  const parameters = appInfoConfig
+    ? {
+        globalParams: appInfoConfig.globalParams || [],
+        interfaceParams: appInfoConfig.interfaceParams || [],
+        sessionParams: appInfoConfig.sessionParams || []
+      }
+    : null;
+
   // 过滤掉基础信息节点(不属于工作流)
-  const workflowNodes = workflowStore.nodes.filter(n => n.data.nodeType !== 'APP_INFO');
+  // Deep clone and clean nodes to avoid circular references and Vue internal properties
+  const workflowNodes = workflowStore.nodes
+    .filter(n => n.data.nodeType !== 'APP_INFO')
+    .map(node => ({
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: {
+        ...node.data
+        // Remove any runtime or circular properties if they exist in data
+        // Explicitly keep config and paramBindings
+      }
+      // Ensure we don't carry over other VueFlow internal props
+    }));
+
+  // Clean edges to remove circular references like sourceNode and targetNode
+  const cleanEdges = workflowStore.edges.map(edge => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    sourceHandle: edge.sourceHandle,
+    targetHandle: edge.targetHandle,
+    type: edge.type,
+    animated: edge.animated,
+    label: edge.label,
+    data: edge.data,
+    updatable: edge.updatable
+    // Explicitly OMIT sourceNode, targetNode, events, etc.
+  }));
+
   const graphData = {
     nodes: workflowNodes,
-    edges: workflowStore.edges
+    edges: cleanEdges
   };
 
   // 验证 Graph 数据
@@ -657,6 +677,27 @@ async function handleSave() {
     return;
   }
 
+  // 单独校验 APP_INFO 节点(因为它不在 graphData 中)
+  if (appInfoNode) {
+    const appInfoErrors: string[] = [];
+
+    if (!appInfoConfig?.appName) {
+      appInfoErrors.push('缺少必填配置: 应用名称');
+    }
+    if (!appInfoConfig?.modelId) {
+      appInfoErrors.push('缺少必填配置: 推理模型');
+    }
+
+    if (appInfoErrors.length > 0) {
+      const errorMessage = `以下节点存在必填参数未配置:\n\n【基础信息】\n${appInfoErrors.map(e => `  • ${e}`).join('\n')}`;
+      message.error(errorMessage, {
+        duration: 5000,
+        closable: true
+      });
+      return;
+    }
+  }
+
   // 转换为 DSL
   const dsl = graphToDsl(graphData, workflowStore.workflowName);
 
@@ -667,6 +708,7 @@ async function handleSave() {
       modelId: appInfoConfig?.modelId,
       graphData: JSON.stringify(graphData),
       dslData: JSON.stringify(dsl),
+      parameters, // 新增:保存应用参数配置
       // 同步基础信息到应用数据
       appName: appInfoConfig?.appName || appName.value,
       description: appInfoConfig?.description,
@@ -690,22 +732,29 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
   if (appData) {
     // 如果不存在,添加基础信息节点
     const appInfoNodeDef = nodeDefinitionStore.getNodeDefinition('APP_INFO');
+
     const newAppInfoNode = {
       id: 'app-info',
       type: 'custom',
-      position: { x: 30, y: 30 },
+      position: { x: 10, y: 50 },
       data: {
         id: 'app-info',
         nodeType: 'APP_INFO' as Workflow.NodeType,
-        label: '基础信息',
+        nodeLabel: appInfoNodeDef?.nodeLabel || '基础信息',
         nodeColor: appInfoNodeDef?.nodeColor,
-        icon: appInfoNodeDef?.nodeIcon || 'mdi:information',
+        nodeIcon: appInfoNodeDef?.nodeIcon || 'mdi:information',
+        description: appInfoNodeDef?.description,
         status: 'idle' as Workflow.NodeStatus,
         config: {
           appName: appData.appName || '',
           description: appData.description || '',
           icon: appData.icon || '',
-          prologue: appData.prologue || ''
+          prologue: appData.prologue || '',
+          modelId: appData.modelId,
+          // 加载应用参数配置
+          globalParams: appData.parameters?.globalParams || [],
+          interfaceParams: appData.parameters?.interfaceParams || [],
+          sessionParams: appData.parameters?.sessionParams || []
         }
       }
     };
@@ -724,19 +773,6 @@ function handleSelectNode(nodeType: Workflow.NodeType) {
 
 // 删除节点
 function handleDeleteNode(nodeId: string) {
-  const node = workflowStore.nodes.find(n => n.id === nodeId);
-
-  // 禁止删除 START 和 END 节点
-  if (node?.data.nodeType === 'START') {
-    message.warning('START 节点不能删除');
-    return;
-  }
-
-  if (node?.data.nodeType === 'END') {
-    message.warning('END 节点不能删除');
-    return;
-  }
-
   workflowStore.removeNode(nodeId);
 }
 
@@ -779,16 +815,6 @@ function handleSourceHandleClick(e: MouseEvent, id: string, handleId?: string | 
   };
   showHandlePanel.value = true;
 }
-
-// function handleTargetHandleDrop(e: MouseEvent, id: string, handleId?: string | null) {
-//   const node = workflowStore.nodes.find(n => n.id === id);
-//   if (node) {
-//     targetNodeByHandle.value = { node, handleId: handleId || null };
-//   }
-//   // 计算面板位置
-//   handlePanelPosition.value = { x: e.clientX, y: e.clientY };
-//   showHandlePanel.value = true;
-// }
 
 function handleSourceHandleClose() {
   // 清除源节点
@@ -846,23 +872,6 @@ function handlePanelSelectNode(nodeType: Workflow.NodeType) {
         });
         sourceNodeByHandle.value = null;
       }
-      // else if (targetNodeByHandle.value) {
-      //   // 反向创建: NewNode -> TargetNode
-      //   const condition = generateEdgeCondition(newNode, null);
-      //   workflowStore.addEdge({
-      //     id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
-      //     source: newNode.id,
-      //     target: targetNodeByHandle.value.node.id,
-      //     sourceHandle: null,
-      //     targetHandle: targetNodeByHandle.value.handleId,
-      //     type: 'custom',
-      //     animated: false,
-      //     updatable: 'target' as const,
-      //     label: condition,
-      //     data: { condition }
-      //   });
-      //   targetNodeByHandle.value = null;
-      // }
     }
   }
 }
@@ -875,16 +884,16 @@ function handlePanelDragStart(data: { type: Workflow.NodeType; x: number; y: num
 
 // 手动拖拽处理 (绕过 HTML5 DnD 限制)
 function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: number; y: number }) {
-  const nodeConfig = availableNodeTypes.value.find(n => n.type === type);
+  const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === type);
 
   // 创建跟随鼠标的 Ghost 元素
   const ghost = document.createElement('div');
   ghost.innerHTML = `
     <div class="flex items-center gap-2">
-      <div style="width: 16px; height: 16px; background: ${nodeConfig?.color}20; color: ${nodeConfig?.color}; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+      <div style="width: 16px; height: 16px; background: ${nodeConfig?.nodeColor}20; color: ${nodeConfig?.nodeColor}; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
         <span class="icon" style="font-size: 12px;">+</span>
       </div>
-      <span>${nodeConfig?.label || type}</span>
+      <span>${nodeConfig?.nodeLabel || type}</span>
     </div>
   `;
 
@@ -939,23 +948,6 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
             });
             sourceNodeByHandle.value = null;
           }
-          // else if (targetNodeByHandle.value) {
-          //   // 反向连接：从新节点到目标节点
-          //   const condition = generateEdgeCondition(newNode, null);
-          //   workflowStore.addEdge({
-          //     id: `e-${newNode.id}-${targetNodeByHandle.value.node.id}`,
-          //     source: newNode.id,
-          //     target: targetNodeByHandle.value.node.id,
-          //     sourceHandle: null,
-          //     targetHandle: targetNodeByHandle.value.handleId,
-          //     type: 'custom',
-          //     animated: false,
-          //     updatable: 'target' as const,
-          //     label: condition,
-          //     data: { condition }
-          //   });
-          //   targetNodeByHandle.value = null;
-          // }
         }
       }
     }
@@ -968,6 +960,31 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
 
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
+}
+
+/**
+ * 切换框选模式
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-underscore-dangle
+function _toggleSelectionMode() {
+  isSelectionMode.value = !isSelectionMode.value;
+}
+
+/**
+ * 清空画布(带确认)
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-underscore-dangle
+function _handleClearCanvas() {
+  window.$dialog?.warning({
+    title: '确认清空',
+    content: '清空画布将删除所有节点和连线，此操作不可恢复，是否继续？',
+    positiveText: '确认清空',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      workflowStore.clearWorkflow();
+      message.success('已清空画布');
+    }
+  });
 }
 
 // 组件挂载时加载工作流
@@ -988,48 +1005,46 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
-    <!-- 顶部工具栏和基础信息 -->
-    <NCard :bordered="false" size="small" class="mb-2 card-wrapper">
-      <!-- 工具栏 -->
-      <NSpace align="center" justify="space-between" class="mb-3">
-        <div>
-          <div class="text-lg font-bold">工作流编排</div>
-          <div class="mt-1 text-xs text-gray-500">{{ appName }}</div>
-        </div>
-        <NSpace>
-          <!-- 使用组件库面板，将按钮作为触发器 -->
-          <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
-            <template #trigger>
-              <NButton>
-                <template #icon>
-                  <SvgIcon icon="carbon:add" />
-                </template>
-                添加组件
-              </NButton>
-            </template>
-          </ComponentLibraryModal>
-          <NButton @click="workflowStore.clearWorkflow">清空</NButton>
-          <NButton type="primary" :loading="loading" @click="handleSave">保存</NButton>
-        </NSpace>
-      </NSpace>
-    </NCard>
-
-    <!-- 画布区域 -->
-    <div
-      ref="flowWrapper"
-      class="flex-1 overflow-hidden b b-gray-2 rounded-2 b-solid bg-gray-1 dark:b-dark-3 dark:bg-dark-1"
-    >
+  <div class="relative h-full">
+    <!-- 全屏画布区域 -->
+    <div ref="flowWrapper" class="absolute inset-0 overflow-hidden bg-gray-1 dark:bg-dark-1">
       <VueFlow
         v-model:nodes="workflowStore.nodes"
         v-model:edges="workflowStore.edges"
         :edge-types="edgeTypes"
         :connection-radius="1"
+        :pan-on-drag="true"
+        :pan-on-scroll="false"
+        :zoom-on-scroll="true"
+        :zoom-on-pinch="true"
         class="h-full w-full"
         @pane-ready="onPaneReady"
       >
         <Background />
-        <Controls />
+        <Controls>
+          <!-- 折叠所有节点 -->
+          <ControlButton title="折叠所有节点" @click="handleCollapseAll">
+            <SvgIcon icon="mdi:unfold-less-horizontal" />
+          </ControlButton>
+
+          <!-- 展开所有节点 -->
+          <ControlButton title="展开所有节点" @click="handleExpandAll">
+            <SvgIcon icon="mdi:unfold-more-horizontal" />
+          </ControlButton>
+
+          <!-- 分隔线 -->
+          <!-- <div class="vue-flow__controls-divider" /> -->
+
+          <!-- 自动布局 -->
+          <ControlButton title="优雅布局" @click="handleAutoLayout">
+            <SvgIcon icon="mdi:auto-fix" />
+          </ControlButton>
+
+          <!-- 折叠并布局 -->
+          <ControlButton title="折叠并优雅布局" @click="handleCollapseAndLayout">
+            <SvgIcon icon="mdi:format-align-justify" />
+          </ControlButton>
+        </Controls>
         <MiniMap />
 
         <!-- 自定义连接线(拖动时显示) -->
@@ -1046,9 +1061,6 @@ onMounted(async () => {
             @duplicate-node="handleDuplicateNode"
             @source-handle-click="handleSourceHandleClick"
           />
-          <div v-if="false" class="absolute left-0 z-50 whitespace-pre bg-black p-1 text-xs text-white -top-10">
-            Type: {{ nodeProps.data.nodeType }} Data: {{ JSON.stringify(nodeProps.data, null, 2) }}
-          </div>
         </template>
       </VueFlow>
 
@@ -1073,10 +1085,33 @@ onMounted(async () => {
       <!-- 点击遮罩关闭面板 -->
       <div v-if="showHandlePanel" class="fixed inset-0 z-999" @click="handleSourceHandleClose" />
     </div>
+
+    <!-- 左上角浮动标题卡片 -->
+    <div class="absolute left-4 top-4 z-1000">
+      <div class="pointer-events-none text-base font-bold drop-shadow-md">{{ appName }}</div>
+    </div>
+
+    <!-- 右上角浮动操作按钮 -->
+    <div class="absolute right-4 top-4 z-1000">
+      <NSpace>
+        <!-- 使用组件库面板，将按钮作为触发器 -->
+        <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
+          <template #trigger>
+            <NButton class="bg-white/90 shadow-md backdrop-blur-md dark:bg-dark-2/90">
+              <template #icon>
+                <SvgIcon icon="carbon:add" />
+              </template>
+              添加组件
+            </NButton>
+          </template>
+        </ComponentLibraryModal>
+        <NButton type="primary" class="shadow-md" :loading="loading" @click="handleSave">保存</NButton>
+      </NSpace>
+    </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 .vue-flow__node.connection-invalid::after {
   content: '❌';
   position: absolute;
@@ -1085,5 +1120,19 @@ onMounted(async () => {
   font-size: 20px;
   pointer-events: none;
   z-index: 100;
+}
+
+/* 框选按钮激活状态 */
+.is-active {
+  background-color: var(--vf-controls-button-bg-hover);
+  color: var(--vf-controls-button-color-hover);
+}
+
+/* 工具条分隔线 */
+.vue-flow__controls-divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--vf-controls-button-border-color);
+  margin: 4px 0;
 }
 </style>

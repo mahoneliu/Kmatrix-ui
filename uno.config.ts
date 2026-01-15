@@ -23,7 +23,16 @@ export default defineConfig<Theme>({
     }
   },
   shortcuts: {
-    'card-wrapper': 'rd-8px shadow-sm'
+    'card-wrapper': 'rd-8px shadow-sm',
+    // 工作流节点样式
+    'workflow-label': 'flex items-center justify-start text-12px c-gray-5 font-600',
+    'workflow-label-required': 'ml-0.5 c-red-5',
+    'workflow-input': 'text-11px',
+    'workflow-textarea': 'text-11px',
+    'workflow-btn-icon': 'text-4 c-gray-5',
+    'workflow-collapse-icon': 'text-4 c-gray-5', // 折叠面板箭头图标
+    'workflow-config-section': 'flex flex-col gap-3',
+    'workflow-config-item': 'flex flex-col gap-1.5'
   },
   transformers: [transformerDirectives(), transformerVariantGroup()],
   presets: [presetWind3({ dark: 'class' }), presetSoybeanAdmin()]

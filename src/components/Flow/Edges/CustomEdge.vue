@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core';
-import type { EdgeProps, EdgeUpdatable } from '@vue-flow/core';
+import type { EdgeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
-interface CustomEdgeProps extends Omit<EdgeProps, 'updatable'> {
-  updatable?: EdgeUpdatable;
-}
-const props = defineProps<CustomEdgeProps>();
+const props = defineProps<EdgeProps>();
 
 const workflowStore = useWorkflowStore();
 
@@ -44,7 +41,7 @@ function deleteEdge() {
     <path :d="path[0]" fill="none" stroke="transparent" stroke-width="20" class="interaction-path" />
 
     <!-- Visible Path -->
-    <BaseEdge :path="path[0]" :style="style" class="visible-path" />
+    <BaseEdge :path="path[0]" :style="props.style" class="visible-path" />
 
     <EdgeLabelRenderer>
       <div
@@ -57,10 +54,10 @@ function deleteEdge() {
         @mouseleave="onMouseLeave"
       >
         <button
-          class="h-6 w-6 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md transition-transform active:scale-95 hover:scale-110"
+          class="h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md transition-transform active:scale-95 hover:scale-110"
           @click="deleteEdge"
         >
-          <SvgIcon icon="mdi:close" class="text-4" />
+          <SvgIcon icon="mdi:close" class="text-3" />
         </button>
       </div>
     </EdgeLabelRenderer>

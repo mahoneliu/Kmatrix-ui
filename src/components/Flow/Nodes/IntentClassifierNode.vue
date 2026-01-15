@@ -91,20 +91,15 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
     v-bind="props"
     :data="{ ...data, icon: 'mdi:brain' }"
     :hide-source-handle="true"
+    :no-content-padding="true"
     class="intent-classifier-node"
   >
-    <div class="min-w-60 flex flex-col gap-3">
-      <!-- 模型选择 -->
-      <div class="flex flex-col gap-1">
-        <label class="text-xs c-gray-5">模型</label>
-        <ModelSelector v-model:model-value="localConfig.modelId" placeholder="请选择推理模型" />
-      </div>
-
+    <div class="w-90">
       <!-- 意图列表 -->
       <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
-          <label class="text-xs c-gray-5">定义意图分支</label>
-          <NButton dashed size="tiny" class="mr-5" @click="addIntent">
+        <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
+          <label>定义意图分支</label>
+          <NButton secondary size="tiny" class="mr-2" @click="addIntent">
             <template #icon>
               <SvgIcon icon="mdi:plus" />
             </template>
@@ -119,8 +114,10 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           <NInput v-model:value="localConfig.intents[index]" placeholder="意图名称" size="small" class="mr-2 flex-1" />
 
           <!-- 删除按钮 -->
-          <NButton text type="error" size="tiny" @click="removeIntent(index)">
-            <SvgIcon icon="carbon:trash-can" class="mr-4 h-4 w-4 c-gray-5" />
+          <NButton class="workflow-btn-remove mr-3" secondary size="tiny" @click="removeIntent(index)">
+            <template #icon>
+              <SvgIcon icon="mdi:minus" class="workflow-btn-icon" />
+            </template>
           </NButton>
 
           <!-- 右侧输出点 (Handle) -->
@@ -132,8 +129,8 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
               :position="Position.Right"
               class="custom-handle custom-handle-source"
               :class="[
-                { connected: isHandleConnected(`intent-${index}`) },
-                { 'show-plus': !isHandleConnected(`intent-${index}`) && showHandles }
+                { 'handles-visible': showHandles || selected },
+                { connected: isHandleConnected(`intent-${index}`) }
               ]"
               @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
             />
@@ -143,18 +140,33 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
         <!-- 默认/其他 分支 -->
         <div class="relative mt-1 flex items-center justify-between gap-2">
           <NInput value="其他 (Else)" size="small" disabled class="mr-12 flex-1" />
-          <div class="right-1 h-full flex items-center justify-center">
+          <div class="right-1 h-full flex items-center justify-center pr-1">
             <Handle
               id="else"
               type="source"
               :position="Position.Right"
               class="custom-handle custom-handle-source !bg-gray-2"
-              :class="[{ 'show-plus': !isHandleConnected('else') }, { 'handles-visible': showHandles || selected }]"
+              :class="[{ 'handles-visible': showHandles || selected }]"
               @click="(e: MouseEvent) => handleSourceHandleClick(e, -1)"
             />
           </div>
         </div>
       </div>
+      <!-- 模型选择 -->
+      <NCollapse :default-expanded-names="['model']" class="pt-3">
+        <template #arrow>
+          <SvgIcon icon="mdi:play" class="text-4 c-gray-5" />
+        </template>
+        <NCollapseItem title="模型配置" name="model">
+          <div class="flex flex-col gap-1">
+            <label class="flex items-center justify-start text-12px c-gray-5 font-600">
+              模型
+              <span class="ml-0.5 c-red-5">*</span>
+            </label>
+            <ModelSelector v-model:model-value="localConfig.modelId" placeholder="请选择推理模型" />
+          </div>
+        </NCollapseItem>
+      </NCollapse>
     </div>
   </BaseNode>
 </template>

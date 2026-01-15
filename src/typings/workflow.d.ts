@@ -21,10 +21,10 @@ declare namespace Workflow {
   interface NodeData {
     id: string;
     nodeType: NodeType;
-    label: string;
+    nodeLabel: string;
     config?: Record<string, any>;
     status?: NodeStatus;
-    icon?: string;
+    nodeIcon?: string;
     description?: string;
     nodeColor?: string;
     category?: string;
@@ -32,6 +32,10 @@ declare namespace Workflow {
     isEnabled?: string;
     /** 参数绑定配置 */
     paramBindings?: ParamBinding[];
+    /** 自定义输入参数 */
+    customInputParams?: ParamDefinition[];
+    /** 自定义输出参数 */
+    customOutputParams?: ParamDefinition[];
   }
 
   /** 边数据结构 */
@@ -98,15 +102,21 @@ declare namespace Workflow {
 
   /** LLM 节点配置 */
   interface LlmNodeConfig extends NodeConfigFormData {
+    /** 推理模型ID (必填) */
     modelId: CommonType.IdType;
+    /** 系统提示词 */
     systemPrompt?: string;
+    /** 温度参数 */
     temperature?: number;
+    /** 最大令牌数 */
     maxTokens?: number;
   }
 
   /** 意图分类节点配置 */
   interface IntentClassifierConfig extends NodeConfigFormData {
+    /** 推理模型ID (必填) */
     modelId: CommonType.IdType;
+    /** 意图列表 */
     intents: string[];
   }
 
@@ -121,18 +131,28 @@ declare namespace Workflow {
 
   /** 固定回复节点配置 */
   interface FixedResponseConfig extends NodeConfigFormData {
+    /** 回复内容 (必填) */
     content: string;
   }
 
   /** 应用基础信息节点配置 */
   interface AppInfoConfig extends NodeConfigFormData {
+    /** 应用名称 (必填) */
     appName: string;
+    /** 应用描述 */
     description: string;
+    /** 应用图标 */
     icon: string;
+    /** 推理模型ID (必填) */
     modelId: CommonType.IdType;
+    /** 开场白 */
     prologue: string;
     /** 全局参数定义 */
     globalParams?: ParamDefinition[];
+    /** 接口参数定义 */
+    interfaceParams?: ParamDefinition[];
+    /** 会话参数定义 */
+    sessionParams?: ParamDefinition[];
   }
 
   // ========== 参数配置相关类型 ==========
@@ -157,7 +177,7 @@ declare namespace Workflow {
   }
 
   /** 参数绑定来源类型 */
-  type ParamSourceType = 'global' | 'node';
+  type ParamSourceType = 'global' | 'node' | 'interface' | 'session';
 
   /** 参数绑定配置 */
   interface ParamBinding {

@@ -130,8 +130,7 @@ const nearestHandlePosition = computed(() => {
       x: handleX,
       y: handleY
     };
-  } catch (error) {
-    console.warn('Error in nearestHandlePosition:', error);
+  } catch {
     return null;
   }
 });
@@ -153,15 +152,14 @@ const connectionPath = computed(() => {
     });
 
     return path;
-  } catch (error) {
-    console.warn('Error in connectionPath:', error);
+  } catch {
     return `M ${props.sourceX},${props.sourceY} L ${props.targetX},${props.targetY}`;
   }
 });
 </script>
 
 <template>
-  <g style="pointer-events: none">
+  <g class="connection-line-container">
     <path
       :d="connectionPath"
       fill="none"
@@ -182,5 +180,9 @@ const connectionPath = computed(() => {
   to {
     stroke-dashoffset: -10;
   }
+}
+
+.connection-line-container {
+  pointer-events: none;
 }
 </style>

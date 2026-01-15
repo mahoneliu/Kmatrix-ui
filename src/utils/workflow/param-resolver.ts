@@ -50,16 +50,38 @@ export function findUpstreamNodes(nodeId: string, nodes: Node[], edges: Edge[]):
 export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: Edge[]): Workflow.ParamSource[] {
   const sources: Workflow.ParamSource[] = [];
 
-  // 1. 添加全局参数
+  // 1. 添加应用参数(全局/接口/会话)
   const appInfoNode = nodes.find(n => n.data.nodeType === 'APP_INFO');
-  if (appInfoNode?.data.config?.globalParams) {
-    const globalParams = appInfoNode.data.config.globalParams as Workflow.ParamDefinition[];
-    if (globalParams.length > 0) {
+  if (appInfoNode?.data.config) {
+    const config = appInfoNode.data.config as Workflow.AppInfoConfig;
+
+    // 全局参数
+    if (config.globalParams && config.globalParams.length > 0) {
       sources.push({
         type: 'global',
         sourceKey: 'global',
         sourceName: '全局参数',
-        params: globalParams
+        params: config.globalParams
+      });
+    }
+
+    // 接口参数
+    if (config.interfaceParams && config.interfaceParams.length > 0) {
+      sources.push({
+        type: 'interface',
+        sourceKey: 'interface',
+        sourceName: '接口参数',
+        params: config.interfaceParams
+      });
+    }
+
+    // 会话参数
+    if (config.sessionParams && config.sessionParams.length > 0) {
+      sources.push({
+        type: 'session',
+        sourceKey: 'session',
+        sourceName: '会话参数',
+        params: config.sessionParams
       });
     }
   }
@@ -67,8 +89,10 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
   // 2. 查找所有上游节点
   const upstreamNodes = findUpstreamNodes(nodeId, nodes, edges);
 
-  // 3. 汇总上游节点的输出参数
-  upstreamNodes.forEach(node => {
+  // 3. 汇总上游节点的输出参数 (去重处理)
+  const uniqueUpstreamNodes = Array.from(new Map(upstreamNodes.map(node => [node.id, node])).values());
+
+  uniqueUpstreamNodes.forEach(node => {
     const nodeType = node.data.nodeType as Workflow.NodeType;
     const outputParams = getNodeOutputParams(nodeType);
 
@@ -76,7 +100,7 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
       sources.push({
         type: 'node',
         sourceKey: node.id,
-        sourceName: node.data.label || nodeType,
+        sourceName: node.data.nodeLabel || nodeType,
         params: outputParams
       });
     }
@@ -125,20 +149,4 @@ export function validateParamBinding(
   }
 
   return false;
-}
-
-/**
- * 获取参数绑定的显示文本
- * @param binding 参数绑定配置
- * @param nodes 所有节点列表
- * @returns 显示文本
- */
-export function getParamBindingDisplayText(binding: Workflow.ParamBinding, nodes: Node[]): string {
-  if (binding.sourceType === 'global') {
-    return `全局参数.${binding.sourceKey}`;
-  }
-
-  const sourceNode = nodes.find(n => n.id === binding.sourceKey);
-  const nodeName = sourceNode?.data.label || binding.sourceKey;
-  return `${nodeName}.${binding.sourceParam || ''}`;
 }

@@ -306,16 +306,16 @@ export function validateGraph(graphData: any): { valid: boolean; errors: string[
   }
 
   // 检查需要模型的节点是否已选择模型
-  const nodesRequiringModel = ['LLM_CHAT', 'APP_INFO'];
-  graphData.nodes.forEach((node: any) => {
-    if (nodesRequiringModel.includes(node.data?.nodeType)) {
-      const config = node.data?.config;
-      if (!config?.modelId) {
-        const nodeLabel = node.data?.label || node.id;
-        errors.push(`节点 "${nodeLabel}" 必须选择模型`);
-      }
-    }
-  });
+  // const nodesRequiringModel = ['APP_INFO'];
+  // graphData.nodes.forEach((node: any) => {
+  //   if (nodesRequiringModel.includes(node.data?.nodeType)) {
+  //     const config = node.data?.config;
+  //     if (!config?.modelId) {
+  //       const nodeLabel = node.data?.nodeLabel || node.id;
+  //       errors.push(`节点 "${nodeLabel}" 必须选择模型`);
+  //     }
+  //   }
+  // });
 
   // 检查边的节点引用是否有效
   if (graphData.edges) {
