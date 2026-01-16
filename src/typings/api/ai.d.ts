@@ -6,19 +6,19 @@
 
 declare namespace Api.AI {
   // ========== 管理端类型（Admin） - 向后兼容 ==========
-  // /** @deprecated 请使用 Api.AI.Admin.ModelProvider */
+  /** @deprecated 请使用 Api.AI.Admin.ModelProvider */
   // export type ModelProvider = Api.AI.Admin.ModelProvider;
-  // /** @deprecated 请使用 Api.AI.Admin.Model */
+  /** @deprecated 请使用 Api.AI.Admin.Model */
   // export type Model = Api.AI.Admin.Model;
-  // /** @deprecated 请使用 Api.AI.Admin.AppModelConfig */
+  /** @deprecated 请使用 Api.AI.Admin.AppModelConfig */
   // export type AppModelConfig = Api.AI.Admin.AppModelConfig;
-  // /** @deprecated 请使用 Api.AI.Admin.AppKnowledgeConfig */
+  /** @deprecated 请使用 Api.AI.Admin.AppKnowledgeConfig */
   // export type AppKnowledgeConfig = Api.AI.Admin.AppKnowledgeConfig;
-  // /** @deprecated 请使用 Api.AI.Admin.AppWorkflowConfig */
+  /** @deprecated 请使用 Api.AI.Admin.AppWorkflowConfig */
   // export type AppWorkflowConfig = Api.AI.Admin.AppWorkflowConfig;
-  // /** @deprecated 请使用 Api.AI.Admin.App */
+  /** @deprecated 请使用 Api.AI.Admin.App */
   // export type App = Api.AI.Admin.App;
-  // /** @deprecated 请使用 Api.AI.Admin.AppSearchParams */
+  /** @deprecated 请使用 Api.AI.Admin.AppSearchParams */
   // export type AppSearchParams = Api.AI.Admin.AppSearchParams;
   /** @deprecated 请使用 Api.AI.Admin.Workflow */
   // export type Workflow = Api.AI.Admin.Workflow;

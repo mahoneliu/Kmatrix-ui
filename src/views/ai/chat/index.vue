@@ -19,7 +19,7 @@ const message = useMessage();
 
 // 应用信息
 const appId = ref<string>(route.query.appId as string);
-const appInfo = ref<Api.AI.App | null>(null);
+const appInfo = ref<Api.AI.Admin.App | null>(null);
 
 // 会话相关
 const sessionId = ref<string | undefined>();

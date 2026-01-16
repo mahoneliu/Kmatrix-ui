@@ -9,8 +9,10 @@
 
 import type { Ref } from 'vue';
 import type { MessageApi } from 'naive-ui';
-import type { WorkflowStore } from '@/store/modules/workflow';
+import type { useWorkflowStore } from '@/store/modules/workflow';
 import { getLayoutedElements } from '@/utils/workflow/layout-helper';
+
+type WorkflowStore = ReturnType<typeof useWorkflowStore>;
 
 export interface UseWorkflowLayoutOptions {
   workflowStore: WorkflowStore;

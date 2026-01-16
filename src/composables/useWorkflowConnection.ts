@@ -11,8 +11,10 @@
 import type { Ref } from 'vue';
 import type { MessageApi } from 'naive-ui';
 import type { Connection } from '@vue-flow/core';
-import type { WorkflowStore } from '@/store/modules/workflow';
+import type { useWorkflowStore } from '@/store/modules/workflow';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
+
+type WorkflowStore = ReturnType<typeof useWorkflowStore>;
 
 export interface UseWorkflowConnectionOptions {
   workflowStore: WorkflowStore;
@@ -33,8 +35,8 @@ export function useWorkflowConnection(options: UseWorkflowConnectionOptions) {
    * 验证连接是否允许
    */
   function validateConnection(connection: Connection, ignoreEdgeId?: string): boolean {
-    const sourceNode = workflowStore.nodes.find(n => n.id === connection.source);
-    const targetNode = workflowStore.nodes.find(n => n.id === connection.target);
+    const sourceNode = workflowStore.nodes.find((n: any) => n.id === connection.source);
+    const targetNode = workflowStore.nodes.find((n: any) => n.id === connection.target);
 
     if (!sourceNode || !targetNode) return false;
 
@@ -46,7 +48,7 @@ export function useWorkflowConnection(options: UseWorkflowConnectionOptions) {
 
     // 重复连接验证
     const exists = workflowStore.edges.some(
-      e =>
+      (e: any) =>
         e.id !== ignoreEdgeId && // 排除当前正在更新的边
         e.source === connection.source &&
         e.target === connection.target &&
@@ -105,7 +107,8 @@ export function useWorkflowConnection(options: UseWorkflowConnectionOptions) {
       }
     });
 
-    return nearestHandle?.getAttribute('data-handleid') || null;
+    if (!nearestHandle) return null;
+    return (nearestHandle as Element).getAttribute('data-handleid') || null;
   }
 
   /**
@@ -139,7 +142,7 @@ export function useWorkflowConnection(options: UseWorkflowConnectionOptions) {
   function handleConnectionDropOnNode(dropData: ConnectionDropData, event: MouseEvent): boolean {
     const { targetNodeId, nodeEl, handleEl } = dropData;
 
-    const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
+    const targetNode = workflowStore.nodes.find((n: any) => n.id === targetNodeId);
     if (!targetNode) return false;
 
     // 构建连接信息

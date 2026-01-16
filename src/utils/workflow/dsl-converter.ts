@@ -28,8 +28,14 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
           // 节点参数: ${nodeId.paramName}
           inputs[binding.paramKey] = `\${${binding.sourceKey}.${binding.sourceParam}}`;
         } else if (binding.sourceType === 'global') {
-          // 全局参数: ${globalKey}
-          inputs[binding.paramKey] = `\${${binding.sourceKey}}`;
+          // 全局参数: ${global.key}
+          inputs[binding.paramKey] = `\${global.${binding.sourceKey}}`;
+        } else if (binding.sourceType === 'interface') {
+          // 接口参数: ${interface.key}
+          inputs[binding.paramKey] = `\${interface.${binding.sourceKey}}`;
+        } else if (binding.sourceType === 'session') {
+          // 会话参数: ${session.key}
+          inputs[binding.paramKey] = `\${session.${binding.sourceKey}}`;
         }
       });
     }
@@ -78,21 +84,39 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
           const parts = expression.split('.');
 
           if (parts.length === 2) {
-            // 节点参数: nodeId.paramName
-            paramBindings.push({
-              paramKey,
-              sourceType: 'node',
-              sourceKey: parts[0],
-              sourceParam: parts[1]
-            });
-          } else if (parts.length === 1) {
-            // 全局参数: globalKey
-            paramBindings.push({
-              paramKey,
-              sourceType: 'global',
-              sourceKey: parts[0]
-            });
+            if (parts[0] === 'session') {
+              // 会话参数: session.key
+              paramBindings.push({
+                paramKey,
+                sourceType: 'session',
+                sourceKey: parts[1]
+              });
+            } else if (parts[0] === 'interface') {
+              // 接口参数: interface.key
+              paramBindings.push({
+                paramKey,
+                sourceType: 'interface',
+                sourceKey: parts[1]
+              });
+            } else if (parts[0] === 'global') {
+              // 全局参数: global.key
+              paramBindings.push({
+                paramKey,
+                sourceType: 'global',
+                sourceKey: parts[1]
+              });
+            } else {
+              // 节点参数: nodeId.paramName
+              paramBindings.push({
+                paramKey,
+                sourceType: 'node',
+                sourceKey: parts[0],
+                sourceParam: parts[1]
+              });
+            }
           }
+          // 兼容旧格式: parts.length === 1 (可选,如果需要向下兼容则保留)
+          // 目前移除以强制使用新规范
         }
       });
     }
@@ -107,7 +131,10 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
         label: node.name,
         config: node.config || {},
         status: 'idle' as Workflow.NodeStatus,
-        paramBindings
+        paramBindings,
+        // 补充缺失的属性以满足 NodeData 接口
+        nodeLabel: node.name,
+        nodeIcon: '' // Icon 将在节点组件加载时从 store 获取，或需要在此处根据类型映射
       }
     };
   });
@@ -169,9 +196,9 @@ function extractSourceHandleFromCondition(condition: string, sourceNode: Workflo
         return 'else';
       }
       // 从节点配置中查找意图索引
-      const config = sourceNode.config as any;
+      const config = sourceNode.config as Workflow.IntentClassifierConfig;
       if (config?.intents) {
-        const intentIndex = config.intents.findIndex((intent: any) => intent.name === intentValue);
+        const intentIndex = config.intents.findIndex((intent: string) => intent === intentValue);
         if (intentIndex !== -1) {
           return `intent-${intentIndex}`;
         }

@@ -8,7 +8,10 @@
  * - 复制节点
  */
 
-import type { ReturnType as WorkflowStoreType } from '@/store/modules/workflow';
+import type { Ref } from 'vue';
+import type { useWorkflowStore } from '@/store/modules/workflow';
+
+type WorkflowStoreType = ReturnType<typeof useWorkflowStore>;
 
 export interface UseWorkflowNodeOptions {
   workflowStore: WorkflowStoreType;
@@ -23,7 +26,7 @@ export function useWorkflowNode(options: UseWorkflowNodeOptions) {
    * 创建新节点数据
    */
   function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: number }) {
-    const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === nodeType);
+    const nodeConfig = availableNodeTypes.value.find((n: any) => n.nodeType === nodeType);
     if (!nodeConfig) return null;
 
     const timestamp = Date.now();
@@ -68,7 +71,7 @@ export function useWorkflowNode(options: UseWorkflowNodeOptions) {
    * 复制节点
    */
   function handleDuplicateNode(nodeId: string) {
-    const originalNode = workflowStore.nodes.find(n => n.id === nodeId);
+    const originalNode = workflowStore.nodes.find((n: any) => n.id === nodeId);
     if (!originalNode) return;
 
     const timestamp = Date.now();

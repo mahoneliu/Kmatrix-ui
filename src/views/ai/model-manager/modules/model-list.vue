@@ -71,11 +71,11 @@ function handleAdd() {
   modalRef.value?.open('add', { providerId: props.providerId, modelSource: props.providerType });
 }
 
-function handleEdit(item: Api.AI.Model) {
+function handleEdit(item: Api.AI.Admin.Model) {
   modalRef.value?.open('edit', item);
 }
 
-function handleDelete(item: Api.AI.Model) {
+function handleDelete(item: Api.AI.Admin.Model) {
   dialog.warning({
     title: '确认删除',
     content: `确定要删除模型 "${item.modelName}" 吗？`,

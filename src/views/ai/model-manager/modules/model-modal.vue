@@ -13,7 +13,7 @@ const message = useMessage();
 const show = ref(false);
 const type = ref<'add' | 'edit'>('add');
 const loading = ref(false);
-const providers = ref<Api.AI.ModelProvider[]>([]);
+const providers = ref<Api.AI.Admin.ModelProvider[]>([]);
 
 const modelForm = reactive<any>({
   modelId: undefined,

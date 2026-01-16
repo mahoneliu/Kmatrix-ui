@@ -9,7 +9,7 @@ const emit = defineEmits<{
   (e: 'select', payload: { id: CommonType.IdType | null; type: '1' | '2' | null }): void;
 }>();
 
-const providers = ref<Api.AI.ModelProvider[]>([]);
+const providers = ref<Api.AI.Admin.ModelProvider[]>([]);
 const loading = ref(false);
 const activeId = ref<CommonType.IdType | null>(null);
 const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=aiProviderTypeRecord['1'], '2'=aiProviderTypeRecord['2']
