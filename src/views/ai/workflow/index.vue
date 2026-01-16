@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 /* eslint-disable max-depth */
-import { computed, defineAsyncComponent, markRaw, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { NButton, NSpace, useMessage } from 'naive-ui';
+import { computed, defineAsyncComponent, markRaw, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeRouteLeave, useRoute } from 'vue-router';
+import { NButton, NPopover, NSpace, NSwitch, useDialog, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { ControlButton, Controls } from '@vue-flow/controls';
 import { MiniMap } from '@vue-flow/minimap';
 import type { Connection } from '@vue-flow/core';
-import { fetchAppDetail, updateApp } from '@/service/api/ai/admin/app';
+import { fetchAppDetail, publishApp, updateApp } from '@/service/api/ai/admin/app';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { useWorkflowLayout } from '@/composables/useWorkflowLayout';
+import { useAutoSave } from '@/composables/useAutoSave';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/workflow/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
@@ -29,18 +30,20 @@ import '@vue-flow/core/dist/style.css';
 import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 import ComponentLibraryPanel from '@/components/Flow/ComponentLibraryPanel.vue';
+import WorkflowSaveStatus from '@/components/Flow/WorkflowSaveStatus.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/LlmChatNode.vue'));
 
 const route = useRoute();
 const message = useMessage();
+const dialog = useDialog();
 const appId = route.query.appId as unknown as CommonType.IdType;
 
 const workflowStore = useWorkflowStore();
 const nodeDefinitionStore = useNodeDefinitionStore();
 
 // Vue Flow composable (提供 getNodes 等方法)
-const { getNodes } = useVueFlow();
+const { getNodes, zoomIn, zoomOut, fitView } = useVueFlow();
 
 // 拖拽容器 Ref
 const flowWrapper = ref<HTMLElement | null>(null);
@@ -510,6 +513,9 @@ function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: n
   };
 }
 
+// 初始化自动保存
+const { enableAutoSave } = useAutoSave(handleAutoSave);
+
 // 加载工作流
 async function loadWorkflow() {
   if (!appId) {
@@ -523,6 +529,12 @@ async function loadWorkflow() {
     if (res.data) {
       appName.value = res.data.appName;
       workflowStore.setWorkflowInfo(res.data.appName, String(appId));
+
+      // 设置初始最后保存时间 (如果有更新时间则使用更新时间, 否则使用创建时间)
+      const lastTime = res.data.updateTime || res.data.createTime;
+      if (lastTime) {
+        workflowStore.setInitialLastSavedAt(new Date(lastTime).getTime());
+      }
 
       // 优先使用 GraphData (包含坐标信息), 如果没有则使用 DSL (坐标会丢失)
       if (res.data.graphData) {
@@ -597,16 +609,60 @@ async function loadWorkflow() {
     message.error('加载工作流失败');
   } finally {
     loading.value = false;
+    // 加载完成后标记为已保存并延迟启用自动保存
+    setTimeout(() => {
+      enableAutoSave();
+    }, 2000);
   }
+}
+
+// 校验应用配置
+function validateApp(graphData: any, workflowNodes: any[], appInfoConfig: any) {
+  // 验证 Graph 数据
+  const validation = validateGraph(graphData);
+  if (!validation.valid) {
+    message.error(`发布失败: ${validation.errors.join(', ')}`);
+    return false;
+  }
+
+  // 验证必填参数
+  const paramValidation = validateWorkflow(workflowNodes);
+  if (!paramValidation.valid) {
+    const errorMessage = formatValidationErrors(paramValidation);
+    message.error(errorMessage, {
+      duration: 5000,
+      closable: true
+    });
+    return false;
+  }
+
+  // 单独校验 APP_INFO 节点
+  if (appInfoConfig) {
+    const appInfoErrors: string[] = [];
+    if (!appInfoConfig?.appName) appInfoErrors.push('缺少必填配置: 应用名称');
+    if (!appInfoConfig?.modelId) appInfoErrors.push('缺少必填配置: 推理模型');
+
+    if (appInfoErrors.length > 0) {
+      const errorMessage = `发布失败，存在未配置项:\n\n【基础信息】\n${appInfoErrors.map(e => `  • ${e}`).join('\n')}`;
+      message.error(errorMessage, { duration: 5000, closable: true });
+      return false;
+    }
+  }
+  return true;
 }
 
 // 保存工作流
 // eslint-disable-next-line complexity
-async function handleSave() {
+async function handleSave(trigger: boolean | Event = false) {
+  const isAutoSave = typeof trigger === 'boolean' ? trigger : false;
+
+  // 校验基础信息 (保存时仅校验ID)
   if (!appId) {
     message.error('缺少应用 ID');
     return;
   }
+
+  // 准备数据...
 
   // 获取基础信息节点的配置
   const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
@@ -657,47 +713,6 @@ async function handleSave() {
     edges: cleanEdges
   };
 
-  // 验证 Graph 数据
-  const validation = validateGraph(graphData);
-
-  if (!validation.valid) {
-    message.error(`工作流验证失败: ${validation.errors.join(', ')}`);
-    return;
-  }
-
-  // 验证必填参数
-  const paramValidation = validateWorkflow(workflowNodes);
-
-  if (!paramValidation.valid) {
-    const errorMessage = formatValidationErrors(paramValidation);
-    message.error(errorMessage, {
-      duration: 5000,
-      closable: true
-    });
-    return;
-  }
-
-  // 单独校验 APP_INFO 节点(因为它不在 graphData 中)
-  if (appInfoNode) {
-    const appInfoErrors: string[] = [];
-
-    if (!appInfoConfig?.appName) {
-      appInfoErrors.push('缺少必填配置: 应用名称');
-    }
-    if (!appInfoConfig?.modelId) {
-      appInfoErrors.push('缺少必填配置: 推理模型');
-    }
-
-    if (appInfoErrors.length > 0) {
-      const errorMessage = `以下节点存在必填参数未配置:\n\n【基础信息】\n${appInfoErrors.map(e => `  • ${e}`).join('\n')}`;
-      message.error(errorMessage, {
-        duration: 5000,
-        closable: true
-      });
-      return;
-    }
-  }
-
   // 转换为 DSL
   const dsl = graphToDsl(graphData, workflowStore.workflowName);
 
@@ -708,14 +723,16 @@ async function handleSave() {
       modelId: appInfoConfig?.modelId,
       graphData: JSON.stringify(graphData),
       dslData: JSON.stringify(dsl),
-      parameters, // 新增:保存应用参数配置
-      // 同步基础信息到应用数据
+      parameters,
       appName: appInfoConfig?.appName || appName.value,
       description: appInfoConfig?.description,
       icon: appInfoConfig?.icon,
       prologue: appInfoConfig?.prologue
     });
-    message.success('保存成功');
+    if (!isAutoSave) {
+      message.success('保存成功');
+    }
+    workflowStore.markSaved(); // 标记为已保存
 
     // 更新本地应用名称
     if (appInfoConfig?.appName) {
@@ -726,6 +743,120 @@ async function handleSave() {
     message.error('保存失败');
   }
 }
+
+// 发布应用
+async function handlePublish() {
+  // 1. 准备校验数据
+  const workflowNodes = workflowStore.nodes
+    .filter(n => n.data.nodeType !== 'APP_INFO')
+    .map(node => ({
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: { ...node.data }
+    }));
+
+  const cleanEdges = workflowStore.edges.map(edge => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    sourceHandle: edge.sourceHandle,
+    targetHandle: edge.targetHandle,
+    type: edge.type,
+    animated: edge.animated,
+    label: edge.label,
+    data: edge.data,
+    updatable: edge.updatable
+  }));
+
+  const graphData = { nodes: workflowNodes, edges: cleanEdges };
+
+  const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
+  const appInfoConfig = appInfoNode?.data.config;
+
+  // 2. 执行校验
+  if (!validateApp(graphData, workflowNodes, appInfoConfig)) {
+    return;
+  }
+
+  try {
+    loading.value = true;
+    // 3. 先保存
+    await handleSave(true); // 静默保存
+
+    // 4. 再发布
+    await publishApp(appId);
+    message.success('发布成功');
+  } catch {
+    message.error('发布失败');
+  } finally {
+    loading.value = false;
+  }
+}
+
+// 跳转去对话
+function handleGoToChat() {
+  window.open(`/#/ai/chat?appId=${appId}`, '_blank');
+}
+
+// 查看发布历史
+function handlePublishHistory() {
+  message.info('发布历史功能开发中...');
+}
+async function handleAutoSave() {
+  if (workflowStore.isSaving) return; // 防止并发保存
+
+  try {
+    workflowStore.setSaving(true);
+    await handleSave(true);
+    workflowStore.markSaved();
+  } catch {
+    // 静默失败，不打扰用户（手动保存时会有提示）
+  } finally {
+    workflowStore.setSaving(false);
+  }
+}
+
+// 路由守卫：离开页面时提醒
+onBeforeRouteLeave((_to, _from, next) => {
+  if (!workflowStore.isDirty) {
+    next();
+    return;
+  }
+
+  dialog.warning({
+    title: '未保存的更改',
+    content: '您有未保存的更改，确定要离开吗？',
+    positiveText: '保存并离开',
+    negativeText: '放弃更改',
+    onPositiveClick: async () => {
+      await handleAutoSave();
+      next();
+    },
+    onNegativeClick: () => {
+      next();
+    },
+    onMaskClick: () => {
+      next(false); // 取消离开
+    }
+  });
+});
+
+// 浏览器关闭提醒
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  if (workflowStore.isDirty) {
+    e.preventDefault();
+    e.returnValue = ''; // Chrome 要求
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
 
 // 创建基础信息节点
 function createAppInfoNode(appData: Api.AI.Admin.App) {
@@ -819,7 +950,6 @@ function handleSourceHandleClick(e: MouseEvent, id: string, handleId?: string | 
 function handleSourceHandleClose() {
   // 清除源节点
   sourceNodeByHandle.value = null;
-  // targetNodeByHandle.value = null;
   showHandlePanel.value = false;
   if (panelCloseTimer) {
     clearTimeout(panelCloseTimer);
@@ -996,9 +1126,7 @@ onMounted(async () => {
     workflowStore.clearWorkflow();
     // 再加载工作流
     await loadWorkflow();
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('初始化失败:', error);
+  } catch {
     message.error('初始化失败,请刷新页面重试');
   }
 });
@@ -1021,7 +1149,20 @@ onMounted(async () => {
         @pane-ready="onPaneReady"
       >
         <Background />
-        <Controls>
+        <Controls :show-zoom="false" :show-fit-view="false" :show-interactive="false">
+          <!-- 缩放控制 -->
+          <ControlButton title="放大" @click="zoomIn">
+            <SvgIcon icon="mdi:magnify-plus-outline" />
+          </ControlButton>
+          <ControlButton title="缩小" @click="zoomOut">
+            <SvgIcon icon="mdi:magnify-minus-outline" />
+          </ControlButton>
+          <ControlButton title="适应视图" @click="fitView">
+            <SvgIcon icon="mdi:fit-to-screen-outline" />
+          </ControlButton>
+
+          <!-- 分隔线 -->
+          <div class="vue-flow__controls-divider" />
           <!-- 折叠所有节点 -->
           <ControlButton title="折叠所有节点" @click="handleCollapseAll">
             <SvgIcon icon="mdi:unfold-less-horizontal" />
@@ -1033,7 +1174,7 @@ onMounted(async () => {
           </ControlButton>
 
           <!-- 分隔线 -->
-          <!-- <div class="vue-flow__controls-divider" /> -->
+          <div class="vue-flow__controls-divider" />
 
           <!-- 自动布局 -->
           <ControlButton title="优雅布局" @click="handleAutoLayout">
@@ -1093,7 +1234,9 @@ onMounted(async () => {
 
     <!-- 右上角浮动操作按钮 -->
     <div class="absolute right-4 top-4 z-1000">
-      <NSpace>
+      <NSpace align="center" size="small">
+        <!-- 保存状态指示器 -->
+        <WorkflowSaveStatus v-if="workflowStore.autoSaveEnabled" class="mr-2" />
         <!-- 使用组件库面板，将按钮作为触发器 -->
         <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
           <template #trigger>
@@ -1105,7 +1248,55 @@ onMounted(async () => {
             </NButton>
           </template>
         </ComponentLibraryModal>
-        <NButton type="primary" class="shadow-md" :loading="loading" @click="handleSave">保存</NButton>
+        <NButton class="shadow-md" :loading="loading" @click="handleSave">
+          <template #icon>
+            <SvgIcon icon="mdi:content-save-outline" />
+          </template>
+          保存
+        </NButton>
+        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">发布</NButton>
+        <!-- 更多操作菜单 -->
+        <NPopover trigger="click" placement="bottom-end" :show-arrow="false" class="w-[180px] p-0">
+          <template #trigger>
+            <NButton quaternary circle class="ml-1">
+              <template #icon>
+                <SvgIcon icon="mdi:dots-vertical" class="text-xl" />
+              </template>
+            </NButton>
+          </template>
+          <div
+            class="flex flex-col border border-gray-100 rounded-md bg-white py-1 text-sm shadow-lg dark:border-gray-700 dark:bg-dark-2"
+          >
+            <!-- 去对话 -->
+            <div
+              class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="handleGoToChat"
+            >
+              <SvgIcon icon="mdi:chat-processing-outline" class="text-base text-gray-500" />
+              <span>去对话</span>
+            </div>
+
+            <!-- 发布历史 -->
+            <div
+              class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="handlePublishHistory"
+            >
+              <SvgIcon icon="mdi:history" class="text-base text-gray-500" />
+              <span>发布历史</span>
+            </div>
+
+            <div class="mx-2 my-1 h-px bg-gray-100 dark:bg-gray-700" />
+
+            <!-- 自动保存 -->
+            <div class="flex items-center justify-between px-4 py-2.5">
+              <div class="flex items-center gap-2">
+                <SvgIcon icon="mdi:content-save-cog-outline" class="text-base text-gray-500" />
+                <span>自动保存</span>
+              </div>
+              <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
+            </div>
+          </div>
+        </NPopover>
       </NSpace>
     </div>
   </div>
@@ -1132,7 +1323,36 @@ onMounted(async () => {
 .vue-flow__controls-divider {
   width: 100%;
   height: 1px;
+  border: solid 2px whitesmoke;
   background-color: var(--vf-controls-button-border-color);
-  margin: 4px 0;
+  margin: 1px 0;
+}
+
+/* 增大工具条尺寸 */
+:deep(.vue-flow__controls) {
+  border-radius: 5px;
+  background-color: #fbfbfb;
+}
+/* 增大工具条尺寸 */
+:deep(.vue-flow__controls-button) {
+  width: 28px !important;
+  height: 28px !important;
+  border: 0;
+  border-radius: 5px;
+  padding: 2px !important;
+  cursor: pointer !important;
+  background-color: transparent !important;
+
+  &:hover {
+    background-color: #cdd7ea !important;
+  }
+}
+
+:deep(.vue-flow__controls-button svg) {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  font-size: 2px !important;
 }
 </style>

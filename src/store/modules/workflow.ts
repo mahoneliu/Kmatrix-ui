@@ -24,6 +24,16 @@ interface WorkflowState {
   workflowId: string | null;
   /** 折叠所有节点的状态 */
   collapseAllNodes: boolean | null;
+  /** 是否有未保存的更改 */
+  isDirty: boolean;
+  /** 最后保存时间 */
+  lastSavedAt: number | null;
+  /** 是否正在保存 */
+  isSaving: boolean;
+  /** 自动保存是否启用 */
+  autoSaveEnabled: boolean;
+  /** 当前会话是否执行过保存 */
+  savedInSession: boolean;
 }
 
 export const useWorkflowStore = defineStore('workflow', {
@@ -35,7 +45,12 @@ export const useWorkflowStore = defineStore('workflow', {
     executionStatus: {},
     workflowName: '新工作流',
     workflowId: null,
-    collapseAllNodes: null
+    collapseAllNodes: null,
+    isDirty: false,
+    lastSavedAt: null,
+    isSaving: false,
+    autoSaveEnabled: true,
+    savedInSession: false
   }),
 
   getters: {
@@ -138,11 +153,13 @@ export const useWorkflowStore = defineStore('workflow', {
           this.executionStatus[node.id] = 'idle';
         }
       });
+      // 批量设置不触发 markDirty，用于加载数据
     },
 
     /** 设置所有边 */
     setEdges(edges: Edge[]) {
       this.edges = edges;
+      // 批量设置不触发 markDirty，用于加载数据
     },
 
     /** 重置所有节点状态 */
@@ -180,6 +197,33 @@ export const useWorkflowStore = defineStore('workflow', {
       setTimeout(() => {
         this.collapseAllNodes = null;
       }, 100);
+    },
+
+    /** 标记为已修改 */
+    markDirty() {
+      this.isDirty = true;
+    },
+
+    /** 标记为已保存 */
+    markSaved() {
+      this.isDirty = false;
+      this.lastSavedAt = Date.now();
+      this.savedInSession = true;
+    },
+
+    /** 设置初始最后保存时间 */
+    setInitialLastSavedAt(time: number) {
+      this.lastSavedAt = time;
+    },
+
+    /** 设置正在保存状态 */
+    setSaving(saving: boolean) {
+      this.isSaving = saving;
+    },
+
+    /** 切换自动保存 */
+    toggleAutoSave(enabled: boolean) {
+      this.autoSaveEnabled = enabled;
     }
   }
 });

@@ -62,10 +62,11 @@ export function deleteApp(appIds: CommonType.IdType[]) {
 /**
  * 发布应用
  */
-export function publishApp(appId: CommonType.IdType) {
+export function publishApp(appId: CommonType.IdType, remark?: string) {
   return request<any>({
     url: `/ai/app/publish/${appId}`,
-    method: 'post'
+    method: 'post',
+    data: { remark }
   });
 }
 

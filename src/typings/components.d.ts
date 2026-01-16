@@ -190,6 +190,7 @@ declare module 'vue' {
     UmoDocEditor: typeof import('./../components/custom/umo-doc-editor.vue')['default']
     UserSelect: typeof import('./../components/custom/user-select.vue')['default']
     WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
+    WorkflowSaveStatus: typeof import('./../components/Flow/WorkflowSaveStatus.vue')['default']
   }
 }
 
@@ -373,4 +374,5 @@ declare global {
   const UmoDocEditor: typeof import('./../components/custom/umo-doc-editor.vue')['default']
   const UserSelect: typeof import('./../components/custom/user-select.vue')['default']
   const WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
+  const WorkflowSaveStatus: typeof import('./../components/Flow/WorkflowSaveStatus.vue')['default']
 }
