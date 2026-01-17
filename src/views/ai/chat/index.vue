@@ -90,15 +90,6 @@ async function handleSend() {
   await streamChat(userMessage);
 }
 
-// 处理SSE事件参数接口
-interface SSEHandlerOptions {
-  reader: ReadableStreamDefaultReader<Uint8Array>;
-  onMessage: (msg: string) => void;
-  onNodeStatus: (nodeName: string | null) => void;
-  onDone: (sessionId?: string) => Promise<void>;
-  onError: () => void;
-}
-
 // 解析SSE事件
 function parseSSEEvent(event: string) {
   if (!event.trim()) return null;
@@ -127,8 +118,9 @@ interface SSECallbacks {
 }
 
 // 处理单个SSE事件
+// 处理单个SSE事件
 async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<boolean> {
-  const { onMessage, onNodeStatus, onDone, onError } = callbacks;
+  const { onNodeStatus, onDone } = callbacks;
   const result = parseSSEEvent(event);
   if (!result) return false;
 
@@ -194,31 +186,55 @@ async function processSSEEvent(event: string, callbacks: SSECallbacks): Promise<
     return true; // Stop processing
   }
 
-  // 处理错误事件
-  if (eventType === 'error' || eventType === 'node_error') {
-    onNodeStatus(null);
-    onError();
-    return true; // Stop processing
-  }
-
-  // 处理消息内容（默认事件或 message 事件）
-  if (data && data.trim() !== '[DONE]') {
-    onMessage(data);
+  // 处理普通消息
+  if (eventType === 'message') {
+    callbacks.onMessage(data);
   }
 
   return false;
 }
 
-// 处理SSE事件
-async function handleSSEEvents(options: SSEHandlerOptions) {
-  const { reader, onMessage, onNodeStatus, onDone, onError } = options;
-  const decoder = new TextDecoder();
-  let buffer = '';
+// 流式对话函数
+async function streamChat(userMessage: string) {
+  isStreaming.value = true;
+  currentStreamMessage.value = '';
+
+  const aiMessage: any = {
+    sessionId: sessionId.value || '0',
+    role: 'assistant',
+    content: '',
+    createTime: new Date().toISOString(),
+    streaming: true,
+    executions: [],
+    expanded: debugMode.value
+  };
+  messages.value.push(aiMessage);
 
   try {
-    // eslint-disable-next-line no-constant-condition
+    const token = localStg.get('token');
+    const response = await fetch(`${baseURL}/ai/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        appId: appId.value,
+        sessionId: sessionId.value,
+        message: userMessage
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`请求失败: ${response.statusText}`);
+    }
+
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    /* eslint-disable no-await-in-loop */
     while (true) {
-      // eslint-disable-next-line no-await-in-loop
       const { done, value } = await reader.read();
       if (done) break;
 
@@ -226,145 +242,99 @@ async function handleSSEEvents(options: SSEHandlerOptions) {
       const events = buffer.split('\n\n');
       buffer = events.pop() || '';
 
-      for (const event of events) {
-        // eslint-disable-next-line no-await-in-loop
-        const shouldStop = await processSSEEvent(event, { onMessage, onNodeStatus, onDone, onError });
-        if (shouldStop) return;
-      }
-    }
-  } catch {
-    onError();
-  }
-}
-
-// 流式对话
-async function streamChat(userMessage: string) {
-  isStreaming.value = true;
-  currentStreamMessage.value = '';
-
-  // 添加AI消息占位
-  const aiMessage: Api.AI.Chat.Message = {
-    sessionId: sessionId.value || '0',
-    role: 'assistant',
-    content: '',
-    streaming: true,
-    createTime: new Date().toISOString(),
-    executions: [],
-    expanded: true
-  };
-  messages.value.push(aiMessage);
-
-  const token = localStg.get('token') || '';
-  const clientId = import.meta.env.VITE_APP_CLIENT_ID;
-
-  const requestBody = {
-    appId: appId.value,
-    sessionId: sessionId.value,
-    message: userMessage,
-    stream: true
-  };
-
-  try {
-    const response = await fetch(`${baseURL}/ai/chat/stream`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        clientid: clientId || ''
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('无法读取响应流');
-
-    await handleSSEEvents({
-      reader,
-      onMessage: msg => {
-        currentStreamMessage.value += msg;
-        const lastMsg = messages.value[messages.value.length - 1];
-        if (lastMsg && lastMsg.role === 'assistant') {
-          lastMsg.content = currentStreamMessage.value;
-          scrollToBottom();
+      for (const eventStr of events) {
+        if (!eventStr.trim()) {
+          // eslint-disable-next-line no-continue
+          continue;
         }
-      },
-      onNodeStatus: (nodeName: string | null) => {
-        const lastMsg = messages.value[messages.value.length - 1];
-        if (lastMsg && lastMsg.role === 'assistant') {
-          if (!lastMsg.executions) lastMsg.executions = [];
 
-          if (nodeName) {
-            // 将上一个 running 状态改为 completed
-            const lastExec = lastMsg.executions[lastMsg.executions.length - 1];
-            if (lastExec && lastExec.status === 'running') {
-              lastExec.status = 'completed';
+        const shouldStop = await processSSEEvent(eventStr, {
+          onMessage: msg => {
+            currentStreamMessage.value += msg;
+            aiMessage.content += msg;
+          },
+          onNodeStatus: (nodeName: string | null) => {
+            const lastMsg = aiMessage;
+            if (nodeName) {
+              // 将上一个 running 状态改为 completed
+              const lastExec =
+                lastMsg.executions && lastMsg.executions.length > 0
+                  ? lastMsg.executions[lastMsg.executions.length - 1]
+                  : null;
+
+              if (lastExec && lastExec.status === 'running') {
+                lastExec.status = 'completed';
+              }
+
+              // 添加新节点并设为 running
+              if (!lastMsg.executions) lastMsg.executions = [];
+              lastMsg.executions.push({
+                executionId: Date.now().toString(),
+                nodeId: '',
+                nodeName,
+                nodeType: '',
+                status: 'running',
+                startTime: new Date().toISOString()
+              });
+              lastMsg.currentNode = nodeName;
+            } else {
+              // 节点完成逻辑
+              const lastExec =
+                lastMsg.executions && lastMsg.executions.length > 0
+                  ? lastMsg.executions[lastMsg.executions.length - 1]
+                  : null;
+
+              if (lastExec && lastExec.status === 'running') {
+                lastExec.status = 'completed';
+              }
+              lastMsg.currentNode = null;
+            }
+          },
+          onDone: async (newSessionId?: string) => {
+            aiMessage.streaming = false;
+            aiMessage.expanded = false;
+
+            // 是否是新创建的会话
+            const isNewSession = Boolean(newSessionId && !sessionId.value);
+
+            // 保存sessionId(如果是新创建的)
+            if (newSessionId && !sessionId.value) {
+              sessionId.value = newSessionId;
+              // 更新URL
+              router.push({
+                name: 'ai_chat',
+                query: { appId: appId.value, sessionId: newSessionId }
+              });
             }
 
-            // 添加新节点并设为 running
-            lastMsg.executions.push({
-              executionId: Date.now().toString(),
-              nodeId: '',
-              nodeName,
-              nodeType: '',
-              status: 'running',
-              startTime: new Date().toISOString()
-            });
-            lastMsg.currentNode = nodeName;
-          } else {
-            // 节点完成逻辑
-            const lastExec = lastMsg.executions[lastMsg.executions.length - 1];
-            if (lastExec && lastExec.status === 'running') {
-              lastExec.status = 'completed';
+            await loadSessions();
+
+            // 如果是首次对话,延迟2秒后再刷新一次会话列表,以获取自动生成的标题
+            if (isNewSession) {
+              setTimeout(() => {
+                loadSessions();
+              }, 2000);
             }
-            lastMsg.currentNode = null;
+          },
+          onError: () => {
+            throw new Error('服务器返回错误');
           }
-        }
-      },
-      onDone: async (newSessionId?: string) => {
-        const lastMsg = messages.value[messages.value.length - 1];
-        if (lastMsg) {
-          lastMsg.streaming = false;
-          lastMsg.expanded = false;
-        }
+        });
 
-        // 是否是新创建的会话
-        const isNewSession = Boolean(newSessionId && !sessionId.value);
-
-        // 保存sessionId(如果是新创建的)
-        if (newSessionId && !sessionId.value) {
-          sessionId.value = newSessionId;
-          // 更新URL
-          router.push({
-            name: 'ai_chat',
-            query: { appId: appId.value, sessionId: newSessionId }
-          });
-        }
-
-        await loadSessions();
-
-        // 如果是首次对话,延迟2秒后再刷新一次会话列表,以获取自动生成的标题
-        if (isNewSession) {
-          setTimeout(() => {
-            loadSessions();
-          }, 2000);
-        }
-      },
-      onError: () => {
-        throw new Error('服务器返回错误');
+        if (shouldStop) break;
       }
-    });
-
-    aiMessage.streaming = false;
+    }
   } catch (err: any) {
     message.error(`对话失败: ${err.message}`);
-    messages.value = messages.value.filter(m => m !== aiMessage);
+    // 如果消息为空且没有执行记录，移除该消息
+    if (!aiMessage.content && (!aiMessage.executions || aiMessage.executions.length === 0)) {
+      messages.value = messages.value.filter(m => m !== aiMessage);
+    }
   } finally {
     isStreaming.value = false;
     currentStreamMessage.value = '';
+    // 确保最后状态正确
+    aiMessage.streaming = false;
   }
 }
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /* eslint-disable max-depth */
-import { computed, defineAsyncComponent, markRaw, onMounted, onUnmounted, ref } from 'vue';
-import { onBeforeRouteLeave, useRoute } from 'vue-router';
+import { computed, defineAsyncComponent, h, markRaw, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { NButton, NPopover, NSpace, NSwitch, useDialog, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
@@ -31,10 +31,12 @@ import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 import ComponentLibraryPanel from '@/components/Flow/ComponentLibraryPanel.vue';
 import WorkflowSaveStatus from '@/components/Flow/WorkflowSaveStatus.vue';
+import DebugChatDialog from '@/components/ai/DebugChatDialog.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/LlmChatNode.vue'));
 
 const route = useRoute();
+const router = useRouter();
 const message = useMessage();
 const dialog = useDialog();
 const appId = route.query.appId as unknown as CommonType.IdType;
@@ -659,7 +661,7 @@ async function handleSave(trigger: boolean | Event = false) {
   // 校验基础信息 (保存时仅校验ID)
   if (!appId) {
     message.error('缺少应用 ID');
-    return;
+    return false;
   }
 
   // 准备数据...
@@ -718,7 +720,7 @@ async function handleSave(trigger: boolean | Event = false) {
 
   try {
     // 保存工作流数据和基础信息
-    await updateApp({
+    const { error } = await updateApp({
       appId,
       modelId: appInfoConfig?.modelId,
       graphData: JSON.stringify(graphData),
@@ -729,18 +731,32 @@ async function handleSave(trigger: boolean | Event = false) {
       icon: appInfoConfig?.icon,
       prologue: appInfoConfig?.prologue
     });
+
+    if (error) {
+      if (!isAutoSave) {
+        message.error('保存失败');
+      }
+      workflowStore.markSaved(false);
+      return false;
+    }
+
     if (!isAutoSave) {
       message.success('保存成功');
     }
-    workflowStore.markSaved(); // 标记为已保存
+    workflowStore.markSaved(true); // 标记为已保存
 
     // 更新本地应用名称
     if (appInfoConfig?.appName) {
       appName.value = appInfoConfig.appName;
       workflowStore.setWorkflowInfo(appInfoConfig.appName, String(appId));
     }
+    return true;
   } catch {
-    message.error('保存失败');
+    if (!isAutoSave) {
+      message.error('保存失败');
+    }
+    workflowStore.markSaved(false); // 标记为已保存
+    return false;
   }
 }
 
@@ -779,24 +795,74 @@ async function handlePublish() {
     return;
   }
 
-  try {
-    loading.value = true;
-    // 3. 先保存
-    await handleSave(true); // 静默保存
+  // 3. 弹窗输入发布摘要
+  dialog.create({
+    title: '发布应用',
+    content: () => {
+      const inputRef = ref('');
+      return h('div', { class: 'flex flex-col gap-3' }, [
+        h('div', { class: 'text-sm text-gray-600' }, '请输入本次发布的摘要说明:'),
+        h('input', {
+          ref: (el: any) => {
+            if (el) {
+              el.focus();
+              inputRef.value = el;
+            }
+          },
+          type: 'text',
+          placeholder: '例如: 新增意图识别节点,优化LLM配置',
+          class:
+            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+          onInput: (e: any) => {
+            inputRef.value = e.target.value;
+          }
+        })
+      ]);
+    },
+    positiveText: '确认发布',
+    negativeText: '取消',
+    onPositiveClick: async () => {
+      const inputEl = document.querySelector('input[placeholder*="例如"]') as HTMLInputElement;
+      const remark = inputEl?.value?.trim() || '';
 
-    // 4. 再发布
-    await publishApp(appId);
-    message.success('发布成功');
-  } catch {
-    message.error('发布失败');
-  } finally {
-    loading.value = false;
-  }
+      if (!remark) {
+        message.warning('请输入发布摘要');
+        return false; // 阻止对话框关闭
+      }
+
+      try {
+        loading.value = true;
+        // 先保存
+        const success = await handleSave(true);
+        if (!success) return false;
+
+        // 再发布
+        await publishApp(appId, remark);
+        message.success('发布成功');
+        return true;
+      } catch (error: any) {
+        // 处理后端返回的特定错误
+        const errorMsg = error?.response?.data?.msg || error?.message || '发布失败';
+        if (errorMsg.includes('无变更') || errorMsg.includes('没有差别')) {
+          message.warning(errorMsg);
+        } else {
+          message.error(errorMsg);
+        }
+        return false; // 发布失败时阻止对话框关闭
+      } finally {
+        loading.value = false;
+      }
+    }
+  });
 }
 
 // 跳转去对话
 function handleGoToChat() {
-  window.open(`/#/ai/chat?appId=${appId}`, '_blank');
+  const { href } = router.resolve({
+    path: '/ai/chat',
+    query: { appId }
+  });
+  router.push(href);
 }
 
 // 查看发布历史
@@ -809,7 +875,6 @@ async function handleAutoSave() {
   try {
     workflowStore.setSaving(true);
     await handleSave(true);
-    workflowStore.markSaved();
   } catch {
     // 静默失败，不打扰用户（手动保存时会有提示）
   } finally {
@@ -1117,6 +1182,28 @@ function _handleClearCanvas() {
   });
 }
 
+// 调试对话窗口
+const showDebugDialog = ref(false);
+const debugAppName = ref('');
+
+/**
+ * 打开调试窗口
+ */
+async function handleDebug() {
+  // 1. 先保存当前草稿
+  const success = await handleSave(true);
+  if (!success) return;
+
+  // 2. 获取应用名称
+  const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
+  if (appInfoNode?.data.config) {
+    debugAppName.value = appName.value || '未命名应用';
+  }
+
+  // 3. 打开调试窗口
+  showDebugDialog.value = true;
+}
+
 // 组件挂载时加载工作流
 onMounted(async () => {
   try {
@@ -1149,41 +1236,75 @@ onMounted(async () => {
         @pane-ready="onPaneReady"
       >
         <Background />
-        <Controls :show-zoom="false" :show-fit-view="false" :show-interactive="false">
+        <Controls
+          :show-zoom="false"
+          :show-fit-view="false"
+          :show-interactive="false"
+          class="!rounded-5px !bg-[#fbfbfb]"
+        >
           <!-- 缩放控制 -->
-          <ControlButton title="放大" @click="zoomIn">
-            <SvgIcon icon="mdi:magnify-plus-outline" />
+          <ControlButton
+            title="放大"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="zoomIn"
+          >
+            <SvgIcon icon="mdi:magnify-plus-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
-          <ControlButton title="缩小" @click="zoomOut">
-            <SvgIcon icon="mdi:magnify-minus-outline" />
+          <ControlButton
+            title="缩小"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="zoomOut"
+          >
+            <SvgIcon icon="mdi:magnify-minus-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
-          <ControlButton title="适应视图" @click="fitView">
-            <SvgIcon icon="mdi:fit-to-screen-outline" />
+          <ControlButton
+            title="适应视图"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="fitView"
+          >
+            <SvgIcon icon="mdi:fit-to-screen-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
 
           <!-- 分隔线 -->
-          <div class="vue-flow__controls-divider" />
+          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
+
           <!-- 折叠所有节点 -->
-          <ControlButton title="折叠所有节点" @click="handleCollapseAll">
-            <SvgIcon icon="mdi:unfold-less-horizontal" />
+          <ControlButton
+            title="折叠所有节点"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="handleCollapseAll"
+          >
+            <SvgIcon icon="mdi:unfold-less-horizontal" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
 
           <!-- 展开所有节点 -->
-          <ControlButton title="展开所有节点" @click="handleExpandAll">
-            <SvgIcon icon="mdi:unfold-more-horizontal" />
+          <ControlButton
+            title="展开所有节点"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="handleExpandAll"
+          >
+            <SvgIcon icon="mdi:unfold-more-horizontal" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
 
           <!-- 分隔线 -->
-          <div class="vue-flow__controls-divider" />
+          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
 
           <!-- 自动布局 -->
-          <ControlButton title="优雅布局" @click="handleAutoLayout">
-            <SvgIcon icon="mdi:auto-fix" />
+          <ControlButton
+            title="优雅布局"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="handleAutoLayout"
+          >
+            <SvgIcon icon="mdi:auto-fix" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
 
           <!-- 折叠并布局 -->
-          <ControlButton title="折叠并优雅布局" @click="handleCollapseAndLayout">
-            <SvgIcon icon="mdi:format-align-justify" />
+          <ControlButton
+            title="折叠并优雅布局"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+            @click="handleCollapseAndLayout"
+          >
+            <SvgIcon icon="mdi:format-align-justify" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
           </ControlButton>
         </Controls>
         <MiniMap />
@@ -1205,6 +1326,8 @@ onMounted(async () => {
         </template>
       </VueFlow>
 
+      <!-- 调试对话窗口 -->
+      <DebugChatDialog v-model:visible="showDebugDialog" :app-id="String(appId)" :app-name="debugAppName" />
       <!-- Source Handle 点击后的组件面板 -->
       <div
         v-if="showHandlePanel"
@@ -1240,19 +1363,25 @@ onMounted(async () => {
         <!-- 使用组件库面板，将按钮作为触发器 -->
         <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
           <template #trigger>
-            <NButton class="bg-white/90 shadow-md backdrop-blur-md dark:bg-dark-2/90">
+            <NButton class="bg-white/90 shadow-md">
               <template #icon>
                 <SvgIcon icon="carbon:add" />
               </template>
-              添加组件
+              组件
             </NButton>
           </template>
         </ComponentLibraryModal>
-        <NButton class="shadow-md" :loading="loading" @click="handleSave">
+        <NButton class="bg-white/90 shadow-md" :loading="loading" @click="handleSave">
           <template #icon>
             <SvgIcon icon="mdi:content-save-outline" />
           </template>
           保存
+        </NButton>
+        <NButton class="bg-white/90 shadow-md" @click="handleDebug">
+          <template #icon>
+            <SvgIcon icon="mdi:bug-outline" />
+          </template>
+          调试
         </NButton>
         <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">发布</NButton>
         <!-- 更多操作菜单 -->
@@ -1311,48 +1440,5 @@ onMounted(async () => {
   font-size: 20px;
   pointer-events: none;
   z-index: 100;
-}
-
-/* 框选按钮激活状态 */
-.is-active {
-  background-color: var(--vf-controls-button-bg-hover);
-  color: var(--vf-controls-button-color-hover);
-}
-
-/* 工具条分隔线 */
-.vue-flow__controls-divider {
-  width: 100%;
-  height: 1px;
-  border: solid 2px whitesmoke;
-  background-color: var(--vf-controls-button-border-color);
-  margin: 1px 0;
-}
-
-/* 增大工具条尺寸 */
-:deep(.vue-flow__controls) {
-  border-radius: 5px;
-  background-color: #fbfbfb;
-}
-/* 增大工具条尺寸 */
-:deep(.vue-flow__controls-button) {
-  width: 28px !important;
-  height: 28px !important;
-  border: 0;
-  border-radius: 5px;
-  padding: 2px !important;
-  cursor: pointer !important;
-  background-color: transparent !important;
-
-  &:hover {
-    background-color: #cdd7ea !important;
-  }
-}
-
-:deep(.vue-flow__controls-button svg) {
-  width: 22px !important;
-  height: 22px !important;
-  max-width: 22px !important;
-  max-height: 22px !important;
-  font-size: 2px !important;
 }
 </style>

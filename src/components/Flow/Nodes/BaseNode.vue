@@ -260,7 +260,7 @@ function confirmRename() {
   if (node) {
     workflowStore.updateNode(props.id, {
       ...props.data,
-      label: newLabel.value
+      nodeLabel: newLabel.value
     });
   }
   showRenameModal.value = false;

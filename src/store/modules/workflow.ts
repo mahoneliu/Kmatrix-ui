@@ -205,9 +205,10 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /** 标记为已保存 */
-    markSaved() {
+    markSaved(success: boolean) {
       this.isDirty = false;
-      this.lastSavedAt = Date.now();
+      if (success) this.lastSavedAt = Date.now();
+
       this.savedInSession = true;
     },
 

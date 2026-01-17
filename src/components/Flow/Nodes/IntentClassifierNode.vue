@@ -14,9 +14,6 @@ const emit = defineEmits<{
 
 const workflowStore = useWorkflowStore();
 
-// 防止循环更新的标志位
-// let isUpdating = false;
-
 // 本地配置状态
 const localConfig = ref<Workflow.IntentClassifierConfig>({
   modelId: props.data.config?.modelId,

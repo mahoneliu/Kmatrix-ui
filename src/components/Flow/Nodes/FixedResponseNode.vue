@@ -69,11 +69,11 @@ onMounted(() => {
                 v-model:value="formModel.content"
                 class="workflow-textarea"
                 type="textarea"
-                :rows="4"
+                :rows="2"
                 placeholder="输入固定的回复文本内容..."
               />
               <div class="mt-1 rounded bg-gray-50 p-2 text-12px c-gray-5 dark:bg-gray-800">
-                <div class="mb-1 font-500">支持参数替换，如 { 参数名XX }</div>
+                <div class="mb-1 font-500">支持对输入参数替换，如 { 参数名XX }</div>
               </div>
             </div>
           </div>

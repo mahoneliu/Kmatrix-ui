@@ -134,6 +134,11 @@ declare namespace Workflow {
     /** 回复内容 (必填) */
     content: string;
   }
+  /** 结束节点配置 */
+  interface EndConfig extends NodeConfigFormData {
+    /** 额外回复内容 (finalResponse参数与extraResponse参数必填其中之一) */
+    extraResponse: string;
+  }
 
   /** 应用基础信息节点配置 */
   interface AppInfoConfig extends NodeConfigFormData {
@@ -185,7 +190,7 @@ declare namespace Workflow {
     paramKey: string;
     /** 来源类型 */
     sourceType: ParamSourceType;
-    /** 来源键（全局参数键 或 节点ID） */
+    /** 来源键（全局参数键，对应global/session/interface 或 节点ID） */
     sourceKey: string;
     /** 如果是节点来源，指定节点的输出参数键 */
     sourceParam?: string;
