@@ -100,6 +100,12 @@ declare namespace Workflow {
     [key: string]: any;
   }
 
+  /** Start 节点配置 */
+  interface StartNodeConfig extends NodeConfigFormData {
+    /** 全局参数 */
+    globalParams?: ParamDefinition[];
+  }
+
   /** LLM 节点配置 */
   interface LlmNodeConfig extends NodeConfigFormData {
     /** 推理模型ID (必填) */
@@ -136,8 +142,10 @@ declare namespace Workflow {
   }
   /** 结束节点配置 */
   interface EndConfig extends NodeConfigFormData {
-    /** 额外回复内容 (finalResponse参数与extraResponse参数必填其中之一) */
-    extraResponse: string;
+    /** 是否指定回复内容 */
+    isCustomResponse: boolean;
+    /** 指定回复内容 (finalResponse参数与customResponse参数必填其中之一) */
+    customResponse: string;
   }
 
   /** 应用基础信息节点配置 */
@@ -154,6 +162,8 @@ declare namespace Workflow {
     prologue: string;
     /** 全局参数定义 */
     globalParams?: ParamDefinition[];
+    /** 应用参数定义 */
+    appParams?: ParamDefinition[];
     /** 接口参数定义 */
     interfaceParams?: ParamDefinition[];
     /** 会话参数定义 */
@@ -163,7 +173,7 @@ declare namespace Workflow {
   // ========== 参数配置相关类型 ==========
 
   /** 参数数据类型 */
-  type ParamDataType = 'string' | 'number' | 'boolean' | 'object' | 'array';
+  type ParamDataType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'datetime';
 
   /** 参数定义 */
   interface ParamDefinition {
@@ -182,15 +192,15 @@ declare namespace Workflow {
   }
 
   /** 参数绑定来源类型 */
-  type ParamSourceType = 'global' | 'node' | 'interface' | 'session';
+  type ParamSourceType = 'global' | 'node' | 'interface' | 'session' | 'app';
 
   /** 参数绑定配置 */
   interface ParamBinding {
     /** 当前节点的参数键 */
     paramKey: string;
-    /** 来源类型 */
+    /** 来源类型 'global' | 'node' */
     sourceType: ParamSourceType;
-    /** 来源键（全局参数键，对应global/session/interface 或 节点ID） */
+    /** 来源键（全局参数键，对应global参数提供者 或 节点ID），global下面有app/interface/session */
     sourceKey: string;
     /** 如果是节点来源，指定节点的输出参数键 */
     sourceParam?: string;
@@ -200,7 +210,7 @@ declare namespace Workflow {
   interface ParamSource {
     /** 来源类型 */
     type: ParamSourceType;
-    /** 来源键（'global' 或 节点ID） */
+    /** 来源键（'global'参数提供者 或 节点ID） */
     sourceKey: string;
     /** 来源显示名称 */
     sourceName: string;
@@ -209,12 +219,12 @@ declare namespace Workflow {
   }
 
   /** 节点类型参数定义 */
-  interface NodeTypeParams {
-    /** 节点类型 */
-    type: NodeType;
-    /** 输入参数定义 */
-    inputParams: ParamDefinition[];
-    /** 输出参数定义 */
-    outputParams: ParamDefinition[];
-  }
+  // interface NodeTypeParams {
+  //   /** 节点类型 */
+  //   type: NodeType;
+  //   /** 输入参数定义 */
+  //   inputParams: ParamDefinition[];
+  //   /** 输出参数定义 */
+  //   outputParams: ParamDefinition[];
+  // }
 }

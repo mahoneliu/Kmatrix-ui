@@ -30,12 +30,6 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
         } else if (binding.sourceType === 'global') {
           // 全局参数: ${global.key}
           inputs[binding.paramKey] = `\${global.${binding.sourceKey}}`;
-        } else if (binding.sourceType === 'interface') {
-          // 接口参数: ${interface.key}
-          inputs[binding.paramKey] = `\${interface.${binding.sourceKey}}`;
-        } else if (binding.sourceType === 'session') {
-          // 会话参数: ${session.key}
-          inputs[binding.paramKey] = `\${session.${binding.sourceKey}}`;
         }
       });
     }
@@ -84,21 +78,7 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
           const parts = expression.split('.');
 
           if (parts.length === 2) {
-            if (parts[0] === 'session') {
-              // 会话参数: session.key
-              paramBindings.push({
-                paramKey,
-                sourceType: 'session',
-                sourceKey: parts[1]
-              });
-            } else if (parts[0] === 'interface') {
-              // 接口参数: interface.key
-              paramBindings.push({
-                paramKey,
-                sourceType: 'interface',
-                sourceKey: parts[1]
-              });
-            } else if (parts[0] === 'global') {
+            if (parts[0] === 'global') {
               // 全局参数: global.key
               paramBindings.push({
                 paramKey,
@@ -331,18 +311,6 @@ export function validateGraph(graphData: any): { valid: boolean; errors: string[
       }
     }
   }
-
-  // 检查需要模型的节点是否已选择模型
-  // const nodesRequiringModel = ['APP_INFO'];
-  // graphData.nodes.forEach((node: any) => {
-  //   if (nodesRequiringModel.includes(node.data?.nodeType)) {
-  //     const config = node.data?.config;
-  //     if (!config?.modelId) {
-  //       const nodeLabel = node.data?.nodeLabel || node.id;
-  //       errors.push(`节点 "${nodeLabel}" 必须选择模型`);
-  //     }
-  //   }
-  // });
 
   // 检查边的节点引用是否有效
   if (graphData.edges) {

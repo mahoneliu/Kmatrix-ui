@@ -129,6 +129,23 @@ export function validateWorkflow(nodes: Node<Workflow.NodeData>[]): WorkflowVali
     const configResult = validateNodeConfig(node);
     allErrors.push(...configResult.errors);
 
+    // 校验自定义参数键名(问题3相关: 发布时校验空键名)
+    if (node.data.customInputParams && node.data.customInputParams.length > 0) {
+      node.data.customInputParams.forEach((param, index) => {
+        if (!param.key || param.key.trim() === '') {
+          allErrors.push(`自定义输入参数 #${index + 1} 缺少键名`);
+        }
+      });
+    }
+
+    if (node.data.customOutputParams && node.data.customOutputParams.length > 0) {
+      node.data.customOutputParams.forEach((param, index) => {
+        if (!param.key || param.key.trim() === '') {
+          allErrors.push(`自定义输出参数 #${index + 1} 缺少键名`);
+        }
+      });
+    }
+
     if (allErrors.length > 0) {
       nodeErrors.push({
         nodeId: node.id,

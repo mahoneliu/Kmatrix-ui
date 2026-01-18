@@ -60,7 +60,22 @@ onMounted(() => {
     :clearable="clearable"
     :disabled="disabled"
     :size="size"
-    class="text-11px"
+    :menu-props="{ class: 'model-selector-menu' }"
     @update:value="handleUpdateValue"
   />
 </template>
+
+<style scoped>
+:deep(.n-base-selection-label),
+:deep(.n-base-selection-input),
+:deep(.n-base-selection-placeholder) {
+  font-size: 11px !important;
+}
+</style>
+
+<style>
+/* 下拉菜单渲染在 body 下，不能使用 scoped */
+.model-selector-menu .n-base-select-option {
+  font-size: 11px !important;
+}
+</style>

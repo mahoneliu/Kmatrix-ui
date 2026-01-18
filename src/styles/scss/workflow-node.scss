@@ -35,22 +35,11 @@
         font-size: 20px;
         font-weight: 800;
         color: #9ca3af;
-        width: 50px;
-        height: 50px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         z-index: 10;
         background: transparent;
-
-        // content: '-';
-        // position: absolute;
-        // top: 50%;
-        // left: 50%;
-        // transform: translate(-50%, -50%);
-        // width: 50px;
-        // height: 50px;
-        // background: transparent;
-        // border-radius: 50%;
-        // z-index: 10;
       }
     }
 
@@ -61,42 +50,9 @@
       background: #9ba0a1 !important;
       pointer-events: auto !important;
       opacity: 1;
-
-      // &::after {
-      //   content: '';
-      //   position: absolute;
-      //   top: 50%;
-      //   left: 50%;
-      //   transform: translate(-50%, -50%);
-      //   width: 50px;
-      //   height: 50px;
-      //   background: transparent;
-      //   border-radius: 50%;
-      //   z-index: 10;
-      // }
     }
-
-    /* 加号样式 */
-    // .vue-flow__handle.custom-handle.handles-visible::after {
-    //   content: '+';
-    //   position: absolute;
-    //   top: 50%;
-    //   left: 50%;
-    //   transform: translate(-50%, -50%);
-    //   font-size: 16px;
-    //   font-weight: 800;
-    //   color: #9ca3af;
-    // }
   }
 }
-
-/* 折叠面板箭头左对齐 */
-// .workflow-collapse {
-//   // 让箭头更靠左,视觉层级更高
-//   :deep(.n-collapse-item__header-main) {
-//     margin-left: -8px;
-//   }
-// }
 
 /* 操作按钮统一样式 */
 .workflow-btn {

@@ -171,7 +171,7 @@ watch(
     <!-- 内容区域 -->
     <div v-show="!isMinimized" class="flex flex-col flex-1 gap-12px overflow-hidden bg-white p-16px">
       <!-- 提示信息 -->
-      <NAlert type="info" size="small" class="mb-2 text-12px" :bordered="false" closable>
+      <NAlert type="info" size="medium" :bordered="false" closable>
         调试使用最新草稿，临时对话，数据不保存。修改工作流实时生效，无需重新打开窗口。
       </NAlert>
 
@@ -264,7 +264,7 @@ watch(
     </div>
 
     <!-- 执行详情弹窗 -->
-    <NModal v-model:show="showDetailModal" preset="card" title="执行详情" style="width: 700px">
+    <NModal v-model:show="showDetailModal" preset="card" title="执行详情" class="w-700px">
       <div class="max-h-60vh overflow-y-auto">
         <div
           v-for="(exec, index) in currentExecutions"

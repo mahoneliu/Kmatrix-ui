@@ -2,7 +2,7 @@
 import { computed, h } from 'vue';
 import { NCascader, NTooltip } from 'naive-ui';
 import type { CascaderOption } from 'naive-ui';
-import { PARAM_SOURCE_COLORS } from '@/constants/workflow';
+import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
 import { getNodeIconBackground } from '@/utils/color';
@@ -55,15 +55,15 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
     let icon = 'mdi:cube-outline'; // 默认节点图标
     let color: string;
 
-    if (source.type === 'global') {
+    if (source.sourceKey === 'app') {
       icon = 'mdi:earth';
-      color = PARAM_SOURCE_COLORS.global;
-    } else if (source.type === 'interface') {
+      color = PARAM_GLOBAL_NODE_COLORS.app;
+    } else if (source.sourceKey === 'interface') {
       icon = 'mdi:api';
-      color = PARAM_SOURCE_COLORS.interface;
-    } else if (source.type === 'session') {
+      color = PARAM_GLOBAL_NODE_COLORS.interface;
+    } else if (source.sourceKey === 'session') {
       icon = 'mdi:message-text';
-      color = PARAM_SOURCE_COLORS.session;
+      color = PARAM_GLOBAL_NODE_COLORS.session;
     } else if (source.type === 'node') {
       // 从节点数据中获取图标和颜色
       const node = workflowStore.nodes.find(n => n.id === source.sourceKey);
@@ -71,10 +71,10 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
         icon = node.data.nodeIcon;
       }
       // 节点类型:优先使用节点自定义颜色,否则使用默认紫色
-      color = node?.data?.nodeColor || PARAM_SOURCE_COLORS.node;
+      color = node?.data?.nodeColor || PARAM_GLOBAL_COLORS;
     } else {
-      // 其他未知类型使用默认紫色
-      color = PARAM_SOURCE_COLORS.node;
+      // 其他未知类型使用默认颜色
+      color = PARAM_GLOBAL_COLORS;
     }
 
     // 创建第一级选项(参数来源)
@@ -89,7 +89,7 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
         return {
           paramName: param.label,
           paramType: param.type,
-          label: `${param.key} (${param.type})`,
+          label: param.label,
           value: `${source.sourceKey}|${param.key}`
         };
       })
@@ -104,12 +104,6 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
 // 当前选中值 (复合键字符串)
 const selectedValue = computed(() => {
   if (!props.binding) return null;
-
-  if (props.binding.sourceType === 'global') {
-    // Global 类型的 sourceKey 存储的是参数名
-    return `global|${props.binding.sourceKey}`;
-  }
-
   // Node 类型
   return `${props.binding.sourceKey}|${props.binding.sourceParam || ''}`;
 });
@@ -180,22 +174,16 @@ function handleValueChange(value: string | number | Array<string | number> | nul
     return;
   }
 
-  if (foundSource.type === 'global') {
-    const binding: Workflow.ParamBinding = {
-      paramKey: props.paramDef.key,
-      sourceType: 'global',
-      sourceKey: paramKey // Global binding stores paramKey in sourceKey field
-    };
-    emit('update:binding', binding);
-  } else {
-    const binding: Workflow.ParamBinding = {
-      paramKey: props.paramDef.key,
-      sourceType: 'node',
-      sourceKey,
-      sourceParam: paramKey
-    };
-    emit('update:binding', binding);
-  }
+  const isGlobalCategory = ['app', 'interface', 'session'].includes(foundSource.sourceKey);
+  const sourceType = isGlobalCategory ? (foundSource.sourceKey as Workflow.ParamSourceType) : 'node';
+
+  const binding: Workflow.ParamBinding = {
+    paramKey: props.paramDef.key,
+    sourceType,
+    sourceKey: isGlobalCategory ? paramKey : sourceKey,
+    sourceParam: isGlobalCategory ? undefined : paramKey
+  };
+  emit('update:binding', binding);
 }
 </script>
 
@@ -224,15 +212,15 @@ function handleValueChange(value: string | number | Array<string | number> | nul
 
 <style scoped>
 .param-selector-wrapper :deep(.n-cascader) {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .param-selector-wrapper :deep(.n-base-selection-label) {
-  font-size: 12px !important;
+  font-size: 11px !important;
 }
 
 .param-selector-wrapper :deep(.n-base-selection-input) {
-  font-size: 12px !important;
+  font-size: 11px !important;
 }
 
 /* 下拉菜单选项字体大小 */

@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { NButton, NCollapse, NCollapseItem, NForm, NFormItem, NInput, NModal, NSelect, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
+import { PARAM_TYPE_MAP, PARAM_TYPE_OPTIONS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import ModelSelector from '@/components/ai/ModelSelector.vue';
 import BaseNode from './BaseNode.vue';
@@ -16,33 +17,18 @@ const formModel = reactive<Workflow.AppInfoConfig>({
   icon: '',
   modelId: null as any,
   prologue: '',
-  globalParams: [],
+  appParams: [],
   interfaceParams: [],
   sessionParams: []
 });
 
-// 参数类型选项
-const paramTypeOptions = [
-  { label: '字符串', value: 'string' },
-  { label: '数字', value: 'number' },
-  { label: '布尔值', value: 'boolean' },
-  { label: '对象', value: 'object' },
-  { label: '数组', value: 'array' }
-];
-
-// 参数类型映射(用于显示)
-const paramTypeMap: Record<string, string> = {
-  string: '字符串',
-  number: '数字',
-  boolean: '布尔值',
-  object: '对象',
-  array: '数组'
-};
+// 参数类型选项已移除，现使用常量 PARAM_TYPE_OPTIONS
+// 参数类型映射已移除，现使用常量 PARAM_TYPE_MAP
 
 // 编辑参数弹窗
 const showParamModal = ref(false);
 const editingParamIndex = ref<number | null>(null);
-const editingParamType = ref<'global' | 'interface' | 'session'>('global');
+const editingParamType = ref<'app' | 'interface' | 'session'>('app');
 const editingParam = reactive<Workflow.ParamDefinition>({
   key: '',
   label: '',
@@ -54,7 +40,7 @@ const editingParam = reactive<Workflow.ParamDefinition>({
 
 // 参数类型名称映射
 const paramTypeNameMap: Record<string, string> = {
-  global: '全局参数',
+  app: '应用参数',
   interface: '接口参数',
   session: '会话参数'
 };
@@ -74,15 +60,15 @@ function initData() {
     formModel.icon = config.icon || '';
     formModel.modelId = (config.modelId || null) as any;
     formModel.prologue = config.prologue || '';
-    formModel.globalParams = config.globalParams || [];
+    formModel.appParams = config.appParams || [];
     formModel.interfaceParams = config.interfaceParams || [];
     formModel.sessionParams = config.sessionParams || [];
   }
 }
 
 // 添加参数(通用)
-function addParam(type: 'global' | 'interface' | 'session') {
-  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+function addParam(type: 'app' | 'interface' | 'session') {
+  let paramsKey: 'appParams' | 'interfaceParams' | 'sessionParams' = 'appParams';
   if (type === 'interface') paramsKey = 'interfaceParams';
   else if (type === 'session') paramsKey = 'sessionParams';
   if (!formModel[paramsKey]) {
@@ -101,9 +87,9 @@ function addParam(type: 'global' | 'interface' | 'session') {
   showParamModal.value = true;
 }
 
-// 添加全局参数
-function addGlobalParam() {
-  addParam('global');
+// 添加应用参数
+function addAppParam() {
+  addParam('app');
 }
 
 // 添加接口参数
@@ -117,8 +103,8 @@ function addSessionParam() {
 }
 
 // 编辑参数(通用)
-function editParam(type: 'global' | 'interface' | 'session', index: number) {
-  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+function editParam(type: 'app' | 'interface' | 'session', index: number) {
+  let paramsKey: 'appParams' | 'interfaceParams' | 'sessionParams' = 'appParams';
   if (type === 'interface') paramsKey = 'interfaceParams';
   else if (type === 'session') paramsKey = 'sessionParams';
   editingParamType.value = type;
@@ -128,9 +114,9 @@ function editParam(type: 'global' | 'interface' | 'session', index: number) {
   showParamModal.value = true;
 }
 
-// 编辑全局参数
-function editGlobalParam(index: number) {
-  editParam('global', index);
+// 编辑应用参数
+function editAppParam(index: number) {
+  editParam('app', index);
 }
 
 // 编辑接口参数
@@ -145,7 +131,7 @@ function editSessionParam(index: number) {
 
 // 保存参数
 function saveParam() {
-  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+  let paramsKey: 'appParams' | 'interfaceParams' | 'sessionParams' = 'appParams';
   if (editingParamType.value === 'interface') paramsKey = 'interfaceParams';
   else if (editingParamType.value === 'session') paramsKey = 'sessionParams';
 
@@ -165,16 +151,16 @@ function saveParam() {
 }
 
 // 删除参数(通用)
-function removeParam(type: 'global' | 'interface' | 'session', index: number) {
-  let paramsKey: 'globalParams' | 'interfaceParams' | 'sessionParams' = 'globalParams';
+function removeParam(type: 'app' | 'interface' | 'session', index: number) {
+  let paramsKey: 'appParams' | 'interfaceParams' | 'sessionParams' = 'appParams';
   if (type === 'interface') paramsKey = 'interfaceParams';
   else if (type === 'session') paramsKey = 'sessionParams';
   formModel[paramsKey]?.splice(index, 1);
 }
 
 // 删除全局参数
-function removeGlobalParam(index: number) {
-  removeParam('global', index);
+function removeAppParam(index: number) {
+  removeParam('app', index);
 }
 
 // 删除接口参数
@@ -199,7 +185,7 @@ watch(
       newValue.icon !== currentConfig?.icon ||
       newValue.modelId !== currentConfig?.modelId ||
       newValue.prologue !== currentConfig?.prologue ||
-      JSON.stringify(newValue.globalParams) !== JSON.stringify(currentConfig?.globalParams) ||
+      JSON.stringify(newValue.appParams) !== JSON.stringify(currentConfig?.appParams) ||
       JSON.stringify(newValue.interfaceParams) !== JSON.stringify(currentConfig?.interfaceParams) ||
       JSON.stringify(newValue.sessionParams) !== JSON.stringify(currentConfig?.sessionParams);
 
@@ -223,7 +209,7 @@ watch(
         config.icon !== formModel.icon ||
         config.modelId !== formModel.modelId ||
         config.prologue !== formModel.prologue ||
-        JSON.stringify(config.globalParams) !== JSON.stringify(formModel.globalParams) ||
+        JSON.stringify(config.appParams) !== JSON.stringify(formModel.appParams) ||
         JSON.stringify(config.interfaceParams) !== JSON.stringify(formModel.interfaceParams) ||
         JSON.stringify(config.sessionParams) !== JSON.stringify(formModel.sessionParams);
 
@@ -233,7 +219,7 @@ watch(
         formModel.icon = config.icon || '';
         formModel.modelId = (config.modelId || null) as any;
         formModel.prologue = config.prologue || '';
-        formModel.globalParams = config.globalParams || [];
+        formModel.appParams = config.appParams || [];
         formModel.interfaceParams = config.interfaceParams || [];
         formModel.sessionParams = config.sessionParams || [];
       }
@@ -298,13 +284,12 @@ onMounted(() => {
         </NCollapseItem>
 
         <!-- 参数 -->
-        <NCollapseItem title="参数" name="params">
+        <NCollapseItem title="自定义参数" name="params">
           <div class="flex flex-col gap-2">
-            <!-- 全局参数 -->
             <div class="flex flex-col gap-1">
               <div class="flex items-center justify-between">
-                <div class="flex items-center justify-between text-12px c-gray-5 font-600">全局参数</div>
-                <NButton secondary size="tiny" @click="addGlobalParam">
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">应用参数</div>
+                <NButton secondary size="tiny" @click="addAppParam">
                   <template #icon>
                     <SvgIcon icon="mdi:plus" />
                   </template>
@@ -312,27 +297,27 @@ onMounted(() => {
               </div>
 
               <!-- 参数列表 -->
-              <div v-if="formModel.globalParams && formModel.globalParams.length > 0" class="flex flex-col gap-1">
+              <div v-if="formModel.appParams && formModel.appParams.length > 0" class="flex flex-col gap-1">
                 <div
-                  v-for="(param, index) in formModel.globalParams"
+                  v-for="(param, index) in formModel.appParams"
                   :key="index"
                   class="group flex cursor-pointer items-center gap-1 rounded px-2 py-1.5 text-12px hover:bg-gray-1 dark:hover:bg-dark-3"
-                  @click="editGlobalParam(index)"
+                  @click="editAppParam(index)"
                 >
                   <div class="flex flex-1 items-center gap-2 overflow-hidden">
                     <span class="c-primary font-500 font-mono">{{ param.key }}</span>
                     <span class="c-gray-4">·</span>
-                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-5">{{ PARAM_TYPE_MAP[param.type] || param.type }}</span>
                     <span class="c-gray-4">·</span>
                     <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
                   </div>
                   <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <NButton text size="tiny" @click.stop="editGlobalParam(index)">
+                    <NButton text size="tiny" @click.stop="editAppParam(index)">
                       <template #icon>
                         <SvgIcon icon="mdi:pencil" />
                       </template>
                     </NButton>
-                    <NButton text type="error" size="tiny" @click.stop="removeGlobalParam(index)">
+                    <NButton text type="error" size="tiny" @click.stop="removeAppParam(index)">
                       <template #icon>
                         <SvgIcon icon="mdi:delete" />
                       </template>
@@ -365,7 +350,7 @@ onMounted(() => {
                   <div class="flex flex-1 items-center gap-1 overflow-hidden">
                     <span class="c-blue-6 font-500 font-mono">{{ param.key }}</span>
                     <span class="c-gray-4">·</span>
-                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-5">{{ PARAM_TYPE_MAP[param.type] || param.type }}</span>
                     <span class="c-gray-4">·</span>
                     <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
                   </div>
@@ -407,7 +392,7 @@ onMounted(() => {
                   <div class="flex flex-1 items-center gap-1 overflow-hidden">
                     <span class="c-orange-6 font-500 font-mono">{{ param.key }}</span>
                     <span class="c-gray-4">·</span>
-                    <span class="c-gray-5">{{ paramTypeMap[param.type] || param.type }}</span>
+                    <span class="c-gray-5">{{ PARAM_TYPE_MAP[param.type] || param.type }}</span>
                     <span class="c-gray-4">·</span>
                     <span class="flex-1 truncate c-gray-6">{{ param.label }}</span>
                   </div>
@@ -442,7 +427,7 @@ onMounted(() => {
           <NInput v-model:value="editingParam.label" placeholder="例如: 用户名称" />
         </NFormItem>
         <NFormItem label="数据类型" required>
-          <NSelect v-model:value="editingParam.type" :options="paramTypeOptions" />
+          <NSelect v-model:value="editingParam.type" :options="PARAM_TYPE_OPTIONS" />
         </NFormItem>
         <NFormItem label="是否必填">
           <NSwitch v-model:value="editingParam.required">

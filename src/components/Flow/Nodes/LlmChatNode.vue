@@ -115,7 +115,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="llm-chat-node">
-    <div class="w-90">
+    <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
           <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
@@ -142,6 +142,7 @@ onMounted(() => {
               <label class="workflow-label">系统提示词</label>
               <NInput
                 v-model:value="formModel.systemPrompt"
+                class="workflow-textarea"
                 type="textarea"
                 :rows="3"
                 placeholder="输入系统提示词，定义 AI 的角色和行为..."

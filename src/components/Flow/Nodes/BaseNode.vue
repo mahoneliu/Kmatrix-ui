@@ -16,12 +16,9 @@ interface Props extends NodeProps {
   id: string;
   data: Workflow.NodeData;
   selected: boolean;
-  showParamBinding?: boolean; // 是否显示参数绑定面板,默认true
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  showParamBinding: true
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   nodeClick: [id: string];
@@ -88,8 +85,37 @@ const customOutputParams = ref<Workflow.ParamDefinition[]>([]);
 watch(
   () => props.data,
   newData => {
+    const oldInputKeys = new Set(customInputParams.value.map(p => p.key));
+    const oldOutputKeys = new Set(customOutputParams.value.map(p => p.key));
+
     customInputParams.value = newData.customInputParams || [];
     customOutputParams.value = newData.customOutputParams || [];
+
+    // 检测删除的参数
+    const newInputKeys = new Set(customInputParams.value.map(p => p.key));
+    const newOutputKeys = new Set(customOutputParams.value.map(p => p.key));
+
+    const deletedInputKeys = [...oldInputKeys].filter(key => !newInputKeys.has(key));
+    const deletedOutputKeys = [...oldOutputKeys].filter(key => !newOutputKeys.has(key));
+
+    // 如果有参数被删除,清理相关的参数绑定
+    if (deletedInputKeys.length > 0 || deletedOutputKeys.length > 0) {
+      paramBindings.value = paramBindings.value.filter(binding => {
+        // 删除绑定到已删除输入参数的绑定关系
+        if (deletedInputKeys.includes(binding.paramKey)) {
+          return false;
+        }
+        // 删除来源是已删除输出参数的绑定关系
+        if (
+          binding.sourceType === 'node' &&
+          binding.sourceKey === props.id &&
+          deletedOutputKeys.includes(binding.sourceParam || '')
+        ) {
+          return false;
+        }
+        return true;
+      });
+    }
   },
   { immediate: true, deep: true }
 );
@@ -105,8 +131,8 @@ watch(
     ) {
       const node = workflowStore.nodes.find(n => n.id === props.id);
       if (node) {
+        // 直接传入需要更新的字段,避免展开 props.data 导致的覆盖问题
         workflowStore.updateNode(props.id, {
-          ...props.data,
           customInputParams: newInputs,
           customOutputParams: newOutputs
         });
@@ -137,10 +163,13 @@ watch(
   newBindings => {
     const node = workflowStore.nodes.find(n => n.id === props.id);
     if (node) {
-      workflowStore.updateNode(props.id, {
-        ...props.data,
-        paramBindings: newBindings
-      });
+      // 只有当绑定真正变化时才更新
+      if (JSON.stringify(newBindings) !== JSON.stringify(props.data.paramBindings)) {
+        // 直接传入需要更新的字段,避免展开 props.data 导致的覆盖问题
+        workflowStore.updateNode(props.id, {
+          paramBindings: newBindings
+        });
+      }
     }
   },
   { deep: true }
@@ -269,7 +298,7 @@ function confirmRename() {
 
 <template>
   <div
-    class="workflow-node min-w-45 cursor-pointer rounded-2 bg-white pb-2 shadow-sm dark:bg-dark-2 hover:shadow-lg"
+    class="workflow-node min-w-45 cursor-pointer rounded-2 bg-white shadow-sm dark:bg-dark-2 hover:shadow-lg"
     :class="[statusClass, { 'handles-visible': showHandles || selected }]"
     :style="outlineStyle"
     @click="handleClick"
@@ -288,7 +317,7 @@ function confirmRename() {
 
     <!-- 节点头部 -->
     <div
-      class="relative flex cursor-move items-center gap-2 overflow-hidden rounded-t-2 px-3 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
+      class="relative flex cursor-move items-center gap-2 overflow-hidden rounded-t-2 px-4 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
       :style="{
         background: headerGradient
       }"
@@ -335,7 +364,7 @@ function confirmRename() {
       </span>
     </div>
 
-    <!--头部一下的主体div-->
+    <!--头部以下的主体div-->
     <div class="pb-1 pl-4 pr-4">
       <!-- 节点内容插槽 -->
       <div
@@ -352,16 +381,13 @@ function confirmRename() {
           :output-params="outputParams"
         />
 
-        <NCollapse class="pb-1 pt-3">
+        <NCollapse class="pb-2 pt-3">
           <template #arrow>
             <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
           </template>
           <!-- 统一的参数绑定面板 -->
           <NCollapseItem
-            v-if="
-              showParamBinding &&
-              (inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput)
-            "
+            v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
             title="节点参数"
             name="params"
           >

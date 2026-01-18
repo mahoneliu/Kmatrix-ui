@@ -52,7 +52,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:message-text' }" class="fixed-response-node">
-    <div class="w-90">
+    <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
           <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
@@ -60,21 +60,30 @@ onMounted(() => {
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="config">
           <div class="workflow-config-section">
-            <div class="workflow-config-item">
-              <label class="workflow-label">
-                回复内容
+            <div class="workflow-config-item flex-1">
+              <div class="mb-1 flex items-center gap-1">
+                <span class="mb-0 workflow-label">指定回复内容</span>
                 <span class="workflow-label-required">*</span>
-              </label>
+                <NTooltip trigger="hover">
+                  <template #trigger>
+                    <span class="inline-flex items-center">
+                      <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
+                    </span>
+                  </template>
+                  可以通过{输入参数名xxx}的方式来引用输入参数的值。
+                  <br />
+                  例如：{userName},你好。
+                  <br />
+                  可以自定义入参，来引用各个节点的输出参数。
+                </NTooltip>
+              </div>
               <NInput
                 v-model:value="formModel.content"
                 class="workflow-textarea"
                 type="textarea"
                 :rows="2"
-                placeholder="输入固定的回复文本内容..."
+                placeholder="输入指定的回复文本内容"
               />
-              <div class="mt-1 rounded bg-gray-50 p-2 text-12px c-gray-5 dark:bg-gray-800">
-                <div class="mb-1 font-500">支持对输入参数替换，如 { 参数名XX }</div>
-              </div>
             </div>
           </div>
         </NCollapseItem>

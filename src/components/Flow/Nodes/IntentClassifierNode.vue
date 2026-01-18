@@ -91,7 +91,7 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
     :no-content-padding="true"
     class="intent-classifier-node"
   >
-    <div class="w-90">
+    <div class="w-93">
       <!-- 意图列表 -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">

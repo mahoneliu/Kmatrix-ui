@@ -50,25 +50,41 @@ export function findUpstreamNodes(nodeId: string, nodes: Node[], edges: Edge[]):
 export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: Edge[]): Workflow.ParamSource[] {
   const sources: Workflow.ParamSource[] = [];
 
-  // 1. 添加应用参数(全局/接口/会话)
-  const appInfoNode = nodes.find(n => n.data.nodeType === 'APP_INFO');
-  if (appInfoNode?.data.config) {
-    const config = appInfoNode.data.config as Workflow.AppInfoConfig;
+  // 0. 添加开始节点全局参数
+  const startNode = nodes.find(n => n.data.nodeType === 'START');
+  if (startNode?.data.config) {
+    const config = startNode.data.config as Workflow.StartNodeConfig;
 
     // 全局参数
     if (config.globalParams && config.globalParams.length > 0) {
       sources.push({
         type: 'global',
-        sourceKey: 'global',
+        sourceKey: 'app',
         sourceName: '全局参数',
         params: config.globalParams
+      });
+    }
+  }
+
+  // 1. 添加应用参数(全局/接口/会话)
+  const appInfoNode = nodes.find(n => n.data.nodeType === 'APP_INFO');
+  if (appInfoNode?.data.config) {
+    const config = appInfoNode.data.config as Workflow.AppInfoConfig;
+
+    // 应用参数
+    if (config.appParams && config.appParams.length > 0) {
+      sources.push({
+        type: 'global',
+        sourceKey: 'app',
+        sourceName: '应用参数',
+        params: config.appParams
       });
     }
 
     // 接口参数
     if (config.interfaceParams && config.interfaceParams.length > 0) {
       sources.push({
-        type: 'interface',
+        type: 'global',
         sourceKey: 'interface',
         sourceName: '接口参数',
         params: config.interfaceParams
@@ -78,7 +94,7 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
     // 会话参数
     if (config.sessionParams && config.sessionParams.length > 0) {
       sources.push({
-        type: 'session',
+        type: 'global',
         sourceKey: 'session',
         sourceName: '会话参数',
         params: config.sessionParams
@@ -137,14 +153,19 @@ export function validateParamBinding(
   binding: Workflow.ParamBinding,
   availableSources: Workflow.ParamSource[]
 ): boolean {
-  const source = availableSources.find(s => s.sourceKey === binding.sourceKey);
+  // 根据 sourceType 确定要查找的 sourceKey
+  const lookupKey = ['app', 'interface', 'session'].includes(binding.sourceType)
+    ? binding.sourceType
+    : binding.sourceKey;
+  const source = availableSources.find(s => s.sourceKey === lookupKey);
   if (!source) return false;
 
   if (binding.sourceType === 'node' && binding.sourceParam) {
     return source.params.some(p => p.key === binding.sourceParam);
   }
 
-  if (binding.sourceType === 'global') {
+  if (['global', 'app', 'interface', 'session'].includes(binding.sourceType)) {
+    // 对于这些类型, binding.sourceKey 就是参数 key
     return source.params.some(p => p.key === binding.sourceKey);
   }
 
