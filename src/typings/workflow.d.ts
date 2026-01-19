@@ -126,8 +126,84 @@ declare namespace Workflow {
     intents: string[];
   }
 
-  /** 条件节点配置 */
+  // ========== 条件节点相关类型 ==========
+
+  /** 比较运算符 */
+  type ComparisonOperator =
+    | 'eq' // == 等于
+    | 'ne' // != 不等于
+    | 'gt' // > 大于
+    | 'lt' // < 小于
+    | 'gte' // >= 大于等于
+    | 'lte' // <= 小于等于
+    | 'contains' // 包含
+    | 'notContains' // 不包含
+    | 'startsWith' // 以...开始
+    | 'endsWith' // 以...结束
+    | 'isEmpty' // 为空
+    | 'isNotEmpty'; // 不为空
+
+  /** 逻辑运算符 */
+  type LogicalOperator = 'AND' | 'OR';
+
+  /** 变量引用 */
+  interface VariableRef {
+    /** 来源类型: global / node */
+    sourceType: 'global' | 'node';
+    /** 来源键 (app/interface/session 或 节点ID) */
+    sourceKey: string;
+    /** 参数键 */
+    sourceParam: string;
+  }
+
+  /** 条件规则 */
+  interface ConditionRule {
+    /** 规则类型标识 */
+    type?: 'rule';
+    /** 变量引用（左值） */
+    variable: VariableRef;
+    /** 比较运算符 */
+    operator: ComparisonOperator;
+    /** 比较值（右值） */
+    compareValue?: string | number | boolean;
+    /** 比较值类型: static / variable */
+    compareValueType?: 'static' | 'variable';
+    /** 比较值变量引用 */
+    compareVariable?: VariableRef;
+  }
+
+  /** 条件组（支持嵌套） */
+  interface ConditionGroup {
+    /** 规则类型标识 */
+    type?: 'group';
+    /** 逻辑运算符 */
+    logicalOperator: LogicalOperator;
+    /** 条件列表（可以是规则或嵌套组） */
+    conditions: Array<ConditionRule | ConditionGroup>;
+  }
+
+  /** 条件分支 */
+  interface ConditionBranch {
+    /** 分支名称 */
+    name: string;
+    /** 条件配置 */
+    condition: ConditionGroup;
+    /** Handle ID (自动生成) */
+    handleId?: string;
+    /** 目标节点ID (从边配置中提取) */
+    targetNodeId?: string;
+  }
+
+  /** 条件节点配置 (新版结构化) */
   interface ConditionConfig extends NodeConfigFormData {
+    /** 条件分支列表 (IF / ELSE IF) */
+    branches: ConditionBranch[];
+    /** 是否启用默认分支 (ELSE) */
+    hasDefaultBranch?: boolean;
+  }
+
+  /** 旧版条件节点配置 (兼容) @deprecated */
+  interface LegacyConditionConfig extends NodeConfigFormData {
     conditions: Array<{
       expression: string;
       targetNodeId: string;
@@ -216,6 +292,34 @@ declare namespace Workflow {
     sourceName: string;
     /** 可用参数列表 */
     params: ParamDefinition[];
+  }
+
+  // ========== 节点执行相关类型 ==========
+
+  /** Token 使用统计 */
+  interface TokenUsage {
+    /** 输入 token 数量 */
+    inputTokenCount?: number;
+    /** 输出 token 数量 */
+    outputTokenCount?: number;
+    /** 总 token 数量 */
+    totalTokenCount?: number;
+  }
+
+  /** 节点执行详情 */
+  interface NodeExecutionDetail {
+    /** 节点名称 */
+    nodeName: string;
+    /** 节点类型 */
+    nodeType: string;
+    /** 输入参数 */
+    inputs: Record<string, any>;
+    /** 输出参数 */
+    outputs: Record<string, any>;
+    /** 执行耗时(毫秒) */
+    durationMs: number;
+    /** Token 使用统计(可选) */
+    tokenUsage?: TokenUsage;
   }
 
   /** 节点类型参数定义 */

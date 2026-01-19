@@ -1,10 +1,18 @@
 <script setup lang="ts">
+/**
+ * 条件节点
+ * 支持多分支条件判断
+ *
+ * @author Mahone
+ * @date 2026-01-19
+ */
 import { ref, watch } from 'vue';
 import { NButton, NInput, NPopover } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import ConditionBuilder from '../ConditionBuilder.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -14,22 +22,34 @@ const emit = defineEmits<{
 
 const workflowStore = useWorkflowStore();
 
+// 创建默认空分支
+function createDefaultBranch(index: number): Workflow.ConditionBranch {
+  return {
+    name: `分支 ${index + 1}`,
+    handleId: `condition-${index}`,
+    condition: {
+      type: 'group',
+      logicalOperator: 'AND',
+      conditions: []
+    }
+  };
+}
+
 // 本地配置状态
 const localConfig = ref<Workflow.ConditionConfig>({
-  conditions: props.data.config?.conditions || [],
-  defaultTargetNodeId: props.data.config?.defaultTargetNodeId || ''
+  branches: props.data.config?.branches || [createDefaultBranch(0)],
+  hasDefaultBranch: props.data.config?.hasDefaultBranch ?? true
 });
 
 // 监听 props 变化同步到本地
 watch(
   () => props.data.config,
   newVal => {
-    if (newVal) {
-      const newConfig = {
-        conditions: newVal.conditions || [],
-        defaultTargetNodeId: newVal.defaultTargetNodeId || ''
+    if (newVal?.branches) {
+      const newConfig: Workflow.ConditionConfig = {
+        branches: newVal.branches || [createDefaultBranch(0)],
+        hasDefaultBranch: newVal.hasDefaultBranch ?? true
       };
-      // 只在真正有变化时才更新,避免循环
       if (JSON.stringify(newConfig) !== JSON.stringify(localConfig.value)) {
         localConfig.value = newConfig;
       }
@@ -42,7 +62,6 @@ watch(
 watch(
   localConfig,
   newVal => {
-    // 只在与 props 不同时才更新,避免循环
     if (JSON.stringify(newVal) !== JSON.stringify(props.data.config)) {
       workflowStore.updateNodeConfig(props.id, JSON.parse(JSON.stringify(newVal)));
     }
@@ -50,37 +69,69 @@ watch(
   { deep: true }
 );
 
-// 添加条件
-function addCondition() {
-  localConfig.value.conditions.push({
-    expression: '',
-    targetNodeId: ''
+// 添加分支
+function addBranch() {
+  const index = localConfig.value.branches.length;
+  localConfig.value.branches.push(createDefaultBranch(index));
+}
+
+// 删除分支
+function removeBranch(index: number) {
+  const handleId = `condition-${index}`;
+  // 删除与该分支 Handle 相关的边
+  workflowStore.edges = workflowStore.edges.filter(e => !(e.source === props.id && e.sourceHandle === handleId));
+  // 删除分支配置
+  localConfig.value.branches.splice(index, 1);
+  // 重新分配 handleId
+  localConfig.value.branches.forEach((branch, i) => {
+    branch.handleId = `condition-${i}`;
   });
 }
 
-// 删除条件
-function removeCondition(index: number) {
-  // 删除与该条件 Handle 相关的边
-  const handleId = `condition-${index}`;
-  workflowStore.edges = workflowStore.edges.filter(e => !(e.source === props.id && e.sourceHandle === handleId));
-
-  // 删除条件配置
-  localConfig.value.conditions.splice(index, 1);
+// 更新分支条件
+function updateBranchCondition(index: number, condition: Workflow.ConditionGroup) {
+  localConfig.value.branches[index].condition = condition;
 }
 
 // 处理 Handle 点击
 function handleSourceHandleClick(e: MouseEvent, index: number) {
-  // 阻止冒泡,避免触发节点点击
   e.stopPropagation();
-  // 构建 handle ID
   const handleId = index === -1 ? 'default' : `condition-${index}`;
-  // 触发事件,传递 event, nodeId, handleId
   emit('sourceHandleClick', e, props.id, handleId);
+}
+
+// 生成条件摘要
+function getConditionSummary(condition: Workflow.ConditionGroup): string {
+  if (!condition.conditions || condition.conditions.length === 0) {
+    return '点击配置条件';
+  }
+
+  const parts: string[] = [];
+  const maxShow = 2; // 最多显示2个条件
+
+  for (let i = 0; i < Math.min(condition.conditions.length, maxShow); i += 1) {
+    const c = condition.conditions[i];
+    if ('variable' in c && c.variable) {
+      const rule = c as Workflow.ConditionRule;
+      const varName = rule.variable.sourceParam || '变量';
+      const op = rule.operator || '==';
+      const val = rule.compareValue ?? '';
+      parts.push(`${varName} ${op} ${val}`);
+    } else {
+      parts.push('(条件组)');
+    }
+  }
+
+  if (condition.conditions.length > maxShow) {
+    parts.push(`+${condition.conditions.length - maxShow}`);
+  }
+
+  const connector = condition.logicalOperator === 'AND' ? ' 且 ' : ' 或 ';
+  return parts.join(connector);
 }
 </script>
 
 <template>
-  <!-- hide-source-handle="true" 隐藏 BaseNode 默认的输出点 -->
   <BaseNode
     v-slot="{ showHandles, isHandleConnected }"
     v-bind="props"
@@ -90,57 +141,61 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
     class="condition-node"
   >
     <div class="w-93">
-      <!-- 条件列表 -->
+      <!-- 条件分支列表 -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
-          <label>定义条件分支</label>
-          <NButton secondary size="tiny" class="mr-2" @click="addCondition">
+          <label>条件分支 (IF / ELSE IF)</label>
+          <NButton secondary size="tiny" class="mr-2" @click="addBranch">
             <template #icon>
               <SvgIcon icon="mdi:plus" />
             </template>
           </NButton>
         </div>
+
         <div
-          v-for="(condition, index) in localConfig.conditions"
+          v-for="(branch, index) in localConfig.branches"
           :key="index"
           class="relative flex items-center justify-between gap-2"
         >
-          <!-- 表达式编辑 Popover -->
+          <!-- 分支配置 Popover -->
           <NPopover trigger="click" placement="bottom" raw :show-arrow="false" class="flex-1">
             <template #trigger>
-              <NInput
-                :value="condition.expression || '点击配置表达式'"
-                placeholder="条件表达式"
-                size="small"
-                readonly
-                class="mr-2 flex-1 cursor-pointer"
-              />
+              <div
+                class="mr-2 flex flex-1 cursor-pointer items-center gap-1 rounded-1 bg-gray-1 p-2 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-2"
+              >
+                <NInput
+                  v-model:value="branch.name"
+                  size="tiny"
+                  placeholder="分支名称"
+                  class="w-20 flex-shrink-0"
+                  @click.stop
+                />
+                <span class="truncate text-11px c-gray-5">{{ getConditionSummary(branch.condition) }}</span>
+              </div>
             </template>
-            <!-- 详细配置面板 -->
-            <div class="w-80 border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2">
+
+            <!-- 条件配置面板 -->
+            <div
+              class="max-h-100 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
+            >
               <div class="mb-3 flex items-center justify-between">
-                <div class="text-sm c-gray-8 font-bold dark:c-gray-1">配置条件表达式</div>
-                <NButton text type="error" size="tiny" @click="removeCondition(index)">
+                <div class="text-sm c-gray-8 font-bold dark:c-gray-1">配置分支条件</div>
+                <NButton text type="error" size="tiny" @click="removeBranch(index)">
                   <template #icon><SvgIcon icon="mdi:delete" /></template>
                   删除
                 </NButton>
               </div>
 
-              <div class="flex flex-col gap-1">
-                <NInput
-                  v-model:value="condition.expression"
-                  type="textarea"
-                  :rows="3"
-                  placeholder="例如: state.value > 10"
-                  size="small"
-                />
-                <div class="mt-1 text-xs c-gray-4">可用变量: state.xxx</div>
-              </div>
+              <ConditionBuilder
+                :node-id="id"
+                :model-value="branch.condition"
+                @update:model-value="(val: Workflow.ConditionGroup) => updateBranchCondition(index, val)"
+              />
             </div>
           </NPopover>
 
           <!-- 删除按钮 -->
-          <NButton class="mr-3" secondary size="tiny" @click="removeCondition(index)">
+          <NButton class="mr-3" secondary size="tiny" @click="removeBranch(index)">
             <template #icon>
               <SvgIcon icon="mdi:minus" />
             </template>
@@ -162,9 +217,9 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           </div>
         </div>
 
-        <!-- 默认/其他 分支 -->
-        <div class="relative mt-1 flex items-center justify-between gap-2">
-          <NInput value="默认 (Default)" size="small" disabled class="mr-14 flex-1" />
+        <!-- 默认/其他 分支 (ELSE) -->
+        <div v-if="localConfig.hasDefaultBranch" class="relative mt-1 flex items-center justify-between gap-2">
+          <NInput value="默认 (ELSE)" size="small" disabled class="mr-14 flex-1" />
           <div class="right-1 h-full flex items-center justify-center pr-1">
             <Handle
               id="default"
@@ -177,22 +232,11 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           </div>
         </div>
       </div>
-
-      <!-- 添加条件按钮 -->
-      <!--
- <NButton block dashed size="small" class="mt-1 mr-3" @click="addCondition">
-        <template #icon>
-          <div class="i-mdi:plus" />
-        </template>
-        添加条件
-      </NButton> 
--->
     </div>
   </BaseNode>
 </template>
 
 <style scoped>
-/* 确保 Handle 的 z-index 正确 */
 :deep(.vue-flow__handle) {
   z-index: 10;
 }

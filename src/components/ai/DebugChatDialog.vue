@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import { NAlert, NBadge, NButton, NCollapse, NCollapseItem, NInput, NModal, NSpin, useMessage } from 'naive-ui';
+import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { type NodeExecution, useStreamChat } from '@/composables/useStreamChat';
+import { getNodeIconBackground } from '@/utils/color';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
@@ -16,6 +18,7 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
+const nodeDefinitionStore = useNodeDefinitionStore();
 
 // 对话状态
 const { messages, isStreaming, streamChat, clearMessages } = useStreamChat({
@@ -34,7 +37,9 @@ const isMaximized = ref(false);
 
 // 执行详情
 const showDetailModal = ref(false);
-const currentExecutions = ref<NodeExecution[]>([]);
+const currentExecutions = ref<NodeExecution[]>();
+// 节点折叠状态 Map: index -> collapsed
+const nodeCollapsedStates = ref<Map<number, boolean>>(new Map());
 
 // 窗口样式
 const dialogStyle = computed(() => {
@@ -50,8 +55,8 @@ const dialogStyle = computed(() => {
   return {
     right: '20px',
     bottom: '20px',
-    width: '400px',
-    height: isMinimized.value ? '48px' : '600px'
+    width: '500px',
+    height: isMinimized.value ? '48px' : '800px'
   };
 });
 
@@ -79,28 +84,34 @@ async function handleSend() {
 // 显示执行详情
 function showExecutionDetail(executions: NodeExecution[]) {
   currentExecutions.value = executions;
+  // 初始化所有节点为折叠状态
+  nodeCollapsedStates.value.clear();
+  executions.forEach((_, index) => {
+    nodeCollapsedStates.value.set(index, true);
+  });
   showDetailModal.value = true;
 }
 
-// 获取节点图标
-function getNodeIcon(nodeType: string): string {
-  const iconMap: Record<string, string> = {
-    START: 'mdi:play-circle',
-    END: 'mdi:flag-checkered',
-    LLM_CHAT: 'mdi:robot',
-    INTENT_CLASSIFIER: 'mdi:call-split',
-    FIXED_RESPONSE: 'mdi:message-reply-text',
-    KNOWLEDGE_RETRIEVAL: 'mdi:database-search',
-    CONDITION: 'mdi:help-rhombus',
-    APP_INFO: 'mdi:information'
-  };
-  return iconMap[nodeType] || 'mdi:circle';
+// 切换节点折叠状态
+function toggleNodeCollapse(index: number) {
+  const current = nodeCollapsedStates.value.get(index) ?? true;
+  nodeCollapsedStates.value.set(index, !current);
 }
 
-// 获取节点显示名称（优先label）
+// 获取节点定义信息
+function getNodeInfo(nodeType: string) {
+  const definition = nodeDefinitionStore.getNodeDefinition(nodeType as Workflow.NodeType);
+  return {
+    icon: definition?.nodeIcon || 'mdi:circle',
+    color: definition?.nodeColor || '#6b7280',
+    iconBg: getNodeIconBackground(definition?.nodeColor)
+  };
+}
+
+// 获取节点显示名称（优先nodeName）
 function getNodeDisplayName(exec: NodeExecution): string {
-  // 优先使用label，如果没有label则使用nodeName
-  return exec.label || exec.nodeName || exec.nodeType;
+  // 优先使用nodeName(后端发送的中文名称),如果没有则使用label,最后使用nodeType
+  return exec.nodeName || exec.label || exec.nodeType;
 }
 
 // 最小化/最大化
@@ -222,7 +233,7 @@ watch(
                 @click="showExecutionDetail(msg.executions)"
               >
                 <SvgIcon icon="mdi:format-list-bulleted-square" class="text-14px" />
-                查看执行详情 ({{ msg.executions.length }}个节点)
+                执行详情 ({{ msg.executions.length }}节点)
               </span>
             </div>
           </div>
@@ -264,40 +275,75 @@ watch(
     </div>
 
     <!-- 执行详情弹窗 -->
-    <NModal v-model:show="showDetailModal" preset="card" title="执行详情" class="w-700px">
+    <NModal v-model:show="showDetailModal" preset="card" title="执行详情" class="w-900px">
       <div class="max-h-60vh overflow-y-auto">
         <div
           v-for="(exec, index) in currentExecutions"
           :key="index"
-          class="border border-[var(--n-border-color)] rounded-6px p-12px"
+          class="mb-3 overflow-hidden border border-[var(--n-border-color)] rounded-6px"
         >
-          <div class="mb-8px flex items-center gap-8px">
-            <SvgIcon :icon="getNodeIcon(exec.nodeType)" class="text-18px text-[var(--n-text-color-2)]" />
+          <!-- 节点标题 (可点击折叠/展开) -->
+          <div
+            class="flex cursor-pointer items-center gap-8px bg-[var(--n-color-hover)] px-5px py-8px transition-colors hover:bg-[var(--n-color-pressed)]"
+            @click="toggleNodeCollapse(index)"
+          >
+            <!-- 节点图标 -->
+            <div
+              class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1"
+              :style="{
+                backgroundColor: getNodeInfo(exec.nodeType).iconBg,
+                color: getNodeInfo(exec.nodeType).color
+              }"
+            >
+              <SvgIcon :icon="getNodeInfo(exec.nodeType).icon" class="text-14px" />
+            </div>
+            <!-- 折叠图标 -->
+            <SvgIcon
+              :icon="nodeCollapsedStates.get(index) ? 'mdi:chevron-right' : 'mdi:chevron-down'"
+              class="text-16px text-[var(--n-text-color-3)] transition-transform"
+            />
             <span class="font-500">{{ getNodeDisplayName(exec) }}</span>
             <NBadge :value="exec.nodeType" type="info" />
-            <span class="ml-auto text-12px text-[var(--n-text-color-3)]">{{ exec.durationMs }}ms</span>
+
+            <div v-if="exec.tokenUsage" class="ml-auto flex items-center gap-1 text-12px text-[var(--n-text-color-3)]">
+              <SvgIcon icon="mdi:counter" class="text-14px" />
+              <span>{{ exec.tokenUsage.totalTokenCount }}</span>
+              <SvgIcon icon="mdi:clock-outline" class="ml-1 text-14px" />
+              <span>{{ exec.durationMs }}ms</span>
+            </div>
           </div>
 
-          <!-- Token信息 (如果有) -->
-          <div v-if="exec.tokens" class="flex items-center text-12px text-[var(--n-text-color-2)]">
-            <SvgIcon icon="mdi:counter" class="mr-1" />
-            Token: {{ exec.tokens.totalTokens }} (输入: {{ exec.tokens.inputTokens }}, 输出:
-            {{ exec.tokens.outputTokens }})
-          </div>
+          <!-- 节点详情内容 (可折叠) -->
+          <div v-show="!nodeCollapsedStates.get(index)" class="px-12px">
+            <!-- Token信息 (如果有) -->
+            <div v-if="exec.tokenUsage" class="my-2 flex items-center gap-2 text-12px text-[var(--n-text-color-2)]">
+              <SvgIcon icon="mdi:counter" class="text-14px" />
+              <span>
+                Token: {{ exec.tokenUsage.totalTokenCount }} (输入: {{ exec.tokenUsage.inputTokenCount }}, 输出:
+                {{ exec.tokenUsage.outputTokenCount }})
+              </span>
+            </div>
 
-          <!-- 输入参数 -->
-          <NCollapse class="mt-2">
-            <NCollapseItem title="输入参数" name="inputs">
-              <pre class="overflow-x-auto rounded-4px bg-[var(--n-color-hover)] p-12px text-12px">{{
-                JSON.stringify(exec.inputs, null, 2)
-              }}</pre>
-            </NCollapseItem>
-            <NCollapseItem title="输出参数" name="outputs">
-              <pre class="overflow-x-auto rounded-4px bg-[var(--n-color-hover)] p-12px text-12px">{{
-                JSON.stringify(exec.outputs, null, 2)
-              }}</pre>
-            </NCollapseItem>
-          </NCollapse>
+            <!-- 输入参数 -->
+            <NCollapse class="mt-2" :default-expanded-names="['inputs', 'outputs']">
+              <NCollapseItem title="输入参数" name="inputs">
+                <template #arrow>
+                  <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+                </template>
+                <pre class="overflow-x-auto rounded-4px bg-[var(--n-color-hover)] px-8px pt-0 text-12px">{{
+                  JSON.stringify(exec.inputs, null, 2)
+                }}</pre>
+              </NCollapseItem>
+              <NCollapseItem title="输出参数" name="outputs">
+                <template #arrow>
+                  <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+                </template>
+                <pre class="overflow-x-auto rounded-4px bg-[var(--n-color-hover)] px-8px py-0 text-12px">{{
+                  JSON.stringify(exec.outputs, null, 2)
+                }}</pre>
+              </NCollapseItem>
+            </NCollapse>
+          </div>
         </div>
       </div>
     </NModal>

@@ -45,3 +45,52 @@ export const PARAM_TYPE_OPTIONS = Object.entries(PARAM_TYPE_MAP).map(([value, la
   label,
   value
 }));
+
+// ========== 条件节点相关常量 ==========
+
+/**
+ * 比较运算符映射
+ */
+export const COMPARISON_OPERATORS: Record<string, string> = {
+  eq: '等于 (==)',
+  ne: '不等于 (!=)',
+  gt: '大于 (>)',
+  lt: '小于 (<)',
+  gte: '大于等于 (>=)',
+  lte: '小于等于 (<=)',
+  contains: '包含',
+  notContains: '不包含',
+  startsWith: '开头是',
+  endsWith: '结尾是',
+  isEmpty: '为空',
+  isNotEmpty: '不为空'
+};
+
+/**
+ * 比较运算符选项
+ */
+export const COMPARISON_OPERATOR_OPTIONS = Object.entries(COMPARISON_OPERATORS).map(([value, label]) => ({
+  label,
+  value
+}));
+
+/**
+ * 一元运算符（不需要比较值）
+ */
+export const UNARY_OPERATORS = ['isEmpty', 'isNotEmpty'];
+
+/**
+ * 逻辑运算符映射
+ */
+export const LOGICAL_OPERATORS: Record<string, string> = {
+  AND: '且 (AND)',
+  OR: '或 (OR)'
+};
+
+/**
+ * 逻辑运算符选项
+ */
+export const LOGICAL_OPERATOR_OPTIONS = Object.entries(LOGICAL_OPERATORS).map(([value, label]) => ({
+  label,
+  value
+}));

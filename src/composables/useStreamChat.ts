@@ -26,10 +26,10 @@ export interface NodeExecution {
   durationMs: number;
   startTime?: string;
   endTime?: string;
-  tokens?: {
-    inputTokens: number;
-    outputTokens: number;
-    totalTokens: number;
+  tokenUsage?: {
+    inputTokenCount: number;
+    outputTokenCount: number;
+    totalTokenCount: number;
   };
 }
 
@@ -212,22 +212,36 @@ export function useStreamChat(options: UseStreamChatOptions) {
           currentNodeName.value = nodeName;
         },
         onComplete: data => {
-          // 将统计信息和执行详情附加到AI消息
-          if (data) {
-            if (data.totalTokens !== undefined) {
-              aiMsg.tokens = {
-                inputTokens: 0,
-                outputTokens: 0,
-                totalTokens: data.totalTokens
-              };
+          // 汇总所有节点的 token 使用量
+          let totalInput = 0;
+          let totalOutput = 0;
+          let total = 0;
+
+          for (const exec of currentExecutions.value) {
+            if (exec.tokenUsage) {
+              totalInput += exec.tokenUsage.inputTokenCount || 0;
+              totalOutput += exec.tokenUsage.outputTokenCount || 0;
+              total += exec.tokenUsage.totalTokenCount || 0;
             }
-            if (data.durationMs !== undefined) {
-              aiMsg.durationMs = data.durationMs;
-            }
-            // 附加执行详情
-            if (currentExecutions.value.length > 0) {
-              aiMsg.executions = [...currentExecutions.value];
-            }
+          }
+
+          // 如果有 token 使用,设置到消息
+          if (total > 0) {
+            aiMsg.tokens = {
+              inputTokens: totalInput,
+              outputTokens: totalOutput,
+              totalTokens: total
+            };
+          }
+
+          // 设置执行时长
+          if (data?.durationMs !== undefined) {
+            aiMsg.durationMs = data.durationMs;
+          }
+
+          // 附加执行详情
+          if (currentExecutions.value.length > 0) {
+            aiMsg.executions = [...currentExecutions.value];
           }
         }
       });

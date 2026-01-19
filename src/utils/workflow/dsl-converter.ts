@@ -37,7 +37,7 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
     return {
       id: node.id,
       type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || '',
-      name: node.data?.label || node.id,
+      name: node.data?.nodeLabel || node.id,
       config: node.data?.config || {},
       inputs,
       condition: undefined
@@ -45,11 +45,20 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
   });
 
   // 转换边
-  const edges: Workflow.DslEdgeConfig[] = graphData.edges.map((edge: any) => ({
-    from: edge.source,
-    to: edge.target,
-    condition: edge.label || edge.data?.condition
-  }));
+  const edges: Workflow.DslEdgeConfig[] = graphData.edges.map((edge: any) => {
+    // 对于条件节点的边，将 sourceHandle 编码到 condition 字段中
+    // 格式: __HANDLE__:condition-0 或 __HANDLE__:default
+    let condition = edge.label || edge.data?.condition;
+    if (edge.sourceHandle) {
+      condition = `__HANDLE__:${edge.sourceHandle}`;
+    }
+
+    return {
+      from: edge.source,
+      to: edge.target,
+      condition
+    };
+  });
 
   return {
     name: workflowName,
@@ -108,7 +117,7 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
       data: {
         id: node.id,
         nodeType,
-        label: node.name,
+        // label: node.name,
         config: node.config || {},
         status: 'idle' as Workflow.NodeStatus,
         paramBindings,
