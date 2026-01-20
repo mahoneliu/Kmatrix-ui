@@ -28,6 +28,7 @@ declare module "@elegant-router/types" {
     "ai": "/ai";
     "ai_app-manager": "/ai/app-manager";
     "ai_chat": "/ai/chat";
+    "ai_datasource-manager": "/ai/datasource-manager";
     "ai_model-manager": "/ai/model-manager";
     "ai_node-definition": "/ai/node-definition";
     "ai_workflow": "/ai/workflow";
@@ -136,6 +137,7 @@ declare module "@elegant-router/types" {
     | "about"
     | "ai_app-manager"
     | "ai_chat"
+    | "ai_datasource-manager"
     | "ai_model-manager"
     | "ai_node-definition"
     | "ai_workflow"

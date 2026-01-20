@@ -149,7 +149,7 @@ watch(
 <template>
   <div
     v-if="visible"
-    class="fixed z-5000 flex flex-col overflow-hidden border border-[var(--n-divider-color)] rounded-12px bg-white shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 ease"
+    class="fixed z-2000 flex flex-col overflow-hidden border border-[var(--n-divider-color)] rounded-12px bg-white shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 ease"
     :style="dialogStyle"
   >
     <!-- 标题栏：精致简约的蓝灰渐变设计 -->
@@ -303,7 +303,7 @@ watch(
               class="text-16px text-[var(--n-text-color-3)] transition-transform"
             />
             <span class="font-500">{{ getNodeDisplayName(exec) }}</span>
-            <NBadge :value="exec.nodeType" type="info" />
+            <NBadge :value="exec.nodeType" type="info" class="pr-0px" />
 
             <div v-if="exec.tokenUsage" class="ml-auto flex items-center gap-1 text-12px text-[var(--n-text-color-3)]">
               <SvgIcon icon="mdi:counter" class="text-14px" />

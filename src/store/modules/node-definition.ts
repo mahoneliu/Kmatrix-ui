@@ -1,10 +1,13 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { fetchNodeDefinitions } from '@/service/api/ai/workflow/node';
+import { fetchConnectionRules, fetchNodeDefinitions } from '@/service/api/ai/workflow/node';
 
 export const useNodeDefinitionStore = defineStore('node-definition', () => {
   // 节点定义列表
   const nodeDefinitions = ref<Api.AI.Workflow.KmNodeDefinitionBo[]>([]);
+
+  // 节点连接规则映射表
+  const connectionRules = ref<Record<string, string[]>>({});
 
   // 加载状态
   const loading = ref(false);
@@ -22,20 +25,26 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
 
     loading.value = true;
     try {
-      const result = await fetchNodeDefinitions();
+      const [nodeResult, connRulesResult] = await Promise.all([fetchNodeDefinitions(), fetchConnectionRules()]);
 
-      // 处理可能的包装对象 {data, error, response}
-      let data: any;
-      if (result && typeof result === 'object' && 'data' in result) {
-        // 如果是包装对象,提取 data 字段
-        data = (result as any).data;
+      // 处理节点定义
+      let nodeData: any;
+      if (nodeResult && typeof nodeResult === 'object' && 'data' in nodeResult) {
+        nodeData = (nodeResult as any).data;
       } else {
-        // 否则直接使用
-        data = result;
+        nodeData = nodeResult;
       }
+      nodeDefinitions.value = Array.isArray(nodeData) ? nodeData : [];
 
-      // 确保 data 是数组
-      nodeDefinitions.value = Array.isArray(data) ? data : [];
+      // 处理连接规则
+      let rulesData: any;
+      if (connRulesResult && typeof connRulesResult === 'object' && 'data' in connRulesResult) {
+        rulesData = (connRulesResult as any).data;
+      } else {
+        rulesData = connRulesResult;
+      }
+      connectionRules.value = rulesData || {};
+
       loaded.value = true;
 
       return nodeDefinitions.value;
@@ -121,6 +130,7 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
 
   return {
     nodeDefinitions,
+    connectionRules,
     loading,
     loaded,
     loadNodeDefinitions,

@@ -11,6 +11,16 @@ export function fetchNodeDefinitions() {
 }
 
 /**
+ * 获取所有节点连接规则
+ */
+export function fetchConnectionRules() {
+  return request<Record<string, string[]>>({
+    url: '/ai/workflow/node/connection/rules',
+    method: 'get'
+  });
+}
+
+/**
  * 更新所有节点定义
  */
 export function updateNodeDefinitions(data: Api.AI.Workflow.KmNodeDefinitionBo[]) {

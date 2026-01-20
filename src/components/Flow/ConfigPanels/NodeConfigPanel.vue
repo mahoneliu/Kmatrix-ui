@@ -21,7 +21,8 @@ const configComponent = computed(() => {
     LLM_CHAT: () => import('./LlmChatNodeConfig.vue'),
     INTENT_CLASSIFIER: () => import('./IntentClassifierNodeConfig.vue'),
     CONDITION: () => import('./ConditionNodeConfig.vue'),
-    FIXED_RESPONSE: () => import('./FixedResponseNodeConfig.vue')
+    FIXED_RESPONSE: () => import('./FixedResponseNodeConfig.vue'),
+    DB_QUERY: () => import('./DbQueryNodeConfig.vue')
   };
 
   return componentMap[nodeType] ? defineAsyncComponent(componentMap[nodeType]) : null;

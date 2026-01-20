@@ -6,7 +6,15 @@
 
 declare namespace Workflow {
   /** 节点类型枚举 */
-  type NodeType = 'APP_INFO' | 'START' | 'END' | 'LLM_CHAT' | 'INTENT_CLASSIFIER' | 'CONDITION' | 'FIXED_RESPONSE';
+  type NodeType =
+    | 'APP_INFO'
+    | 'START'
+    | 'END'
+    | 'LLM_CHAT'
+    | 'INTENT_CLASSIFIER'
+    | 'CONDITION'
+    | 'FIXED_RESPONSE'
+    | 'DB_QUERY';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -244,6 +252,20 @@ declare namespace Workflow {
     interfaceParams?: ParamDefinition[];
     /** 会话参数定义 */
     sessionParams?: ParamDefinition[];
+  }
+
+  /** 数据库查询节点配置 */
+  interface DbQueryNodeConfig extends NodeConfigFormData {
+    /** 数据源ID (必填) */
+    dataSourceId: CommonType.IdType;
+    /** LLM模型ID (必填) */
+    modelId: CommonType.IdType;
+    /** 最大返回行数 (默认100) */
+    maxRows?: number;
+    /** 允许查询的表 (逗号分隔) */
+    tableWhitelist?: string;
+    /** 禁止查询的表 (逗号分隔) */
+    tableBlacklist?: string;
   }
 
   // ========== 参数配置相关类型 ==========

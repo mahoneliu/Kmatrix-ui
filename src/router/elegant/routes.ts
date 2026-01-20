@@ -82,6 +82,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_datasource-manager',
+        path: '/ai/datasource-manager',
+        component: 'view.ai_datasource-manager',
+        meta: {
+          title: 'ai_datasource-manager',
+          i18nKey: 'route.ai_datasource-manager'
+        }
+      },
+      {
         name: 'ai_model-manager',
         path: '/ai/model-manager',
         component: 'view.ai_model-manager',

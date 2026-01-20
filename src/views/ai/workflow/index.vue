@@ -23,6 +23,7 @@ import EndNode from '@/components/Flow/Nodes/EndNode.vue';
 import IntentClassifierNode from '@/components/Flow/Nodes/IntentClassifierNode.vue';
 import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
 import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
+import DbQueryNode from '@/components/Flow/Nodes/DbQueryNode.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import CustomEdge from '@/components/Flow/Edges/CustomEdge.vue';
 import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
@@ -484,6 +485,7 @@ function getNodeComponent(nodeType: Workflow.NodeType) {
     INTENT_CLASSIFIER: markRaw(IntentClassifierNode),
     CONDITION: markRaw(ConditionNode),
     FIXED_RESPONSE: markRaw(FixedResponseNode),
+    DB_QUERY: markRaw(DbQueryNode),
     APP_INFO: markRaw(AppInfoNode)
   };
   return componentMap[nodeType] || markRaw(DynamicNode);

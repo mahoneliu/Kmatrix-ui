@@ -31,6 +31,7 @@ const NODE_SIZE_MAP: Record<string, { width: number; height: number }> = {
   INTENT_CLASSIFIER: { width: 435, height: 500 }, // 分支较多时高度会增加,给一个较大的默认值
   CONDITION: { width: 435, height: 250 },
   FIXED_RESPONSE: { width: 400, height: 250 },
+  DB_QUERY: { width: 435, height: 450 },
   APP_INFO: { width: 435, height: 400 }
 };
 

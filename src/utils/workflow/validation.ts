@@ -40,6 +40,10 @@ const NODE_CONFIG_RULES: Record<
   INTENT_CLASSIFIER: [{ field: 'modelId', label: '推理模型' }],
   LLM_CHAT: [{ field: 'modelId', label: '推理模型' }],
   FIXED_RESPONSE: [{ field: 'content', label: '回复内容' }],
+  DB_QUERY: [
+    { field: 'modelId', label: '推理模型' },
+    { field: 'dataSourceId', label: '数据源' }
+  ],
   APP_INFO: [], // APP_INFO 节点在保存时单独校验
   START: [],
   END: [],
