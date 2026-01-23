@@ -109,7 +109,8 @@ export function parseDdlAndSave(data: { dataSourceId: number; ddlContent: string
 export function syncMetadataFromDatabase(dataSourceId: number) {
   return request({
     url: `/ai/database-meta/syncFromDatabase/${dataSourceId}`,
-    method: 'post'
+    method: 'post',
+    timeout: 600 * 1000
   });
 }
 
