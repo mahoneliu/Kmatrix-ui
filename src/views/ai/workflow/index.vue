@@ -24,6 +24,8 @@ import IntentClassifierNode from '@/components/Flow/Nodes/IntentClassifierNode.v
 import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
 import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
 import DbQueryNode from '@/components/Flow/Nodes/DbQueryNode.vue';
+import SqlGenerateNode from '@/components/Flow/Nodes/SqlGenerateNode.vue';
+import SqlExecuteNode from '@/components/Flow/Nodes/SqlExecuteNode.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import CustomEdge from '@/components/Flow/Edges/CustomEdge.vue';
 import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
@@ -486,6 +488,8 @@ function getNodeComponent(nodeType: Workflow.NodeType) {
     CONDITION: markRaw(ConditionNode),
     FIXED_RESPONSE: markRaw(FixedResponseNode),
     DB_QUERY: markRaw(DbQueryNode),
+    SQL_GENERATE: markRaw(SqlGenerateNode),
+    SQL_EXECUTE: markRaw(SqlExecuteNode),
     APP_INFO: markRaw(AppInfoNode)
   };
   return componentMap[nodeType] || markRaw(DynamicNode);
@@ -675,7 +679,7 @@ async function handleSave(trigger: boolean | Event = false) {
   // 提取应用参数配置
   const parameters = appInfoConfig
     ? {
-        globalParams: appInfoConfig.globalParams || [],
+        appParams: appInfoConfig.appParams || [],
         interfaceParams: appInfoConfig.interfaceParams || [],
         sessionParams: appInfoConfig.sessionParams || []
       }
@@ -950,7 +954,7 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
           prologue: appData.prologue || '',
           modelId: appData.modelId,
           // 加载应用参数配置
-          globalParams: appData.parameters?.globalParams || [],
+          appParams: appData.parameters?.appParams || [],
           interfaceParams: appData.parameters?.interfaceParams || [],
           sessionParams: appData.parameters?.sessionParams || []
         }

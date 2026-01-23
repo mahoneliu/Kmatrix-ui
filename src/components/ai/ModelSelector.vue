@@ -71,9 +71,7 @@ onMounted(() => {
 :deep(.n-base-selection-placeholder) {
   font-size: 11px !important;
 }
-</style>
 
-<style>
 /* 下拉菜单渲染在 body 下，不能使用 scoped */
 .model-selector-menu .n-base-select-option {
   font-size: 11px !important;

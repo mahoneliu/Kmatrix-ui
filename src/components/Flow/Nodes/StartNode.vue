@@ -15,8 +15,6 @@ const appInfoConfig = computed(() => {
   return appInfoNode?.data.config as Workflow.AppInfoConfig | undefined;
 });
 
-// 应用参数
-const appParams = computed(() => appInfoConfig.value?.appParams || []);
 // 全局参数
 const globalParams = ref<Workflow.ParamDefinition[]>();
 
@@ -25,12 +23,16 @@ onMounted(() => {
     { key: 'userId', label: '用户ID', type: 'string', required: true },
     { key: 'userName', label: '用户名称', type: 'string', required: true },
     { key: 'sessionId', label: '会话ID', type: 'string', required: true },
-    { key: 'historyContext', label: '历史上下文', type: 'array', required: true },
-    ...(appInfoConfig.value?.globalParams || [])
+    { key: 'historyContext', label: '历史上下文', type: 'array', required: true }
+    // ,
+    // ...(appInfoConfig.value?.globalParams || [])
   ];
 
   workflowStore.updateNodeConfig(props.id, { globalParams });
 });
+
+// 应用参数
+const appParams = computed(() => appInfoConfig.value?.appParams || []);
 
 // 接口参数
 const interfaceParams = computed(() => appInfoConfig.value?.interfaceParams || []);

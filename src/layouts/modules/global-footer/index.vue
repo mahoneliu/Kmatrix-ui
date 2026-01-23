@@ -6,7 +6,7 @@ defineOptions({
 
 <template>
   <DarkModeContainer class="h-full flex-center">
-    <a href="https://blog.xlsea.cn" target="_blank" rel="noopener noreferrer">Copyright © 2026 科亿信息技术</a>
+    <a href="http://www.kykms.cn" target="_blank" rel="noopener noreferrer">Copyright © 2026 科亿信息技术</a>
   </DarkModeContainer>
 </template>
 

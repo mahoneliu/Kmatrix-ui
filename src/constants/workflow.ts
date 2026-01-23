@@ -46,6 +46,35 @@ export const PARAM_TYPE_OPTIONS = Object.entries(PARAM_TYPE_MAP).map(([value, la
   value
 }));
 
+// ========== 节点分类常量 ==========
+
+/**
+ * 节点分类映射
+ */
+export const NODE_CATEGORIES: Record<string, string> = {
+  basic: '基础节点',
+  ai: 'AI 节点',
+  logic: '逻辑节点',
+  database: '数据库节点',
+  action: '动作节点'
+};
+
+/**
+ * 节点分类选项(用于表单)
+ */
+export const NODE_CATEGORY_OPTIONS = Object.entries(NODE_CATEGORIES).map(([value, label]) => ({
+  label,
+  value
+}));
+
+/**
+ * 节点分类列表(用于展示，保留顺序)
+ */
+export const NODE_CATEGORY_LIST = Object.entries(NODE_CATEGORIES).map(([key, label]) => ({
+  key,
+  label
+}));
+
 // ========== 条件节点相关常量 ==========
 
 /**

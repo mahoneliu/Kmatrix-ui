@@ -22,7 +22,9 @@ const configComponent = computed(() => {
     INTENT_CLASSIFIER: () => import('./IntentClassifierNodeConfig.vue'),
     CONDITION: () => import('./ConditionNodeConfig.vue'),
     FIXED_RESPONSE: () => import('./FixedResponseNodeConfig.vue'),
-    DB_QUERY: () => import('./DbQueryNodeConfig.vue')
+    DB_QUERY: () => import('./DbQueryNodeConfig.vue'),
+    SQL_GENERATE: () => import('./SqlGenerateNodeConfig.vue'),
+    SQL_EXECUTE: () => import('./SqlExecuteNodeConfig.vue')
   };
 
   return componentMap[nodeType] ? defineAsyncComponent(componentMap[nodeType]) : null;

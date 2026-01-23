@@ -471,11 +471,11 @@ const local: App.I18n.Schema = {
       projectNews: {
         title: 'Project News',
         moreNews: 'More News',
-        desc1: 'Soybean created the open source project soybean-admin on May 28, 2021!',
-        desc2: 'Yanbowe submitted a bug to soybean-admin, the multi-tab bar will not adapt.',
-        desc3: 'Soybean is ready to do sufficient preparation for the release of soybean-admin!',
-        desc4: 'Soybean is busy writing project documentation for soybean-admin!',
-        desc5: 'Soybean just wrote some of the workbench pages casually, and it was enough to see!'
+        desc1: 'Created the open source project kmatrix on January 3, 2026!',
+        desc2: 'Submitted a bug to kmatrix, the multi-tab bar will not adapt.',
+        desc3: 'Is ready to do sufficient preparation for the release of kmatrix!',
+        desc4: 'Is busy writing project documentation for kmatrix!',
+        desc5: 'Just wrote some of the workbench pages casually, and it was enough to see!'
       },
       creativity: 'Creativity'
     },
@@ -1247,7 +1247,7 @@ const local: App.I18n.Schema = {
     },
     about: {
       title: 'About',
-      introduction: `RuoYi-Plus-Soybean is a modern, enterprise-level multi-tenant management system. It combines the powerful backend capabilities of RuoYi-Vue-Plus with the modern frontend features of Soybean Admin, providing developers with a complete enterprise management solution.`,
+      introduction: `KMatrix is a core AI workflow orchestration platform and knowledge base based on Ruoyi_Vue_Plus/Langchain4j/Langgraph, providing developers with a complete AI application development solution.`,
       projectInfo: {
         title: 'Project Info',
         version: 'Version',

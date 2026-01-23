@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { NPopover } from 'naive-ui';
+import { NODE_CATEGORY_LIST } from '@/constants/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
 import { getNodeIconBackground } from '@/utils/color';
@@ -41,12 +42,8 @@ const availableNodeTypes = computed(() => {
 });
 
 // 定义分类配置
-const categories = [
-  { key: 'basic', label: '基础节点' },
-  { key: 'ai', label: 'AI 节点' },
-  { key: 'logic', label: '逻辑节点' },
-  { key: 'action', label: '动作节点' }
-] as const;
+// 定义分类配置
+const categories = NODE_CATEGORY_LIST;
 
 // 按分类组织节点类型
 const nodeTypesByCategory = computed(() =>

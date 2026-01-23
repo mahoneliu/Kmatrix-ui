@@ -6,19 +6,12 @@
  * @author Mahone
  * @date 2026-01-19
  */
-import { computed, h } from 'vue';
+import { defineAsyncComponent } from 'vue';
 import { NButton, NInput, NSelect } from 'naive-ui';
-import {
-  COMPARISON_OPERATOR_OPTIONS,
-  LOGICAL_OPERATOR_OPTIONS,
-  PARAM_GLOBAL_COLORS,
-  PARAM_GLOBAL_NODE_COLORS,
-  UNARY_OPERATORS
-} from '@/constants/workflow';
-import { useWorkflowStore } from '@/store/modules/workflow';
-import { getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
-import { getNodeIconBackground } from '@/utils/color';
+import { COMPARISON_OPERATOR_OPTIONS, LOGICAL_OPERATOR_OPTIONS, UNARY_OPERATORS } from '@/constants/workflow';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+
+const ParamSelector = defineAsyncComponent(() => import('@/components/Flow/ParamSelector.vue'));
 
 interface Props {
   /** 当前节点ID */
@@ -37,8 +30,6 @@ const emit = defineEmits<{
   'update:modelValue': [value: Workflow.ConditionGroup];
   delete: [];
 }>();
-
-const workflowStore = useWorkflowStore();
 
 // 更新条件组
 function updateGroup(updates: Partial<Workflow.ConditionGroup>) {
@@ -92,96 +83,25 @@ function isConditionGroup(
   return condition.type === 'group' || 'logicalOperator' in condition;
 }
 
-// 获取可用参数来源
-function getAvailableSources() {
-  return getAvailableParamsForNode(props.nodeId, workflowStore.nodes, workflowStore.edges);
-}
-
-// 转换为变量选择器选项
-const variableOptions = computed(() => {
-  const sources = getAvailableSources();
-  const options: Array<{ label: string; value: string; icon?: string; color?: string }> = [];
-
-  sources.forEach(source => {
-    if (!source.params?.length) return;
-
-    source.params.forEach(param => {
-      let icon = 'mdi:cube-outline';
-      let color = PARAM_GLOBAL_COLORS;
-
-      if (source.sourceKey === 'app') {
-        icon = 'mdi:earth';
-        color = PARAM_GLOBAL_NODE_COLORS.app;
-      } else if (source.sourceKey === 'interface') {
-        icon = 'mdi:api';
-        color = PARAM_GLOBAL_NODE_COLORS.interface;
-      } else if (source.sourceKey === 'session') {
-        icon = 'mdi:message-text';
-        color = PARAM_GLOBAL_NODE_COLORS.session;
-      } else if (source.type === 'node') {
-        const node = workflowStore.nodes.find(n => n.id === source.sourceKey);
-        if (node?.data?.nodeIcon) icon = node.data.nodeIcon;
-        color = node?.data?.nodeColor || PARAM_GLOBAL_COLORS;
-      }
-
-      options.push({
-        label: `${source.sourceName} / ${param.label}`,
-        value: `${source.type}|${source.sourceKey}|${param.key}`,
-        icon,
-        color
-      });
-    });
-  });
-
-  return options;
-});
-
-// 解析变量选择值
-function parseVariableValue(value: string): Workflow.VariableRef | null {
-  if (!value) return null;
-  const parts = value.split('|');
-  if (parts.length !== 3) return null;
-
-  const [sourceType, sourceKey, sourceParam] = parts;
-  const isGlobal = ['app', 'interface', 'session'].includes(sourceKey);
-
-  return {
-    sourceType: isGlobal ? 'global' : (sourceType as 'global' | 'node'),
-    sourceKey,
-    sourceParam
-  };
-}
-
-// 格式化变量引用为选择器值
-function formatVariableValue(variable: Workflow.VariableRef | undefined): string | null {
-  if (!variable) return null;
-  return `${variable.sourceType}|${variable.sourceKey}|${variable.sourceParam}`;
-}
-
-// 渲染变量选择标签
-function renderVariableLabel(option: { label: string; icon?: string; color?: string }) {
-  if (!option.icon) return option.label;
-
-  return h('div', { class: 'flex items-center gap-2' }, [
-    h(
-      'div',
-      {
-        class: 'h-5 w-5 flex flex-shrink-0 items-center justify-center rounded-1',
-        style: {
-          backgroundColor: getNodeIconBackground(option.color || PARAM_GLOBAL_COLORS),
-          color: option.color
-        }
-      },
-      h(SvgIcon, { icon: option.icon, class: 'text-12px' })
-    ),
-    h('span', { class: 'text-12px' }, option.label)
-  ]);
-}
-
 // 判断是否为一元运算符
 function isUnaryOperator(operator: string): boolean {
   return UNARY_OPERATORS.includes(operator);
 }
+
+// 处理变量选择更新
+function handleVariableUpdate(
+  index: number,
+  condition: Workflow.ConditionRule,
+  variable: Workflow.VariableRef | undefined
+) {
+  if (variable) {
+    updateCondition(index, { ...condition, variable } as Workflow.ConditionRule);
+  }
+}
+
+// 辅助函数用于模板中的类型转换，避免 ESLint 警告
+const getRule = (c: any) => c as Workflow.ConditionRule;
+const getGroup = (c: any) => c as Workflow.ConditionGroup;
 </script>
 
 <template>
@@ -193,7 +113,7 @@ function isUnaryOperator(operator: string): boolean {
         :options="LOGICAL_OPERATOR_OPTIONS"
         size="small"
         class="w-32"
-        @update:value="(val: string) => updateGroup({ logicalOperator: val as any })"
+        @update:value="val => updateGroup({ logicalOperator: val as any })"
       />
       <NButton size="tiny" secondary @click="addRule">
         <template #icon><SvgIcon icon="mdi:plus" /></template>
@@ -215,9 +135,9 @@ function isUnaryOperator(operator: string): boolean {
         <template v-if="isConditionGroup(condition)">
           <ConditionBuilder
             :node-id="nodeId"
-            :model-value="condition as Workflow.ConditionGroup"
+            :model-value="getGroup(condition)"
             :is-root="false"
-            @update:model-value="(val: Workflow.ConditionGroup) => updateCondition(index, val)"
+            @update:model-value="val => updateCondition(index, val)"
             @delete="removeCondition(index)"
           />
         </template>
@@ -226,51 +146,43 @@ function isUnaryOperator(operator: string): boolean {
         <template v-else>
           <div class="flex flex-wrap items-center gap-2">
             <!-- 变量选择 -->
-            <NSelect
-              :value="formatVariableValue((condition as Workflow.ConditionRule).variable)"
-              :options="variableOptions"
-              :render-label="renderVariableLabel"
-              placeholder="选择变量"
-              size="small"
-              filterable
-              class="min-w-50"
-              @update:value="
-                (val: string) => {
-                  const variable = parseVariableValue(val);
-                  if (variable) {
-                    updateCondition(index, { ...condition, variable } as Workflow.ConditionRule);
-                  }
-                }
-              "
-            />
+            <div class="min-w-50">
+              <ParamSelector
+                :node-id="nodeId"
+                :variable-value="getRule(condition).variable"
+                :filter-by-type="false"
+                placeholder="选择变量"
+                @update:variable-value="val => handleVariableUpdate(index, getRule(condition), val)"
+              />
+            </div>
 
             <!-- 运算符选择 -->
             <NSelect
-              :value="(condition as Workflow.ConditionRule).operator"
+              :value="getRule(condition).operator"
               :options="COMPARISON_OPERATOR_OPTIONS"
               size="small"
               class="w-36"
               @update:value="
-                (val: Workflow.ComparisonOperator) => {
-                  updateCondition(index, { ...condition, operator: val } as Workflow.ConditionRule);
+                val => {
+                  updateCondition(index, { ...getRule(condition), operator: val as any } as any);
                 }
               "
             />
 
             <!-- 比较值输入 (非一元运算符时显示) -->
-            <template v-if="!isUnaryOperator((condition as Workflow.ConditionRule).operator)">
+            <template v-if="!isUnaryOperator(getRule(condition).operator)">
               <NInput
-                :value="String((condition as Workflow.ConditionRule).compareValue ?? '')"
+                :value="String(getRule(condition).compareValue ?? '')"
                 placeholder="比较值"
                 size="small"
                 class="w-32"
                 @update:value="
-                  (val: string) => {
+                  val => {
                     updateCondition(index, {
-                      ...condition,
+                      ...getRule(condition),
                       compareValue: val,
                       compareValueType: 'static'
-                    } as Workflow.ConditionRule);
+                    });
                   }
                 "
               />

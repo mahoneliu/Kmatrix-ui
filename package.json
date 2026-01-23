@@ -1,26 +1,25 @@
 {
-  "name": "ruoyi-vue-plus",
+  "name": "kmatrix-web",
   "type": "module",
-  "version": "2.0.0-beta.2",
-  "description": "结合了 RuoYi-Vue-Plus 的强大后端功能和 Soybean Admin 的现代化前端特性，为开发者提供了完整的企业管理解决方案。",
+  "version": "0.0.1",
+  "description": "基于Vue 3、TypeScript、Vite和Naive UI构建。工作流编排：基于VueFlow，Vue3原生技术实现，无需依赖。",
   "author": {
-    "name": "xlsea",
-    "email": "m@xlsea.cn",
-    "url": "https://gitee.com/xlsea"
+    "name": "Mahone",
+    "email": "hnliuwx@gmail.com",
+    "url": "http://www.kykms.cn"
   },
   "license": "MIT",
-  "homepage": "https://docs.ruoyi.xlsea.cn",
+  "homepage": "http://www.kykms.cn",
   "repository": {
-    "url": "https://gitee.com/xlsea/ruoyi-plus-soybean.git"
+    "url": "https://gitee.com/kyxxjs/kmatrix-service.git"
   },
   "bugs": {
-    "url": "https://gitee.com/xlsea/ruoyi-plus-soybean/issues"
+    "url": "https://gitee.com/kyxxjs/kmatrix-service/issues"
   },
   "keywords": [
-    "RuoYi-Vue-Plus",
-    "Soybean Admin",
-    "Vue3 admin ",
-    "vue-admin-template",
+    "KMatrix",
+    "Rag ",
+    "Vue flow",
     "Vite7",
     "TypeScript",
     "naive-ui",
@@ -131,5 +130,5 @@
     "commit-msg": "pnpm sa git-commit-verify",
     "pre-commit": "pnpm typecheck && pnpm lint && git diff --exit-code"
   },
-  "website": "https://ruoyi.xlsea.cn"
+  "website": "http://www.kykms.cn"
 }

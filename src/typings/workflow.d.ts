@@ -14,7 +14,9 @@ declare namespace Workflow {
     | 'INTENT_CLASSIFIER'
     | 'CONDITION'
     | 'FIXED_RESPONSE'
-    | 'DB_QUERY';
+    | 'DB_QUERY'
+    | 'SQL_GENERATE'
+    | 'SQL_EXECUTE';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -245,7 +247,7 @@ declare namespace Workflow {
     /** 开场白 */
     prologue: string;
     /** 全局参数定义 */
-    globalParams?: ParamDefinition[];
+    // globalParams?: ParamDefinition[];
     /** 应用参数定义 */
     appParams?: ParamDefinition[];
     /** 接口参数定义 */
@@ -266,6 +268,26 @@ declare namespace Workflow {
     tableWhitelist?: string;
     /** 禁止查询的表 (逗号分隔) */
     tableBlacklist?: string;
+  }
+
+  /** SQL 生成节点配置 */
+  interface SqlGenerateNodeConfig extends NodeConfigFormData {
+    /** 数据源ID (必填) */
+    dataSourceId: CommonType.IdType;
+    /** LLM模型ID (必填) */
+    modelId: CommonType.IdType;
+    /** 允许查询的表 (逗号分隔) */
+    tableWhitelist?: string;
+    /** 禁止查询的表 (逗号分隔) */
+    tableBlacklist?: string;
+  }
+
+  /** SQL 执行节点配置 */
+  interface SqlExecuteNodeConfig extends NodeConfigFormData {
+    /** 数据源ID (必填) */
+    dataSourceId: CommonType.IdType;
+    /** 最大返回行数 (默认100) */
+    maxRows?: number;
   }
 
   // ========== 参数配置相关类型 ==========
@@ -290,7 +312,7 @@ declare namespace Workflow {
   }
 
   /** 参数绑定来源类型 */
-  type ParamSourceType = 'global' | 'node' | 'interface' | 'session' | 'app';
+  type ParamSourceType = 'global' | 'node';
 
   /** 参数绑定配置 */
   interface ParamBinding {

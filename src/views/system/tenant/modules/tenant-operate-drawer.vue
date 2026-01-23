@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
@@ -299,4 +299,4 @@ watch(visible, () => {
 </template>
 
 <style scoped></style>
-@/service/api/system/tenant-package
+@/service/api/system/tenant-package -->

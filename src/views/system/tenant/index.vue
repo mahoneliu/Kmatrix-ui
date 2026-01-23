@@ -1,4 +1,4 @@
-<script setup lang="tsx">
+<!-- <script setup lang="tsx">
 import { computed, ref } from 'vue';
 import { NButton, NDivider } from 'naive-ui';
 import {
@@ -299,4 +299,4 @@ async function handleExport() {
 :deep(.n-card-header__main) {
   min-width: 36px !important;
 }
-</style>
+</style> -->

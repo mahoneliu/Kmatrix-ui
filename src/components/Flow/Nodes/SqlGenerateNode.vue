@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * 数据库查询节点
- * 结合LLM分析用户问题并执行SQL查询
+ * SQL生成节点
+ * 使用LLM分析用户问题并生成SQL语句
  *
  * @author Mahone
- * @date 2026-01-20
+ * @date 2026-01-24
  */
 import { onMounted, reactive, watch } from 'vue';
-import { NCollapse, NCollapseItem, NInput, NInputNumber, NSelect } from 'naive-ui';
+import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { useDataSource } from '@/composables/useDataSource';
@@ -21,21 +21,19 @@ const workflowStore = useWorkflowStore();
 const { dataSourceOptions, loadDataSources } = useDataSource();
 
 // 局部表单数据
-const formModel = reactive<Workflow.DbQueryNodeConfig>({
+const formModel = reactive<Workflow.SqlGenerateNodeConfig>({
   dataSourceId: null as any,
   modelId: null as any,
-  maxRows: 100,
   tableWhitelist: '',
   tableBlacklist: ''
 });
 
 // 初始化数据
 function initData() {
-  const config = props.data.config as Workflow.DbQueryNodeConfig | undefined;
+  const config = props.data.config as Workflow.SqlGenerateNodeConfig | undefined;
   if (config) {
     formModel.dataSourceId = (config.dataSourceId || null) as any;
     formModel.modelId = (config.modelId || null) as any;
-    formModel.maxRows = config.maxRows || 100;
     formModel.tableWhitelist = config.tableWhitelist || '';
     formModel.tableBlacklist = config.tableBlacklist || '';
   }
@@ -45,11 +43,10 @@ function initData() {
 watch(
   formModel,
   newValue => {
-    const currentConfig = props.data.config as Workflow.DbQueryNodeConfig | undefined;
+    const currentConfig = props.data.config as Workflow.SqlGenerateNodeConfig | undefined;
     if (
       newValue.dataSourceId !== currentConfig?.dataSourceId ||
       newValue.modelId !== currentConfig?.modelId ||
-      newValue.maxRows !== currentConfig?.maxRows ||
       newValue.tableWhitelist !== currentConfig?.tableWhitelist ||
       newValue.tableBlacklist !== currentConfig?.tableBlacklist
     ) {
@@ -63,18 +60,16 @@ watch(
 watch(
   () => props.data.config,
   newConfig => {
-    const config = newConfig as Workflow.DbQueryNodeConfig | undefined;
+    const config = newConfig as Workflow.SqlGenerateNodeConfig | undefined;
     if (config) {
       if (
         config.dataSourceId !== formModel.dataSourceId ||
         config.modelId !== formModel.modelId ||
-        config.maxRows !== formModel.maxRows ||
         config.tableWhitelist !== formModel.tableWhitelist ||
         config.tableBlacklist !== formModel.tableBlacklist
       ) {
         formModel.dataSourceId = (config.dataSourceId || null) as any;
         formModel.modelId = (config.modelId || null) as any;
-        formModel.maxRows = config.maxRows || 100;
         formModel.tableWhitelist = config.tableWhitelist || '';
         formModel.tableBlacklist = config.tableBlacklist || '';
       }
@@ -90,7 +85,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="db-query-node">
+  <BaseNode v-bind="props" :data="data" class="sql-generate-node">
     <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
@@ -118,11 +113,6 @@ onMounted(() => {
                 <span class="workflow-label-required">*</span>
               </label>
               <ModelSelector v-model:model-value="formModel.modelId" />
-            </div>
-
-            <div class="workflow-config-item">
-              <label class="workflow-label">最大返回行数</label>
-              <NInputNumber v-model:value="formModel.maxRows" :min="1" :max="10000" placeholder="100" size="small" />
             </div>
           </div>
         </NCollapseItem>

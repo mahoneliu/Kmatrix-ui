@@ -44,6 +44,11 @@ const NODE_CONFIG_RULES: Record<
     { field: 'modelId', label: '推理模型' },
     { field: 'dataSourceId', label: '数据源' }
   ],
+  SQL_GENERATE: [
+    { field: 'modelId', label: '推理模型' },
+    { field: 'dataSourceId', label: '数据源' }
+  ],
+  SQL_EXECUTE: [{ field: 'dataSourceId', label: '数据源' }],
   APP_INFO: [], // APP_INFO 节点在保存时单独校验
   START: [],
   END: [],

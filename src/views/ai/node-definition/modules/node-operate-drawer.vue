@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
+import { NODE_CATEGORY_OPTIONS } from '@/constants/workflow';
 import { addNodeDefinition, copyNodeDefinition, updateNodeDefinition } from '@/service/api/ai/workflow/node';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -73,12 +74,7 @@ const rules = computed<Record<string, App.Global.FormRule[]>>(() => {
 });
 
 // Category options from typings: 'basic' | 'ai' | 'logic' | 'action'
-const categoryOptions = [
-  { label: '基础', value: 'basic' },
-  { label: 'AI', value: 'ai' },
-  { label: '逻辑', value: 'logic' },
-  { label: '动作', value: 'action' }
-];
+const categoryOptions = NODE_CATEGORY_OPTIONS;
 
 function handleInitModel() {
   Object.assign(model, createDefaultModel());

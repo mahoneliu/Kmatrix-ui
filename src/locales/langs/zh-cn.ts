@@ -399,8 +399,8 @@ const local: App.I18n.Schema = {
   page: {
     login: {
       common: {
-        title: '现代化的企业级多租户管理系统',
-        subTitle: '为开发者提供了完整的企业管理解决方案',
+        title: '企业级AI开发平台+知识库',
+        subTitle: '为开发者提供了完整的企业级AI开发+本地知识库解决方案',
         loginOrRegister: '登录 / 注册',
         register: '注册',
         userNamePlaceholder: '请输入用户名',
@@ -467,11 +467,11 @@ const local: App.I18n.Schema = {
       projectNews: {
         title: '项目动态',
         moreNews: '更多动态',
-        desc1: 'Soybean 在2021年5月28日创建了开源项目 soybean-admin!',
-        desc2: 'Yanbowe 向 soybean-admin 提交了一个bug，多标签栏不会自适应。',
-        desc3: 'Soybean 准备为 soybean-admin 的发布做充分的准备工作!',
-        desc4: 'Soybean 正在忙于为soybean-admin写项目说明文档！',
-        desc5: 'Soybean 刚才把工作台页面随便写了一些，凑合能看了！'
+        desc1: '在2026年1月3日创建了开源项目 kmatrix!',
+        desc2: '向 kmatrix 提交了一个bug，多标签栏不会自适应。',
+        desc3: '准备为 kmatrix 的发布做充分的准备工作!',
+        desc4: '正在忙于为kmatrix写项目说明文档！',
+        desc5: '刚才把工作台页面随便写了一些，凑合能看了！'
       },
       creativity: '创意'
     },
@@ -1238,7 +1238,7 @@ const local: App.I18n.Schema = {
     },
     about: {
       title: '关于',
-      introduction: `RuoYi-Plus-Soybean 是一个现代化的企业级多租户管理系统，它结合了 RuoYi-Vue-Plus 的强大后端功能和 Soybean Admin 的现代化前端特性，为开发者提供了完整的企业管理解决方案。`,
+      introduction: `KMatrix 是基于Ruoyi_Vue_Plus/Langchain4j/Langgraph为核心的AI工作流编排平台和知识库，为开发者提供了完整的AI应用开发解决方案。`,
       projectInfo: {
         title: '项目信息',
         version: '版本',

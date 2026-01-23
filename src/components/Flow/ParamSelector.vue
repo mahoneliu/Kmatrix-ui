@@ -1,7 +1,13 @@
 <script setup lang="ts">
+/**
+ * 通用变量选择器组件
+ * 使用扁平化 NSelect 风格，支持多种场景
+ *
+ * @author Mahone
+ * @date 2026-01-23
+ */
 import { computed, h } from 'vue';
-import { NCascader, NTooltip } from 'naive-ui';
-import type { CascaderOption } from 'naive-ui';
+import { NSelect } from 'naive-ui';
 import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
@@ -11,21 +17,29 @@ import SvgIcon from '@/components/custom/svg-icon.vue';
 interface Props {
   /** 当前节点ID */
   nodeId: string;
-  /** 参数定义 */
-  paramDef: Workflow.ParamDefinition;
-  /** 当前绑定配置 */
+  /** 参数定义（用于类型过滤，可选） */
+  paramDef?: Workflow.ParamDefinition;
+  /** 当前绑定配置（用于参数绑定场景） */
   binding?: Workflow.ParamBinding;
+  /** 变量引用（用于条件构建器场景） */
+  variableValue?: Workflow.VariableRef;
   /** 是否只显示类型匹配的参数 */
   filterByType?: boolean;
+  /** 占位符文本 */
+  placeholder?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  paramDef: undefined,
   binding: undefined,
-  filterByType: true
+  variableValue: undefined,
+  filterByType: false, // 默认不进行类型过滤
+  placeholder: '选择变量'
 });
 
 const emit = defineEmits<{
   'update:binding': [binding: Workflow.ParamBinding | undefined];
+  'update:variableValue': [value: Workflow.VariableRef | undefined];
 }>();
 
 const workflowStore = useWorkflowStore();
@@ -34,29 +48,26 @@ const workflowStore = useWorkflowStore();
 const availableSources = computed(() => {
   const sources = getAvailableParamsForNode(props.nodeId, workflowStore.nodes, workflowStore.edges);
 
-  if (props.filterByType) {
+  if (props.filterByType && props.paramDef?.type) {
     return filterParamSourcesByType(sources, props.paramDef.type);
   }
 
   return sources;
 });
 
-// 转换为 Cascader 选项 (两级联动)
-const cascaderOptions = computed<CascaderOption[]>(() => {
-  const options: CascaderOption[] = [];
+// 转换为分组选择器选项
+const variableOptions = computed(() => {
+  const options: any[] = [];
 
   availableSources.value.forEach(source => {
-    // 确保 params 存在
-    if (!source.params || !Array.isArray(source.params) || source.params.length === 0) {
-      return;
-    }
+    if (!source.params?.length) return;
 
     // 确定图标和颜色
-    let icon = 'mdi:cube-outline'; // 默认节点图标
-    let color: string;
+    let icon = 'mdi:earth';
+    let color = PARAM_GLOBAL_COLORS;
 
     if (source.sourceKey === 'app') {
-      icon = 'mdi:earth';
+      icon = 'mdi:application';
       color = PARAM_GLOBAL_NODE_COLORS.app;
     } else if (source.sourceKey === 'interface') {
       icon = 'mdi:api';
@@ -65,153 +76,149 @@ const cascaderOptions = computed<CascaderOption[]>(() => {
       icon = 'mdi:message-text';
       color = PARAM_GLOBAL_NODE_COLORS.session;
     } else if (source.type === 'node') {
-      // 从节点数据中获取图标和颜色
       const node = workflowStore.nodes.find(n => n.id === source.sourceKey);
-      if (node?.data?.nodeIcon) {
-        icon = node.data.nodeIcon;
-      }
-      // 节点类型:优先使用节点自定义颜色,否则使用默认紫色
+      if (node?.data?.nodeIcon) icon = node.data.nodeIcon;
       color = node?.data?.nodeColor || PARAM_GLOBAL_COLORS;
-    } else {
-      // 其他未知类型使用默认颜色
-      color = PARAM_GLOBAL_COLORS;
     }
 
-    // 创建第一级选项(参数来源)
-    const sourceOption: CascaderOption = {
+    // 添加分组
+    options.push({
+      type: 'group',
       label: source.sourceName,
-      value: source.sourceKey,
-      icon, // 存储图标信息
-      color, // 存储颜色信息
-      children: source.params.map(param => {
-        // 第二级选项(具体参数)
-        // 使用复合键确保唯一性: sourceKey|paramKey
-        return {
-          paramName: param.label,
-          paramType: param.type,
-          label: param.label,
-          value: `${source.sourceKey}|${param.key}`
-        };
-      })
-    };
-
-    options.push(sourceOption);
+      key: `g-${source.sourceKey}`,
+      icon,
+      color,
+      children: source.params.map(param => ({
+        label: `${param.label} - ${param.type}`,
+        value: `${source.type}|${source.sourceKey}|${param.key}`,
+        color
+      }))
+    });
   });
 
   return options;
 });
 
-// 当前选中值 (复合键字符串)
-const selectedValue = computed(() => {
-  if (!props.binding) return null;
-  // Node 类型
-  return `${props.binding.sourceKey}|${props.binding.sourceParam || ''}`;
+// 当前选中值
+const selectedValue = computed<string | null>(() => {
+  // 优先使用 variableValue（条件构建器场景）
+  if (props.variableValue) {
+    return formatVariableRef(props.variableValue);
+  }
+  // 其次使用 binding（参数绑定场景）
+  if (props.binding) {
+    return formatBinding(props.binding);
+  }
+  return null;
 });
 
-// 自定义标签渲染函数
-function renderLabel(option: CascaderOption) {
-  // 只为第一级选项(有 icon 和 color 属性的)渲染带颜色的图标
-  if (option.icon && option.color) {
-    const color = option.color as string;
-    return h('div', { class: 'flex items-center gap-3' }, [
-      // 图标容器,样式与 BaseNode 头部图标一致
-      h(
-        'div',
-        {
-          class: 'h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1',
-          style: {
-            backgroundColor: getNodeIconBackground(color), // 20% 透明度背景
-            color // 图标颜色
-          }
-        },
-        h(SvgIcon, { icon: option.icon as string })
-      ),
-      // 标签文字,不带颜色
-      h('div', { class: 'flex-1 text-12px' }, option.label)
-    ]);
-  }
+// 格式化 VariableRef 为选择器值
+function formatVariableRef(variable: Workflow.VariableRef): string | null {
+  if (!variable.sourceKey && !variable.sourceParam) return null;
+  return `${variable.sourceType}|${variable.sourceKey}|${variable.sourceParam}`;
+}
 
-  // 第二级选项:如果有 paramName,显示 tooltip
-  if (option.paramName) {
-    return h(
-      NTooltip,
-      { trigger: 'hover' },
+// 格式化 ParamBinding 为选择器值
+function formatBinding(binding: Workflow.ParamBinding): string | null {
+  if (!binding.sourceKey && !binding.sourceParam) return null;
+  return `${binding.sourceType}|${binding.sourceKey}|${binding.sourceParam || ''}`;
+}
+
+// 解析选择器值为 VariableRef
+function parseVariableRef(value: string): Workflow.VariableRef | null {
+  if (!value) return null;
+  const parts = value.split('|');
+  if (parts.length !== 3) return null;
+
+  const [sourceType, sourceKey, sourceParam] = parts;
+
+  return {
+    sourceType: sourceType as 'global' | 'node',
+    sourceKey,
+    sourceParam
+  };
+}
+
+// 解析选择器值为 ParamBinding
+function parseBinding(value: string, paramKey: string): Workflow.ParamBinding | null {
+  if (!value) return null;
+  const parts = value.split('|');
+  if (parts.length !== 3) return null;
+
+  const [sourceType, sourceKey, sourceParam] = parts;
+
+  return {
+    paramKey,
+    sourceType: sourceType as Workflow.ParamSourceType,
+    sourceKey,
+    sourceParam: sourceParam || undefined
+  };
+}
+
+// 渲染选项标签（带图标和颜色）
+function renderLabel(option: { label?: string; icon?: string; color?: string }) {
+  if (!option.icon) return option.label;
+
+  return h('div', { class: 'flex items-center gap-2' }, [
+    h(
+      'div',
       {
-        trigger: () => h('div', { class: 'flex-1 text-12px' }, option.label),
-        default: () => option.paramName
-      }
-    );
-  }
-
-  // 其他情况直接返回文本
-  return h('div', { class: 'flex-1 text-12px' }, option.label);
+        class: 'h-5 w-5 flex flex-shrink-0 items-center justify-center rounded-1',
+        style: {
+          backgroundColor: getNodeIconBackground(option.color || PARAM_GLOBAL_COLORS),
+          color: option.color
+        }
+      },
+      h(SvgIcon, { icon: option.icon, class: 'text-12px' })
+    ),
+    h('span', { class: 'text-12px' }, option.label)
+  ]);
 }
 
 // 处理值变化
-function handleValueChange(value: string | number | Array<string | number> | null) {
+function handleValueChange(value: string | null) {
   if (!value) {
     emit('update:binding', undefined);
+    emit('update:variableValue', undefined);
     return;
   }
 
-  // value 应该是复合键字符串 "sourceKey|paramKey"
-  const valStr = String(value);
-  const separatorIndex = valStr.indexOf('|');
-
-  if (separatorIndex === -1) {
-    emit('update:binding', undefined);
-    return;
+  // 如果有 variableValue prop 或没有 paramDef，使用 VariableRef 模式
+  if (props.variableValue !== undefined || !props.paramDef) {
+    const variable = parseVariableRef(value);
+    emit('update:variableValue', variable || undefined);
   }
 
-  const sourceKey = valStr.substring(0, separatorIndex);
-  const paramKey = valStr.substring(separatorIndex + 1);
-
-  // 在所有来源中查找对应的来源
-  const foundSource = availableSources.value.find(s => s.sourceKey === sourceKey);
-
-  if (!foundSource) {
-    emit('update:binding', undefined);
-    return;
+  // 如果有 paramDef，使用 ParamBinding 模式
+  if (props.paramDef) {
+    const binding = parseBinding(value, props.paramDef.key);
+    emit('update:binding', binding || undefined);
   }
-
-  const isGlobalCategory = ['app', 'interface', 'session'].includes(foundSource.sourceKey);
-  const sourceType = isGlobalCategory ? (foundSource.sourceKey as Workflow.ParamSourceType) : 'node';
-
-  const binding: Workflow.ParamBinding = {
-    paramKey: props.paramDef.key,
-    sourceType,
-    sourceKey: isGlobalCategory ? paramKey : sourceKey,
-    sourceParam: isGlobalCategory ? undefined : paramKey
-  };
-  emit('update:binding', binding);
 }
 </script>
 
 <template>
   <div class="param-selector-wrapper w-full">
-    <NCascader
+    <NSelect
       :value="selectedValue"
-      :options="cascaderOptions"
-      :placeholder="`选择 ${paramDef.key} 来源`"
-      :virtual-scroll="false"
+      :options="variableOptions"
+      :placeholder="placeholder"
       :render-label="renderLabel"
+      :menu-props="{ class: 'param-selector-menu' }"
       clearable
       filterable
       size="small"
-      expand-trigger="hover"
-      check-strategy="child"
-      :show-path="true"
       @update:value="handleValueChange"
     >
       <template #empty>
         <div class="py-2 text-center text-xs c-gray-4">无可用参数来源</div>
       </template>
-    </NCascader>
+    </NSelect>
   </div>
 </template>
 
 <style scoped>
-.param-selector-wrapper :deep(.n-cascader) {
+.param-selector-wrapper :deep(.n-base-selection) {
   font-size: 11px;
 }
 
@@ -222,17 +229,19 @@ function handleValueChange(value: string | number | Array<string | number> | nul
 .param-selector-wrapper :deep(.n-base-selection-input) {
   font-size: 11px !important;
 }
+</style>
 
-/* 下拉菜单选项字体大小 */
-.param-selector-wrapper :deep(.n-cascader-menu) {
-  font-size: 11px !important;
+<style>
+/* 禁用下拉菜单和选项的过渡动画，让交互更快速 */
+.param-selector-menu.n-base-select-menu,
+.param-selector-menu .n-base-select-option,
+.param-selector-menu .n-base-select-option__content {
+  transition: none !important;
+  animation: none !important;
 }
 
-.param-selector-wrapper :deep(.n-cascader-option) {
-  font-size: 11px !important;
-}
-
-.param-selector-wrapper :deep(.n-cascader-option__label) {
-  font-size: 11px !important;
+/* 兼容可能存在的内部 transition 包装 */
+.param-selector-menu .n-base-select-menu-scrollbar-content {
+  transition: none !important;
 }
 </style>

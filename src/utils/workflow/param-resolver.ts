@@ -59,7 +59,7 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
     if (config.globalParams && config.globalParams.length > 0) {
       sources.push({
         type: 'global',
-        sourceKey: 'app',
+        sourceKey: 'global',
         sourceName: '全局参数',
         params: config.globalParams
       });
