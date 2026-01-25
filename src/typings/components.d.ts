@@ -12,6 +12,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AiConfigPanel: typeof import('./../components/Flow/AiConfigPanel.vue')['default']
     AppInfoNode: typeof import('./../components/Flow/Nodes/AppInfoNode.vue')['default']
     AppInfoNodeConfig: typeof import('./../components/Flow/ConfigPanels/AppInfoNodeConfig.vue')['default']
     AppProvider: typeof import('./../components/common/app-provider.vue')['default']
@@ -19,6 +20,7 @@ declare module 'vue' {
     BetterScroll: typeof import('./../components/custom/better-scroll.vue')['default']
     BooleanTag: typeof import('./../components/custom/boolean-tag.vue')['default']
     ButtonIcon: typeof import('./../components/custom/button-icon.vue')['default']
+    ChatPanel: typeof import('./../components/ai/ChatPanel.vue')['default']
     ComponentLibraryModal: typeof import('./../components/Flow/ComponentLibraryModal.vue')['default']
     ComponentLibraryPanel: typeof import('./../components/Flow/ComponentLibraryPanel.vue')['default']
     ConditionBuilder: typeof import('./../components/Flow/ConditionBuilder.vue')['default']
@@ -204,6 +206,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const AiConfigPanel: typeof import('./../components/Flow/AiConfigPanel.vue')['default']
   const AppInfoNode: typeof import('./../components/Flow/Nodes/AppInfoNode.vue')['default']
   const AppInfoNodeConfig: typeof import('./../components/Flow/ConfigPanels/AppInfoNodeConfig.vue')['default']
   const AppProvider: typeof import('./../components/common/app-provider.vue')['default']
@@ -211,6 +214,7 @@ declare global {
   const BetterScroll: typeof import('./../components/custom/better-scroll.vue')['default']
   const BooleanTag: typeof import('./../components/custom/boolean-tag.vue')['default']
   const ButtonIcon: typeof import('./../components/custom/button-icon.vue')['default']
+  const ChatPanel: typeof import('./../components/ai/ChatPanel.vue')['default']
   const ComponentLibraryModal: typeof import('./../components/Flow/ComponentLibraryModal.vue')['default']
   const ComponentLibraryPanel: typeof import('./../components/Flow/ComponentLibraryPanel.vue')['default']
   const ConditionBuilder: typeof import('./../components/Flow/ConditionBuilder.vue')['default']

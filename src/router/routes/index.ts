@@ -8,7 +8,28 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: CustomRoute[] = [];
+const customRoutes: CustomRoute[] = [
+  // {
+  //   name: 'ai-app-detail',
+  //   path: '/ai/app-detail',
+  //   component: 'layout.base$view.ai_app-detail',
+  //   meta: {
+  //     title: 'ai_app-detail',
+  //     i18nKey: 'route.ai_app-detail',
+  //     hideInMenu: true
+  //   }
+  // },
+  // {
+  //   name: 'ai-chat',
+  //   path: '/ai/chat',
+  //   component: 'layout.base$view.ai_chat',
+  //   meta: {
+  //     title: 'ai_chat',
+  //     i18nKey: 'route.ai_chat',
+  //     hideInMenu: true
+  //   }
+  // }
+];
 
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {
@@ -16,7 +37,7 @@ export function createStaticRoutes() {
 
   const authRoutes: ElegantRoute[] = [];
 
-  [...customRoutes, ...generatedRoutes].forEach(item => {
+  [...generatedRoutes, ...customRoutes].forEach(item => {
     if (item.meta?.constant) {
       constantRoutes.push(item);
     } else {

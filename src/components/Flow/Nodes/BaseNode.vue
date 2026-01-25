@@ -4,6 +4,7 @@ import { NCollapse, NCollapseItem, NDropdown, NInput, NModal } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
+import { AI_NODE_TYPES } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/workflow/node-params';
 import { getNodeTypeInfo } from '@/utils/workflow/node-registry';
@@ -11,6 +12,7 @@ import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/Flow/ParamBindingPanel.vue'));
+const AiConfigPanel = defineAsyncComponent(() => import('@/components/Flow/AiConfigPanel.vue'));
 
 interface Props extends NodeProps {
   id: string;
@@ -71,6 +73,11 @@ const outputParams = computed(() => {
 const nodeConfig = computed(() => {
   if (!props.data.nodeType) return null;
   return getNodeTypeInfo(props.data.nodeType);
+});
+
+// 是否为AI节点（需要显示AI配置面板）
+const isAiNode = computed(() => {
+  return AI_NODE_TYPES.includes(props.data.nodeType as Workflow.NodeType);
 });
 
 // 是否允许自定义参数
@@ -294,6 +301,14 @@ function confirmRename() {
   }
   showRenameModal.value = false;
 }
+
+// 处理AI配置更新
+function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
+  const currentConfig = props.data.config || {};
+  workflowStore.updateNode(props.id, {
+    config: { ...currentConfig, ...aiConfig }
+  });
+}
 </script>
 
 <template>
@@ -323,7 +338,7 @@ function confirmRename() {
       }"
     >
       <div
-        class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1"
+        class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1 -ml-2"
         :style="{ backgroundColor: iconBackgroundColor, color: data.nodeColor }"
       >
         <SvgIcon v-if="data.nodeIcon" :icon="data.nodeIcon" />
@@ -403,6 +418,8 @@ function confirmRename() {
               :allow-custom-output="allowCustomOutput"
             />
           </NCollapseItem>
+          <!-- AI模型配置面板（仅AI节点显示） -->
+          <AiConfigPanel v-if="isAiNode" :node-data="data" @update-ai-config="handleAiConfigUpdate" />
         </NCollapse>
       </div>
 

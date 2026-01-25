@@ -60,6 +60,12 @@ export const NODE_CATEGORIES: Record<string, string> = {
 };
 
 /**
+ * AI节点类型列表
+ * 这些节点需要在BaseNode中统一显示AI参数配置（温度、maxTokens、流式输出等）
+ */
+export const AI_NODE_TYPES: Workflow.NodeType[] = ['LLM_CHAT', 'DB_QUERY', 'SQL_GENERATE', 'INTENT_CLASSIFIER'];
+
+/**
  * 节点分类选项(用于表单)
  */
 export const NODE_CATEGORY_OPTIONS = Object.entries(NODE_CATEGORIES).map(([value, label]) => ({

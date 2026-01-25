@@ -2,7 +2,7 @@
 import { computed, h, ref, watch } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
-import { deleteModels, fetchModels } from '@/service/api/ai/admin/model';
+import { copyModel, deleteModels, fetchModels } from '@/service/api/ai/admin/model';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import ModelModal from './model-modal.vue';
 
@@ -90,6 +90,14 @@ function handleDelete(item: Api.AI.Admin.Model) {
     }
   });
 }
+
+async function handleCopy(item: Api.AI.Admin.Model) {
+  const { error } = await copyModel(item.modelId);
+  if (!error) {
+    message.success('复制成功');
+    loadModels();
+  }
+}
 </script>
 
 <template>
@@ -136,6 +144,7 @@ function handleDelete(item: Api.AI.Admin.Model) {
                     trigger="click"
                     :options="[
                       { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { icon: 'carbon:edit' }) },
+                      { label: '复制', key: 'copy', icon: () => h(SvgIcon, { icon: 'carbon:copy' }) },
                       {
                         label: '删除',
                         key: 'delete',
@@ -143,7 +152,13 @@ function handleDelete(item: Api.AI.Admin.Model) {
                         labelProps: { class: 'text-error' }
                       }
                     ]"
-                    @select="key => (key === 'edit' ? handleEdit(item) : handleDelete(item))"
+                    @select="
+                      key => {
+                        if (key === 'edit') handleEdit(item);
+                        else if (key === 'copy') handleCopy(item);
+                        else handleDelete(item);
+                      }
+                    "
                   >
                     <NButton quaternary size="small" class="text-gray-500 hover:text-primary">
                       <template #icon>
@@ -155,7 +170,7 @@ function handleDelete(item: Api.AI.Admin.Model) {
 
                 <div class="flex flex-col gap-4">
                   <div class="flex items-start justify-between">
-                    <div class="flex items-center gap-3">
+                    <div class="min-w-0 flex flex-1 items-center gap-3 overflow-hidden">
                       <div class="h-12 w-12 flex-center flex-shrink-0">
                         <img
                           v-if="item.providerIcon"
@@ -165,8 +180,10 @@ function handleDelete(item: Api.AI.Admin.Model) {
                         />
                         <!-- <SvgIcon v-else :icon="item.modelType === '1' ? 'carbon:chat' : 'carbon:data-blob'" class="text-primary text-2xl" /> -->
                       </div>
-                      <div>
-                        <div class="text-base font-bold leading-tight">{{ item.modelName }}</div>
+                      <div class="min-w-0 flex-1">
+                        <div class="truncate text-base font-bold leading-tight" :title="item.modelName">
+                          {{ item.modelName }}
+                        </div>
                         <div class="mt-1.5 flex items-center gap-2">
                           <NTag bordered size="small" type="default">
                             {{ aiModelTypeRecord[item.modelType] }}

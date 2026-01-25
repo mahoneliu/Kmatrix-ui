@@ -309,6 +309,7 @@ const local: App.I18n.Schema = {
     ai_workflow: 'Workflow',
     'ai_node-definition': 'Node Definition',
     'ai_datasource-manager': 'Data Source',
+    'ai_app-detail': 'App Detail',
     ai_chat: 'AI Chat'
   },
   menu: {

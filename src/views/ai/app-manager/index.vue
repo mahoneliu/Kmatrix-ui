@@ -65,7 +65,7 @@ async function handleDelete(item: Api.AI.Admin.App) {
 function handleChat(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
-    name: 'ai_chat',
+    name: 'ai-chat',
     query: { appId: item.appId.toString() }
   });
 }
@@ -74,6 +74,15 @@ function handleSettings(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   // 调用统一跳转逻辑
   jumpToAppSettings(item.appId, item.appType);
+}
+
+// 点击卡片跳转到详情页
+function handleCardClick(item: Api.AI.Admin.App) {
+  if (!item.appId) return;
+  router.push({
+    name: 'ai-app-detail',
+    query: { appId: item.appId.toString() }
+  });
 }
 
 function jumpToAppSettings(appId?: CommonType.IdType, type?: string) {
@@ -167,6 +176,7 @@ onMounted(() => {
               class="group relative h-full cursor-pointer rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] transition-all duration-300 !border !border-gray-300 !border-solid dark:bg-white/5 hover:shadow-[0_6px_16px_0_rgba(0,0,0,0.15)] dark:!border-gray-700"
               content-class="pb-2"
               hoverable
+              @click="handleCardClick(item)"
             >
               <!-- 右上角应用类型标签 -->
               <div class="absolute right-3 top-3 z-10">

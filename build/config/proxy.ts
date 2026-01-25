@@ -24,6 +24,15 @@ export function createViteProxy(env: Env.ImportMeta, enable: boolean) {
     Object.assign(proxy, createProxyItem(item, isEnableProxyLog));
   });
 
+  // 添加嵌入对话 API 代理 (/chat/api 路径)
+  if (baseURL) {
+    proxy['/chat'] = {
+      target: baseURL,
+      changeOrigin: true,
+      ws: false
+    };
+  }
+
   return proxy;
 }
 

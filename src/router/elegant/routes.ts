@@ -62,6 +62,17 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'ai_app-detail',
+        path: '/ai/app-detail',
+        component: 'view.ai_app-detail',
+        meta: {
+          title: 'ai_app-detail',
+          i18nKey: 'route.ai_app-detail',
+          hideInMenu: true,
+          constant: true
+        }
+      },
+      {
         name: 'ai_app-manager',
         path: '/ai/app-manager',
         component: 'view.ai_app-manager',

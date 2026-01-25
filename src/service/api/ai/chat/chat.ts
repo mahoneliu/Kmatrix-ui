@@ -77,3 +77,12 @@ export function updateSessionTitle(sessionId: CommonType.IdType, title: string) 
     data: { title }
   });
 }
+/**
+ * 根据 Token 获取应用信息 (免登录)
+ */
+export function fetchAppInfoByToken(token: string) {
+  return request<Api.AI.Admin.App>({
+    url: `/chat/app-info/${token}`,
+    method: 'get'
+  });
+}

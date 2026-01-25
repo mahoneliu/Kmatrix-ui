@@ -99,3 +99,13 @@ export const deleteModels = deleteModel;
 
 /** @deprecated 请使用 createModel */
 export const addModel = createModel;
+
+/**
+ * 复制模型
+ */
+export function copyModel(modelId: CommonType.IdType) {
+  return request<CommonType.IdType>({
+    url: `/ai/model/copy/${modelId}`,
+    method: 'post'
+  });
+}

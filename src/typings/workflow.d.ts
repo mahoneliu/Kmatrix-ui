@@ -290,6 +290,18 @@ declare namespace Workflow {
     maxRows?: number;
   }
 
+  /** AI节点通用配置 */
+  interface AiConfig {
+    /** 温度参数 (0.0-2.0) */
+    temperature?: number;
+    /** 最大Token数 */
+    maxTokens?: number | null;
+    /** 系统提示词 */
+    systemPrompt?: string;
+    /** 是否开启流式输出(作为thinking事件) */
+    streamOutput?: boolean;
+  }
+
   // ========== 参数配置相关类型 ==========
 
   /** 参数数据类型 */

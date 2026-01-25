@@ -9,8 +9,8 @@ interface Props {
 }
 
 interface Emits {
+  (e: 'update:visible', visible: boolean): void;
   (e: 'success', appId?: CommonType.IdType): void;
-  (e: 'cancel'): void;
 }
 
 /** 应用表单模型 */
@@ -56,19 +56,22 @@ watch(
         appId: undefined,
         appName: '',
         description: '',
-        appType: '1',
+        appType: props.appType,
         status: '0'
       };
-      if (props.appType) {
-        formModel.value.appType = props.appType;
-      }
     }
   }
 );
 </script>
 
 <template>
-  <NModal :show="visible" title="新建应用" class="w-800px" preset="card">
+  <NModal
+    :show="visible"
+    title="新建应用"
+    class="w-800px"
+    preset="card"
+    @update:show="val => emit('update:visible', val)"
+  >
     <NForm
       ref="formRef"
       :model="formModel"
@@ -86,7 +89,7 @@ watch(
     </NForm>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <NButton @click="emit('cancel')">取消</NButton>
+        <NButton @click="emit('update:visible', false)">取消</NButton>
         <NButton type="primary" @click="handleSubmit">确定</NButton>
       </div>
     </template>

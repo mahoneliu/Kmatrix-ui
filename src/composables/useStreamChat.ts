@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, triggerRef } from 'vue';
 import { localStg } from '@/utils/storage';
 
 export interface ChatMessage {
@@ -14,6 +14,12 @@ export interface ChatMessage {
   };
   durationMs?: number;
   executions?: any[];
+  /** Thinking内容（AI思考过程） */
+  thinkingContent?: string;
+  /** Thinking区域是否展开 */
+  thinkingExpanded?: boolean;
+  /** 是否正在流式输出 */
+  streaming?: boolean;
 }
 
 export interface NodeExecution {
@@ -38,11 +44,17 @@ export interface StreamChatParams {
   sessionId?: string;
   message: string;
   debug?: boolean;
+  /** 是否显示执行信息（正式对话模式下可选） */
+  showExecutionInfo?: boolean;
+  /** 会话完成回调 */
+  onDone?: (sessionId?: string) => void;
 }
 
 interface UseStreamChatOptions {
   apiEndpoint: string;
   onError?: (error: string) => void;
+  /** 外部传入的 Token（用于嵌入模式） */
+  token?: string;
 }
 
 export function useStreamChat(options: UseStreamChatOptions) {
@@ -67,9 +79,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
     reader: ReadableStreamDefaultReader<Uint8Array>;
     onMessage: (msg: string, replace?: boolean) => void;
     onNodeStatus: (nodeName: string | null) => void;
-    onComplete?: (data: any) => void;
+    onThinking?: (content: string) => void;
+    onComplete?: (content: string) => void;
+    onDone?: (data: any) => void;
   }) {
-    const { reader, onMessage, onNodeStatus: _onNodeStatus, onComplete } = params;
+    const { reader, onMessage, onNodeStatus: _onNodeStatus, onThinking, onComplete, onDone } = params;
     const decoder = new TextDecoder();
     let buffer = '';
     let currentEvent = '';
@@ -107,8 +121,16 @@ export function useStreamChat(options: UseStreamChatOptions) {
                 console.error('Failed to parse node_execution_detail');
               }
               currentEvent = '';
-            } else if (currentEvent === 'done' || currentEvent === 'workflow_complete') {
-              // done/workflow_complete事件：不追加消息，只触发完成回调并保存统计信息
+            } else if (currentEvent === 'thinking') {
+              // thinking事件：追加到thinkingContent
+              onThinking?.(data);
+              currentEvent = '';
+            } else if (currentEvent === 'workflow_complete') {
+              // end节点发送complete事件
+              onComplete?.(data);
+              currentEvent = '';
+            } else if (currentEvent === 'done') {
+              // done事件：不追加消息，只触发完成回调并保存统计信息
               try {
                 const completeData = JSON.parse(data);
                 // 保存统计信息
@@ -118,13 +140,13 @@ export function useStreamChat(options: UseStreamChatOptions) {
                 if (completeData.durationMs !== undefined) {
                   statistics.value.durationMs = completeData.durationMs;
                 }
-                if (onComplete) {
-                  onComplete(completeData);
+                if (onDone) {
+                  onDone(completeData);
                 }
               } catch {
                 // 如果解析失败，可能是简单字符串
-                if (onComplete) {
-                  onComplete({ sessionId: data });
+                if (onDone) {
+                  onDone({ sessionId: data });
                 }
               }
               currentEvent = '';
@@ -171,15 +193,19 @@ export function useStreamChat(options: UseStreamChatOptions) {
     messages.value.push(userMsg);
 
     const aiMsg: ChatMessage = {
-      id: (Date.now() + 1).toString(), // Changed to string
+      id: (Date.now() + 1).toString(),
       role: 'assistant',
       content: '',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      streaming: true,
+      thinkingContent: '',
+      thinkingExpanded: false
     };
     messages.value.push(aiMsg);
 
     try {
-      const token = localStg.get('token') || '';
+      // 优先使用 options 传入的 token，否则从本地存储获取
+      const token = options.token || localStg.get('token') || '';
       const clientId = import.meta.env.VITE_APP_CLIENT_ID;
 
       const response = await fetch(`${baseURL}${apiEndpoint}`, {
@@ -211,7 +237,25 @@ export function useStreamChat(options: UseStreamChatOptions) {
         onNodeStatus: (nodeName: string | null) => {
           currentNodeName.value = nodeName;
         },
+        onThinking: (content: string) => {
+          // 追加thinking内容并展开
+          aiMsg.thinkingContent = `${(aiMsg.thinkingContent || '') + content}\n`;
+          aiMsg.thinkingExpanded = true;
+          // 强制触发响应式更新
+          triggerRef(messages);
+          console.log('aiMsg.thinkingContent:', aiMsg.thinkingContent);
+        },
         onComplete: data => {
+          if (data.length > 0) {
+            aiMsg.content = data;
+          }
+        },
+        onDone: data => {
+          // 标记流式结束
+          aiMsg.streaming = false;
+          // 折叠thinking区域
+          aiMsg.thinkingExpanded = false;
+
           // 汇总所有节点的 token 使用量
           let totalInput = 0;
           let totalOutput = 0;
@@ -242,6 +286,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
           // 附加执行详情
           if (currentExecutions.value.length > 0) {
             aiMsg.executions = [...currentExecutions.value];
+          }
+
+          // 触发完成回调
+          if (params.onDone) {
+            params.onDone(data?.sessionId);
           }
         }
       });

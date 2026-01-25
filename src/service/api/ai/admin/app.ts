@@ -71,6 +71,28 @@ export function publishApp(appId: CommonType.IdType, remark?: string) {
 }
 
 /**
+ * 更新公开访问开关
+ */
+export function updatePublicAccess(appId: CommonType.IdType, publicAccess: '0' | '1') {
+  return request<any>({
+    url: `/ai/app/${appId}/public-access`,
+    method: 'patch',
+    data: { publicAccess }
+  });
+}
+
+/**
+ * 获取应用统计数据
+ */
+export function fetchAppStatistics(appId: CommonType.IdType, period: string = '7d') {
+  return request<Api.AI.Admin.AppStatistics>({
+    url: `/ai/app/${appId}/statistics`,
+    method: 'get',
+    params: { period }
+  });
+}
+
+/**
  * 获取工作流列表
  */
 // export function fetchWorkflowList(params?: any) {

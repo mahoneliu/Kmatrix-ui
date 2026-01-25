@@ -65,6 +65,10 @@ declare namespace Api.AI.Admin {
     appType: '1' | '2'; // 1: 基础对话, 2: 工作流
     status: '0' | '1'; // 0: 草稿, 1: 发布
     prologue: string;
+    /** 是否启用执行详情（0禁用 1启用） */
+    enableExecutionDetail?: '0' | '1';
+    /** 公开访问（0关闭 1开启） */
+    publicAccess?: '0' | '1';
     modelSetting: AppModelConfig;
     knowledgeSetting: AppKnowledgeConfig;
     workflowConfig: AppWorkflowConfig;
@@ -102,4 +106,17 @@ declare namespace Api.AI.Admin {
   //   remark: string;
   //   createTime: string;
   // }
+  /** 应用统计数据 */
+  interface AppStatistics {
+    userCount: number;
+    userCountDelta: number;
+    questionCount: number;
+    tokensTotal: number;
+    satisfaction: {
+      like: number;
+      dislike: number;
+    };
+    userTrend: Record<string, number>;
+    questionTrend: Record<string, number>;
+  }
 }

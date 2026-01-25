@@ -305,6 +305,7 @@ const local: App.I18n.Schema = {
     ai_workflow: '工作流编排',
     'ai_node-definition': '节点定义管理',
     'ai_datasource-manager': '数据源管理',
+    'ai_app-detail': 'App详情',
     ai_chat: 'AI对话'
   },
   menu: {
