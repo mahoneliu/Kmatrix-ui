@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { inject, onMounted, ref } from 'vue';
-import { NButton, NConfigProvider, NMessageProvider, NTooltip, darkTheme } from 'naive-ui';
+import { NButton, NConfigProvider, NDrawer, NDrawerContent, NMessageProvider, NTooltip, darkTheme } from 'naive-ui';
 import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai/chat/chat';
 import { type ChatMessage } from '@/composables/useStreamChat';
+import logoImg from '@/assets/imgs/logo.png';
 import ChatPanel from '@/components/ai/ChatPanel.vue';
 import SessionList from '@/components/ai/SessionList.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
@@ -27,8 +28,8 @@ const sessionId = ref<string | undefined>();
 const sessions = ref<Api.AI.Chat.Session[]>([]);
 const chatPanelRef = ref();
 
-// 侧边栏折叠状态
-const sidebarCollapsed = ref(true);
+// 侧边栏及弹窗状态
+const showSessions = ref(false);
 
 // 主题
 const isDark = ref(embedParams.theme === 'dark');
@@ -42,9 +43,9 @@ const themeOverrides = {
   }
 };
 
-// 切换侧边栏
-function toggleSidebar() {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
+// 切换会话列表显示
+function toggleSessions() {
+  showSessions.value = !showSessions.value;
 }
 
 // 加载会话列表
@@ -58,6 +59,28 @@ async function loadSessions() {
   } catch {
     // ignore
   }
+}
+
+// 最大化/全屏
+const isMaximized = ref(false);
+function handleMaximize() {
+  console.log('Maximize clicked');
+  isMaximized.value = !isMaximized.value;
+  // 向父页面发送消息，让其调整 iframe 大小
+  window.parent?.postMessage(
+    {
+      type: 'maximize-chat',
+      data: { maximized: isMaximized.value }
+    },
+    '*'
+  );
+}
+
+// 关闭
+function handleClose() {
+  console.log('Close clicked');
+  // 通常发送消息给父页面隐藏 iframe
+  window.parent?.postMessage({ type: 'close-chat' }, '*');
 }
 
 // 加载历史消息
@@ -83,6 +106,7 @@ async function loadHistory() {
 // 选择会话
 function handleSelectSession(newSessionId: string) {
   sessionId.value = newSessionId;
+  showSessions.value = false;
   loadHistory();
 }
 
@@ -120,56 +144,88 @@ onMounted(async () => {
 <template>
   <NConfigProvider :theme="isDark ? darkTheme : undefined" :theme-overrides="themeOverrides">
     <NMessageProvider>
-      <div class="embed-container h-full w-full flex">
-        <!-- 侧边栏 -->
+      <div class="embed-container h-full w-full flex flex-col">
+        <!-- 抽屉式会话列表 -->
+        <NDrawer v-model:show="showSessions" placement="left" :width="280">
+          <NDrawerContent :body-padding="0" native-scrollbar>
+            <div class="relative h-full flex flex-col pt-2">
+              <!-- 收回按钮 -->
+              <div
+                class="absolute top-12 z-20 h-6 w-6 flex cursor-pointer items-center justify-center border rounded-full bg-white shadow-lg transition-colors -right-3 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50"
+                @click="showSessions = false"
+              >
+                <SvgIcon icon="mdi:chevron-left" class="text-gray-600 dark:text-gray-300" />
+              </div>
+
+              <div class="flex-1 overflow-hidden">
+                <SessionList
+                  :app-id="embedParams.appId"
+                  :current-session-id="sessionId"
+                  :sessions="sessions"
+                  @delete="handleDeleteSession"
+                  @refresh="loadSessions"
+                  @select="handleSelectSession"
+                />
+              </div>
+            </div>
+          </NDrawerContent>
+        </NDrawer>
+
+        <!-- 顶部工具栏 -->
         <div
-          class="embed-sidebar h-full flex-shrink-0 border-r border-gray-200 transition-all duration-300 dark:border-gray-700"
-          :style="{ width: sidebarCollapsed ? '0px' : '260px', overflow: 'hidden' }"
+          class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2 dark:border-gray-700"
         >
-          <SessionList
-            v-if="!sidebarCollapsed"
-            :app-id="embedParams.appId"
-            :current-session-id="sessionId"
-            :sessions="sessions"
-            @delete="handleDeleteSession"
-            @refresh="loadSessions"
-            @select="handleSelectSession"
-          />
+          <!-- 左侧 Menu + Logo + 标题 -->
+          <div class="flex items-center gap-2">
+            <NButton quaternary circle size="small" @click="toggleSessions">
+              <template #icon>
+                <SvgIcon icon="mdi:menu" />
+              </template>
+            </NButton>
+            <img :src="logoImg" class="h-5 w-auto flex-shrink-0" alt="Logo" />
+            <span class="truncate text-sm font-bold">KMatrix Chat</span>
+          </div>
+
+          <!-- 中间占位 -->
+          <div class="flex-1"></div>
+
+          <!-- 右侧操作栏 -->
+          <div class="flex items-center gap-1">
+            <NTooltip>
+              <template #trigger>
+                <NButton quaternary circle size="small" @click="handleNewSession">
+                  <template #icon>
+                    <SvgIcon icon="mdi:chat-plus-outline" />
+                  </template>
+                </NButton>
+              </template>
+              新建对话
+            </NTooltip>
+            <NTooltip>
+              <template #trigger>
+                <NButton quaternary circle size="small" @click="handleMaximize">
+                  <template #icon>
+                    <SvgIcon icon="mdi:fullscreen" />
+                  </template>
+                </NButton>
+              </template>
+              最大化
+            </NTooltip>
+            <NTooltip>
+              <template #trigger>
+                <NButton quaternary circle size="small" @click="handleClose">
+                  <template #icon>
+                    <SvgIcon icon="mdi:close" />
+                  </template>
+                </NButton>
+              </template>
+              关闭
+            </NTooltip>
+          </div>
         </div>
 
         <!-- 主内容区 -->
         <div class="flex flex-col flex-1 overflow-hidden">
-          <!-- 顶部工具栏 -->
-          <div
-            class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2 dark:border-gray-700"
-          >
-            <div class="flex items-center gap-2">
-              <NTooltip>
-                <template #trigger>
-                  <NButton quaternary circle size="small" @click="toggleSidebar">
-                    <template #icon>
-                      <SvgIcon :icon="sidebarCollapsed ? 'mdi:menu' : 'mdi:menu-open'" />
-                    </template>
-                  </NButton>
-                </template>
-                {{ sidebarCollapsed ? '展开历史' : '收起历史' }}
-              </NTooltip>
-              <span class="text-sm font-medium">KMatrix Chat</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <NTooltip>
-                <template #trigger>
-                  <NButton quaternary circle size="small" @click="handleNewSession">
-                    <template #icon>
-                      <SvgIcon icon="mdi:plus" />
-                    </template>
-                  </NButton>
-                </template>
-                新建对话
-              </NTooltip>
-            </div>
-          </div>
-
           <!-- 对话面板 -->
           <ChatPanel
             ref="chatPanelRef"

@@ -337,47 +337,51 @@ defineExpose({
     </div>
 
     <!-- 输入框 -->
-    <div class="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
-      <div class="flex flex-col gap-3">
-        <!-- 执行详情开关（仅正式对话模式且App启用且有权限时显示） -->
-        <div v-if="mode === 'chat' && enableExecutionDetail && hasExecutionDetailPermission" class="flex justify-end">
-          <NTooltip>
-            <template #trigger>
-              <NButton
-                :type="showExecutionInfo ? 'primary' : 'default'"
-                size="small"
-                quaternary
-                @click="showExecutionInfo = !showExecutionInfo"
-              >
-                <template #icon>
-                  <SvgIcon icon="mdi:information-outline" />
-                </template>
-                {{ showExecutionInfo ? '关闭执行详情' : '开启执行详情' }}
-              </NButton>
-            </template>
-            {{ showExecutionInfo ? '点击关闭执行详情显示' : '点击开启执行详情显示' }}
-          </NTooltip>
-        </div>
-
+    <div class="flex-shrink-0 px-4 py-4">
+      <div
+        class="relative border border-gray-200 rounded-xl bg-white p-2 transition-all dark:border-gray-700 focus-within:border-primary-500 dark:bg-gray-800 focus-within:ring-1 focus-within:ring-primary-500"
+      >
         <NInput
           v-model:value="inputMessage"
-          :autosize="{ minRows: 1, maxRows: 4 }"
+          :autosize="{ minRows: 2, maxRows: 6 }"
+          :bordered="false"
           :disabled="isStreaming"
-          :placeholder="isStreaming ? 'AI正在回复...' : '输入消息 (Enter发送, Shift+Enter换行)'"
+          :placeholder="isStreaming ? 'AI正在回复...' : '请输入问题... (Enter发送)'"
+          class="flex-1"
           type="textarea"
           @keydown="handleKeyDown"
         />
-        <div class="flex justify-end">
+        <div class="flex items-center justify-between px-2 pb-1 pt-1">
+          <div class="flex items-center gap-2">
+            <!-- 执行详情开关（仅正式对话模式且App启用且有权限时显示） -->
+            <NTooltip v-if="mode === 'chat' && enableExecutionDetail && hasExecutionDetailPermission">
+              <template #trigger>
+                <NButton
+                  :type="showExecutionInfo ? 'primary' : 'default'"
+                  quaternary
+                  size="tiny"
+                  @click="showExecutionInfo = !showExecutionInfo"
+                >
+                  <template #icon>
+                    <SvgIcon icon="mdi:information-outline" />
+                  </template>
+                </NButton>
+              </template>
+              {{ showExecutionInfo ? '关闭执行详情' : '开启执行详情' }}
+            </NTooltip>
+          </div>
           <NButton
             :disabled="!inputMessage.trim() || isStreaming"
             :loading="isStreaming"
+            circle
+            quaternary
+            size="small"
             type="primary"
             @click="handleSend"
           >
             <template #icon>
-              <SvgIcon icon="carbon:send" />
+              <SvgIcon icon="carbon:send-alt" class="text-xl" />
             </template>
-            发送
           </NButton>
         </div>
       </div>

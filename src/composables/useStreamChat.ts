@@ -239,7 +239,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
         },
         onThinking: (content: string) => {
           // 追加thinking内容并展开
-          aiMsg.thinkingContent = `${(aiMsg.thinkingContent || '') + content}\n`;
+          aiMsg.thinkingContent = `${(aiMsg.thinkingContent || '') + content}`;
           aiMsg.thinkingExpanded = true;
           // 强制触发响应式更新
           triggerRef(messages);

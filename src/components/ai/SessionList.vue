@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { NButton, NEmpty, NInput, NList, NListItem, NTime, NTooltip, useMessage } from 'naive-ui';
 import { updateSessionTitle } from '@/service/api/ai/chat/chat';
+import logoImg from '@/assets/imgs/logo.png';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
@@ -86,14 +87,30 @@ function handleKeyDown(e: KeyboardEvent, sessionId: string) {
 
 <template>
   <div class="h-full flex flex-col">
-    <!-- 头部 -->
-    <div class="flex-shrink-0 border-b border-gray-200 border-solid px-4 py-3 dark:border-gray-700">
-      <NButton block type="primary" @click="handleNewSession">
+    <!-- 头部 (Logo & 标题) -->
+    <div class="flex flex-shrink-0 items-center gap-2 px-4 py-4">
+      <img :src="logoImg" class="h-6 w-auto" alt="Logo" />
+      <span class="text-base text-gray-800 font-bold dark:text-gray-200">KMatrix Chat</span>
+    </div>
+
+    <!-- 新建对话按钮 -->
+    <div class="flex-shrink-0 px-4 pb-4">
+      <NButton block type="primary" secondary @click="handleNewSession">
         <template #icon>
-          <SvgIcon icon="carbon:add" />
+          <SvgIcon icon="mdi:chat-plus-outline" />
         </template>
         新建对话
       </NButton>
+    </div>
+
+    <!-- 历史记录标题 -->
+    <div
+      class="flex items-center justify-between bg-gray-50/50 px-4 py-2 text-xs text-gray-500 font-medium dark:bg-gray-800/50"
+    >
+      <div class="flex items-center gap-1">
+        <span>历史记录</span>
+      </div>
+      <SvgIcon icon="carbon:trash-can" class="cursor-pointer hover:text-red-500" @click="emit('delete', 'all')" />
     </div>
 
     <!-- 会话列表 -->
