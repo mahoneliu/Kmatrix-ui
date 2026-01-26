@@ -1,0 +1,31 @@
+{
+  "name": "@km/shared",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*",
+    "./composables/*": "./src/composables/*",
+    "./api/*": "./src/api/*"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./src/*"]
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --fix",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "naive-ui": "^2.43.0",
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@sa/axios": "workspace:*",
+    "@sa/utils": "workspace:*",
+    "naive-ui": "2.43.2",
+    "vue": "3.5.25",
+    "vue-router": "4.6.3"
+  }
+}

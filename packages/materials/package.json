@@ -10,6 +10,7 @@
     }
   },
   "dependencies": {
+    "@sa/color": "workspace:*",
     "@sa/utils": "workspace:*",
     "simplebar-vue": "2.4.2"
   },
