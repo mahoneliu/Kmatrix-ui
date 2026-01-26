@@ -75,6 +75,14 @@ export const request = createFlatRequest(
       return String(response.data.code) === import.meta.env.VITE_SERVICE_SUCCESS_CODE;
     },
     async onBackendFail(response, instance) {
+      // 检查是否在嵌入模式（没有完整的路由系统）
+      const isEmbedMode = window.location.pathname.includes('/embed.html');
+
+      // 嵌入模式下不执行登出逻辑
+      if (isEmbedMode) {
+        return null;
+      }
+
       const authStore = useAuthStore();
       const responseCode = String(response.data.code);
 
@@ -114,7 +122,7 @@ export const request = createFlatRequest(
 
         window.$dialog?.warning({
           title: '系统提示',
-          content: '登录状态已过期，请重新登录',
+          content: '登录状态已过期,请重新登录',
           positiveText: '重新登录',
           maskClosable: false,
           closeOnEsc: false,

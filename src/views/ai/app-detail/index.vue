@@ -181,7 +181,7 @@ function copyToClipboard(text: string, label: string) {
 
 // 跳转去对话
 function handleGoToChat() {
-  router.push({ name: 'ai-chat', query: { appId: appId.value } });
+  router.push({ name: 'ai_chat', query: { appId: appId.value } });
 }
 
 // 跳转工作流设置
@@ -237,7 +237,7 @@ const embedFloatCode = computed(() => {
   return `<script
 async
 defer
-src="${baseOrigin.value}/chat/api/embed?protocol=http&host=${window.location.host}&token=${token.token}">
+src="${baseOrigin.value}/chat/embed?protocol=http&host=${window.location.host}&token=${token.token}">
 ${scriptEnd}`;
 });
 

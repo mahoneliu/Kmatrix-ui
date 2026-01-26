@@ -65,7 +65,7 @@ async function handleDelete(item: Api.AI.Admin.App) {
 function handleChat(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
-    name: 'ai-chat',
+    name: 'ai_chat',
     query: { appId: item.appId.toString() }
   });
 }
@@ -80,7 +80,7 @@ function handleSettings(item: Api.AI.Admin.App) {
 function handleCardClick(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
-    name: 'ai-app-detail',
+    name: 'ai_app-detail',
     query: { appId: item.appId.toString() }
   });
 }

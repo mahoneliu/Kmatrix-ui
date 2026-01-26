@@ -23,10 +23,11 @@ export function sendMessage(data: Api.AI.Chat.SendRequest) {
 /**
  * 获取会话历史消息
  */
-export function fetchChatHistory(sessionId: CommonType.IdType) {
+export function fetchChatHistory(sessionId: CommonType.IdType, token?: string) {
   return request<Api.AI.Chat.Message[]>({
     url: `${CHAT_API_BASE}/history/${sessionId}`,
-    method: 'get'
+    method: 'get',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
 
@@ -53,10 +54,11 @@ export function clearAppHistory(appId: CommonType.IdType) {
 /**
  * 获取会话列表
  */
-export function fetchSessionList(appId: CommonType.IdType) {
+export function fetchSessionList(appId: CommonType.IdType, token?: string) {
   return request<Api.AI.Chat.Session[]>({
     url: `${CHAT_API_BASE}/sessions/${appId}`,
-    method: 'get'
+    method: 'get',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
 

@@ -1,17 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import {
-  NButton,
-  NCard,
-  NCollapse,
-  NCollapseItem,
-  NInput,
-  NScrollbar,
-  NSpace,
-  NSpin,
-  NTooltip,
-  useMessage
-} from 'naive-ui';
+import { NButton, NCollapse, NCollapseItem, NInput, NScrollbar, NSpin, NTooltip, useMessage } from 'naive-ui';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { type ChatMessage, type NodeExecution, useStreamChat } from '@/composables/useStreamChat';
 import { useAuth } from '@/hooks/business/auth';
@@ -217,7 +206,7 @@ defineExpose({
               </template>
               复制
             </NTooltip>
-            <div class="max-w-[70%] rounded-lg bg-primary px-4 py-2 text-white">
+            <div class="max-w-[70%] rounded-lg bg-blue-500 px-4 py-2 text-white">
               <div class="whitespace-pre-wrap break-words">{{ msg.content }}</div>
             </div>
           </div>
@@ -348,8 +337,8 @@ defineExpose({
     </div>
 
     <!-- 输入框 -->
-    <NCard :bordered="false" class="flex-shrink-0">
-      <NSpace vertical>
+    <div class="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
+      <div class="flex flex-col gap-3">
         <!-- 执行详情开关（仅正式对话模式且App启用且有权限时显示） -->
         <div v-if="mode === 'chat' && enableExecutionDetail && hasExecutionDetailPermission" class="flex justify-end">
           <NTooltip>
@@ -391,8 +380,8 @@ defineExpose({
             发送
           </NButton>
         </div>
-      </NSpace>
-    </NCard>
+      </div>
+    </div>
   </div>
 </template>
 

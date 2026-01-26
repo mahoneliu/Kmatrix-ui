@@ -1,4 +1,4 @@
-import type { CustomRoute, ElegantConstRoute, ElegantRoute } from '@elegant-router/types';
+import type { ElegantConstRoute, ElegantRoute } from '@elegant-router/types';
 import { generatedRoutes } from '../elegant/routes';
 import { layouts, views } from '../elegant/imports';
 import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
@@ -8,27 +8,18 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: CustomRoute[] = [
-  // {
-  //   name: 'ai-app-detail',
-  //   path: '/ai/app-detail',
-  //   component: 'layout.base$view.ai_app-detail',
-  //   meta: {
-  //     title: 'ai_app-detail',
-  //     i18nKey: 'route.ai_app-detail',
-  //     hideInMenu: true
-  //   }
-  // },
-  // {
-  //   name: 'ai-chat',
-  //   path: '/ai/chat',
-  //   component: 'layout.base$view.ai_chat',
-  //   meta: {
-  //     title: 'ai_chat',
-  //     i18nKey: 'route.ai_chat',
-  //     hideInMenu: true
-  //   }
-  // }
+const customRoutes: any = [
+  {
+    name: 'ai_chat',
+    path: '/ai/chat',
+    component: 'view.ai_chat',
+    meta: {
+      title: 'ai_chat',
+      i18nKey: 'route.ai_chat',
+      hideInMenu: true,
+      constant: true
+    }
+  }
 ];
 
 /** create routes when the auth route mode is static */

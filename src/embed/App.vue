@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { inject, onMounted, ref } from 'vue';
-import { NButton, NConfigProvider, NTooltip, darkTheme, useMessage } from 'naive-ui';
+import { NButton, NConfigProvider, NMessageProvider, NTooltip, darkTheme } from 'naive-ui';
 import { clearChatHistory, fetchChatHistory, fetchSessionList } from '@/service/api/ai/chat/chat';
 import { type ChatMessage } from '@/composables/useStreamChat';
 import ChatPanel from '@/components/ai/ChatPanel.vue';
@@ -21,8 +21,6 @@ const embedParams = inject<EmbedParams>('embedParams', {
   primaryColor: '#18a058',
   theme: 'light'
 });
-
-const message = useMessage();
 
 // 会话相关
 const sessionId = ref<string | undefined>();
@@ -53,7 +51,7 @@ function toggleSidebar() {
 async function loadSessions() {
   if (!embedParams.appId) return;
   try {
-    const { data } = await fetchSessionList(embedParams.appId);
+    const { data } = await fetchSessionList(embedParams.appId, embedParams.appToken);
     if (data) {
       sessions.value = data;
     }
@@ -66,7 +64,7 @@ async function loadSessions() {
 async function loadHistory() {
   if (!sessionId.value) return;
   try {
-    const { data } = await fetchChatHistory(sessionId.value);
+    const { data } = await fetchChatHistory(sessionId.value, embedParams.appToken);
     if (data) {
       const msgs: ChatMessage[] = data.map((item: any, index: number) => ({
         id: item.id || String(index),
@@ -78,7 +76,7 @@ async function loadHistory() {
       chatPanelRef.value?.setMessages(msgs);
     }
   } catch {
-    message.error('加载历史消息失败');
+    console.error('加载历史消息失败');
   }
 }
 
@@ -92,13 +90,13 @@ function handleSelectSession(newSessionId: string) {
 async function handleDeleteSession(deletedSessionId: string) {
   try {
     await clearChatHistory(deletedSessionId);
-    message.success('已删除会话');
+    console.log('已删除会话');
     if (deletedSessionId === sessionId.value) {
       sessionId.value = undefined;
     }
     await loadSessions();
   } catch {
-    message.error('删除会话失败');
+    console.error('删除会话失败');
   }
 }
 
@@ -121,72 +119,77 @@ onMounted(async () => {
 
 <template>
   <NConfigProvider :theme="isDark ? darkTheme : undefined" :theme-overrides="themeOverrides">
-    <div class="embed-container h-full w-full flex">
-      <!-- 侧边栏 -->
-      <div
-        class="embed-sidebar h-full flex-shrink-0 border-r border-gray-200 transition-all duration-300 dark:border-gray-700"
-        :style="{ width: sidebarCollapsed ? '0px' : '260px', overflow: 'hidden' }"
-      >
-        <SessionList
-          v-if="!sidebarCollapsed"
-          :app-id="embedParams.appId"
-          :current-session-id="sessionId"
-          :sessions="sessions"
-          @delete="handleDeleteSession"
-          @refresh="loadSessions"
-          @select="handleSelectSession"
-        />
-      </div>
-
-      <!-- 主内容区 -->
-      <div class="flex flex-col flex-1 overflow-hidden">
-        <!-- 顶部工具栏 -->
+    <NMessageProvider>
+      <div class="embed-container h-full w-full flex">
+        <!-- 侧边栏 -->
         <div
-          class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2 dark:border-gray-700"
+          class="embed-sidebar h-full flex-shrink-0 border-r border-gray-200 transition-all duration-300 dark:border-gray-700"
+          :style="{ width: sidebarCollapsed ? '0px' : '260px', overflow: 'hidden' }"
         >
-          <div class="flex items-center gap-2">
-            <NTooltip>
-              <template #trigger>
-                <NButton quaternary circle size="small" @click="toggleSidebar">
-                  <template #icon>
-                    <SvgIcon :icon="sidebarCollapsed ? 'mdi:menu' : 'mdi:menu-open'" />
-                  </template>
-                </NButton>
-              </template>
-              {{ sidebarCollapsed ? '展开历史' : '收起历史' }}
-            </NTooltip>
-            <span class="text-sm font-medium">KMatrix Chat</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <NTooltip>
-              <template #trigger>
-                <NButton quaternary circle size="small" @click="handleNewSession">
-                  <template #icon>
-                    <SvgIcon icon="mdi:plus" />
-                  </template>
-                </NButton>
-              </template>
-              新建对话
-            </NTooltip>
-          </div>
+          <SessionList
+            v-if="!sidebarCollapsed"
+            :app-id="embedParams.appId"
+            :current-session-id="sessionId"
+            :sessions="sessions"
+            @delete="handleDeleteSession"
+            @refresh="loadSessions"
+            @select="handleSelectSession"
+          />
         </div>
 
-        <!-- 对话面板 -->
-        <ChatPanel
-          ref="chatPanelRef"
-          mode="chat"
-          :app-id="embedParams.appId"
-          :session-id="sessionId"
-          class="flex-1 overflow-hidden"
-          @session-change="handleSessionChange"
-        />
+        <!-- 主内容区 -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+          <!-- 顶部工具栏 -->
+          <div
+            class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2 dark:border-gray-700"
+          >
+            <div class="flex items-center gap-2">
+              <NTooltip>
+                <template #trigger>
+                  <NButton quaternary circle size="small" @click="toggleSidebar">
+                    <template #icon>
+                      <SvgIcon :icon="sidebarCollapsed ? 'mdi:menu' : 'mdi:menu-open'" />
+                    </template>
+                  </NButton>
+                </template>
+                {{ sidebarCollapsed ? '展开历史' : '收起历史' }}
+              </NTooltip>
+              <span class="text-sm font-medium">KMatrix Chat</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <NTooltip>
+                <template #trigger>
+                  <NButton quaternary circle size="small" @click="handleNewSession">
+                    <template #icon>
+                      <SvgIcon icon="mdi:plus" />
+                    </template>
+                  </NButton>
+                </template>
+                新建对话
+              </NTooltip>
+            </div>
+          </div>
+
+          <!-- 对话面板 -->
+          <ChatPanel
+            ref="chatPanelRef"
+            mode="chat"
+            :app-id="embedParams.appId"
+            :session-id="sessionId"
+            :token="embedParams.appToken"
+            class="flex-1 overflow-hidden"
+            @session-change="handleSessionChange"
+          />
+        </div>
       </div>
-    </div>
+    </NMessageProvider>
   </NConfigProvider>
 </template>
 
 <style scoped>
 .embed-container {
   background: var(--n-color, #fff);
+  height: 100vh;
+  width: 100vw;
 }
 </style>
