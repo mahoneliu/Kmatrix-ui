@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { NAlert, NButton } from 'naive-ui';
+import { ChatPanel } from '@km/shared';
+import { useNodeDefinitionStore } from '@/store/modules/node-definition';
+import { localStg } from '@/utils/storage';
 import SvgIcon from '@/components/custom/svg-icon.vue';
-import ChatPanel from '@/components/ai/ChatPanel.vue';
 
 interface Props {
   visible: boolean;
@@ -14,6 +16,13 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   'update:visible': [value: boolean];
 }>();
+
+const token = localStg.get('token') || undefined;
+const nodeDefinitionStore = useNodeDefinitionStore();
+
+function getNodeDefinition(nodeType: string) {
+  return nodeDefinitionStore.getNodeDefinition(nodeType);
+}
 
 // 窗口状态
 const isMinimized = ref(false);
@@ -106,7 +115,14 @@ watch(
           调试使用最新草稿，临时对话，数据不保存。修改工作流实时生效，无需重新打开窗口。
         </NAlert>
       </div>
-      <ChatPanel mode="debug" :app-id="appId" :app-name="appName" class="flex-1 overflow-hidden" />
+      <ChatPanel
+        mode="debug"
+        :token="token"
+        :app-id="appId"
+        :app-name="appName"
+        :get-node-definition="getNodeDefinition"
+        class="flex-1 overflow-hidden"
+      />
     </div>
   </div>
 </template>

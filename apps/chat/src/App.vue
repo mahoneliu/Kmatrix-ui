@@ -7,6 +7,7 @@ import {
   SessionList,
   clearAppHistory,
   clearChatHistory,
+  fetchAppInfoByToken,
   fetchChatHistory,
   fetchSessionList
 } from '@km/shared';
@@ -54,12 +55,32 @@ function toggleSessions() {
 }
 
 // 加载会话列表
+// 加载会话列表
 async function loadSessions() {
   if (!embedParams.appId) return;
   try {
     const { data } = await fetchSessionList(embedParams.appId, embedParams.appToken);
     if (data) {
       sessions.value = data;
+    }
+  } catch {
+    // ignore
+  }
+}
+
+// 应用信息
+const appTitle = ref('');
+async function loadAppInfo() {
+  if (!embedParams.appToken) return;
+  try {
+    // 假设 fetchAppInfoByToken 返回包含 appName 的对象
+    // 需要确认 fetchAppInfoByToken 的返回类型，参考 Admin 代码它返回 Api.AI.Admin.App
+    // 但是这里是 shared 包，可能类型不同。不过 Admin 也是用的 api/ai/admin/app 里的 fetchAppInfoByToken 吗？
+    // 不，Admin 用的是 @/service/api/ai/chat/chat 里的 fetchAppInfoByToken。
+    // Shared 包 exported api/chat.ts 应该也有这个。
+    const { data } = await fetchAppInfoByToken(embedParams.appToken);
+    if (data) {
+      appTitle.value = data.appName; // 注意这里是用 appName
     }
   } catch {
     // ignore
@@ -152,6 +173,7 @@ function handleNewSession() {
 }
 
 onMounted(async () => {
+  await loadAppInfo();
   await loadSessions();
 });
 </script>
@@ -162,14 +184,14 @@ onMounted(async () => {
       <div class="embed-container h-full w-full flex flex-col">
         <!-- 抽屉式会话列表 -->
         <NDrawer v-model:show="showSessions" placement="left" :width="280">
-          <NDrawerContent :body-padding="0" native-scrollbar>
+          <NDrawerContent :native-scrollbar="false" style="--n-body-padding: 2px">
             <div class="relative h-full flex flex-col pt-2">
               <!-- 收回按钮 -->
               <div
-                class="absolute top-12 z-20 h-6 w-6 flex cursor-pointer items-center justify-center border rounded-full bg-white shadow-lg transition-colors -right-3 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50"
+                class="absolute right-4 top-3 z-20 h-6 w-6 flex cursor-pointer items-center justify-center border rounded-full bg-white shadow-lg transition-colors -right-3 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50"
                 @click="showSessions = false"
               >
-                <SvgIcon icon="mdi:chevron-left" class="text-gray-600 dark:text-gray-300" />
+                <SvgIcon icon="mdi:chevron-left" class="text-26px text-gray-600 dark:text-gray-300" />
               </div>
 
               <div class="flex-1 overflow-hidden">
@@ -179,6 +201,7 @@ onMounted(async () => {
                   :sessions="sessions"
                   :logo="logoImg"
                   :token="embedParams.appToken"
+                  :title="appTitle"
                   @delete="handleDeleteSession"
                   @refresh="loadSessions"
                   @select="handleSelectSession"
@@ -190,7 +213,7 @@ onMounted(async () => {
 
         <!-- 顶部工具栏 -->
         <div
-          class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 px-3 py-2 dark:border-gray-700"
+          class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 from-slate-200 to-zinc-200/50 bg-gradient-to-r px-3 py-2 shadow-sm dark:border-gray-700"
         >
           <!-- 左侧 Menu + Logo + 标题 -->
           <div class="flex items-center gap-2">
@@ -200,7 +223,7 @@ onMounted(async () => {
               </template>
             </NButton>
             <img :src="logoImg" class="h-5 w-auto flex-shrink-0" alt="Logo" />
-            <span class="truncate text-sm font-bold">KMatrix Chat</span>
+            <span class="truncate text-sm font-bold">{{ appTitle || 'KMatrix Chat' }}</span>
           </div>
 
           <!-- 中间占位 -->

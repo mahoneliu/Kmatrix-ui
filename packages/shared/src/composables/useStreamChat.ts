@@ -87,76 +87,84 @@ export function useStreamChat(options: UseStreamChatOptions) {
     const { reader, onMessage, onNodeStatus: _onNodeStatus, onThinking, onComplete, onDone } = params;
     const decoder = new TextDecoder();
     let buffer = '';
+
+    // SSE Event State
     let currentEvent = '';
+    let currentDataBuffer: string[] = [];
+
+    const emitEvent = () => {
+      if (currentDataBuffer.length === 0 && !currentEvent) return;
+
+      const data = currentDataBuffer.join('\n');
+
+      // Reset for next event (do this first or after? standard says reset after dispatch)
+      // But we need to use currentEvent.
+
+      if (currentEvent === 'node_execution_detail') {
+        try {
+          const executionDetail = JSON.parse(data);
+          currentExecutions.value.push(executionDetail as NodeExecution);
+        } catch {
+          console.error('Failed to parse node_execution_detail');
+        }
+      } else if (currentEvent === 'thinking') {
+        onThinking?.(data);
+      } else if (currentEvent === 'workflow_complete') {
+        onComplete?.(data);
+      } else if (currentEvent === 'done') {
+        try {
+          const completeData = JSON.parse(data);
+          if (completeData.totalTokens !== undefined) {
+            statistics.value.totalTokens = completeData.totalTokens;
+          }
+          if (completeData.durationMs !== undefined) {
+            statistics.value.durationMs = completeData.durationMs;
+          }
+          if (onDone) {
+            onDone(completeData);
+          }
+        } catch {
+          if (onDone) {
+            onDone({ sessionId: data });
+          }
+        }
+      } else if (data) {
+        // Default message (data only or empty event)
+        onMessage(data);
+      }
+
+      currentEvent = '';
+      currentDataBuffer = [];
+    };
 
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          // Flush remaining if any (though usually stream ends with newline)
+          emitEvent();
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        buffer = lines.pop() || ''; // Keep last incomplete line
 
         for (const line of lines) {
-          if (line.trim() === '') {
-            currentEvent = '';
+          const trimmedLine = line.trim();
+          if (trimmedLine === '') {
+            // Empty line triggers dispatch
+            emitEvent();
             continue;
           }
 
           if (line.startsWith('event:') || line.startsWith('event: ')) {
             currentEvent = line.startsWith('event: ') ? line.substring(7).trim() : line.substring(6).trim();
-            continue;
+          } else if (line.startsWith('data:') || line.startsWith('data: ')) {
+            const chunk = line.startsWith('data: ') ? line.substring(6) : line.substring(5);
+            currentDataBuffer.push(chunk);
           }
-
-          if (line.startsWith('data:') || line.startsWith('data: ')) {
-            const data = line.startsWith('data: ') ? line.substring(6) : line.substring(5);
-
-            // 根据事件类型处理
-            if (currentEvent === 'node_execution_detail') {
-              // 收集执行详情事件
-              try {
-                const executionDetail = JSON.parse(data);
-                currentExecutions.value.push(executionDetail as NodeExecution);
-              } catch {
-                console.error('Failed to parse node_execution_detail');
-              }
-              currentEvent = '';
-            } else if (currentEvent === 'thinking') {
-              // thinking事件：追加到thinkingContent
-              onThinking?.(data);
-              currentEvent = '';
-            } else if (currentEvent === 'workflow_complete') {
-              // end节点发送complete事件
-              onComplete?.(data);
-              currentEvent = '';
-            } else if (currentEvent === 'done') {
-              // done事件：不追加消息，只触发完成回调并保存统计信息
-              try {
-                const completeData = JSON.parse(data);
-                // 保存统计信息
-                if (completeData.totalTokens !== undefined) {
-                  statistics.value.totalTokens = completeData.totalTokens;
-                }
-                if (completeData.durationMs !== undefined) {
-                  statistics.value.durationMs = completeData.durationMs;
-                }
-                if (onDone) {
-                  onDone(completeData);
-                }
-              } catch {
-                // 如果解析失败，可能是简单字符串
-                if (onDone) {
-                  onDone({ sessionId: data });
-                }
-              }
-              currentEvent = '';
-            } else {
-              // 无event前缀的普通消息（流式追加）
-              onMessage(data);
-              currentEvent = '';
-            }
-          }
+          // Ignore other fields like id:, retry: for now
         }
       }
     } finally {

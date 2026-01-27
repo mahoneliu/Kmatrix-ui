@@ -23,7 +23,7 @@
   const scriptUrl = new URL(script.src);
   const appToken = scriptUrl.searchParams.get('appToken');
   const appId = scriptUrl.searchParams.get('appId');
-  const primaryColor = scriptUrl.searchParams.get('primaryColor') || '#18a058';
+  const primaryColor = scriptUrl.searchParams.get('primaryColor') || '#394befff';
   const theme = scriptUrl.searchParams.get('theme') || 'light';
 
   if (!appToken || !appId) {
@@ -68,9 +68,9 @@
             bottom: 96px;
             right: 24px;
             width: 400px;
-            height: 600px;
+            height: 800px;
             max-height: calc(100vh - 120px);
-            border-radius: 16px;
+            border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             z-index: 999999;
@@ -152,11 +152,13 @@
     try {
       const action = event.data.type || event.data.action;
       if (action === 'maximize-chat') {
-        container.style.width = event.data.maximized ? '100vw' : '400px';
-        container.style.height = event.data.maximized ? '100vh' : '600px';
-        container.style.right = event.data.maximized ? '0' : '24px';
-        container.style.bottom = event.data.maximized ? '0' : '96px';
-        container.style.borderRadius = event.data.maximized ? '0' : '16px';
+        const maximized = event.data.data?.maximized || event.data.maximized;
+        container.style.width = maximized ? '50vw' : '400px';
+        container.style.height = maximized ? '100vh' : '800px';
+        container.style.right = maximized ? '0' : '24px';
+        container.style.bottom = maximized ? '0' : '96px';
+        container.style.borderRadius = maximized ? '8px' : '8px';
+        container.style.maxHeight = maximized ? 'none' : '';
       } else if (action === 'close-chat') {
         isOpen = false;
         container.classList.remove('active');

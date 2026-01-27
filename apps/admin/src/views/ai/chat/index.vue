@@ -2,12 +2,16 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NTooltip, useMessage } from 'naive-ui';
-import { clearChatHistory, fetchAppInfoByToken, fetchChatHistory, fetchSessionList } from '@/service/api/ai/chat/chat';
+import { type ChatMessage, ChatPanel, SessionList } from '@km/shared';
+import {
+  clearAppHistory,
+  clearChatHistory,
+  fetchAppInfoByToken,
+  fetchChatHistory,
+  fetchSessionList
+} from '@/service/api/ai/chat/chat';
 import { fetchAppDetail } from '@/service/api/ai/admin/app';
-import { type ChatMessage } from '@/composables/useStreamChat';
 import { localStg } from '@/utils/storage';
-import SessionList from '@/components/ai/SessionList.vue';
-import ChatPanel from '@/components/ai/ChatPanel.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const route = useRoute();
@@ -121,17 +125,25 @@ function handleSelectSession(newSessionId: string) {
 // 删除会话
 async function handleDeleteSession(deletedSessionId: string) {
   try {
-    await clearChatHistory(deletedSessionId);
-    message.success('已删除会话');
-
-    if (deletedSessionId === sessionId.value) {
+    if (deletedSessionId === 'all') {
+      await clearAppHistory(appId.value);
+      message.success('已清空所有会话');
       sessionId.value = undefined;
+      chatPanelRef.value?.clearMessages();
       router.push({ name: 'ai_chat', query: { appId: appId.value } });
+    } else {
+      await clearChatHistory(deletedSessionId);
+      message.success('已删除会话');
+
+      if (deletedSessionId === sessionId.value) {
+        sessionId.value = undefined;
+        router.push({ name: 'ai_chat', query: { appId: appId.value } });
+      }
     }
 
     await loadSessions();
   } catch {
-    message.error('删除会话失败');
+    message.error('操作失败');
   }
 }
 
@@ -229,6 +241,7 @@ onMounted(async () => {
           :app-id="appId"
           :current-session-id="sessionId"
           :sessions="sessions"
+          :title="appInfo?.appName"
           @delete="handleDeleteSession"
           @refresh="loadSessions"
           @select="handleSelectSession"

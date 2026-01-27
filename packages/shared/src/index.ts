@@ -18,6 +18,7 @@ export {
   clearChatHistory,
   clearAppHistory,
   updateSessionTitle,
+  fetchAppInfoByToken,
   anonymousAuth,
   type AnonymousAuthResponse
 } from './api/chat';

@@ -190,151 +190,158 @@ defineExpose({
   <div class="chat-panel h-full flex flex-col">
     <!-- 消息列表 -->
     <div class="flex-1 overflow-hidden">
-      <NScrollbar ref="scrollbarRef" class="h-full px-4 py-4">
-        <div v-for="msg in messages" :key="msg.id" class="group mb-4">
-          <!-- 用户消息 -->
-          <div v-if="msg.role === 'user'" class="flex items-start justify-end gap-2">
-            <NTooltip>
-              <template #trigger>
-                <NButton
-                  circle
-                  class="opacity-0 transition-opacity group-hover:opacity-100"
-                  quaternary
-                  size="small"
-                  @click="handleCopyMessage(msg.content)"
-                >
-                  <template #icon>
-                    <SvgIcon icon="carbon:copy" />
-                  </template>
-                </NButton>
-              </template>
-              复制
-            </NTooltip>
-            <div class="max-w-[70%] rounded-lg bg-blue-500 px-4 py-2 text-white">
-              <div class="whitespace-pre-wrap break-words">{{ msg.content }}</div>
-            </div>
-          </div>
-
-          <!-- AI消息 -->
-          <div v-else class="flex items-start justify-start gap-2">
-            <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
-              <!-- Thinking区域（可折叠） -->
-              <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
-                <NCollapse
-                  :key="`thinking-${msg.id}-${msg.thinkingExpanded}`"
-                  :default-expanded-names="msg.thinkingExpanded ? ['thinking'] : []"
-                >
-                  <NCollapseItem name="thinking">
-                    <template #header>
-                      <span class="text-xs text-gray-500 dark:text-gray-200">思考过程</span>
-                    </template>
-                    <template #arrow>
-                      <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400 dark:text-gray-200" />
-                    </template>
-                    <div class="max-h-200px overflow-y-auto text-xs text-gray-500 -mt-5 dark:text-gray-200">
-                      <MarkdownRenderer :content="msg.thinkingContent" />
-                    </div>
-                  </NCollapseItem>
-                </NCollapse>
+      <NScrollbar ref="scrollbarRef" class="h-full">
+        <div class="p-4">
+          <div v-for="msg in messages" :key="msg.id" class="group mb-4">
+            <!-- 用户消息 -->
+            <div v-if="msg.role === 'user'" class="flex flex-row-reverse items-start gap-2">
+              <div class="max-w-[70%] rounded-lg bg-blue-500 px-4 py-2 text-white">
+                <div class="whitespace-pre-wrap break-words">{{ msg.content }}</div>
               </div>
+              <NTooltip>
+                <template #trigger>
+                  <NButton
+                    circle
+                    class="opacity-0 transition-opacity group-hover:opacity-100"
+                    quaternary
+                    size="small"
+                    @click="handleCopyMessage(msg.content)"
+                  >
+                    <template #icon>
+                      <SvgIcon icon="carbon:copy" />
+                    </template>
+                  </NButton>
+                </template>
+                复制
+              </NTooltip>
+            </div>
 
-              <!-- Markdown渲染的回复内容 -->
-              <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" />
-
-              <!-- 执行详情（调试模式或开启调试开关时显示） -->
-              <div
-                v-if="shouldShowExecutions && msg.executions && msg.executions.length > 0"
-                class="mt-3 border-t border-gray-200 pt-2 dark:border-gray-700"
-              >
-                <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
-                  <SvgIcon icon="mdi:clock-outline" />
-                  <span v-if="msg.durationMs">耗时 {{ (msg.durationMs / 1000).toFixed(2) }}s</span>
-                  <span v-if="msg.tokens">· {{ msg.tokens.totalTokens }} tokens</span>
+            <!-- AI消息 -->
+            <div v-else class="flex items-start justify-start gap-2">
+              <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+                <!-- Thinking区域（可折叠） -->
+                <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
+                  <NCollapse
+                    :key="`thinking-${msg.id}-${msg.thinkingExpanded}`"
+                    :default-expanded-names="msg.thinkingExpanded ? ['thinking'] : []"
+                  >
+                    <NCollapseItem name="thinking">
+                      <template #header>
+                        <span class="text-xs text-gray-500 dark:text-gray-200">思考过程</span>
+                      </template>
+                      <template #arrow>
+                        <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400 dark:text-gray-200" />
+                      </template>
+                      <div class="max-h-200px overflow-y-auto text-xs text-gray-500 -mt-5 dark:text-gray-200">
+                        <MarkdownRenderer :content="msg.thinkingContent" />
+                      </div>
+                    </NCollapseItem>
+                  </NCollapse>
                 </div>
 
-                <NCollapse>
-                  <NCollapseItem name="execution-details">
-                    <template #header>
-                      <span class="text-xs text-gray-400">执行详情 ({{ msg.executions.length }}个节点)</span>
-                    </template>
-                    <template #arrow>
-                      <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400" />
-                    </template>
+                <!-- Markdown渲染的回复内容 -->
+                <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" />
 
-                    <div class="-ml-11 -mt-2 space-y-1">
-                      <div v-for="(exec, idx) in msg.executions" :key="idx">
-                        <NCollapse>
-                          <NCollapseItem :name="`exec-${idx}`">
-                            <template #header>
-                              <div class="flex items-center gap-2 text-xs">
-                                <div
-                                  class="h-4 w-4 flex flex-shrink-0 items-center justify-center rounded"
-                                  :style="{
-                                    backgroundColor: getNodeInfo(exec.nodeType).iconBg,
-                                    color: getNodeInfo(exec.nodeType).color
-                                  }"
-                                >
-                                  <SvgIcon :icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
-                                </div>
-                                <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
-                                <span v-if="exec.durationMs" class="text-gray-400">{{ exec.durationMs }}ms</span>
-                                <span v-if="exec.tokenUsage" class="text-gray-400">
-                                  · {{ exec.tokenUsage.totalTokenCount }} tokens
-                                </span>
-                              </div>
-                            </template>
-                            <template #arrow>
-                              <SvgIcon icon="mdi:none" class="workflow-collapse-icon text-gray-400" />
-                            </template>
-
-                            <!-- 输入输出参数 -->
-                            <div v-if="exec.inputs || exec.outputs" class="ml-7 mt-0.5 text-gray-500 -mt-2 space-y-0.5">
-                              <details v-if="exec.inputs" class="cursor-pointer" open>
-                                <summary class="text-xs font-300">输入</summary>
-                                <pre class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900">{{
-                                  JSON.stringify(exec.inputs, null, 2)
-                                }}</pre>
-                              </details>
-                              <details v-if="exec.outputs" class="cursor-pointer" open>
-                                <summary class="text-xs font-300">输出</summary>
-                                <pre class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900">{{
-                                  JSON.stringify(exec.outputs, null, 2)
-                                }}</pre>
-                              </details>
-                            </div>
-                          </NCollapseItem>
-                        </NCollapse>
-                      </div>
-                    </div>
-                  </NCollapseItem>
-                </NCollapse>
-              </div>
-            </div>
-
-            <NTooltip>
-              <template #trigger>
-                <NButton
-                  circle
-                  class="opacity-0 transition-opacity group-hover:opacity-100"
-                  quaternary
-                  size="small"
-                  @click="handleCopyMessage(msg.content)"
+                <!-- 执行详情（调试模式或开启调试开关时显示） -->
+                <div
+                  v-if="shouldShowExecutions && msg.executions && msg.executions.length > 0"
+                  class="mt-3 border-t border-gray-200 pt-2 dark:border-gray-700"
                 >
-                  <template #icon>
-                    <SvgIcon icon="carbon:copy" />
-                  </template>
-                </NButton>
-              </template>
-              复制
-            </NTooltip>
-          </div>
-        </div>
+                  <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
+                    <SvgIcon icon="mdi:clock-outline" />
+                    <span v-if="msg.durationMs">耗时 {{ (msg.durationMs / 1000).toFixed(2) }}s</span>
+                    <span v-if="msg.tokens">· {{ msg.tokens.totalTokens }} tokens</span>
+                  </div>
 
-        <!-- 加载中提示 -->
-        <div v-if="isStreaming" class="flex justify-start">
-          <div class="rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
-            <NSpin size="small" />
-            <span class="ml-2 text-gray-500">AI正在思考...</span>
+                  <NCollapse>
+                    <NCollapseItem name="execution-details">
+                      <template #header>
+                        <span class="text-xs text-gray-400">执行详情 ({{ msg.executions.length }}个节点)</span>
+                      </template>
+                      <template #arrow>
+                        <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400" />
+                      </template>
+
+                      <div class="-ml-11 -mt-2 space-y-1">
+                        <div v-for="(exec, idx) in msg.executions" :key="idx">
+                          <NCollapse>
+                            <NCollapseItem :name="`exec-${idx}`">
+                              <template #header>
+                                <div class="flex items-center gap-2 text-xs">
+                                  <div
+                                    class="h-4 w-4 flex flex-shrink-0 items-center justify-center rounded"
+                                    :style="{
+                                      backgroundColor: getNodeInfo(exec.nodeType).iconBg,
+                                      color: getNodeInfo(exec.nodeType).color
+                                    }"
+                                  >
+                                    <SvgIcon :icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
+                                  </div>
+                                  <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
+                                  <span v-if="exec.durationMs" class="text-gray-400">{{ exec.durationMs }}ms</span>
+                                  <span v-if="exec.tokenUsage" class="text-gray-400">
+                                    · {{ exec.tokenUsage.totalTokenCount }} tokens
+                                  </span>
+                                </div>
+                              </template>
+                              <template #arrow>
+                                <SvgIcon icon="mdi:none" class="workflow-collapse-icon text-gray-400" />
+                              </template>
+
+                              <!-- 输入输出参数 -->
+                              <div
+                                v-if="exec.inputs || exec.outputs"
+                                class="ml-7 mt-0.5 text-gray-500 -mt-2 space-y-0.5"
+                              >
+                                <details v-if="exec.inputs" class="cursor-pointer" open>
+                                  <summary class="text-xs font-300">输入</summary>
+                                  <pre
+                                    class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
+                                    >{{ JSON.stringify(exec.inputs, null, 2) }}</pre
+                                  >
+                                </details>
+                                <details v-if="exec.outputs" class="cursor-pointer" open>
+                                  <summary class="text-xs font-300">输出</summary>
+                                  <pre
+                                    class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
+                                    >{{ JSON.stringify(exec.outputs, null, 2) }}</pre
+                                  >
+                                </details>
+                              </div>
+                            </NCollapseItem>
+                          </NCollapse>
+                        </div>
+                      </div>
+                    </NCollapseItem>
+                  </NCollapse>
+                </div>
+              </div>
+
+              <NTooltip>
+                <template #trigger>
+                  <NButton
+                    circle
+                    class="opacity-0 transition-opacity group-hover:opacity-100"
+                    quaternary
+                    size="small"
+                    @click="handleCopyMessage(msg.content)"
+                  >
+                    <template #icon>
+                      <SvgIcon icon="carbon:copy" />
+                    </template>
+                  </NButton>
+                </template>
+                复制
+              </NTooltip>
+            </div>
+          </div>
+
+          <!-- 加载中提示 -->
+          <div v-if="isStreaming" class="flex justify-start">
+            <div class="rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+              <NSpin size="small" />
+              <span class="ml-2 text-gray-500">AI正在思考...</span>
+            </div>
           </div>
         </div>
       </NScrollbar>
@@ -343,7 +350,8 @@ defineExpose({
     <!-- 输入框 -->
     <div class="flex-shrink-0 px-4 py-4">
       <div
-        class="relative border border-gray-200 rounded-xl bg-white p-2 transition-all dark:border-gray-700 focus-within:border-primary-500 dark:bg-gray-800 focus-within:ring-1 focus-within:ring-primary-500"
+        class="relative rounded-xl bg-white p-2 transition-all dark:bg-gray-800"
+        style="border: 1px solid rgb(229, 231, 235); box-shadow: 0 0 0 1px rgb(229, 231, 235)"
       >
         <NInput
           v-model:value="inputMessage"

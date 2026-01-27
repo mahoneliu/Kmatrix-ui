@@ -113,9 +113,15 @@ function handleCopyCode(event: Event) {
   margin: 0.8em 0;
 }
 
-.markdown-renderer :deep(ul),
+.markdown-renderer :deep(ul) {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.8em 0;
+}
+
 .markdown-renderer :deep(ol) {
-  padding-left: 2em;
+  list-style-type: decimal;
+  padding-left: 1.5em;
   margin: 0.8em 0;
 }
 

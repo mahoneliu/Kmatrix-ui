@@ -87,8 +87,9 @@ export function updateSessionTitle(sessionId: CommonType.IdType, title: string, 
  */
 export function fetchAppInfoByToken(token: string) {
   return request<Api.AI.Admin.App>({
-    url: `/chat/app-info/${token}`,
-    method: 'get'
+    url: `/chat/app-info`,
+    method: 'get',
+    params: { token }
   });
 }
 
