@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue';
 import { NAlert, NButton } from 'naive-ui';
 import { ChatPanel } from '@km/shared';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
-import { localStg } from '@/utils/storage';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
@@ -17,7 +16,6 @@ const emit = defineEmits<{
   'update:visible': [value: boolean];
 }>();
 
-const token = localStg.get('token') || undefined;
 const nodeDefinitionStore = useNodeDefinitionStore();
 
 function getNodeDefinition(nodeType: string) {
@@ -117,7 +115,7 @@ watch(
       </div>
       <ChatPanel
         mode="debug"
-        :token="token"
+        is-admin
         :app-id="appId"
         :app-name="appName"
         :get-node-definition="getNodeDefinition"

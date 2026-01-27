@@ -4,12 +4,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { NButton, NTooltip, useMessage } from 'naive-ui';
 import { type ChatMessage, ChatPanel, SessionList } from '@km/shared';
 import {
-  clearAppHistory,
-  clearChatHistory,
-  fetchAppInfoByToken,
-  fetchChatHistory,
-  fetchSessionList
-} from '@/service/api/ai/chat/chat';
+  clearAdminAppHistory,
+  clearAdminChatHistory,
+  fetchAdminChatHistory,
+  fetchAdminSessionList,
+  updateAdminSessionTitle
+} from '@/service/api/ai/admin/chat';
+import { fetchAppInfoByToken } from '@/service/api/ai/chat/chat';
 import { fetchAppDetail } from '@/service/api/ai/admin/app';
 import { localStg } from '@/utils/storage';
 import SvgIcon from '@/components/custom/svg-icon.vue';
@@ -84,13 +85,24 @@ async function getAppInfo() {
 async function loadSessions() {
   if (!appId.value) return;
   try {
-    const { data } = await fetchSessionList(appId.value);
-    if (data) {
-      sessions.value = data;
+    // 如果没有 token，说明是管理端模式
+    if (!route.query.token) {
+      const { data } = await fetchAdminSessionList(appId.value);
+      if (data) {
+        sessions.value = data;
+      }
+    } else {
+      // 嵌入模式暂不支持在 admin 预览页带 token 加载列表（通常嵌入模式下 session 管理由嵌入页面自己处理）
+      // 但这里为了逻辑完整，可以保留
     }
   } catch {
     // console.error('加载会话列表失败:', error);
   }
+}
+
+// 更新会话标题
+async function handleUpdateTitle(id: string, title: string) {
+  await updateAdminSessionTitle(id, title);
 }
 
 // 加载历史消息
@@ -98,7 +110,7 @@ async function loadHistory() {
   if (!sessionId.value) return;
 
   try {
-    const { data } = await fetchChatHistory(sessionId.value);
+    const { data } = await fetchAdminChatHistory(sessionId.value);
     if (data) {
       // 转换消息格式
       const msgs: ChatMessage[] = data.map((item: any, index: number) => ({
@@ -126,13 +138,13 @@ function handleSelectSession(newSessionId: string) {
 async function handleDeleteSession(deletedSessionId: string) {
   try {
     if (deletedSessionId === 'all') {
-      await clearAppHistory(appId.value);
+      await clearAdminAppHistory(appId.value);
       message.success('已清空所有会话');
       sessionId.value = undefined;
       chatPanelRef.value?.clearMessages();
       router.push({ name: 'ai_chat', query: { appId: appId.value } });
     } else {
-      await clearChatHistory(deletedSessionId);
+      await clearAdminChatHistory(deletedSessionId);
       message.success('已删除会话');
 
       if (deletedSessionId === sessionId.value) {
@@ -242,6 +254,7 @@ onMounted(async () => {
           :current-session-id="sessionId"
           :sessions="sessions"
           :title="appInfo?.appName"
+          :on-update-title="handleUpdateTitle"
           @delete="handleDeleteSession"
           @refresh="loadSessions"
           @select="handleSelectSession"
@@ -297,6 +310,7 @@ onMounted(async () => {
         :enable-execution-detail="appInfo?.enableExecutionDetail === '1'"
         :prologue="appInfo?.prologue"
         :token="route.query.token as string"
+        :is-admin="!route.query.token"
         class="flex-1 overflow-hidden"
         @session-change="handleSessionChange"
       />

@@ -12,6 +12,7 @@ interface Props {
   logo?: string;
   token?: string;
   title?: string;
+  onUpdateTitle?: (sessionId: string, title: string) => Promise<void>;
 }
 
 const props = defineProps<Props>();
@@ -66,7 +67,12 @@ async function handleSaveTitle(sessionId: string) {
 
   isSavingTitle.value = true;
   try {
-    await updateSessionTitle(sessionId, newTitle, props.token);
+    // 如果提供了自定义更新函数，使用它；否则使用默认的 API
+    if (props.onUpdateTitle) {
+      await props.onUpdateTitle(sessionId, newTitle);
+    } else {
+      await updateSessionTitle(sessionId, newTitle, props.token);
+    }
     message.success('标题已更新');
     editingSessionId.value = null;
     emit('refresh');

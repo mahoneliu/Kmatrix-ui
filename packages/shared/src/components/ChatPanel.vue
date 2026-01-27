@@ -24,6 +24,8 @@ interface Props {
   hasExecutionDetailPermission?: boolean;
   /** 节点定义查询函数（可选，如果不提供则不显示复杂执行详情） */
   getNodeDefinition?: (nodeType: string) => any;
+  /** 是否为管理员模式（使用鉴权接口） */
+  isAdmin?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,7 +34,8 @@ const props = withDefaults(defineProps<Props>(), {
   prologue: '',
   token: undefined,
   hasExecutionDetailPermission: false,
-  getNodeDefinition: undefined
+  getNodeDefinition: undefined,
+  isAdmin: false
 });
 
 const emit = defineEmits<{
@@ -57,7 +60,7 @@ const scrollbarRef = ref();
 
 // 使用 useStreamChat composable
 const { messages, isStreaming, streamChat, clearMessages } = useStreamChat({
-  apiEndpoint: '/ai/chat/stream',
+  apiEndpoint: props.isAdmin ? '/ai/admin/chat/stream' : '/ai/chat/stream',
   token: props.token,
   onError: error => {
     message.error(`对话失败: ${error}`);
