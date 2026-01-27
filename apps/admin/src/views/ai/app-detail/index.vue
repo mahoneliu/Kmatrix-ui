@@ -125,15 +125,6 @@ const publicAccessUrl = computed(() => {
   return `${window.location.origin}/chat/${token.token}`;
 });
 
-// 基础域名
-const baseOrigin = computed(() => window.location.origin);
-
-// 计算 API Base URL
-const apiBaseUrl = computed(() => {
-  if (!appInfo.value) return '';
-  return `${baseOrigin.value}/chat/api/${appInfo.value.appId}`;
-});
-
 // 获取应用信息
 async function loadAppInfo() {
   loading.value = true;
@@ -335,23 +326,26 @@ onMounted(async () => {
               </template>
               嵌入第三方
             </NButton>
-            <NButton size="small">
+            <!--
+ <NButton size="small">
               <template #icon>
                 <SvgIcon icon="mdi:shield-lock-outline" />
               </template>
               访问限制
-            </NButton>
+            </NButton> 
+-->
             <NButton size="small" @click="handleSettings">
               <template #icon>
                 <SvgIcon icon="carbon:settings" />
               </template>
-              显示设置
+              流程设置
             </NButton>
           </div>
         </div>
 
         <!-- 右侧：API 访问凭据 -->
-        <div class="w-80 border-l border-gray-200 pl-6 dark:border-gray-700">
+        <!--
+ <div class="w-80 border-l border-gray-200 pl-6 dark:border-gray-700">
           <div class="mb-2 text-xs text-gray-500">API 访问凭据</div>
           <div class="mb-2 text-xs">
             <span class="text-gray-500">API 文档：</span>
@@ -372,7 +366,8 @@ onMounted(async () => {
             </template>
             API Key
           </NButton>
-        </div>
+        </div> 
+-->
       </div>
     </NCard>
 
