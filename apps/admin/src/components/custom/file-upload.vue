@@ -47,7 +47,7 @@ const fileList = defineModel<UploadFileInfo[]>('fileList', {
 });
 
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
-const { baseURL } = getServiceBaseURL(import.meta.env as unknown as Env.ImportMeta, isHttpProxy);
+const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 
 const headers: Record<string, string> = {
   Authorization: `Bearer ${getToken()}`,

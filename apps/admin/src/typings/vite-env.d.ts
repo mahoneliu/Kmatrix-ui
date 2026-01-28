@@ -7,9 +7,8 @@ declare namespace Env {
   /** The router history mode */
   type RouterHistoryMode = 'hash' | 'history' | 'memory';
 
-  /** Interface for import.meta */
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  interface ImportMeta extends ImportMetaEnv {
+  /** Custom defined environment variables */
+  interface CustomMeta {
     /** The base url of the application */
     readonly VITE_BASE_URL: string;
     /** The title of the application */
@@ -121,8 +120,15 @@ declare namespace Env {
     readonly VITE_APP_WEBSOCKET: CommonType.YesOrNo;
     readonly VITE_APP_SSE: CommonType.YesOrNo;
   }
+
+  /**
+   * The type of the import.meta.env object
+   *
+   * It is the merge of the standard ImportMetaEnv and the custom Env.CustomMeta
+   */
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  type ImportMeta = CustomMeta & ImportMetaEnv;
 }
 
-interface ImportMeta {
-  readonly env: Env.ImportMeta;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface ImportMetaEnv extends Env.CustomMeta {}

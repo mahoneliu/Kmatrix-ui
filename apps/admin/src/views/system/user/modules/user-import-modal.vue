@@ -17,7 +17,7 @@ interface Emits {
 
 const { download } = useDownload();
 
-const { baseURL } = getServiceBaseURL(import.meta.env as unknown as Env.ImportMeta);
+const { baseURL } = getServiceBaseURL(import.meta.env);
 
 const headers: Record<string, string> = {
   Authorization: `Bearer ${getToken()}`,
