@@ -102,6 +102,24 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_knowledge-detail',
+        path: '/ai/knowledge-detail',
+        component: 'view.ai_knowledge-detail',
+        meta: {
+          title: 'ai_knowledge-detail',
+          i18nKey: 'route.ai_knowledge-detail'
+        }
+      },
+      {
+        name: 'ai_knowledge-manager',
+        path: '/ai/knowledge-manager',
+        component: 'view.ai_knowledge-manager',
+        meta: {
+          title: 'ai_knowledge-manager',
+          i18nKey: 'route.ai_knowledge-manager'
+        }
+      },
+      {
         name: 'ai_model-manager',
         path: '/ai/model-manager',
         component: 'view.ai_model-manager',

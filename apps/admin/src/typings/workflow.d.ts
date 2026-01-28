@@ -16,7 +16,8 @@ declare namespace Workflow {
     | 'FIXED_RESPONSE'
     | 'DB_QUERY'
     | 'SQL_GENERATE'
-    | 'SQL_EXECUTE';
+    | 'SQL_EXECUTE'
+    | 'KNOWLEDGE_RETRIEVAL';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -288,6 +289,24 @@ declare namespace Workflow {
     dataSourceId: CommonType.IdType;
     /** 最大返回行数 (默认100) */
     maxRows?: number;
+  }
+
+  /** 知识检索节点配置 */
+  interface KnowledgeRetrievalConfig extends NodeConfigFormData {
+    /** 知识库ID列表 */
+    kbIds?: number[];
+    /** 数据集ID列表 */
+    datasetIds?: number[];
+    /** 返回结果数量 (默认5) */
+    topK?: number;
+    /** 相似度阈值 (默认0.5) */
+    threshold?: number;
+    /** 检索模式: VECTOR/KEYWORD/HYBRID */
+    mode?: 'VECTOR' | 'KEYWORD' | 'HYBRID';
+    /** 是否启用重排序 */
+    enableRerank?: boolean;
+    /** 空结果时的预设回复 */
+    emptyResponse?: string;
   }
 
   /** AI节点通用配置 */

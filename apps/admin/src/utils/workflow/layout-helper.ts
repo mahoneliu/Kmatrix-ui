@@ -32,7 +32,8 @@ const NODE_SIZE_MAP: Record<string, { width: number; height: number }> = {
   CONDITION: { width: 435, height: 250 },
   FIXED_RESPONSE: { width: 400, height: 250 },
   DB_QUERY: { width: 435, height: 450 },
-  APP_INFO: { width: 435, height: 400 }
+  APP_INFO: { width: 435, height: 400 },
+  KNOWLEDGE_RETRIEVAL: { width: 400, height: 280 }
 };
 
 /**

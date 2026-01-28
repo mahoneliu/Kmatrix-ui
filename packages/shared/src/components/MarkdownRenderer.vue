@@ -4,9 +4,20 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 
+interface Citation {
+  index: number;
+  chunkId?: number;
+  documentId?: number;
+  documentName?: string;
+  content?: string;
+  score?: number;
+}
+
 interface Props {
   content: string;
   streaming?: boolean;
+  /** 引用元数据列表 */
+  citations?: Citation[];
 }
 
 const props = defineProps<Props>();
@@ -30,6 +41,35 @@ const md: MarkdownIt = new MarkdownIt({
   }
 });
 
+/**
+ * 处理引用标记 [1], [2] 等，将其替换为可点击的引用标签
+ */
+function processCitationMarkers(html: string): string {
+  if (!props.citations || props.citations.length === 0) {
+    return html;
+  }
+
+  // 匹配 [数字] 模式
+  const citationRegex = /\[(\d+)\]/g;
+
+  return html.replace(citationRegex, (match, indexStr) => {
+    const index = Number.parseInt(indexStr, 10);
+    const citation = props.citations?.find(c => c.index === index);
+
+    if (citation) {
+      const docName = citation.documentName || '未知文档';
+      const contentPreview = citation.content
+        ? citation.content.substring(0, 100) + (citation.content.length > 100 ? '...' : '')
+        : '';
+
+      // 创建可点击的引用标签
+      return `<span class="citation-badge" data-citation-index="${index}" title="${docName}&#10;${contentPreview.replace(/"/g, '&quot;')}">[${index}]</span>`;
+    }
+
+    return match; // 如果没有找到对应引用，保留原样
+  });
+}
+
 // 渲染 Markdown
 const renderedHtml = computed(() => {
   if (!props.content) return '';
@@ -42,7 +82,10 @@ const renderedHtml = computed(() => {
 
   // 流式结束后，渲染完整的 Markdown
   try {
-    return md.render(props.content);
+    let html = md.render(props.content);
+    // 处理引用标记
+    html = processCitationMarkers(html);
+    return html;
   } catch {
     // 如果 Markdown 渲染失败，降级为纯文本
     return props.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -227,5 +270,32 @@ function handleCopyCode(event: Event) {
   border: none;
   border-top: 1px solid var(--n-divider-color);
   margin: 1.5em 0;
+}
+
+/* 引用标签样式 */
+.markdown-renderer :deep(.citation-badge) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.2em;
+  padding: 0 0.3em;
+  margin: 0 0.1em;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--n-primary-color);
+  background-color: var(--n-primary-color-suppl);
+  border-radius: 0.25em;
+  cursor: pointer;
+  vertical-align: super;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.markdown-renderer :deep(.citation-badge:hover) {
+  background-color: var(--n-primary-color-pressed);
+  color: white;
+  transform: scale(1.1);
 }
 </style>

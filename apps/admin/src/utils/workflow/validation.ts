@@ -49,6 +49,7 @@ const NODE_CONFIG_RULES: Record<
     { field: 'dataSourceId', label: '数据源' }
   ],
   SQL_EXECUTE: [{ field: 'dataSourceId', label: '数据源' }],
+  KNOWLEDGE_RETRIEVAL: [], // 知识检索节点无必填配置
   APP_INFO: [], // APP_INFO 节点在保存时单独校验
   START: [],
   END: [],

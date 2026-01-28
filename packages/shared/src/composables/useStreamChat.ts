@@ -20,6 +20,17 @@ export interface ChatMessage {
   thinkingExpanded?: boolean;
   /** 是否正在流式输出 */
   streaming?: boolean;
+  /** 引用元数据列表 (来自知识检索节点) */
+  citations?: Citation[];
+}
+
+export interface Citation {
+  index: number;
+  chunkId?: number;
+  documentId?: number;
+  documentName?: string;
+  content?: string;
+  score?: number;
 }
 
 export interface NodeExecution {
@@ -319,6 +330,14 @@ export function useStreamChat(options: UseStreamChatOptions) {
           // 附加执行详情
           if (currentExecutions.value.length > 0) {
             aiMsg.executions = [...currentExecutions.value];
+
+            // 提取知识检索节点的 citations（如果存在）
+            const retrievalExec = currentExecutions.value.find(
+              exec => exec.nodeType === 'KNOWLEDGE_RETRIEVAL' && exec.outputs?.citations
+            );
+            if (retrievalExec?.outputs?.citations) {
+              aiMsg.citations = retrievalExec.outputs.citations;
+            }
           }
 
           // 触发完成回调

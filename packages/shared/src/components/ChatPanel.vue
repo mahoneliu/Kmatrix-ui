@@ -243,7 +243,7 @@ defineExpose({
                 </div>
 
                 <!-- Markdown渲染的回复内容 -->
-                <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" />
+                <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" :citations="msg.citations" />
 
                 <!-- 执行详情（调试模式或开启调试开关时显示） -->
                 <div

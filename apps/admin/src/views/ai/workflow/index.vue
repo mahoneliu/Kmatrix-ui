@@ -26,6 +26,7 @@ import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
 import DbQueryNode from '@/components/Flow/Nodes/DbQueryNode.vue';
 import SqlGenerateNode from '@/components/Flow/Nodes/SqlGenerateNode.vue';
 import SqlExecuteNode from '@/components/Flow/Nodes/SqlExecuteNode.vue';
+import KnowledgeRetrievalNode from '@/components/Flow/Nodes/KnowledgeRetrievalNode.vue';
 import CustomEdge from '@/components/Flow/Edges/CustomEdge.vue';
 import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
 import '@vue-flow/core/dist/style.css';
@@ -487,6 +488,7 @@ function getNodeComponent(nodeType: Workflow.NodeType) {
     DB_QUERY: markRaw(DbQueryNode),
     SQL_GENERATE: markRaw(SqlGenerateNode),
     SQL_EXECUTE: markRaw(SqlExecuteNode),
+    KNOWLEDGE_RETRIEVAL: markRaw(KnowledgeRetrievalNode),
     APP_INFO: markRaw(AppInfoNode)
   };
   return componentMap[nodeType] || markRaw(DynamicNode);

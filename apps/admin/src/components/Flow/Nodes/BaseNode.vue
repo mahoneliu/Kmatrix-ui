@@ -4,6 +4,7 @@ import { NCollapse, NCollapseItem, NDropdown, NInput, NModal } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
+import { SvgIcon } from '@sa/materials';
 import { AI_NODE_TYPES } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/workflow/node-params';

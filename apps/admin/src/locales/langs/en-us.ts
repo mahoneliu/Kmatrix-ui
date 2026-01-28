@@ -310,6 +310,8 @@ const local: App.I18n.Schema = {
     'ai_node-definition': 'Node Definition',
     'ai_datasource-manager': 'Data Source',
     'ai_app-detail': 'App Detail',
+    'ai_knowledge-manager': 'Knowledge Base Manager',
+    'ai_knowledge-detail': 'Knowledge Base Detail',
     ai_chat: 'AI Chat'
   },
   menu: {
