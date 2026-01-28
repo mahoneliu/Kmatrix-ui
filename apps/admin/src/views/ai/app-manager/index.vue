@@ -15,8 +15,8 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { deleteApp, fetchAppList } from '@/service/api/ai/admin/app';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import AppOperateModal from './modules/app-operate-modal.vue';
 
 const router = useRouter();

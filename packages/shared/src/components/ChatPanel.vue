@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { NButton, NCollapse, NCollapseItem, NInput, NScrollbar, NSpin, NTooltip, useMessage } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { type ChatMessage, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
 import { getNodeIconBackground } from '../utils/color';
-import SvgIcon from './SvgIcon.vue';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
 interface Props {

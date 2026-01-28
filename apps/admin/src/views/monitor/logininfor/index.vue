@@ -14,7 +14,6 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { useDict } from '@/hooks/business/dict';
 import { getBrowserIcon, getOsIcon } from '@/utils/icon-tag-format';
 import DictTag from '@/components/custom/dict-tag.vue';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import LoginInforSearch from './modules/login-infor-search.vue';

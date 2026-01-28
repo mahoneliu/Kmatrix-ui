@@ -12,7 +12,6 @@ import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import ConditionBuilder from '../ConditionBuilder.vue';
 import BaseNode from './BaseNode.vue';
 

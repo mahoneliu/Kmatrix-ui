@@ -70,7 +70,6 @@ export function useStreamChat(options: UseStreamChatOptions) {
   });
 
   const baseURL = import.meta.env.VITE_APP_BASE_API || '';
-  console.log('[useStreamChat] baseURL:', baseURL, 'VITE_APP_BASE_API:', import.meta.env.VITE_APP_BASE_API);
 
   /**
    * 处理SSE事件流
@@ -278,7 +277,6 @@ export function useStreamChat(options: UseStreamChatOptions) {
           aiMsg.thinkingExpanded = true;
           // 强制触发响应式更新
           triggerRef(messages);
-          console.log('aiMsg.thinkingContent:', aiMsg.thinkingContent);
         },
         onComplete: data => {
           if (data.length > 0) {

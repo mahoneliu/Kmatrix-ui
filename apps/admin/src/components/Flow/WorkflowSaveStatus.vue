@@ -2,7 +2,6 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { useWorkflowStore } from '@/store/modules/workflow';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const workflowStore = useWorkflowStore();
 

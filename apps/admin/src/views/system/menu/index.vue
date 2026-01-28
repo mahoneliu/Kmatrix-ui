@@ -10,7 +10,6 @@ import { useDict } from '@/hooks/business/dict';
 import { useAuth } from '@/hooks/business/auth';
 import { handleTree } from '@/utils/common';
 import { $t } from '@/locales';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import DictTag from '@/components/custom/dict-tag.vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import MenuOperateDrawer from './modules/menu-operate-drawer.vue';

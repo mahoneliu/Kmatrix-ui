@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { NCollapseItem, NInput, NInputNumber, NSlider, NSwitch, NTooltip } from 'naive-ui';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
   /** 节点数据 */

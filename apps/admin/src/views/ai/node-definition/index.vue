@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { h, reactive } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { deleteNodeDefinitions, fetchNodeDefinitionList } from '@/service/api/ai/workflow/node';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import NodeOperateDrawer from './modules/node-operate-drawer.vue';
 
 defineOptions({

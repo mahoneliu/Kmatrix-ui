@@ -8,7 +8,6 @@ import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { getLocalMenuIcons } from '@/utils/icon';
 import { isNotNull } from '@/utils/common';
 import { $t } from '@/locales';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 defineOptions({
   name: 'MenuOperateDrawer'

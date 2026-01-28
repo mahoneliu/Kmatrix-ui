@@ -7,6 +7,7 @@ import './typings/common.d.ts';
 export { default as ChatPanel } from './components/ChatPanel.vue';
 export { default as MarkdownRenderer } from './components/MarkdownRenderer.vue';
 export { default as SessionList } from './components/SessionList.vue';
+// SvgIcon removed
 
 // Composables
 export { useStreamChat, type ChatMessage, type NodeExecution } from './composables/useStreamChat';

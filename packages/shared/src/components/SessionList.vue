@@ -2,8 +2,8 @@
 import { h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { NButton, NDropdown, NEmpty, NInput, NList, NListItem, useMessage } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { updateSessionTitle } from '../api/chat';
-import SvgIcon from './SvgIcon.vue';
 
 interface Props {
   appId: string;

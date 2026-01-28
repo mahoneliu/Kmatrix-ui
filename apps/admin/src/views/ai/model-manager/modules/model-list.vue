@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, h, ref, watch } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
 import { copyModel, deleteModels, fetchModels } from '@/service/api/ai/admin/model';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import ModelModal from './model-modal.vue';
 
 interface Props {

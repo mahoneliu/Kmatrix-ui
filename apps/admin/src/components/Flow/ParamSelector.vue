@@ -8,11 +8,11 @@
  */
 import { computed, h } from 'vue';
 import { NSelect } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/workflow/param-resolver';
 import { getNodeIconBackground } from '@/utils/color';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
   /** 当前节点ID */

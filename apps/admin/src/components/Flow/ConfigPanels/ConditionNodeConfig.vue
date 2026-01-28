@@ -8,7 +8,6 @@
 import { ref, watch } from 'vue';
 import { NButton, NCard, NForm, NFormItem, NInput, NSwitch } from 'naive-ui';
 import type { Node } from '@vue-flow/core';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import ConditionBuilder from '../ConditionBuilder.vue';
 
 const props = defineProps<{

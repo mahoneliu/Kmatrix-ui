@@ -17,7 +17,6 @@ import {
 import { fetchAppDetail, fetchAppStatistics, updatePublicAccess } from '@/service/api/ai/admin/app';
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/admin/app-token';
 import { useEcharts } from '@/hooks/common/echarts';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vue';
 
 const route = useRoute();

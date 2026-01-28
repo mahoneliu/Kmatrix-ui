@@ -9,7 +9,6 @@ import { useDict } from '@/hooks/business/dict';
 import { getBrowserIcon, getOsIcon } from '@/utils/icon-tag-format';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DictTag from '@/components/custom/dict-tag.vue';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 import OnlineSearch from './modules/online-search.vue';
 

@@ -9,7 +9,6 @@ import { getBrowserIcon, getOsIcon } from '@/utils/icon-tag-format';
 import { $t } from '@/locales';
 import DictTag from '@/components/custom/dict-tag.vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 defineOptions({
   name: 'OnlineTable'

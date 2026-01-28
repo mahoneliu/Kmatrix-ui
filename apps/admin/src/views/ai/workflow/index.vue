@@ -26,7 +26,6 @@ import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
 import DbQueryNode from '@/components/Flow/Nodes/DbQueryNode.vue';
 import SqlGenerateNode from '@/components/Flow/Nodes/SqlGenerateNode.vue';
 import SqlExecuteNode from '@/components/Flow/Nodes/SqlExecuteNode.vue';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import CustomEdge from '@/components/Flow/Edges/CustomEdge.vue';
 import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
 import '@vue-flow/core/dist/style.css';
@@ -95,14 +94,12 @@ function onPaneReady(instance: any) {
   // 跟踪当前连接的源/目标节点(用于连接验证和视觉反馈)
   let connectingSourceNode: any = null;
   let connectingSourceHandle: string | null = null;
-  // let connectingHandleType: 'source' | 'target' = 'source';
   const updatingEdge = ref<any>(null); // Use ref for reliability
 
   // 连接开始:记录源节点
   instance.onConnectStart((params: any) => {
     connectingSourceNode = workflowStore.nodes.find(n => n.id === params.nodeId) || null;
     connectingSourceHandle = params.handleId || null;
-    // connectingHandleType = 'source'; // 默认是正向连接
     connectionSucceeded = false; // 重置标志
   });
 

@@ -5,7 +5,6 @@ import { NODE_CATEGORY_LIST } from '@/constants/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
 import { getNodeIconBackground } from '@/utils/color';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Emits {
   (e: 'select', nodeType: Workflow.NodeType): void;

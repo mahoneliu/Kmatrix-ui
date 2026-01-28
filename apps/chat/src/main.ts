@@ -1,8 +1,11 @@
 import { createApp, reactive } from 'vue';
 import { createPinia } from 'pinia';
+import { setupIconifyOffline } from '@sa/materials';
 import App from './App.vue';
 import 'virtual:uno.css';
 import { useChatAuth } from './composables/useChatAuth';
+
+setupIconifyOffline();
 
 // 解析 URL 参数
 function getUrlParams() {

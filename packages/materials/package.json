@@ -2,7 +2,8 @@
   "name": "@sa/materials",
   "version": "2.0.1",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./assets/*": "./src/assets/*"
   },
   "typesVersions": {
     "*": {
@@ -10,6 +11,7 @@
     }
   },
   "dependencies": {
+    "@iconify/vue": "5.0.0",
     "@sa/color": "workspace:*",
     "@sa/utils": "workspace:*",
     "simplebar-vue": "2.4.2"

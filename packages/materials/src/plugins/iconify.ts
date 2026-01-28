@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { addAPIProvider } from '@iconify/vue';
 
 /** Setup the iconify offline */

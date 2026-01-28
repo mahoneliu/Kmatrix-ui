@@ -9,7 +9,6 @@
 import { defineAsyncComponent } from 'vue';
 import { NButton, NInput, NSelect } from 'naive-ui';
 import { COMPARISON_OPERATOR_OPTIONS, LOGICAL_OPERATOR_OPTIONS, UNARY_OPERATORS } from '@/constants/workflow';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const ParamSelector = defineAsyncComponent(() => import('@/components/Flow/ParamSelector.vue'));
 

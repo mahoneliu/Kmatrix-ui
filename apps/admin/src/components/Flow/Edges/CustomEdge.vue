@@ -4,7 +4,6 @@ import { computed, ref } from 'vue';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core';
 import type { EdgeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 // 自定义 Edge Props 以支持 updatable 属性
 // updatable 可以是 boolean 或 'source' | 'target' 字符串

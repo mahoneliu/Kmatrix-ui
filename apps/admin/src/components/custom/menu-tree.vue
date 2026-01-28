@@ -3,7 +3,6 @@ import { onMounted, ref, useAttrs, watch } from 'vue';
 import type { TreeOption, TreeSelectInst, TreeSelectProps } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
 import { fetchGetMenuTreeSelect } from '@/service/api/system';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 
 defineOptions({ name: 'MenuTree' });

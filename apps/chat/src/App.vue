@@ -12,7 +12,6 @@ import {
   fetchSessionList
 } from '@km/shared';
 import logoImg from '@/assets/imgs/logo.png';
-import SvgIcon from '@/components/svg-icon.vue';
 
 // 嵌入参数
 interface EmbedParams {

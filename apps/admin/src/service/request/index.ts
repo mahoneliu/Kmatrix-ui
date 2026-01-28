@@ -10,7 +10,7 @@ import type { RequestInstanceState } from './type';
 
 const encryptHeader = import.meta.env.VITE_HEADER_FLAG || 'encrypt-key';
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
-const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
+const { baseURL } = getServiceBaseURL(import.meta.env as unknown as Env.ImportMeta, isHttpProxy);
 
 export const request = createFlatRequest(
   {

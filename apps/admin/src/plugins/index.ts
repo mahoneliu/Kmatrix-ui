@@ -1,5 +1,5 @@
 export * from './loading';
 export * from './nprogress';
-export * from './iconify';
+export { setupIconifyOffline } from '@sa/materials';
 export * from './dayjs';
 export * from './app';

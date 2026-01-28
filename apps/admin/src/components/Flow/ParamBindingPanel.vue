@@ -2,7 +2,6 @@
 import { defineAsyncComponent } from 'vue';
 import { NButton, NInput, NPopover, useMessage } from 'naive-ui';
 import { getTagBackground } from '@/utils/color';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const ParamSelector = defineAsyncComponent(() => import('@/components/Flow/ParamSelector.vue'));
 

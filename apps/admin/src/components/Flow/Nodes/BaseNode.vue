@@ -9,7 +9,6 @@ import { useWorkflowStore } from '@/store/modules/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/workflow/node-params';
 import { getNodeTypeInfo } from '@/utils/workflow/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/Flow/ParamBindingPanel.vue'));
 const AiConfigPanel = defineAsyncComponent(() => import('@/components/Flow/AiConfigPanel.vue'));

@@ -28,7 +28,7 @@ import type {
   ToolboxComponentOption,
   TooltipComponentOption
 } from 'echarts/components';
-import { LabelLayout, UniversalTransition } from 'echarts/features';
+import { LabelLayout, LegacyGridContainLabel, UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useThemeStore } from '@/store/modules/theme';
 
@@ -65,6 +65,7 @@ echarts.use([
   GaugeChart,
   LabelLayout,
   UniversalTransition,
+  LegacyGridContainLabel,
   CanvasRenderer
 ]);
 

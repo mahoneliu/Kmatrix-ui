@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue';
 import { NAlert, NButton } from 'naive-ui';
 import { ChatPanel } from '@km/shared';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 interface Props {
   visible: boolean;

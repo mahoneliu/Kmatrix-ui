@@ -11,7 +11,7 @@ import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 export function setupUnplugin(viteEnv: Env.ImportMeta) {
   const { VITE_ICON_PREFIX, VITE_ICON_LOCAL_PREFIX } = viteEnv;
 
-  const localIconPath = path.join(process.cwd(), 'src/assets/svg-icon');
+  const localIconPath = path.join(process.cwd(), '../../packages/materials/src/assets/svg-icon');
 
   /** The name of the local icon collection */
   const collectionName = VITE_ICON_LOCAL_PREFIX.replace(`${VITE_ICON_PREFIX}-`, '');
@@ -32,7 +32,13 @@ export function setupUnplugin(viteEnv: Env.ImportMeta) {
       types: [{ from: 'vue-router', names: ['RouterLink', 'RouterView'] }],
       resolvers: [
         NaiveUiResolver(),
-        IconsResolver({ customCollections: [collectionName], componentPrefix: VITE_ICON_PREFIX })
+        IconsResolver({ customCollections: [collectionName], componentPrefix: VITE_ICON_PREFIX }),
+        componentName => {
+          if (componentName === 'SvgIcon') {
+            return { name: 'SvgIcon', from: '@sa/materials' };
+          }
+          return null;
+        }
       ]
     }),
     createSvgIconsPlugin({

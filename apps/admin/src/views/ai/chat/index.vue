@@ -13,7 +13,6 @@ import {
 import { fetchAppInfoByToken } from '@/service/api/ai/chat/chat';
 import { fetchAppDetail } from '@/service/api/ai/admin/app';
 import { localStg } from '@/utils/storage';
-import SvgIcon from '@/components/custom/svg-icon.vue';
 
 const route = useRoute();
 const router = useRouter();
