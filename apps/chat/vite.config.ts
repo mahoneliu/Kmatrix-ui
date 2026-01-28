@@ -32,8 +32,8 @@ export default defineConfig(configEnv => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler' as any
-        }
+          api: 'modern-compiler'
+        } as any
       }
     },
     plugins: [
