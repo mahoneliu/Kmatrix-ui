@@ -309,6 +309,46 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
     config: { ...currentConfig, ...aiConfig }
   });
 }
+
+// 计算带编号的节点标签
+const getNodeLabelWithNumber = computed(() => {
+  // 获取当前节点类型的所有节点，并按ID排序（确保顺序一致）
+  const nodesOfType = workflowStore.nodes
+    .filter((n: any) => n.data.nodeType === props.data.nodeType)
+    .sort((a: any, b: any) => {
+      // 按照节点创建时间（ID中的时间戳部分）排序
+      // 尝试解析ID格式: "nodetype-timestamp" 或纯时间戳
+      let aTime;
+      let bTime;
+      const aParts = a.id.split('-');
+      const bParts = b.id.split('-');
+
+      if (aParts.length > 1) {
+        aTime = Number.parseInt(aParts[aParts.length - 1], 10); // 取最后一个部分（时间戳）
+      } else {
+        aTime = Number.parseInt(a.id, 10); // 如果没有分隔符，整个ID就是时间戳
+      }
+
+      if (bParts.length > 1) {
+        bTime = Number.parseInt(bParts[bParts.length - 1], 10); // 取最后一个部分（时间戳）
+      } else {
+        bTime = Number.parseInt(b.id, 10); // 如果没有分隔符，整个ID就是时间戳
+      }
+
+      return aTime - bTime;
+    });
+
+  // 找出当前节点在同类型节点中的索引
+  const currentIndex = nodesOfType.findIndex(n => n.id === props.id);
+
+  // 如果是唯一节点或第一个节点，不显示编号
+  if (currentIndex <= 0) {
+    return props.data.nodeLabel;
+  }
+
+  // 否则添加编号
+  return `${props.data.nodeLabel}${currentIndex + 1}`;
+});
 </script>
 
 <template>
@@ -345,7 +385,9 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         <SvgIcon v-else icon="mdi:file-document-outline" />
       </div>
 
-      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-4 font-bold">{{ data.nodeLabel }}</span>
+      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-4 font-bold">
+        {{ getNodeLabelWithNumber }}
+      </span>
       <NTooltip v-if="data.description" trigger="hover">
         <template #trigger>
           <span class="inline-flex items-center">
