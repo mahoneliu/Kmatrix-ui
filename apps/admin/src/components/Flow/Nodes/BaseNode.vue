@@ -10,6 +10,13 @@ import { useWorkflowStore } from '@/store/modules/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/workflow/node-params';
 import { getNodeTypeInfo } from '@/utils/workflow/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
+import { useHighlightEdge } from '@/composables/useHighlightEdge';
+
+const {
+  highlightEdgesByNode,
+  clearEdgeHighlight,
+  isEdgeHighlighted
+} = useHighlightEdge();
 
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/Flow/ParamBindingPanel.vue'));
 const AiConfigPanel = defineAsyncComponent(() => import('@/components/Flow/AiConfigPanel.vue'));
@@ -265,17 +272,18 @@ function handleMouseEnter() {
     handleHideTimer = null;
   }
   showHandles.value = true;
+
+  // 高亮与此节点相关的所有边
+  highlightEdgesByNode(props.id);
 }
 
 // 鼠标离开节点
 function handleMouseLeave() {
+  clearEdgeHighlight()
   if (hasSourceConnection.value) {
     showHandles.value = false;
     return;
   }
-  handleHideTimer = window.setTimeout(() => {
-    showHandles.value = false;
-  }, 1000);
 }
 // 重命名相关
 const showRenameModal = ref(false);

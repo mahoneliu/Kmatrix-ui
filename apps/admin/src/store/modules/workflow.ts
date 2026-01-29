@@ -34,6 +34,8 @@ interface WorkflowState {
   autoSaveEnabled: boolean;
   /** 当前会话是否执行过保存 */
   savedInSession: boolean;
+  /** 高亮显示的边 ID 集合 */
+  highlightedEdgeIds: string[];
 }
 
 export const useWorkflowStore = defineStore('workflow', {
@@ -50,7 +52,8 @@ export const useWorkflowStore = defineStore('workflow', {
     lastSavedAt: null,
     isSaving: false,
     autoSaveEnabled: true,
-    savedInSession: false
+    savedInSession: false,
+    highlightedEdgeIds: []
   }),
 
   getters: {
@@ -159,6 +162,10 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 设置所有边 */
     setEdges(edges: Edge[]) {
       this.edges = edges;
+      // 同时清理不存在的边的高亮状态
+      this.highlightedEdgeIds = this.highlightedEdgeIds.filter(id =>
+        edges.some(edge => edge.id === id)
+      );
       // 批量设置不触发 markDirty，用于加载数据
     },
 
@@ -225,6 +232,12 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 切换自动保存 */
     toggleAutoSave(enabled: boolean) {
       this.autoSaveEnabled = enabled;
+    },
+
+    /** 设置高亮边 IDs */
+    setHighlightedEdgeIds(edgeIds: string[]) {
+      // 确保传入的是有效的边 ID 数组，避免意外的副作用
+      this.highlightedEdgeIds = Array.isArray(edgeIds) ? [...edgeIds] : [];
     }
   }
 });
