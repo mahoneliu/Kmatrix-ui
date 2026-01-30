@@ -5,7 +5,7 @@ import type { FormInst, FormRules } from 'naive-ui';
 import { addDataset, updateDataset } from '@/service/api/ai/admin/knowledge';
 
 interface Props {
-  visible: boolean;
+  visible?: boolean;
   kbId?: string;
   data?: Api.AI.KB.Dataset | null;
 }
@@ -104,7 +104,7 @@ function handleCancel() {
     :show="visible"
     preset="card"
     :title="isEdit ? '编辑数据集' : '新建数据集'"
-    style="width: 450px"
+    class="w-450px"
     :mask-closable="false"
     @update:show="val => emit('update:visible', val)"
   >

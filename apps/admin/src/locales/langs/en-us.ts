@@ -307,6 +307,7 @@ const local: App.I18n.Schema = {
     'ai_model-manager': 'Model Manager',
     'ai_app-manager': 'App Manager',
     ai_workflow: 'Workflow',
+    'ai_workflow-template': 'Workflow Template',
     'ai_node-definition': 'Node Definition',
     'ai_datasource-manager': 'Data Source',
     'ai_app-detail': 'App Detail',

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
@@ -10,6 +10,7 @@ import {
   NListItem,
   NPopconfirm,
   NSpace,
+  NSpin,
   NTag,
   NText,
   NThing,
@@ -19,6 +20,7 @@ import {
   useDialog,
   useMessage
 } from 'naive-ui';
+import { debounce } from 'lodash-es';
 import { SvgIcon } from '@sa/materials';
 import {
   deleteDataset,
@@ -47,6 +49,26 @@ const loading = ref(false);
 const datasetModalVisible = ref(false);
 const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
 const uploading = ref(false);
+
+// 自动刷新相关
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
+const hasProcessingDocs = computed(() => documents.value.some(d => d.status === 'PROCESSING'));
+
+function startAutoRefresh() {
+  if (refreshInterval) return;
+  refreshInterval = setInterval(() => {
+    if (hasProcessingDocs.value) {
+      loadDocuments();
+    }
+  }, 5000); // 每5秒刷新一次
+}
+
+function stopAutoRefresh() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+}
 
 async function loadKnowledgeBase() {
   if (!kbId.value) return;
@@ -125,16 +147,34 @@ function onDatasetModalClose(success: boolean) {
   }
 }
 
-async function handleUpload(options: { file: UploadFileInfo; fileList: UploadFileInfo[] }) {
+const fileList = ref<UploadFileInfo[]>([]);
+
+const debouncedSuccessMessage = debounce(() => {
+  message.success('上传成功，正在处理中...');
+}, 500);
+
+async function handleUpload(options: {
+  file: UploadFileInfo;
+  fileList: UploadFileInfo[];
+  onFinish: () => void;
+  onError: () => void;
+}) {
   if (!selectedDatasetId.value || !options.file.file) return;
 
   uploading.value = true;
   try {
     await uploadDocument(selectedDatasetId.value, options.file.file);
-    message.success('上传成功，正在处理中...');
+    debouncedSuccessMessage();
+    options.onFinish();
+    // 上传成功后从列表中移除
+    const index = fileList.value.findIndex(f => f.id === options.file.id);
+    if (index > -1) {
+      fileList.value.splice(index, 1);
+    }
     loadDocuments();
   } catch {
     message.error('上传失败');
+    options.onError();
   } finally {
     uploading.value = false;
   }
@@ -194,6 +234,11 @@ function goBack() {
 onMounted(() => {
   loadKnowledgeBase();
   loadDatasets();
+  startAutoRefresh();
+});
+
+onUnmounted(() => {
+  stopAutoRefresh();
 });
 </script>
 
@@ -275,24 +320,22 @@ onMounted(() => {
       </NCard>
 
       <!-- 右侧文档列表 -->
-      <NCard :bordered="false" size="small" class="flex-1 card-wrapper" title="文档列表">
-        <template v-if="selectedDatasetId" #header-extra>
-          <NButton type="primary" size="small" :loading="uploading">
-            <template #icon>
-              <SvgIcon icon="mdi:upload" />
-            </template>
-            上传文档
-          </NButton>
-        </template>
-
+      <NCard
+        :bordered="false"
+        size="small"
+        class="flex-1 card-wrapper"
+        title="文档列表"
+        :content-style="{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }"
+      >
         <div v-if="selectedDatasetId" class="h-full flex flex-col gap-4">
           <!-- 上传区域 -->
           <NUpload
+            v-model:file-list="fileList"
             multiple
             directory-dnd
             :max="10"
             accept=".pdf,.doc,.docx,.txt,.md"
-            :custom-request="({ file }) => handleUpload({ file, fileList: [] })"
+            :custom-request="({ file, onFinish, onError }) => handleUpload({ file, fileList, onFinish, onError })"
           >
             <NUploadDragger>
               <div class="flex flex-col items-center gap-2 py-4">
@@ -309,16 +352,24 @@ onMounted(() => {
               <NListItem v-for="doc in documents" :key="doc.id">
                 <NThing content-indented>
                   <template #avatar>
-                    <SvgIcon icon="mdi:file-document" class="text-xl text-info" />
+                    <NSpin v-if="doc.status === 'PROCESSING'" :size="20" />
+                    <SvgIcon v-else icon="mdi:file-document" class="text-xl text-info" />
                   </template>
                   <template #header>{{ doc.originalFilename }}</template>
                   <template #description>
-                    <NSpace size="small">
+                    <NSpace size="small" align="center">
                       <NTag :type="getStatusType(doc.status)" size="small">
                         {{ getStatusLabel(doc.status) }}
                       </NTag>
                       <span class="text-xs text-gray-400">{{ formatFileSize(doc.fileSize) }}</span>
-                      <span v-if="doc.chunkCount" class="text-xs text-gray-400">{{ doc.chunkCount }} 切片</span>
+                      <span v-if="doc.chunkCount" class="text-xs text-gray-400">
+                        <SvgIcon icon="mdi:puzzle" class="inline-block align-middle" />
+                        {{ doc.chunkCount }} 切片
+                      </span>
+                      <span v-if="doc.tokenCount" class="text-xs text-gray-400">
+                        <SvgIcon icon="mdi:text-box" class="inline-block align-middle" />
+                        {{ doc.tokenCount }} tokens
+                      </span>
                     </NSpace>
                     <div v-if="doc.errorMsg" class="mt-1 text-xs text-error">
                       {{ doc.errorMsg }}

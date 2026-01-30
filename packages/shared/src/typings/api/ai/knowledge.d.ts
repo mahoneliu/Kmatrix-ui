@@ -75,6 +75,8 @@ declare namespace Api.AI.KB {
     threshold?: number;
     mode?: 'VECTOR' | 'KEYWORD' | 'HYBRID';
     enableRerank?: boolean;
+    /** 是否启用关键词高亮 (仅 KEYWORD 模式生效) */
+    enableHighlight?: boolean;
   }
 
   /** 检索结果 */
@@ -86,5 +88,17 @@ declare namespace Api.AI.KB {
     score: number;
     rerankScore?: number;
     metadata?: Record<string, any>;
+    /** 高亮后的内容片段 (HTML) */
+    highlight?: string;
+  }
+
+  /** 知识库统计信息 */
+  interface Statistics {
+    totalKbs: number;
+    totalDatasets: number;
+    totalDocuments: number;
+    totalChunks: number;
+    processingDocs: number;
+    errorDocs: number;
   }
 }

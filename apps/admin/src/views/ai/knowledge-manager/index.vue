@@ -13,13 +13,19 @@ import {
   NInput,
   NScrollbar,
   NSpace,
+  NStatistic,
   NTag,
   useDialog,
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { deleteKnowledgeBase, fetchKnowledgeBaseList } from '@/service/api/ai/admin/knowledge';
+import {
+  deleteKnowledgeBase,
+  fetchKnowledgeBaseList,
+  fetchKnowledgeBaseStatistics
+} from '@/service/api/ai/admin/knowledge';
 import KnowledgeBaseModal from './modules/kb-modal.vue';
+import RetrievalSandbox from './modules/retrieval-sandbox.vue';
 
 const router = useRouter();
 const message = useMessage();
@@ -27,6 +33,7 @@ const dialog = useDialog();
 
 const modalVisible = ref(false);
 const editingKb = ref<Api.AI.KB.KnowledgeBase | null>(null);
+const sandboxVisible = ref(false);
 
 const searchParams = ref<Api.AI.KB.KnowledgeBaseSearchParams>({
   pageNo: 1,
@@ -36,6 +43,27 @@ const searchParams = ref<Api.AI.KB.KnowledgeBaseSearchParams>({
 
 const kbList = ref<Api.AI.KB.KnowledgeBase[]>([]);
 const loading = ref(false);
+
+// 统计信息
+const statistics = ref<Api.AI.KB.Statistics>({
+  totalKbs: 0,
+  totalDatasets: 0,
+  totalDocuments: 0,
+  totalChunks: 0,
+  processingDocs: 0,
+  errorDocs: 0
+});
+
+async function loadStatistics() {
+  try {
+    const { data } = await fetchKnowledgeBaseStatistics();
+    if (data) {
+      statistics.value = data;
+    }
+  } catch {
+    // ignore
+  }
+}
 
 async function getData() {
   loading.value = true;
@@ -72,6 +100,7 @@ async function handleDelete(item: Api.AI.KB.KnowledgeBase) {
         await deleteKnowledgeBase([item.id!]);
         message.success('删除成功');
         getData();
+        loadStatistics();
       } catch {
         // error handled by interceptor
       }
@@ -91,6 +120,7 @@ function onModalClose(success: boolean) {
   modalVisible.value = false;
   if (success) {
     getData();
+    loadStatistics();
   }
 }
 
@@ -117,11 +147,60 @@ function getPermissionLabel(level?: string) {
 
 onMounted(() => {
   getData();
+  loadStatistics();
 });
 </script>
 
 <template>
   <div class="h-full flex flex-col">
+    <!-- 统计面板 -->
+    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+      <NGrid :cols="6" responsive="screen" x-gap="16" y-gap="16">
+        <NGridItem>
+          <NStatistic label="知识库" :value="statistics.totalKbs">
+            <template #prefix>
+              <SvgIcon icon="mdi:book-open-page-variant" class="text-primary" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+        <NGridItem>
+          <NStatistic label="数据集" :value="statistics.totalDatasets">
+            <template #prefix>
+              <SvgIcon icon="mdi:folder" class="text-info" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+        <NGridItem>
+          <NStatistic label="文档" :value="statistics.totalDocuments">
+            <template #prefix>
+              <SvgIcon icon="mdi:file-document" class="text-success" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+        <NGridItem>
+          <NStatistic label="切片" :value="statistics.totalChunks">
+            <template #prefix>
+              <SvgIcon icon="mdi:puzzle" class="text-warning" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+        <NGridItem>
+          <NStatistic label="处理中" :value="statistics.processingDocs">
+            <template #prefix>
+              <SvgIcon icon="mdi:progress-clock" class="text-info" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+        <NGridItem>
+          <NStatistic label="失败" :value="statistics.errorDocs">
+            <template #prefix>
+              <SvgIcon icon="mdi:alert-circle" class="text-error" />
+            </template>
+          </NStatistic>
+        </NGridItem>
+      </NGrid>
+    </NCard>
+
     <!-- 搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
@@ -148,12 +227,20 @@ onMounted(() => {
       content-class="flex flex-col h-full overflow-hidden"
     >
       <template #header-extra>
-        <NButton type="primary" ghost size="small" @click="handleAdd">
-          <template #icon>
-            <SvgIcon icon="mdi:plus" />
-          </template>
-          新建知识库
-        </NButton>
+        <NSpace>
+          <NButton type="info" ghost size="small" @click="sandboxVisible = true">
+            <template #icon>
+              <SvgIcon icon="mdi:flask" />
+            </template>
+            检索测试
+          </NButton>
+          <NButton type="primary" ghost size="small" @click="handleAdd">
+            <template #icon>
+              <SvgIcon icon="mdi:plus" />
+            </template>
+            新建知识库
+          </NButton>
+        </NSpace>
       </template>
 
       <NScrollbar v-if="kbList.length > 0" class="h-full" content-class="p-4">
@@ -254,6 +341,8 @@ onMounted(() => {
       @success="onModalClose(true)"
       @cancel="onModalClose(false)"
     />
+
+    <RetrievalSandbox v-model:visible="sandboxVisible" />
   </div>
 </template>
 

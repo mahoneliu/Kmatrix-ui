@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, watch } from 'vue';
-import { NCollapse, NCollapseItem, NInput } from 'naive-ui';
+import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
+import VariableMention from '@/components/Flow/VariableMention.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -89,12 +90,11 @@ onMounted(() => {
                 </NTooltip>
               </div>
 
-              <NInput
-                v-model:value="formModel.customResponse"
-                class="workflow-textarea"
-                type="textarea"
+              <VariableMention
+                v-model:model-value="formModel.customResponse"
+                :node-id="id"
                 :rows="2"
-                placeholder="输入结束节点的指定内容作为最终输出"
+                placeholder="输入结束节点的指定内容作为最终输出 (输入 / 选择变量)"
               />
             </div>
           </div>

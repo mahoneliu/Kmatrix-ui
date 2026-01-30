@@ -2,6 +2,7 @@
 import { h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
+  type DropdownOption,
   NButton,
   NCard,
   NCollapse,
@@ -113,6 +114,28 @@ function formatDate(dateStr: string) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function getDropdownOptions(item: Api.AI.Admin.App) {
+  const options: DropdownOption[] = [
+    { label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) }
+  ];
+
+  if (item.status === '1') {
+    options.push({ label: '去对话', key: 'chat', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) });
+  }
+
+  options.push(
+    { type: 'divider', key: 'd1' },
+    {
+      label: '删除',
+      key: 'delete',
+      icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
+      labelProps: { class: 'text-error' }
+    }
+  );
+
+  return options;
+}
+
 onMounted(() => {
   getData();
 });
@@ -188,8 +211,8 @@ onMounted(() => {
               <template #header>
                 <div class="flex items-center gap-3 pr-20">
                   <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-                    <span v-if="!item.icon" class="i-carbon-application" />
-                    <img v-else :src="item.icon" class="h-full w-full rounded-lg object-cover" />
+                    <SvgIcon v-if="!item.icon" icon="mdi:application" />
+                    <SvgIcon v-else :icon="item.icon" />
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="truncate text-base font-bold">{{ item.appName }}</div>
@@ -222,17 +245,7 @@ onMounted(() => {
                 class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
               >
                 <NDropdown
-                  :options="[
-                    { label: '设置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) },
-                    { label: '去对话', key: 'chat', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
-                    { type: 'divider' },
-                    {
-                      label: '删除',
-                      key: 'delete',
-                      icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
-                      labelProps: { class: 'text-error' }
-                    }
-                  ]"
+                  :options="getDropdownOptions(item)"
                   trigger="click"
                   @select="
                     key => {

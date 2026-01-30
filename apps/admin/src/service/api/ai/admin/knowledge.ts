@@ -18,6 +18,16 @@ export function fetchKnowledgeBaseList(params?: Api.AI.KB.KnowledgeBaseSearchPar
 }
 
 /**
+ * 获取知识库统计信息
+ */
+export function fetchKnowledgeBaseStatistics() {
+  return request<Api.AI.KB.Statistics>({
+    url: '/ai/kb/statistics',
+    method: 'get'
+  });
+}
+
+/**
  * 获取所有知识库 (下拉选择用)
  */
 export function fetchAllKnowledgeBases() {
@@ -149,7 +159,8 @@ export function uploadDocument(datasetId: CommonType.IdType, file: File) {
     method: 'post',
     data: formData,
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
+      repeatSubmit: false
     }
   });
 }
@@ -167,7 +178,8 @@ export function uploadDocuments(datasetId: CommonType.IdType, files: File[]) {
     method: 'post',
     data: formData,
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
+      repeatSubmit: false
     }
   });
 }

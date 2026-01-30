@@ -127,6 +127,10 @@ declare namespace Workflow {
     temperature?: number;
     /** 最大令牌数 */
     maxTokens?: number;
+    /** 是否启用历史对话 */
+    historyEnabled?: boolean;
+    /** 历史对话条数限制 */
+    historyLimit?: number;
   }
 
   /** 意图分类节点配置 */

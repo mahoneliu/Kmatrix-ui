@@ -147,6 +147,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           hideInMenu: true,
           constant: true
         }
+      },
+      {
+        name: 'ai_workflow-template',
+        path: '/ai/workflow-template',
+        component: 'view.ai_workflow-template',
+        meta: {
+          title: 'ai_workflow-template',
+          i18nKey: 'route.ai_workflow-template'
+        }
       }
     ]
   },

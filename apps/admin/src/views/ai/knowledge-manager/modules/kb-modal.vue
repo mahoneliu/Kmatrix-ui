@@ -5,7 +5,7 @@ import type { FormInst, FormRules } from 'naive-ui';
 import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/admin/knowledge';
 
 interface Props {
-  visible: boolean;
+  visible?: boolean;
   data?: Api.AI.KB.KnowledgeBase | null;
 }
 
@@ -101,7 +101,7 @@ function handleCancel() {
     :show="visible"
     preset="card"
     :title="isEdit ? '编辑知识库' : '新建知识库'"
-    style="width: 500px"
+    class="w-500px"
     :mask-closable="false"
     @update:show="val => emit('update:visible', val)"
   >

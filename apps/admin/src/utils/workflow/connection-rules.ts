@@ -37,3 +37,33 @@ export function isValidConnection(sourceType: Workflow.NodeType, targetType: Wor
   const allowedTargets = fallbackConnectionRules[sourceType] || [];
   return allowedTargets.includes(targetType);
 }
+
+/**
+ * 根据源节点类型和 sourceHandle 生成条件表达式
+ * @param sourceNode 源节点
+ * @param sourceHandle 源 Handle ID
+ * @returns 条件表达式字符串,如果不需要条件则返回 undefined
+ */
+export function generateEdgeCondition(sourceNode: any, sourceHandle: string | null | undefined): string | undefined {
+  if (!sourceHandle) return undefined;
+
+  const nodeType = sourceNode.data.nodeType as Workflow.NodeType;
+
+  // 意图分类器节点: 根据 sourceHandle 生成条件
+  if (nodeType === 'INTENT_CLASSIFIER') {
+    if (sourceHandle === 'else') {
+      return "intent == 'else'";
+    }
+    // sourceHandle 格式: intent-0, intent-1, ...
+    const match = sourceHandle.match(/^intent-(\d+)$/);
+    if (match) {
+      const intentIndex = Number.parseInt(match[1], 10);
+      const config = sourceNode.data.config as Workflow.IntentClassifierConfig;
+      if (config?.intents && config.intents[intentIndex]) {
+        const intentName = config.intents[intentIndex];
+        return `intent == '${intentName}'`;
+      }
+    }
+  }
+  return undefined;
+}

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { NButton, NCollapse, NCollapseItem, NInput, NInputNumber, NModal, NSlider, NSpace } from 'naive-ui';
+import { NButton, NCollapse, NCollapseItem, NInputNumber, NModal, NSlider, NSpace, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import ModelSelector from '@/components/ai/ModelSelector.vue';
+import VariableMention from '@/components/Flow/VariableMention.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -13,11 +14,13 @@ const workflowStore = useWorkflowStore();
 type TemperatureMode = 'precise' | 'balanced' | 'creative' | 'custom';
 
 // 局部表单数据
-const formModel = reactive<Workflow.LlmNodeConfig>({
-  modelId: null as any,
+const formModel = reactive({
+  modelId: null as unknown as CommonType.IdType,
   systemPrompt: '',
   temperature: 0.7,
-  maxTokens: 2000
+  maxTokens: 2000,
+  historyEnabled: false,
+  historyLimit: 10
 });
 
 // 温度模式
@@ -41,6 +44,8 @@ function initData() {
     formModel.systemPrompt = config.systemPrompt || '';
     formModel.temperature = config.temperature || 0.7;
     formModel.maxTokens = config.maxTokens || 2000;
+    formModel.historyEnabled = config.historyEnabled || false;
+    formModel.historyLimit = config.historyLimit || 10;
 
     // 根据温度值设置模式
     updateTemperatureMode(formModel.temperature);
@@ -77,7 +82,9 @@ watch(
       newValue.modelId !== currentConfig?.modelId ||
       newValue.systemPrompt !== currentConfig?.systemPrompt ||
       newValue.temperature !== currentConfig?.temperature ||
-      newValue.maxTokens !== currentConfig?.maxTokens
+      newValue.maxTokens !== currentConfig?.maxTokens ||
+      newValue.historyEnabled !== currentConfig?.historyEnabled ||
+      newValue.historyLimit !== currentConfig?.historyLimit
     ) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
     }
@@ -95,12 +102,16 @@ watch(
         config.modelId !== formModel.modelId ||
         config.systemPrompt !== formModel.systemPrompt ||
         config.temperature !== formModel.temperature ||
-        config.maxTokens !== formModel.maxTokens
+        config.maxTokens !== formModel.maxTokens ||
+        config.historyEnabled !== formModel.historyEnabled ||
+        config.historyLimit !== formModel.historyLimit
       ) {
         formModel.modelId = (config.modelId || null) as any;
         formModel.systemPrompt = config.systemPrompt || '';
         formModel.temperature = config.temperature || 0.7;
         formModel.maxTokens = config.maxTokens || 2000;
+        formModel.historyEnabled = config.historyEnabled || false;
+        formModel.historyLimit = config.historyLimit || 10;
         updateTemperatureMode(formModel.temperature);
       }
     }
@@ -140,13 +151,34 @@ onMounted(() => {
 
             <div class="workflow-config-item">
               <label class="workflow-label">系统提示词</label>
-              <NInput
-                v-model:value="formModel.systemPrompt"
-                class="workflow-textarea"
-                type="textarea"
+              <VariableMention
+                v-model:model-value="formModel.systemPrompt"
+                :node-id="id"
                 :rows="3"
-                placeholder="输入系统提示词，定义 AI 的角色和行为..."
+                placeholder="输入系统提示词，定义 AI 的角色和行为... (输入 / 选择变量)"
               />
+            </div>
+
+            <!-- 历史对话配置 -->
+            <div class="workflow-config-item">
+              <div class="flex items-center justify-between">
+                <label class="workflow-label">启用历史对话</label>
+                <NSwitch v-model:value="formModel.historyEnabled" size="small" />
+              </div>
+              <div class="workflow-config-desc">开启后，AI 将能够理解对话上下文，保持对话连贯性</div>
+            </div>
+
+            <div v-if="formModel.historyEnabled" class="workflow-config-item">
+              <label class="workflow-label">历史消息条数</label>
+              <NInputNumber
+                v-model:value="formModel.historyLimit"
+                :min="1"
+                :max="50"
+                :step="1"
+                placeholder="最近N条消息"
+                class="w-full"
+              />
+              <div class="workflow-config-desc">加载最近的历史消息条数，建议设置为 5-20 条</div>
             </div>
           </div>
         </NCollapseItem>

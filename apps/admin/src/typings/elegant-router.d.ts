@@ -35,6 +35,7 @@ declare module "@elegant-router/types" {
     "ai_model-manager": "/ai/model-manager";
     "ai_node-definition": "/ai/node-definition";
     "ai_workflow": "/ai/workflow";
+    "ai_workflow-template": "/ai/workflow-template";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
     "demo_tree": "/demo/tree";
@@ -146,6 +147,7 @@ declare module "@elegant-router/types" {
     | "ai_knowledge-manager"
     | "ai_model-manager"
     | "ai_node-definition"
+    | "ai_workflow-template"
     | "ai_workflow"
     | "demo_demo"
     | "demo_tree"
