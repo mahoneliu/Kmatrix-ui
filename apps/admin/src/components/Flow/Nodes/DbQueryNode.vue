@@ -126,7 +126,12 @@ onMounted(() => {
             </div>
           </div>
         </NCollapseItem>
+      </NCollapse>
 
+      <NCollapse class="pt-3">
+        <template #arrow>
+          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+        </template>
         <!-- 高级配置 -->
         <NCollapseItem title="高级配置" name="advanced">
           <div class="workflow-config-section">

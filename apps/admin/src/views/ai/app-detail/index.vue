@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
+  NCollapseTransition,
   NGrid,
   NGridItem,
   NInput,
@@ -21,6 +22,7 @@ import { useEcharts } from '@/hooks/common/echarts';
 import { validateGraph } from '@/utils/workflow/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
 import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vue';
+import SystemTemplateConfigPanel from './modules/SystemTemplateConfigPanel.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -31,9 +33,13 @@ const appId = ref<string>(route.query.appId as string);
 const appInfo = ref<Api.AI.Admin.App | null>(null);
 const tokenList = ref<any[]>([]);
 const loading = ref(false);
+const showConfigPanel = ref(true);
 
 // 是否已发布
 const isPublished = computed(() => appInfo.value?.status === '1');
+
+// 是否系统模板应用 (sourceTemplateScope === '0')
+const isSystemTemplateApp = computed(() => appInfo.value?.sourceTemplateScope === '0');
 
 // 公开访问开关 (computed getter/setter 绑定后端数据)
 const publicAccessEnabled = computed({
@@ -194,6 +200,41 @@ function handleSettings() {
 async function handlePublish() {
   if (!appInfo.value) return;
 
+  // 系统模版应用：只校验配置面板参数，跳过工作流校验
+  if (isSystemTemplateApp.value) {
+    // 校验大模型
+    if (!appInfo.value.modelId) {
+      message.warning('请先选择大模型');
+      return;
+    }
+    // 校验知识库
+    // const kbIds = appInfo.value.knowledgeIds;
+    // if (!kbIds || kbIds === '') {
+    //   message.warning('请先选择知识库');
+    //   return;
+    // }
+
+    // 发布确认
+    dialog.create({
+      title: '发布应用',
+      content: '确认发布该应用？发布后可通过对话入口访问。',
+      positiveText: '确认发布',
+      negativeText: '取消',
+      onPositiveClick: async () => {
+        try {
+          await publishApp(appId.value, '从APP详情页发布');
+          message.success('发布成功');
+          await loadAppInfo();
+        } catch (error: any) {
+          const errorMsg = error?.response?.data?.msg || error?.message || '发布失败';
+          message.error(errorMsg);
+        }
+      }
+    });
+    return;
+  }
+
+  // 非系统模版应用：走工作流校验逻辑
   // 1. 解析 graphData
   let graphData;
   try {
@@ -389,21 +430,9 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!--
- <div class="mb-2 flex items-center gap-2">
-            <div v-if="isPublished">
-              <NSwitch v-model:value="publicAccessEnabled" size="small">
-                <template #checked>公开访问</template>
-                <template #unchecked>公开访问</template>
-              </NSwitch>
-            </div>
-          </div> 
--->
-
-          <!--
- <div v-if="publicAccessEnabled" class="flex items-center gap-2">
+          <div v-if="isPublished && publicAccessEnabled" class="mt-2 flex items-center gap-2">
             <NInputGroup>
-              <NInput :value="publicAccessUrl" readonly size="small" class="w-80" />
+              <NInput :value="publicAccessUrl" readonly size="small" placeholder="" class="w-80" />
               <NButton size="small" @click="copyToClipboard(publicAccessUrl, '链接')">
                 <template #icon>
                   <SvgIcon icon="mdi:content-copy" />
@@ -414,13 +443,18 @@ onMounted(async () => {
               <template #trigger>
                 <NButton type="primary" size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">刷新</NButton>
               </template>
-              重新生成访问链接
+              重新生成访问链接，会导致已经嵌入第三方的对话框无法使用，需要重新嵌入新的脚本。
             </NTooltip>
-          </div> 
--->
-
+          </div>
           <!-- 操作按钮组 -->
           <div class="mt-4 flex gap-2">
+            <!-- 系统模版应用配置按钮（放在最左边） -->
+            <NButton v-if="isSystemTemplateApp" size="small" @click="showConfigPanel = !showConfigPanel">
+              <template #icon>
+                <SvgIcon :icon="showConfigPanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
+              </template>
+              应用配置
+            </NButton>
             <!-- 未发布时显示发布按钮 -->
             <NButton v-if="!isPublished" type="primary" size="small" @click="handlePublish">
               <template #icon>
@@ -443,7 +477,7 @@ onMounted(async () => {
                 嵌入第三方
               </NButton>
             </template>
-            <NButton size="small" @click="handleSettings">
+            <NButton v-if="!isSystemTemplateApp" size="small" @click="handleSettings">
               <template #icon>
                 <SvgIcon icon="carbon:settings" />
               </template>
@@ -462,24 +496,22 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-
-        <!-- 右侧：API 访问凭据 -->
       </div>
-      <div v-if="publicAccessEnabled" class="mt-2 flex items-center gap-2">
-        <NInputGroup>
-          <NInput :value="publicAccessUrl" readonly size="small" placeholder="" class="w-80" />
-          <NButton size="small" @click="copyToClipboard(publicAccessUrl, '链接')">
-            <template #icon>
-              <SvgIcon icon="mdi:content-copy" />
-            </template>
-          </NButton>
-        </NInputGroup>
-        <NTooltip>
-          <template #trigger>
-            <NButton type="primary" size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">刷新</NButton>
-          </template>
-          重新生成访问链接
-        </NTooltip>
+
+      <!-- 系统模版应用配置面板 -->
+      <div v-if="isSystemTemplateApp" class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
+        <NCollapseTransition :show="showConfigPanel">
+          <SystemTemplateConfigPanel
+            v-if="appInfo"
+            :app-id="appId"
+            :app-name="appInfo.appName"
+            :model-id="appInfo.modelId"
+            :knowledge-ids="appInfo.knowledgeIds"
+            :model-setting="appInfo.modelSetting"
+            :graph-data="appInfo.graphData"
+            @update="loadAppInfo"
+          />
+        </NCollapseTransition>
       </div>
     </NCard>
 

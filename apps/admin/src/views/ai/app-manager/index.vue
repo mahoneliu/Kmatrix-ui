@@ -19,10 +19,12 @@ import {
 import { SvgIcon } from '@sa/materials';
 import { deleteApp, fetchAppList } from '@/service/api/ai/admin/app';
 import AppOperateModal from './modules/app-operate-modal.vue';
+import TemplateSelectModal from './modules/template-select-modal.vue';
 
 const router = useRouter();
 const message = useMessage();
 const modalVisible = ref(false);
+const templateModalVisible = ref(false);
 const appType = ref<'1' | '2'>('1');
 
 const searchParams = ref<Api.AI.Admin.AppSearchParams>({
@@ -47,7 +49,11 @@ async function getData() {
   }
 }
 
-function handleAdd(type: '1' | '2') {
+function handleAdd(type: '1' | '2' | 'template') {
+  if (type === 'template') {
+    templateModalVisible.value = true;
+    return;
+  }
   appType.value = type;
   modalVisible.value = true;
 }
@@ -177,10 +183,12 @@ onMounted(() => {
         <NDropdown
           :options="[
             { label: '基础对话', key: '1', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
-            { label: '工作流', key: '2', icon: () => h(SvgIcon, { icon: 'carbon:flow' }) }
+            { label: '工作流', key: '2', icon: () => h(SvgIcon, { icon: 'carbon:flow' }) },
+            { type: 'divider', key: 'd1' },
+            { label: '从模版创建', key: 'template', icon: () => h(SvgIcon, { icon: 'mdi:file-document-outline' }) }
           ]"
           trigger="click"
-          @select="key => handleAdd(key as '1' | '2')"
+          @select="key => handleAdd(key as '1' | '2' | 'template')"
         >
           <NButton type="primary" ghost size="small">
             <template #icon>
@@ -269,6 +277,7 @@ onMounted(() => {
     </NCard>
 
     <AppOperateModal v-model:visible="modalVisible" :app-type="appType" @success="id => onModalClose(id, appType)" />
+    <TemplateSelectModal v-model:visible="templateModalVisible" @success="() => getData()" />
   </div>
 </template>
 

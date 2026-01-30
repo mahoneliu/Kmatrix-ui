@@ -12,6 +12,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AIBaseNode: typeof import('./../components/Flow/Nodes/AIBaseNode.vue')['default']
     AiConfigPanel: typeof import('./../components/Flow/AiConfigPanel.vue')['default']
     AppInfoNode: typeof import('./../components/Flow/Nodes/AppInfoNode.vue')['default']
     AppInfoNodeConfig: typeof import('./../components/Flow/ConfigPanels/AppInfoNodeConfig.vue')['default']
@@ -209,6 +210,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const AIBaseNode: typeof import('./../components/Flow/Nodes/AIBaseNode.vue')['default']
   const AiConfigPanel: typeof import('./../components/Flow/AiConfigPanel.vue')['default']
   const AppInfoNode: typeof import('./../components/Flow/Nodes/AppInfoNode.vue')['default']
   const AppInfoNodeConfig: typeof import('./../components/Flow/ConfigPanels/AppInfoNodeConfig.vue')['default']

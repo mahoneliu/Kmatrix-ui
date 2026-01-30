@@ -233,7 +233,7 @@ defineExpose({
                         <span class="text-xs text-gray-500 dark:text-gray-200">思考过程</span>
                       </template>
                       <template #arrow>
-                        <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400 dark:text-gray-200" />
+                        <SvgIcon icon="mdi:play" class="text-gray-400 workflow-collapse-icon dark:text-gray-200" />
                       </template>
                       <div class="max-h-200px overflow-y-auto text-xs text-gray-500 -mt-5 dark:text-gray-200">
                         <MarkdownRenderer :content="msg.thinkingContent" />
@@ -262,7 +262,7 @@ defineExpose({
                         <span class="text-xs text-gray-400">执行详情 ({{ msg.executions.length }}个节点)</span>
                       </template>
                       <template #arrow>
-                        <SvgIcon icon="mdi:play" class="workflow-collapse-icon text-gray-400" />
+                        <SvgIcon icon="mdi:play" class="text-gray-400 workflow-collapse-icon" />
                       </template>
 
                       <div class="-ml-11 -mt-2 space-y-1">
@@ -288,7 +288,7 @@ defineExpose({
                                 </div>
                               </template>
                               <template #arrow>
-                                <SvgIcon icon="mdi:none" class="workflow-collapse-icon text-gray-400" />
+                                <SvgIcon icon="mdi:none" class="text-gray-400 workflow-collapse-icon" />
                               </template>
 
                               <!-- 输入输出参数 -->

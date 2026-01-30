@@ -30,8 +30,8 @@ export default defineConfig<Theme>({
     'workflow-input': 'text-11px',
     'workflow-textarea': 'text-11px',
     'workflow-btn-icon': 'text-4 c-gray-5',
-    'workflow-collapse-icon': 'text-4 c-gray-5', // 折叠面板箭头图标
-    'workflow-config-section': 'flex flex-col gap-3',
+    'workflow-collapse-icon': 'c-gray-5', // 折叠面板箭头图标
+    'workflow-config-section': 'flex flex-col gap-1 mt-1',
     'workflow-config-item': 'flex flex-col gap-1.5',
     'workflow-config-item-section': 'flex flex-col gap-3 pb-2 bg-slate-50 p-2 rounded'
   },

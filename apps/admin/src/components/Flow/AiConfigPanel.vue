@@ -69,49 +69,10 @@ function formatTemperature(value: number) {
       </NTooltip>
     </template>
 
-    <div class="ai-config-panel space-y-3">
-      <!-- 温度配置 -->
-      <div class="flex items-center gap-2">
-        <div class="w-65px flex-shrink-0 text-gray-500">温度</div>
-        <div class="flex-1">
-          <NSlider
-            v-model:value="temperature"
-            :min="0"
-            :max="2"
-            :step="0.1"
-            :marks="temperatureMarks"
-            :format-tooltip="formatTemperature"
-            @update:value="handleConfigChange"
-          />
-        </div>
-        <div class="w-35px text-center text-xs text-gray-400">{{ formatTemperature(temperature) }}</div>
-      </div>
-
-      <!-- 最大Token数 -->
-      <div class="flex items-center gap-2">
-        <div class="w-65px flex-shrink-0 text-gray-500">Max Tokens</div>
-        <NInputNumber
-          v-model:value="maxTokens"
-          :min="1"
-          :max="128000"
-          placeholder="不限制"
-          size="small"
-          class="flex-1"
-          clearable
-          @update:value="handleConfigChange"
-        />
-        <NTooltip>
-          <template #trigger>
-            <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
-          </template>
-          模型生成的最大token数，留空则使用模型默认值
-        </NTooltip>
-      </div>
-
-      <!-- 系统提示词 -->
-      <div class="space-y-1">
-        <div class="flex items-center gap-1 text-gray-500">
-          <span>系统提示词</span>
+    <div class="workflow-config-section">
+      <div class="workflow-config-item">
+        <div class="flex items-center gap-1">
+          <span class="workflow-label">系统提示词</span>
           <NTooltip>
             <template #trigger>
               <SvgIcon icon="mdi:information-outline" class="cursor-help text-12px text-gray-400" />
@@ -119,8 +80,11 @@ function formatTemperature(value: number) {
             定义AI助手的角色和行为规范
           </NTooltip>
         </div>
+      </div>
+      <div>
         <NInput
           v-model:value="systemPrompt"
+          class="workflow-textarea"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 4 }"
           placeholder="例如：你是一个专业的客服助手..."
@@ -129,11 +93,74 @@ function formatTemperature(value: number) {
         />
       </div>
 
+      <div class="workflow-config-item flex-1">
+        <div class="flex items-center gap-2">
+          <label class="mb-0 workflow-label">温度</label>
+          <NTooltip>
+            <template #trigger>
+              <SvgIcon icon="mdi:information-outline" class="cursor-help text-12px text-gray-400" />
+            </template>
+            温度越高，模型越随机，越倾向于创造性和创新性，但可能会降低准确性。
+          </NTooltip>
+        </div>
+        <!-- 温度配置 -->
+        <div class="mx-2 flex items-center gap-2">
+          <div class="flex-1">
+            <NSlider
+              v-model:value="temperature"
+              :min="0"
+              :max="2"
+              :step="0.1"
+              :marks="temperatureMarks"
+              class="text-xs"
+              :format-tooltip="formatTemperature"
+              @update:value="handleConfigChange"
+            />
+          </div>
+          <div class="w-35px text-center text-sm text-gray-400 font-bold -mt-6">
+            {{ formatTemperature(temperature) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 最大Token数 -->
+      <div class="workflow-config-item flex-1">
+        <div class="flex items-center gap-2">
+          <span class="workflow-label">Max Tokens</span>
+          <NTooltip>
+            <template #trigger>
+              <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
+            </template>
+            模型生成的最大token数，留空则使用模型默认值
+          </NTooltip>
+          <NInputNumber
+            v-model:value="maxTokens"
+            :min="1"
+            :max="128000"
+            placeholder="不限制"
+            size="small"
+            class="flex-1 workflow-input"
+            clearable
+            @update:value="handleConfigChange"
+          />
+        </div>
+      </div>
+
       <!-- 流式输出开关 -->
-      <div class="flex items-center gap-2">
-        <div class="w-65px flex-shrink-0 text-gray-500">流式输出</div>
-        <NSwitch v-model:value="streamOutput" size="small" @update:value="handleConfigChange" />
-        <span class="text-xs text-gray-400">{{ streamOutput ? '开启（作为thinking事件输出）' : '关闭' }}</span>
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <label class="workflow-label">流式输出</label>
+          <NTooltip>
+            <template #trigger>
+              <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
+            </template>
+            开启后，模型将实时输出结果，而不是等待生成完成后一次性返回
+          </NTooltip>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-400">{{ streamOutput ? '开启' : '关闭' }}</span>
+          <NSwitch v-model:value="streamOutput" size="small" @update:value="handleConfigChange" />
+        </div>
       </div>
     </div>
   </NCollapseItem>

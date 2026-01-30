@@ -396,10 +396,21 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           :output-params="outputParams"
         />
 
+        <NCollapse v-if="isAiNode" class="pt-3">
+          <template #arrow>
+            <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          </template>
+          <!-- AI模型配置面板（仅AI节点显示） -->
+          <AiConfigPanel :node-data="data" @update-ai-config="handleAiConfigUpdate" />
+        </NCollapse>
+
         <NCollapse class="pb-2 pt-3">
           <template #arrow>
             <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
           </template>
+          <!-- AI模型配置面板（仅AI节点显示） -->
+          <!-- <AiConfigPanel v-if="isAiNode" :node-data="data" @update-ai-config="handleAiConfigUpdate" /> -->
+
           <!-- 统一的参数绑定面板 -->
           <NCollapseItem
             v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
@@ -418,8 +429,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
               :allow-custom-output="allowCustomOutput"
             />
           </NCollapseItem>
-          <!-- AI模型配置面板（仅AI节点显示） -->
-          <AiConfigPanel v-if="isAiNode" :node-data="data" @update-ai-config="handleAiConfigUpdate" />
         </NCollapse>
       </div>
 

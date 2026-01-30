@@ -71,11 +71,9 @@ onMounted(() => {
                       <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
-                  可以通过{输入参数名xxx}的方式来引用输入参数的值。
+                  该节点可以汇合各节点参数，定义特定的内容端，可以通过输入/来引用输入参数的值。
                   <br />
-                  例如：{userName},你好。
-                  <br />
-                  可以自定义入参，来引用各个节点的输出参数。
+                  例如：${start.userName},你好。
                 </NTooltip>
               </div>
               <VariableMention

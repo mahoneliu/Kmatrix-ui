@@ -125,7 +125,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="knowledge-retrieval-node">
-    <div class="w-80">
+    <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
           <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
@@ -186,7 +186,7 @@ onMounted(() => {
 <style scoped>
 /* 覆盖 BaseNode 的默认宽度限制 */
 :deep(.workflow-node) {
-  min-width: 360px !important;
-  max-width: 400px;
+  min-width: 420px !important;
+  max-width: 450px;
 }
 </style>

@@ -69,6 +69,10 @@ declare namespace Api.AI.Admin {
     enableExecutionDetail?: '0' | '1';
     /** 公开访问（0关闭 1开启） */
     publicAccess?: '0' | '1';
+    /** 来源模版ID */
+    sourceTemplateId?: CommonType.IdType;
+    /** 来源模版类型 (0=系统 1=自建) */
+    sourceTemplateScope?: '0' | '1';
     modelSetting: AppModelConfig;
     knowledgeSetting: AppKnowledgeConfig;
     workflowConfig: AppWorkflowConfig;

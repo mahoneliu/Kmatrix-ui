@@ -4,7 +4,6 @@ import { NButton, NCollapse, NCollapseItem, NInputNumber, NModal, NSlider, NSpac
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/workflow';
 import ModelSelector from '@/components/ai/ModelSelector.vue';
-import VariableMention from '@/components/Flow/VariableMention.vue';
 import BaseNode from './BaseNode.vue';
 
 const props = defineProps<NodeProps>();
@@ -149,7 +148,8 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="workflow-config-item">
+            <!--
+ <div class="workflow-config-item">
               <label class="workflow-label">系统提示词</label>
               <VariableMention
                 v-model:model-value="formModel.systemPrompt"
@@ -157,28 +157,44 @@ onMounted(() => {
                 :rows="3"
                 placeholder="输入系统提示词，定义 AI 的角色和行为... (输入 / 选择变量)"
               />
-            </div>
+            </div> 
+-->
 
             <!-- 历史对话配置 -->
             <div class="workflow-config-item">
               <div class="flex items-center justify-between">
-                <label class="workflow-label">启用历史对话</label>
+                <div class="flex items-center gap-2">
+                  <label class="workflow-label">启用历史对话</label>
+                  <NTooltip>
+                    <template #trigger>
+                      <SvgIcon icon="mdi:information-outline" class="cursor-help text-12px text-gray-400" />
+                    </template>
+                    开启后，AI 将能够理解对话上下文，保持对话连贯性
+                  </NTooltip>
+                </div>
                 <NSwitch v-model:value="formModel.historyEnabled" size="small" />
               </div>
-              <div class="workflow-config-desc">开启后，AI 将能够理解对话上下文，保持对话连贯性</div>
             </div>
 
             <div v-if="formModel.historyEnabled" class="workflow-config-item">
-              <label class="workflow-label">历史消息条数</label>
-              <NInputNumber
-                v-model:value="formModel.historyLimit"
-                :min="1"
-                :max="50"
-                :step="1"
-                placeholder="最近N条消息"
-                class="w-full"
-              />
-              <div class="workflow-config-desc">加载最近的历史消息条数，建议设置为 5-20 条</div>
+              <div class="flex items-center gap-2">
+                <span class="workflow-label">历史消息条数</span>
+                <NTooltip>
+                  <template #trigger>
+                    <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
+                  </template>
+                  保留最近N条对话消息，用于上下文记忆，建议设置为 5-20 条
+                </NTooltip>
+                <NInputNumber
+                  v-model:value="formModel.historyLimit"
+                  :min="1"
+                  :max="50"
+                  :step="1"
+                  size="small"
+                  class="flex-1 workflow-input"
+                  placeholder="最近N条消息"
+                />
+              </div>
             </div>
           </div>
         </NCollapseItem>

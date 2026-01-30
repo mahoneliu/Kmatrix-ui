@@ -80,13 +80,9 @@ onMounted(() => {
                       <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
-                  如果指定回复内容,会替换finalRespons作为最终输出。
+                  如果指定回复内容，就是最终工作流的输出。
                   <br />
-                  指定回复内容可以通过{输入参数名xxx}的方式来引用输入参数的值。
-                  <br />
-                  例如：最终输出：{finalResponse}。
-                  <br />
-                  可以自定义入参，来引用各个节点的输出参数。
+                  这里的内容会覆盖当前节点的输出参数：finalResponse。
                 </NTooltip>
               </div>
 
