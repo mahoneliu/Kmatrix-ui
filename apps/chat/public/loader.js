@@ -27,6 +27,7 @@
   const theme = scriptUrl.searchParams.get('theme') || 'light';
 
   if (!appToken || !appId) {
+    // eslint-disable-next-line no-console
     console.error('[KMatrix Embed] Missing appToken or appId in script URL');
     return;
   }
@@ -166,5 +167,5 @@
     } catch {}
   });
 
-  console.log('[KMatrix] Embed loader initialized');
+  // console.log('[KMatrix] Embed loader initialized');
 })();

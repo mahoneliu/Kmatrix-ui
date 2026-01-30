@@ -178,9 +178,8 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
               <!-- 显示模式 -->
               <div v-else class="flex items-center gap-1">
                 <div
-                  class="flex-1 truncate text-sm font-medium"
+                  class="max-w-220px flex-1 truncate text-sm font-medium"
                   :title="session.title"
-                  style="max-width: 220px"
                   @dblclick="handleEditTitle(session, $event)"
                 >
                   {{ session.title }}

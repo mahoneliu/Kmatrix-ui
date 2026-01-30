@@ -49,8 +49,8 @@ async function loadKnowledgeBases() {
         value: kb.id as number
       }));
     }
-  } catch (e) {
-    console.error('Failed to load knowledge bases:', e);
+  } catch {
+    // console.error('Failed to load knowledge bases:', e);
   } finally {
     kbLoading.value = false;
   }

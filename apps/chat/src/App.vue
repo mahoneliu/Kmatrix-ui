@@ -89,7 +89,7 @@ async function loadAppInfo() {
 // 最大化/全屏
 const isMaximized = ref(false);
 function handleMaximize() {
-  console.log('Maximize clicked');
+  // console.log('Maximize clicked');
   isMaximized.value = !isMaximized.value;
   // 向父页面发送消息，让其调整 iframe 大小
   window.parent?.postMessage(
@@ -103,7 +103,7 @@ function handleMaximize() {
 
 // 关闭
 function handleClose() {
-  console.log('Close clicked');
+  // console.log('Close clicked');
   // 通常发送消息给父页面隐藏 iframe
   window.parent?.postMessage({ type: 'close-chat' }, '*');
 }
@@ -124,7 +124,7 @@ async function loadHistory() {
       chatPanelRef.value?.setMessages(msgs);
     }
   } catch {
-    console.error('加载历史消息失败');
+    // console.error('加载历史消息失败');
   }
 }
 
@@ -140,22 +140,22 @@ function handleSelectSession(newSessionId: string) {
 async function handleDeleteSession(deletedSessionId: string) {
   try {
     const token = embedParams.appToken;
-    console.log('[DEBUG] handleDeleteSession token:', token);
+    // console.log('[DEBUG] handleDeleteSession token:', token);
 
     if (deletedSessionId === 'all') {
       await clearAppHistory(embedParams.appId, token);
-      console.log('已清空所有会话');
+      // console.log('已清空所有会话');
       sessionId.value = undefined;
     } else {
       await clearChatHistory(deletedSessionId, token);
-      console.log('已删除会话');
+      // console.log('已删除会话');
       if (deletedSessionId === sessionId.value) {
         sessionId.value = undefined;
       }
     }
     await loadSessions();
   } catch {
-    console.error('删除会话失败');
+    // console.error('删除会话失败');
   }
 }
 
@@ -183,7 +183,7 @@ onMounted(async () => {
       <div class="embed-container h-full w-full flex flex-col">
         <!-- 抽屉式会话列表 -->
         <NDrawer v-model:show="showSessions" placement="left" :width="280">
-          <NDrawerContent :native-scrollbar="false" style="--n-body-padding: 2px">
+          <NDrawerContent :native-scrollbar="false" class="drawer-content-custom">
             <div class="relative h-full flex flex-col pt-2">
               <!-- 收回按钮 -->
               <div
@@ -287,5 +287,8 @@ onMounted(async () => {
   background: var(--n-color, #fff);
   height: 100vh;
   width: 100vw;
+}
+.drawer-content-custom {
+  --n-body-padding: 2px;
 }
 </style>

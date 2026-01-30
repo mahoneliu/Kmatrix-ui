@@ -338,12 +338,13 @@ function handleReset() {
                       <NText class="text-sm font-medium">{{ item.documentName || '未知文档' }}</NText>
                     </div>
                     <!-- 高亮内容使用 v-html -->
-                    <!-- eslint-disable-next-line vue/no-v-html -->
+                    <!-- eslint-disable vue/no-v-html -->
                     <div
                       v-if="item.highlight"
                       class="retrieval-highlight line-clamp-4 text-sm text-gray-600 dark:text-gray-300"
                       v-html="item.highlight"
-                    />
+                    ></div>
+                    <!-- eslint-enable vue/no-v-html -->
                     <NText v-else class="line-clamp-4 text-sm text-gray-600 dark:text-gray-300">
                       {{ item.content }}
                     </NText>

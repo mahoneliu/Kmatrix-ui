@@ -23,9 +23,9 @@ export const request = createFlatRequest(
       const data = response.data as any;
       return String(data.code) === '200' || String(data.code) === '0000';
     },
-    async onBackendFail(response) {
-      const data = response.data as any;
-      console.error('API Error:', data.msg);
+    async onBackendFail(_response) {
+      // const data = response.data as any;
+      // console.error('API Error:', data.msg);
       return null;
     }
   }

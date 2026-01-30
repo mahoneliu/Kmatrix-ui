@@ -61,7 +61,7 @@ function saveToStorage(state: ChatAuthState): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    console.warn('[useChatAuth] 保存认证状态失败');
+    // console.warn('[useChatAuth] 保存认证状态失败');
   }
 }
 
@@ -99,7 +99,7 @@ export function useChatAuth() {
     const cached = loadFromStorage(appToken);
     if (cached) {
       authState.value = cached;
-      console.log('[useChatAuth] 使用缓存的 Session Token');
+      // console.log('[useChatAuth] 使用缓存的 Session Token');
       return true;
     }
 
@@ -112,7 +112,7 @@ export function useChatAuth() {
 
       if (error || !data) {
         initError.value = error?.message || '认证失败';
-        console.error('[useChatAuth] 匿名认证失败:', initError.value);
+        // console.error('[useChatAuth] 匿名认证失败:', initError.value);
         return false;
       }
 
@@ -128,11 +128,11 @@ export function useChatAuth() {
       authState.value = newState;
       saveToStorage(newState);
 
-      console.log('[useChatAuth] 匿名认证成功, userId:', data.userId);
+      // console.log('[useChatAuth] 匿名认证成功, userId:', data.userId);
       return true;
     } catch (e) {
       initError.value = e instanceof Error ? e.message : '网络错误';
-      console.error('[useChatAuth] 认证异常:', e);
+      // console.error('[useChatAuth] 认证异常:', e);
       return false;
     } finally {
       isInitializing.value = false;

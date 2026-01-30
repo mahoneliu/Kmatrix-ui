@@ -352,10 +352,7 @@ defineExpose({
 
     <!-- 输入框 -->
     <div class="flex-shrink-0 px-4 py-4">
-      <div
-        class="relative rounded-xl bg-white p-2 transition-all dark:bg-gray-800"
-        style="border: 1px solid rgb(229, 231, 235); box-shadow: 0 0 0 1px rgb(229, 231, 235)"
-      >
+      <div class="relative border border-gray-200 rounded-xl bg-white p-2 shadow-sm transition-all dark:bg-gray-800">
         <NInput
           v-model:value="inputMessage"
           :autosize="{ minRows: 2, maxRows: 6 }"
