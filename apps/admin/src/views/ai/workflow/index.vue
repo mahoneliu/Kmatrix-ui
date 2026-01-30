@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 /* eslint-disable max-depth */
-import { computed, defineAsyncComponent, h, markRaw, onMounted, onUnmounted, ref } from 'vue';
+import { computed, defineAsyncComponent, h, markRaw, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { NButton, NPopover, NSpace, NSwitch, useDialog, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
@@ -13,6 +13,7 @@ import { useWorkflowStore } from '@/store/modules/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/node-definition';
 import { useWorkflowLayout } from '@/composables/useWorkflowLayout';
 import { useAutoSave } from '@/composables/useAutoSave';
+import { useWorkflowHistory } from '@/composables/useWorkflowHistory';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/workflow/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
 import { isValidConnection } from '@/utils/workflow/connection-rules';
@@ -35,6 +36,7 @@ import '@vue-flow/minimap/dist/style.css';
 import ComponentLibraryPanel from '@/components/Flow/ComponentLibraryPanel.vue';
 import WorkflowSaveStatus from '@/components/Flow/WorkflowSaveStatus.vue';
 import DebugChatDialog from '@/components/ai/DebugChatDialog.vue';
+import { onKeyStroke, useMagicKeys, whenever } from '@vueuse/core';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/LlmChatNode.vue'));
 
@@ -65,6 +67,56 @@ const { handleAutoLayout, handleCollapseAll, handleExpandAll, handleCollapseAndL
   message
 });
 
+// 初始化历史管理
+const { undo, redo, canUndo, canRedo, takeSnapshot, initHistory, historyStack, currentIndex, jumpToHistory } =
+  useWorkflowHistory();
+
+// 注册快捷键
+const { ctrl_z, ctrl_y, ctrl_shift_z, ctrl_s, meta_z, meta_y, meta_shift_z, meta_s } = useMagicKeys();
+
+// 撤销
+const handleUndo = () => {
+  if (canUndo.value) {
+    undo();
+  }
+};
+
+// 重做
+const handleRedo = () => {
+  if (canRedo.value) {
+    redo();
+  }
+};
+
+// 跳转到历史记录
+const handleJumpToHistory = (index: number) => {
+  jumpToHistory(index);
+};
+
+// 撤销: Ctrl+Z (Win) 或 Command+Z (Mac)
+whenever(
+  () => (ctrl_z.value || meta_z.value) && !meta_shift_z.value && !ctrl_shift_z.value,
+  () => {
+    handleUndo();
+  }
+);
+
+// 重做: Ctrl+Y / Ctrl+Shift+Z (Win) 或 Command+Y / Command+Shift+Z (Mac)
+whenever(
+  () => ctrl_y.value || meta_y.value || ctrl_shift_z.value || meta_shift_z.value,
+  () => {
+    handleRedo();
+  }
+);
+
+// 保存: Ctrl+S (Win) 或 Command+S (Mac)
+onKeyStroke(['s', 'S'], e => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    handleSave();
+  }
+});
+
 // 跟踪source Handle事件后源节点（用于创建连接）
 const sourceNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
 
@@ -86,6 +138,7 @@ function onPaneReady(instance: any) {
   // 注册事件监听
   instance.onNodeDragStop(({ node }: any) => {
     workflowStore.updateNodePosition(node.id, node.position);
+    takeSnapshot('移动节点');
   });
 
   instance.onNodeClick(({ node }: any) => {
@@ -229,6 +282,7 @@ function onPaneReady(instance: any) {
       const currentEdges = workflowStore.edges.filter(e => e.id !== edge.id);
       currentEdges.push(newEdge);
       workflowStore.setEdges(currentEdges);
+      takeSnapshot('更新连接');
     } else {
       message.warning('无效的连接');
       // 无效连接 -> 移除旧边
@@ -619,6 +673,7 @@ async function loadWorkflow() {
     // 加载完成后标记为已保存并延迟启用自动保存
     setTimeout(() => {
       enableAutoSave();
+      initHistory(); // 初始化历史栈
     }, 2000);
   }
 }
@@ -960,6 +1015,7 @@ function createAppInfoNode(appData: Api.AI.Admin.App) {
       }
     };
     workflowStore.addNode(newAppInfoNode);
+    // 基础信息初始化不记录快照或在 initHistory 之前
   }
 }
 
@@ -969,12 +1025,16 @@ function handleSelectNode(nodeType: Workflow.NodeType) {
   // 简单的位移策略，避免重叠
   const position = { x: 300, y: 200 + workflowStore.nodes.length * 50 };
   const newNode = createNodeData(nodeType, position);
-  if (newNode) workflowStore.addNode(newNode);
+  if (newNode) {
+    workflowStore.addNode(newNode);
+    takeSnapshot('添加节点');
+  }
 }
 
 // 删除节点
 function handleDeleteNode(nodeId: string) {
   workflowStore.removeNode(nodeId);
+  takeSnapshot('删除节点');
 }
 
 // 复制节点
@@ -997,6 +1057,7 @@ function handleDuplicateNode(nodeId: string) {
   };
 
   workflowStore.addNode(newNode);
+  takeSnapshot('复制节点');
 }
 
 // 处理 Source Handle 点击
@@ -1072,6 +1133,7 @@ function handlePanelSelectNode(nodeType: Workflow.NodeType) {
         });
         sourceNodeByHandle.value = null;
       }
+      takeSnapshot('添加并连接节点');
     }
   }
 }
@@ -1131,6 +1193,7 @@ function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: num
         const newNode = createNodeData(type, position);
         if (newNode) {
           workflowStore.addNode(newNode);
+          takeSnapshot('拖拽添加节点');
           // 如果有sourceNodeByHandle，说明是handle点击或拖拽，创建连接
           if (sourceNodeByHandle.value) {
             const condition = generateEdgeCondition(sourceNodeByHandle.value.node, sourceNodeByHandle.value.handleId);
@@ -1253,21 +1316,42 @@ onMounted(async () => {
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="zoomIn"
           >
-            <SvgIcon icon="mdi:magnify-plus-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:zoom-in" />
           </ControlButton>
           <ControlButton
             title="缩小"
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="zoomOut"
           >
-            <SvgIcon icon="mdi:magnify-minus-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:zoom-out" />
           </ControlButton>
           <ControlButton
             title="适应视图"
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="fitView"
           >
-            <SvgIcon icon="mdi:fit-to-screen-outline" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:fit-to-screen" />
+          </ControlButton>
+
+          <!-- 分隔线 -->
+          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
+
+          <!-- 撤销/重做 -->
+          <ControlButton
+            title="撤销 (Ctrl+Z)"
+            :disabled="!canUndo"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px disabled:!cursor-not-allowed hover:!bg-[#cdd7ea] disabled:!opacity-30"
+            @click="handleUndo"
+          >
+            <SvgIcon icon="carbon:undo" />
+          </ControlButton>
+          <ControlButton
+            title="重做 (Ctrl+Y)"
+            :disabled="!canRedo"
+            class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px disabled:!cursor-not-allowed hover:!bg-[#cdd7ea] disabled:!opacity-30"
+            @click="handleRedo"
+          >
+            <SvgIcon icon="carbon:redo" />
           </ControlButton>
 
           <!-- 分隔线 -->
@@ -1279,7 +1363,7 @@ onMounted(async () => {
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="handleCollapseAll"
           >
-            <SvgIcon icon="mdi:unfold-less-horizontal" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:collapse-all" />
           </ControlButton>
 
           <!-- 展开所有节点 -->
@@ -1288,7 +1372,7 @@ onMounted(async () => {
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="handleExpandAll"
           >
-            <SvgIcon icon="mdi:unfold-more-horizontal" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:expand-all" />
           </ControlButton>
 
           <!-- 分隔线 -->
@@ -1300,7 +1384,7 @@ onMounted(async () => {
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="handleAutoLayout"
           >
-            <SvgIcon icon="mdi:auto-fix" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:load-balancer-vpc" />
           </ControlButton>
 
           <!-- 折叠并布局 -->
@@ -1309,8 +1393,69 @@ onMounted(async () => {
             class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
             @click="handleCollapseAndLayout"
           >
-            <SvgIcon icon="mdi:format-align-justify" class="!h-22px !max-h-22px !max-w-22px !w-22px !text-2px" />
+            <SvgIcon icon="carbon:grid" />
           </ControlButton>
+
+          <!-- 分隔线 -->
+          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
+
+          <!-- 操作历史 -->
+          <NPopover trigger="click" placement="right-end" :show-arrow="false" class="!rounded-8px !p-0">
+            <template #trigger>
+              <ControlButton
+                title="操作历史"
+                class="!h-28px !w-28px !cursor-pointer !b-0 !rounded-5px !bg-transparent !p-2px hover:!bg-[#cdd7ea]"
+              >
+                <SvgIcon icon="carbon:view-next" />
+              </ControlButton>
+            </template>
+            <div class="max-h-400px w-240px flex flex-col overflow-hidden bg-white shadow-xl dark:bg-dark-1">
+              <div
+                class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-dark-2"
+              >
+                <span class="text-sm font-bold">操作历史</span>
+                <span class="text-xs text-gray-400">共 {{ historyStack.length }} 条</span>
+              </div>
+              <div class="flex-1 overflow-y-auto py-1">
+                <div
+                  v-for="(item, index) in [...historyStack].reverse()"
+                  :key="item.timestamp"
+                  class="group flex flex-col cursor-pointer border-l-3 px-4 py-2 transition-all"
+                  :class="[
+                    historyStack.length - 1 - index === currentIndex
+                      ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500'
+                      : 'hover:bg-gray-50 dark:hover:bg-white/5 border-transparent'
+                  ]"
+                  @click="handleJumpToHistory(historyStack.length - 1 - index)"
+                >
+                  <div class="mb-0.5 flex items-start justify-between">
+                    <span
+                      class="text-xs font-medium"
+                      :class="
+                        historyStack.length - 1 - index === currentIndex
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-gray-700 dark:text-gray-200'
+                      "
+                    >
+                      {{ item.label }}
+                    </span>
+                    <span class="text-[10px] text-gray-400">
+                      {{ new Date(item.timestamp).toLocaleTimeString() }}
+                    </span>
+                  </div>
+                  <div class="line-clamp-1 text-[10px] text-gray-400">
+                    {{
+                      historyStack.length - 1 - index === currentIndex
+                        ? '当前状态'
+                        : historyStack.length - 1 - index < currentIndex
+                          ? '已执行'
+                          : '可重做'
+                    }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </NPopover>
         </Controls>
         <MiniMap />
 
@@ -1388,7 +1533,12 @@ onMounted(async () => {
           </template>
           调试
         </NButton>
-        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">发布</NButton>
+        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">
+          <template #icon>
+            <SvgIcon icon="mdi:publish" />
+          </template>
+          发布
+        </NButton>
         <!-- 更多操作菜单 -->
         <NPopover trigger="click" placement="bottom-end" :show-arrow="false" class="w-[180px] p-0">
           <template #trigger>
