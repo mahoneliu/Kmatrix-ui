@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import { NODE_CATEGORY_OPTIONS } from '@/constants/workflow';
-import { addNodeDefinition, copyNodeDefinition, updateNodeDefinition } from '@/service/api/ai/workflow/node';
+import { addNodeDefinition, copyNodeDefinition, updateNodeDefinition } from '@/service/api/ai/node';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import NodeParamEditor from './node-param-editor.vue';

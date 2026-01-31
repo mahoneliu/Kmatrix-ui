@@ -17,7 +17,7 @@ import {
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { deleteApp, fetchAppList } from '@/service/api/ai/admin/app';
+import { deleteApp, fetchAppList } from '@/service/api/ai/app';
 import AppOperateModal from './modules/app-operate-modal.vue';
 import TemplateSelectModal from './modules/template-select-modal.vue';
 
@@ -121,9 +121,11 @@ function formatDate(dateStr: string) {
 }
 
 function getDropdownOptions(item: Api.AI.Admin.App) {
-  const options: DropdownOption[] = [
-    { label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) }
-  ];
+  const options: DropdownOption[] = [];
+
+  if (item.appType === '2' || (item.sourceTemplateId && item.sourceTemplateScope !== '0')) {
+    options.push({ label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) });
+  }
 
   if (item.status === '1') {
     options.push({ label: '去对话', key: 'chat', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) });
@@ -182,10 +184,10 @@ onMounted(() => {
       <template #header-extra>
         <NDropdown
           :options="[
-            { label: '基础对话', key: '1', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
-            { label: '工作流', key: '2', icon: () => h(SvgIcon, { icon: 'carbon:flow' }) },
+            { label: '固定模板', key: '1', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
             { type: 'divider', key: 'd1' },
-            { label: '从模版创建', key: 'template', icon: () => h(SvgIcon, { icon: 'mdi:file-document-outline' }) }
+            { label: '自定义工作流', key: '2', icon: () => h(SvgIcon, { icon: 'carbon:flow' }) },
+            { label: '从自建模板创建', key: 'template', icon: () => h(SvgIcon, { icon: 'mdi:file-document-outline' }) }
           ]"
           trigger="click"
           @select="key => handleAdd(key as '1' | '2' | 'template')"
@@ -254,7 +256,6 @@ onMounted(() => {
               >
                 <NDropdown
                   :options="getDropdownOptions(item)"
-                  trigger="click"
                   @select="
                     key => {
                       if (key === 'settings') handleSettings(item);

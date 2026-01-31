@@ -5,13 +5,30 @@
  * @date 2026-01-20
  */
 import { h, onMounted, ref } from 'vue';
-import { NButton, NCard, NDataTable, NPopconfirm, NSpace, NTag, useMessage } from 'naive-ui';
+import {
+  NButton,
+  NCard,
+  NCollapse,
+  NCollapseItem,
+  NDataTable,
+  NInput,
+  NPopconfirm,
+  NSpace,
+  NTag,
+  useMessage
+} from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { deleteDataSource, fetchDataSourceList } from '@/service/api/ai/datasource';
-import DataSourceFormModal from './components/DataSourceFormModal.vue';
-import MetadataManagerModal from './components/MetadataManagerModal.vue';
+import DataSourceFormModal from './components/data-source-form-modal.vue';
+import MetadataManagerModal from './components/metadata-manager-modal.vue';
 
 const message = useMessage();
+
+// 搜索参数
+const searchParams = ref({
+  dataSourceName: ''
+});
 
 // 数据源列表
 const dataSourceList = ref<any[]>([]);
@@ -115,7 +132,7 @@ const columns: DataTableColumns<any> = [
 async function loadDataSources() {
   loading.value = true;
   try {
-    const result = await fetchDataSourceList();
+    const result = await fetchDataSourceList(searchParams.value);
     let data: any;
     if (result && typeof result === 'object' && 'data' in result) {
       data = (result as any).data;
@@ -176,28 +193,66 @@ onMounted(() => {
 </script>
 
 <template>
-  <NCard title="数据源管理" :bordered="false" class="h-full">
-    <template #header-extra>
-      <NButton type="primary" @click="handleAdd">
-        <template #icon>
-          <SvgIcon icon="mdi:plus" />
-        </template>
-        新增数据源
-      </NButton>
-    </template>
+  <div class="h-full flex flex-col">
+    <!-- 搜索区域 -->
+    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+      <NCollapse default-expanded-names="search">
+        <NCollapseItem title="搜索" name="search">
+          <NSpace>
+            <NInput
+              v-model:value="searchParams.dataSourceName"
+              clearable
+              placeholder="请输入数据源名称"
+              @keyup.enter="loadDataSources"
+            />
+            <NButton type="primary" @click="loadDataSources">
+              <template #icon>
+                <SvgIcon icon="mdi:magnify" />
+              </template>
+              搜索
+            </NButton>
+          </NSpace>
+        </NCollapseItem>
+      </NCollapse>
+    </NCard>
 
-    <NDataTable :columns="columns" :data="dataSourceList" :loading="loading" :bordered="false" />
+    <!-- 数据源列表 -->
+    <NCard
+      title="数据源列表"
+      :bordered="false"
+      size="small"
+      class="flex-1 card-wrapper"
+      content-class="flex flex-col h-full overflow-hidden"
+    >
+      <template #header-extra>
+        <NButton type="primary" size="small" @click="handleAdd">
+          <template #icon>
+            <SvgIcon icon="mdi:plus" />
+          </template>
+          新增数据源
+        </NButton>
+      </template>
 
-    <!-- 数据源表单对话框 -->
-    <DataSourceFormModal v-model:show="showFormModal" :data-source="editingDataSource" @success="handleFormSuccess" />
+      <NDataTable
+        :columns="columns"
+        :data="dataSourceList"
+        :loading="loading"
+        :bordered="false"
+        class="h-full"
+        flex-height
+      />
 
-    <!-- 元数据管理对话框 -->
-    <MetadataManagerModal
-      v-model:show="showMetadataModal"
-      :data-source-id="selectedDataSourceId"
-      @success="handleMetadataSuccess"
-    />
-  </NCard>
+      <!-- 数据源表单对话框 -->
+      <DataSourceFormModal v-model:show="showFormModal" :data-source="editingDataSource" @success="handleFormSuccess" />
+
+      <!-- 元数据管理对话框 -->
+      <MetadataManagerModal
+        v-model:show="showMetadataModal"
+        :data-source-id="selectedDataSourceId"
+        @success="handleMetadataSuccess"
+      />
+    </NCard>
+  </div>
 </template>
 
 <style scoped></style>

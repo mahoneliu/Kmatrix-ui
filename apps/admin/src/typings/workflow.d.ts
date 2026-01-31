@@ -313,15 +313,17 @@ declare namespace Workflow {
     emptyResponse?: string;
   }
 
-  /** AI节点通用配置 */
+  /** AI配置通用接口 */
   interface AiConfig {
-    /** 温度参数 (0.0-2.0) */
+    /** 模型ID */
+    modelId?: string | null;
+    /** 温度 */
     temperature?: number;
     /** 最大Token数 */
     maxTokens?: number | null;
     /** 系统提示词 */
     systemPrompt?: string;
-    /** 是否开启流式输出(作为thinking事件) */
+    /** 流式输出 */
     streamOutput?: boolean;
   }
 

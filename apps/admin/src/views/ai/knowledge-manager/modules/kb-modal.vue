@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { NButton, NForm, NFormItem, NInput, NModal, NSelect, NSpace, useMessage } from 'naive-ui';
 import type { FormInst, FormRules } from 'naive-ui';
-import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/admin/knowledge';
+import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/knowledge';
 
 interface Props {
   visible?: boolean;

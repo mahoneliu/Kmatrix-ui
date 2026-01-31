@@ -2,7 +2,7 @@
 import { h, reactive } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { deleteNodeDefinitions, fetchNodeDefinitionList } from '@/service/api/ai/workflow/node';
+import { deleteNodeDefinitions, fetchNodeDefinitionList } from '@/service/api/ai/node';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';

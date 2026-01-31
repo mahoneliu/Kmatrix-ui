@@ -3,7 +3,8 @@ import { createPinia } from 'pinia';
 import { setupIconifyOffline } from '@sa/materials';
 import App from './App.vue';
 import 'virtual:uno.css';
-import { useChatAuth } from './composables/useChatAuth';
+import './styles/global.css';
+import { useChatAuth } from './composables/use-chat-auth';
 
 setupIconifyOffline();
 

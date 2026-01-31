@@ -8,19 +8,7 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: any = [
-  {
-    name: 'ai_chat',
-    path: '/ai/chat',
-    component: 'view.ai_chat',
-    meta: {
-      title: 'ai_chat',
-      i18nKey: 'route.ai_chat',
-      hideInMenu: true,
-      constant: true
-    }
-  }
-];
+const customRoutes: any = [];
 
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { NForm, NFormItem, NInput, NModal } from 'naive-ui';
-import { addApp } from '@/service/api/ai/admin/app';
+import { addApp } from '@/service/api/ai/app';
 
 interface Props {
   visible: boolean;

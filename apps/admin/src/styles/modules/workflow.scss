@@ -1,0 +1,43 @@
+/**
+ * 工作流编辑器公共样式
+ * 用于 workflow/index.vue 和 template-editor/index.vue
+ */
+
+/* 连接无效时的节点样式 */
+.vue-flow__node.connection-invalid::after {
+  content: '❌';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* 强制覆盖 vue-flow 控制按钮默认样式 */
+:deep(.vue-flow__controls-button) {
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 6px !important;
+}
+
+/* 工具栏图标样式 */
+:deep(.toolbar-icon) {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 20px !important;
+  display: block;
+}
+
+:deep(.toolbar-icon svg) {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: none !important;
+  max-height: none !important;
+}

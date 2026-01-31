@@ -138,6 +138,17 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_template-editor',
+        path: '/ai/template-editor',
+        component: 'view.ai_template-editor',
+        meta: {
+          title: 'ai_template-editor',
+          i18nKey: 'route.ai_template-editor',
+          hideInMenu: true,
+          constant: true
+        }
+      },
+      {
         name: 'ai_workflow',
         path: '/ai/workflow',
         component: 'view.ai_workflow',

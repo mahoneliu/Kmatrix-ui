@@ -313,7 +313,8 @@ const local: App.I18n.Schema = {
     'ai_app-detail': 'App Detail',
     'ai_knowledge-manager': 'Knowledge Base Manager',
     'ai_knowledge-detail': 'Knowledge Base Detail',
-    ai_chat: 'AI Chat'
+    ai_chat: 'AI Chat',
+    'ai_template-editor': 'Template Editor'
   },
   menu: {
     system_tenant: 'Tenant Management',

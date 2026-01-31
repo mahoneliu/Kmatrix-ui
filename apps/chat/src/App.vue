@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
 import { NButton, NConfigProvider, NDrawer, NDrawerContent, NMessageProvider, NTooltip, darkTheme } from 'naive-ui';
 import {
   type ChatMessage,
@@ -11,6 +11,7 @@ import {
   fetchChatHistory,
   fetchSessionList
 } from '@km/shared';
+import { getColorPalette, getRgb } from '@sa/color';
 import logoImg from '@/assets/imgs/logo.png';
 
 // 嵌入参数
@@ -47,6 +48,30 @@ const themeOverrides = {
     primaryColorPressed: embedParams.primaryColor
   }
 };
+
+/** 设置主题变量 */
+function setThemeVars(color: string) {
+  const colors = getColorPalette(color);
+  const style = document.documentElement.style;
+
+  // 设置主色
+  const { r, g, b } = getRgb(color);
+  style.setProperty('--primary-color', `${r} ${g} ${b}`);
+
+  // 设置色阶
+  colors.forEach((hex, number) => {
+    const rgb = getRgb(hex);
+    style.setProperty(`--primary-${number}-color`, `${rgb.r} ${rgb.g} ${rgb.b}`);
+  });
+}
+
+watch(
+  () => embedParams.primaryColor,
+  newColor => {
+    setThemeVars(newColor);
+  },
+  { immediate: true }
+);
 
 // 切换会话列表显示
 function toggleSessions() {

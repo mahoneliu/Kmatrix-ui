@@ -30,7 +30,7 @@ import {
   fetchKnowledgeBaseDetail,
   reprocessDocument,
   uploadDocument
-} from '@/service/api/ai/admin/knowledge';
+} from '@/service/api/ai/knowledge';
 import DatasetModal from './modules/dataset-modal.vue';
 
 const route = useRoute();

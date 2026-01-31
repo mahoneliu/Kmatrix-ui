@@ -15,13 +15,13 @@
     .vue-flow__handle.custom-handle-source {
       content: '+';
       font-size: 14px;
-      color: #9ca3af;
+      color: #fff;
 
       width: 20px !important;
       height: 20px !important;
       opacity: 1;
-      border: 2px solid #9ba0a1 !important;
-      background: #fff;
+      border: 2px solid #fff !important;
+      /* background: #fff; handled by inline style */
 
       &::after {
         content: '+';
@@ -34,7 +34,7 @@
         transform: translate(-50%, -52%);
         font-size: 20px;
         font-weight: 800;
-        color: #9ca3af;
+        color: #fff;
         width: 35px;
         height: 35px;
         border-radius: 50%;

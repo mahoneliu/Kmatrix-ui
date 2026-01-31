@@ -31,6 +31,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "ai_knowledge-manager": () => import("@/views/ai/knowledge-manager/index.vue"),
   "ai_model-manager": () => import("@/views/ai/model-manager/index.vue"),
   "ai_node-definition": () => import("@/views/ai/node-definition/index.vue"),
+  "ai_template-editor": () => import("@/views/ai/template-editor/index.vue"),
   "ai_workflow-template": () => import("@/views/ai/workflow-template/index.vue"),
   ai_workflow: () => import("@/views/ai/workflow/index.vue"),
   demo_demo: () => import("@/views/demo/demo/index.vue"),

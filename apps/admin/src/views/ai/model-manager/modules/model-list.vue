@@ -3,7 +3,7 @@ import { computed, h, ref, watch } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
-import { copyModel, deleteModels, fetchModels } from '@/service/api/ai/admin/model';
+import { copyModel, deleteModels, fetchModels } from '@/service/api/ai/model';
 import ModelModal from './model-modal.vue';
 
 interface Props {

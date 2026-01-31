@@ -309,7 +309,8 @@ const local: App.I18n.Schema = {
     'ai_knowledge-manager': '知识库管理',
     'ai_knowledge-detail': '知识库详情',
     ai_chat: 'AI对话',
-    'ai_workflow-template': '工作流模板'
+    'ai_workflow-template': '工作流模板',
+    'ai_template-editor': '模板编辑器'
   },
   menu: {
     system_tenant: '租户管理',

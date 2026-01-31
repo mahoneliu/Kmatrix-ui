@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
   NCollapseTransition,
+  NDropdown,
   NGrid,
   NGridItem,
   NInput,
@@ -16,13 +17,15 @@ import {
   useDialog,
   useMessage
 } from 'naive-ui';
-import { fetchAppDetail, fetchAppStatistics, publishApp, updatePublicAccess } from '@/service/api/ai/admin/app';
-import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/admin/app-token';
+import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
+import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
 import { useEcharts } from '@/hooks/common/echarts';
-import { validateGraph } from '@/utils/workflow/dsl-converter';
-import { formatValidationErrors, validateWorkflow } from '@/utils/workflow/validation';
+import { validateGraph } from '@/utils/ai/dsl-converter';
+import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
 import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vue';
-import SystemTemplateConfigPanel from './modules/SystemTemplateConfigPanel.vue';
+import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
+
+const SvgIcon = resolveComponent('SvgIcon');
 
 const route = useRoute();
 const router = useRouter();
@@ -370,6 +373,56 @@ const embedFloatCode = computed(() => {
 ${scriptEnd}`;
 });
 
+// 运行菜单选项
+const runOptions = computed(() => {
+  return [
+    {
+      label: '去对话',
+      key: 'chat',
+      icon: () => h(SvgIcon, { icon: 'carbon:chat' })
+    },
+    {
+      label: '嵌入第三方',
+      key: 'embed',
+      icon: () => h(SvgIcon, { icon: 'mdi:code-tags' })
+    },
+    {
+      type: 'divider',
+      key: 'd1'
+    },
+    {
+      label: appInfo.value?.enableExecutionDetail === '1' ? '禁用执行详情' : '启用执行详情',
+      key: 'enableExecutionDetail',
+      icon: () =>
+        appInfo.value?.enableExecutionDetail === '1'
+          ? h(SvgIcon, { icon: 'mdi:bug-check-outline', class: 'text-primary' })
+          : h(SvgIcon, { icon: 'mdi:close-circle-outline', class: 'text-gray-500' })
+    }
+  ];
+});
+
+async function handleRunSelect(key: string) {
+  if (key === 'chat') {
+    handleGoToChat();
+  } else if (key === 'embed') {
+    handleShowEmbedModal();
+  } else if (key === 'enableExecutionDetail') {
+    if (!appInfo.value) return;
+    const newValue = appInfo.value.enableExecutionDetail === '1' ? '0' : '1';
+    try {
+      await updateApp({
+        appId: appId.value,
+        appName: appInfo.value.appName,
+        enableExecutionDetail: newValue
+      });
+      appInfo.value.enableExecutionDetail = newValue;
+      message.success(newValue === '1' ? '已启用执行详情' : '已禁用执行详情');
+    } catch {
+      message.error('设置失败');
+    }
+  }
+}
+
 function handleShowEmbedModal() {
   showEmbedModal.value = true;
 }
@@ -394,31 +447,9 @@ onMounted(async () => {
 
 <template>
   <div class="h-full flex flex-col overflow-auto p-4">
-    <!-- 顶部返回和标题 -->
-    <!--
- <div class="mb-4 flex items-center gap-2">
-      <NButton quaternary circle @click="handleBack">
-        <template #icon>
-          <SvgIcon icon="mdi:arrow-left" />
-        </template>
-      </NButton>
-      <span class="text-lg font-bold">概览</span>
-    </div> 
--->
-
     <!-- 应用信息卡片 -->
     <NCard class="mb-4" size="small">
-      <!--
- <template #header>
-        <div class="flex items-center gap-1">
-          <div class="h-1 w-1 rounded-full bg-primary" />
-          <span class="text-sm font-medium">应用信息</span>
-        </div>
-      </template> 
--->
-
       <div class="flex gap-8">
-        <!-- 左侧：公开访问信息 -->
         <div class="min-w-0 flex-1">
           <div class="mb-3 flex items-center justify-start gap-3">
             <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
@@ -455,40 +486,40 @@ onMounted(async () => {
               </template>
               应用配置
             </NButton>
-            <!-- 未发布时显示发布按钮 -->
-            <NButton v-if="!isPublished" type="primary" size="small" @click="handlePublish">
+
+            <NButton v-else size="small" @click="handleSettings">
+              <template #icon>
+                <SvgIcon icon="mdi:settings" />
+              </template>
+              流程设置
+            </NButton>
+
+            <!-- 已发布时显示运行下拉菜单 -->
+            <template v-if="isPublished">
+              <NDropdown trigger="hover" :options="runOptions" @select="handleRunSelect">
+                <NButton size="small">
+                  <template #icon>
+                    <SvgIcon icon="mdi:play" />
+                  </template>
+                  运行
+                </NButton>
+              </NDropdown>
+            </template>
+
+            <!-- 显示发布按钮 -->
+            <NButton type="primary" size="small" @click="handlePublish">
               <template #icon>
                 <SvgIcon icon="mdi:rocket-launch" />
               </template>
               发布应用
             </NButton>
-            <!-- 已发布时显示去对话、嵌入第三方按钮 -->
-            <template v-if="isPublished">
-              <NButton size="small" @click="handleGoToChat">
-                <template #icon>
-                  <SvgIcon icon="carbon:chat" />
-                </template>
-                去对话
-              </NButton>
-              <NButton size="small" @click="handleShowEmbedModal">
-                <template #icon>
-                  <SvgIcon icon="mdi:code-tags" />
-                </template>
-                嵌入第三方
-              </NButton>
-            </template>
-            <NButton v-if="!isSystemTemplateApp" size="small" @click="handleSettings">
-              <template #icon>
-                <SvgIcon icon="carbon:settings" />
-              </template>
-              流程设置
-            </NButton>
 
             <div v-if="isPublished">
               <NSwitch
                 v-model:value="publicAccessEnabled"
+                class="rounded-none pt-1"
                 title="开启公开访问则无需鉴权即可匿名访问，否则需要鉴权"
-                size="small"
+                size="large"
               >
                 <template #checked>公开访问</template>
                 <template #unchecked>公开访问</template>

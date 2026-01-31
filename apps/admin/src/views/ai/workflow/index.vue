@@ -1,45 +1,34 @@
 <script lang="ts" setup>
-import { defineAsyncComponent, markRaw, onMounted, onUnmounted, ref } from 'vue';
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
-import { NButton, NPopover, NSpace, NSwitch, useDialog, useMessage } from 'naive-ui';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { NButton, NPopover, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
-import { ControlButton, Controls } from '@vue-flow/controls';
 import { MiniMap } from '@vue-flow/minimap';
 import { SvgIcon } from '@sa/materials';
-import { useWorkflowStore } from '@/store/modules/workflow';
-import { useNodeDefinitionStore } from '@/store/modules/node-definition';
-import { useWorkflowLayout } from '@/composables/useWorkflowLayout';
-import ConnectionLine from '@/components/Flow/ConnectionLine.vue';
-import ComponentLibraryModal from '@/components/Flow/ComponentLibraryModal.vue';
-import ComponentLibraryPanel from '@/components/Flow/ComponentLibraryPanel.vue';
-import WorkflowSaveStatus from '@/components/Flow/WorkflowSaveStatus.vue';
-import DebugChatDialog from '@/components/ai/DebugChatDialog.vue';
-import AppInfoNode from '@/components/Flow/Nodes/AppInfoNode.vue';
-import StartNode from '@/components/Flow/Nodes/StartNode.vue';
-import EndNode from '@/components/Flow/Nodes/EndNode.vue';
-import IntentClassifierNode from '@/components/Flow/Nodes/IntentClassifierNode.vue';
-import ConditionNode from '@/components/Flow/Nodes/ConditionNode.vue';
-import FixedResponseNode from '@/components/Flow/Nodes/FixedResponseNode.vue';
-import DbQueryNode from '@/components/Flow/Nodes/DbQueryNode.vue';
-import SqlGenerateNode from '@/components/Flow/Nodes/SqlGenerateNode.vue';
-import SqlExecuteNode from '@/components/Flow/Nodes/SqlExecuteNode.vue';
-import KnowledgeRetrievalNode from '@/components/Flow/Nodes/KnowledgeRetrievalNode.vue';
-import { useGraphInteraction } from './composables/useGraphInteraction';
-import { useComponentPanel } from './composables/useComponentPanel';
-import { useWorkflowPersistence } from './composables/useWorkflowPersistence';
+import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useWorkflowLayout } from '@/composables/ai/workflow/use-workflow-layout';
+import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
+import { useUnsavedChangesGuard } from '@/composables/ai/workflow/use-unsaved-changes-guard';
+import ConnectionLine from '@/components/ai/edges/connection-line.vue';
+import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
+import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
+import WorkflowSaveStatus from '@/components/ai/workflow/workflow-save-status.vue';
+import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
+import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
+import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
+import { useGraphInteraction } from '../../../composables/ai/workflow/useGraphInteraction';
+import { useComponentPanel } from '../../../composables/ai/workflow/useComponentPanel';
+import { useWorkflowPersistence } from './composables/use-workflow-persistence';
 
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 
-const LlmChatNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/LlmChatNode.vue'));
-const DynamicNode = defineAsyncComponent(() => import('@/components/Flow/Nodes/DynamicNode.vue'));
-
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
-const dialog = useDialog();
 const appId = ref(route.query.appId as unknown as CommonType.IdType);
 
 const workflowStore = useWorkflowStore();
@@ -109,57 +98,13 @@ function handlePublishHistory() {
   message.info('发布历史功能开发中...');
 }
 
-// 根据节点类型获取对应的组件
-function getNodeComponent(nodeType: Workflow.NodeType) {
-  const componentMap: Record<Workflow.NodeType, any> = {
-    START: markRaw(StartNode),
-    END: markRaw(EndNode),
-    LLM_CHAT: markRaw(LlmChatNode),
-    INTENT_CLASSIFIER: markRaw(IntentClassifierNode),
-    CONDITION: markRaw(ConditionNode),
-    FIXED_RESPONSE: markRaw(FixedResponseNode),
-    DB_QUERY: markRaw(DbQueryNode),
-    SQL_GENERATE: markRaw(SqlGenerateNode),
-    SQL_EXECUTE: markRaw(SqlExecuteNode),
-    KNOWLEDGE_RETRIEVAL: markRaw(KnowledgeRetrievalNode),
-    APP_INFO: markRaw(AppInfoNode)
-  };
-  return componentMap[nodeType] || markRaw(DynamicNode);
-}
+// 节点组件映射
+const { getNodeComponent } = useNodeComponents({ appInfoComponent: AppInfoNode });
 
-// 路由守卫
-onBeforeRouteLeave((_to, _from, next) => {
-  if (!workflowStore.isDirty) {
-    next();
-    return;
-  }
-  dialog.warning({
-    title: '未保存的更改',
-    content: '您有未保存的更改，确定要离开吗？',
-    positiveText: '保存并离开',
-    negativeText: '放弃更改',
-    onPositiveClick: async () => {
-      await handleAutoSave();
-      next();
-    },
-    onNegativeClick: () => {
-      next();
-    },
-    onMaskClick: () => {
-      next(false);
-    }
-  });
-});
-
-const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (workflowStore.isDirty) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
-};
+// 路由守卫和浏览器关闭守卫
+useUnsavedChangesGuard(handleAutoSave);
 
 onMounted(async () => {
-  window.addEventListener('beforeunload', handleBeforeUnload);
   try {
     await nodeDefinitionStore.loadNodeDefinitions();
     workflowStore.clearWorkflow();
@@ -167,10 +112,6 @@ onMounted(async () => {
   } catch {
     message.error('初始化失败,请刷新页面重试');
   }
-});
-
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 </script>
 
@@ -190,44 +131,15 @@ onUnmounted(() => {
         @pane-ready="onPaneReady"
       >
         <Background />
-        <Controls
-          :show-zoom="false"
-          :show-fit-view="false"
-          :show-interactive="false"
-          class="!rounded-5px !bg-[#fbfbfb]"
-        >
-          <ControlButton title="放大" class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]" @click="zoomIn">
-            <SvgIcon icon="mdi:magnify-plus-outline" class="toolbar-icon" />
-          </ControlButton>
-          <ControlButton title="缩小" class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]" @click="zoomOut">
-            <SvgIcon icon="mdi:magnify-minus-outline" class="toolbar-icon" />
-          </ControlButton>
-          <ControlButton title="适应视图" class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]" @click="fitView">
-            <SvgIcon icon="mdi:fit-to-screen-outline" class="toolbar-icon" />
-          </ControlButton>
-          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
-          <ControlButton
-            title="折叠所有节点"
-            class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]"
-            @click="handleCollapseAll"
-          >
-            <SvgIcon icon="mdi:unfold-less-horizontal" class="toolbar-icon" />
-          </ControlButton>
-          <ControlButton title="展开所有节点" class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]" @click="handleExpandAll">
-            <SvgIcon icon="mdi:unfold-more-horizontal" class="toolbar-icon" />
-          </ControlButton>
-          <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" />
-          <ControlButton title="优雅布局" class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]" @click="handleAutoLayout">
-            <SvgIcon icon="mdi:auto-fix" class="toolbar-icon" />
-          </ControlButton>
-          <ControlButton
-            title="折叠并优雅布局"
-            class="!b-0 !bg-transparent hover:!bg-[#cdd7ea]"
-            @click="handleCollapseAndLayout"
-          >
-            <SvgIcon icon="mdi:format-align-justify" class="toolbar-icon" />
-          </ControlButton>
-        </Controls>
+        <WorkflowControls
+          :on-zoom-in="zoomIn"
+          :on-zoom-out="zoomOut"
+          :on-fit-view="fitView"
+          :on-collapse-all="handleCollapseAll"
+          :on-expand-all="handleExpandAll"
+          :on-auto-layout="handleAutoLayout"
+          :on-collapse-and-layout="handleCollapseAndLayout"
+        />
         <MiniMap />
         <template #connection-line="connectionLineProps">
           <ConnectionLine v-bind="connectionLineProps" />
@@ -335,40 +247,5 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.vue-flow__node.connection-invalid::after {
-  content: '❌';
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 20px;
-  pointer-events: none;
-  z-index: 100;
-}
-
-/* 强制覆盖 vue-flow 默认样式 */
-:deep(.vue-flow__controls-button) {
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 6px !important;
-}
-
-:deep(.toolbar-icon) {
-  width: 20px !important;
-  height: 20px !important;
-  font-size: 20px !important;
-  display: block;
-}
-
-:deep(.toolbar-icon svg) {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
-  max-width: none !important;
-  max-height: none !important;
-}
+@import '@/styles/modules/workflow.scss';
 </style>

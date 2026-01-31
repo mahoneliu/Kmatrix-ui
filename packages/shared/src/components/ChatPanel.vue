@@ -50,10 +50,12 @@ const message = useMessage();
 // const { hasAuth } = useAuth();
 
 // 执行详情查看权限
-const hasExecutionDetailPermission = computed(() => props.hasExecutionDetailPermission);
+const hasExecutionDetailPermission = computed(() => props.isAdmin || props.hasExecutionDetailPermission);
 
 // 执行详情开关（正式对话模式下可切换）
-const showExecutionInfo = ref(props.mode === 'debug');
+const showExecutionInfo = ref(
+  props.mode === 'debug' || (props.enableExecutionDetail && hasExecutionDetailPermission.value)
+);
 
 // 滚动条引用
 const scrollbarRef = ref();
@@ -221,7 +223,7 @@ defineExpose({
 
             <!-- AI消息 -->
             <div v-else class="flex items-start justify-start gap-2">
-              <div class="max-w-[70%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+              <div class="max-w-[90%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
                 <!-- Thinking区域（可折叠） -->
                 <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
                   <NCollapse
@@ -352,7 +354,9 @@ defineExpose({
 
     <!-- 输入框 -->
     <div class="flex-shrink-0 px-4 py-4">
-      <div class="relative border border-gray-200 rounded-xl bg-white p-2 shadow-sm transition-all dark:bg-gray-800">
+      <div
+        class="relative border border-gray-200 rounded-2xl bg-white p-3 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] transition-all duration-300 dark:border-gray-700 focus-within:border-primary-300 dark:bg-gray-800 focus-within:shadow-[0_4px_16px_0_rgba(0,0,0,0.1)] dark:focus-within:border-primary-700"
+      >
         <NInput
           v-model:value="inputMessage"
           :autosize="{ minRows: 2, maxRows: 6 }"
@@ -371,11 +375,11 @@ defineExpose({
                 <NButton
                   :type="showExecutionInfo ? 'primary' : 'default'"
                   quaternary
-                  size="tiny"
+                  size="small"
                   @click="showExecutionInfo = !showExecutionInfo"
                 >
                   <template #icon>
-                    <SvgIcon icon="mdi:information-outline" />
+                    <SvgIcon icon="mdi:bug-check-outline" />
                   </template>
                 </NButton>
               </template>

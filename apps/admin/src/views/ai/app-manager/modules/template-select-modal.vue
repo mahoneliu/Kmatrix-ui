@@ -23,7 +23,7 @@ import {
   createAppFromTemplate,
   fetchTemplateCategories,
   fetchTemplateList
-} from '@/service/api/ai/admin/workflow-template';
+} from '@/service/api/ai/workflow-template';
 
 interface Props {
   visible: boolean;

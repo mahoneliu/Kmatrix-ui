@@ -180,6 +180,7 @@ const routeMap: RouteMap = {
   "ai_knowledge-manager": "/ai/knowledge-manager",
   "ai_model-manager": "/ai/model-manager",
   "ai_node-definition": "/ai/node-definition",
+  "ai_template-editor": "/ai/template-editor",
   "ai_workflow": "/ai/workflow",
   "ai_workflow-template": "/ai/workflow-template",
   "demo": "/demo",

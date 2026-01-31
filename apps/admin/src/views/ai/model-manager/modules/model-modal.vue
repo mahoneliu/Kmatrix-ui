@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
 import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
-import { addModel, fetchModelProviders, testModelConnection, updateModel } from '@/service/api/ai/admin/model';
+import { addModel, fetchModelProviders, testModelConnection, updateModel } from '@/service/api/ai/model';
 
 const emit = defineEmits<{
   (e: 'success'): void;

@@ -21,7 +21,7 @@ import {
   NTooltip
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { fetchAllKnowledgeBases, fetchDatasetsByKbId, searchKnowledge } from '@/service/api/ai/admin/knowledge';
+import { fetchAllKnowledgeBases, fetchDatasetsByKbId, searchKnowledge } from '@/service/api/ai/knowledge';
 
 interface Props {
   visible: boolean;

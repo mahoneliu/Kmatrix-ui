@@ -14,6 +14,7 @@
     "@iconify/vue": "5.0.0",
     "@km/shared": "workspace:*",
     "@sa/axios": "workspace:*",
+    "@sa/color": "workspace:*",
     "@sa/hooks": "workspace:*",
     "@sa/materials": "workspace:^",
     "@sa/utils": "workspace:*",

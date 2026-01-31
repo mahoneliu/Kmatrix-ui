@@ -19,11 +19,7 @@ import {
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import {
-  deleteKnowledgeBase,
-  fetchKnowledgeBaseList,
-  fetchKnowledgeBaseStatistics
-} from '@/service/api/ai/admin/knowledge';
+import { deleteKnowledgeBase, fetchKnowledgeBaseList, fetchKnowledgeBaseStatistics } from '@/service/api/ai/knowledge';
 import KnowledgeBaseModal from './modules/kb-modal.vue';
 import RetrievalSandbox from './modules/retrieval-sandbox.vue';
 
