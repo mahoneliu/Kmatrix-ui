@@ -23,6 +23,8 @@ import {
 import { debounce } from 'lodash-es';
 import { SvgIcon } from '@sa/materials';
 import {
+  createOnlineDocument,
+  createWebLinkDocument,
   deleteDataset,
   deleteDocument,
   fetchDatasetsByKbId,
@@ -32,6 +34,8 @@ import {
   uploadDocument
 } from '@/service/api/ai/knowledge';
 import DatasetModal from './modules/dataset-modal.vue';
+import OnlineDocModal from './modules/online-doc-modal.vue';
+import WebLinkModal from './modules/web-link-modal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -48,6 +52,11 @@ const documents = ref<Api.AI.KB.Document[]>([]);
 const loading = ref(false);
 const datasetModalVisible = ref(false);
 const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
+
+// 在线文档和网页链接模态框
+const onlineDocModalVisible = ref(false);
+const webLinkModalVisible = ref(false);
+const editingDocument = ref<Api.AI.KB.Document | null>(null);
 const uploading = ref(false);
 
 // 自动刷新相关
@@ -194,6 +203,48 @@ async function handleReprocessDocument(doc: Api.AI.KB.Document) {
   loadDocuments();
 }
 
+// 在线文档处理
+function handleAddOnlineDoc() {
+  editingDocument.value = null;
+  onlineDocModalVisible.value = true;
+}
+
+async function handleSaveOnlineDoc(data: { title: string; content: string }) {
+  if (!selectedDatasetId.value) return;
+
+  try {
+    await createOnlineDocument(selectedDatasetId.value, data.title, data.content);
+    message.success('在线文档保存成功');
+    loadDocuments();
+  } catch {
+    message.error('保存失败');
+  }
+}
+
+// 网页链接处理
+function handleAddWebLink() {
+  webLinkModalVisible.value = true;
+}
+
+async function handleSubmitWebLink(data: { urls: string[] }) {
+  if (!selectedDatasetId.value) return;
+
+  try {
+    // 批量添加网页链接
+    const promises = data.urls.map(url => createWebLinkDocument(selectedDatasetId.value!, url));
+    await Promise.all(promises);
+    message.success(`成功添加 ${data.urls.length} 个网页链接`);
+    loadDocuments();
+  } catch {
+    message.error('添加失败');
+  }
+}
+
+// 获取当前选中的数据集
+const selectedDataset = computed(() => {
+  return datasets.value.find(ds => ds.id === selectedDatasetId.value);
+});
+
 function getStatusType(status: string) {
   switch (status) {
     case 'COMPLETED':
@@ -217,6 +268,35 @@ function getStatusLabel(status: string) {
       return '失败';
     default:
       return '待处理';
+  }
+}
+
+function getDatasetIcon(type?: string) {
+  switch (type) {
+    case 'QA_PAIR':
+      return 'mdi:frequently-asked-questions';
+    case 'ONLINE_DOC':
+      return 'mdi:text-box-multiple';
+    case 'WEB_LINK':
+      return 'mdi:web';
+    case 'GENERIC_FILE':
+    default:
+      return 'mdi:folder';
+  }
+}
+
+function getProcessTypeLabel(type?: string) {
+  switch (type) {
+    case 'QA_PAIR':
+      return '问答对';
+    case 'ONLINE_DOC':
+      return '在线文档';
+    case 'WEB_LINK':
+      return '网页链接';
+    case 'GENERIC_FILE':
+      return '通用文件';
+    default:
+      return type || '未知';
   }
 }
 
@@ -285,14 +365,24 @@ onUnmounted(() => {
           >
             <NThing content-indented>
               <template #avatar>
-                <SvgIcon icon="mdi:folder" class="text-xl text-primary" />
+                <div
+                  class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
+                >
+                  <SvgIcon
+                    :icon="getDatasetIcon(ds.processType)"
+                    class="text-2xl text-primary transition-transform group-hover:scale-110"
+                  />
+                </div>
               </template>
               <template #header>
-                <span class="truncate">{{ ds.name }}</span>
+                <span class="truncate font-medium">{{ ds.name }}</span>
               </template>
               <template #description>
-                <NTag size="tiny" :bordered="false">{{ ds.type }}</NTag>
-                <span class="ml-2 text-xs text-gray-400">{{ ds.documentCount || 0 }} 文档</span>
+                <div class="flex items-center gap-1">
+                  <NTag v-if="ds.isSystem" size="tiny" type="success" :bordered="false" round>系统</NTag>
+                  <NTag size="tiny" :bordered="false" round>{{ getProcessTypeLabel(ds.processType) }}</NTag>
+                  <span class="text-xs text-gray-400">{{ ds.documentCount || 0 }} 文档</span>
+                </div>
               </template>
               <template #header-extra>
                 <NDropdown
@@ -308,7 +398,12 @@ onUnmounted(() => {
                     }
                   "
                 >
-                  <NButton quaternary size="tiny" @click.stop>
+                  <NButton
+                    quaternary
+                    size="tiny"
+                    class="opacity-0 transition-opacity group-hover:opacity-100"
+                    @click.stop
+                  >
                     <SvgIcon icon="mdi:dots-vertical" />
                   </NButton>
                 </NDropdown>
@@ -328,23 +423,59 @@ onUnmounted(() => {
         :content-style="{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }"
       >
         <div v-if="selectedDatasetId" class="h-full flex flex-col gap-4">
-          <!-- 上传区域 -->
+          <!-- 条件渲染: 根据数据集 sourceType 显示不同的添加方式 -->
+
+          <!-- FILE_UPLOAD: 文件上传 -->
           <NUpload
+            v-if="selectedDataset?.sourceType === 'FILE_UPLOAD'"
             v-model:file-list="fileList"
             multiple
             directory-dnd
             :max="10"
-            accept=".pdf,.doc,.docx,.txt,.md"
+            :accept="
+              selectedDataset?.allowedFileTypes === '*'
+                ? undefined
+                : selectedDataset?.allowedFileTypes
+                    ?.split(',')
+                    .map(ext => '.' + ext)
+                    .join(',')
+            "
             :custom-request="({ file, onFinish, onError }) => handleUpload({ file, fileList, onFinish, onError })"
           >
             <NUploadDragger>
               <div class="flex flex-col items-center gap-2 py-4">
                 <SvgIcon icon="mdi:cloud-upload" class="text-4xl text-gray-400" />
                 <NText class="text-gray-500">点击或拖拽文件到此处上传</NText>
-                <NText depth="3" class="text-xs">支持 PDF、Word、TXT、Markdown 格式</NText>
+                <NText depth="3" class="text-xs">
+                  {{
+                    selectedDataset?.allowedFileTypes === '*'
+                      ? '支持所有文件格式'
+                      : `支持格式: ${selectedDataset?.allowedFileTypes}`
+                  }}
+                </NText>
               </div>
             </NUploadDragger>
           </NUpload>
+
+          <!-- TEXT_INPUT: 在线文档 -->
+          <div v-else-if="selectedDataset?.sourceType === 'TEXT_INPUT'" class="flex justify-center py-8">
+            <NButton type="primary" size="large" @click="handleAddOnlineDoc">
+              <template #icon>
+                <SvgIcon icon="mdi:file-document-edit" />
+              </template>
+              新建在线文档
+            </NButton>
+          </div>
+
+          <!-- WEB_CRAWL: 网页链接 -->
+          <div v-else-if="selectedDataset?.sourceType === 'WEB_CRAWL'" class="flex justify-center py-8">
+            <NButton type="primary" size="large" @click="handleAddWebLink">
+              <template #icon>
+                <SvgIcon icon="mdi:link-plus" />
+              </template>
+              添加网页链接
+            </NButton>
+          </div>
 
           <!-- 文档列表 -->
           <div class="flex-1 overflow-auto">
@@ -411,6 +542,19 @@ onUnmounted(() => {
       :data="editingDataset"
       @success="onDatasetModalClose(true)"
       @cancel="onDatasetModalClose(false)"
+    />
+
+    <OnlineDocModal
+      v-model:visible="onlineDocModalVisible"
+      :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
+      :document="editingDocument"
+      @save="handleSaveOnlineDoc"
+    />
+
+    <WebLinkModal
+      v-model:visible="webLinkModalVisible"
+      :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
+      @submit="handleSubmitWebLink"
     />
   </div>
 </template>

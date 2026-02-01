@@ -224,6 +224,37 @@ export function reprocessDocument(id: CommonType.IdType) {
   });
 }
 
+/**
+ * 创建在线文档
+ */
+export function createOnlineDocument(datasetId: CommonType.IdType, title: string, content: string) {
+  const formData = new FormData();
+  formData.append('datasetId', datasetId.toString());
+  formData.append('title', title);
+  formData.append('content', content);
+
+  return request<Api.AI.KB.Document>({
+    url: '/ai/document/createOnlineDoc',
+    method: 'post',
+    data: formData
+  });
+}
+
+/**
+ * 创建网页链接文档
+ */
+export function createWebLinkDocument(datasetId: CommonType.IdType, url: string) {
+  const formData = new FormData();
+  formData.append('datasetId', datasetId.toString());
+  formData.append('url', url);
+
+  return request<Api.AI.KB.Document>({
+    url: '/ai/document/createWebLink',
+    method: 'post',
+    data: formData
+  });
+}
+
 // ========== 检索 API ==========
 
 /**
