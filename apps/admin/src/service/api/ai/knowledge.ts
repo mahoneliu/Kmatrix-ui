@@ -278,3 +278,90 @@ export function queryKnowledge(query: string, kbId?: CommonType.IdType, topK?: n
     params: { query, kbId, topK }
   });
 }
+
+// ========== 切片 API ==========
+
+/**
+ * 获取文档切片列表
+ */
+export function fetchChunksByDocumentId(documentId: CommonType.IdType) {
+  return request<Api.AI.KB.DocumentChunk[]>({
+    url: `/ai/chunk/listByDocument/${documentId}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取切片详情
+ */
+export function fetchChunkDetail(id: CommonType.IdType) {
+  return request<Api.AI.KB.DocumentChunk>({
+    url: `/ai/chunk/${id}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 更新切片内容
+ */
+export function updateChunk(data: Partial<Api.AI.KB.DocumentChunk>) {
+  return request<any>({
+    url: '/ai/chunk',
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 删除切片
+ */
+export function deleteChunk(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/chunk/${id}`,
+    method: 'delete'
+  });
+}
+
+// ========== 问题 API ==========
+
+/**
+ * 获取切片关联的问题列表
+ */
+export function fetchQuestionsByChunkId(chunkId: CommonType.IdType) {
+  return request<Api.AI.KB.Question[]>({
+    url: `/ai/question/listByChunk/${chunkId}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 手动添加问题
+ */
+export function addQuestion(chunkId: CommonType.IdType, content: string) {
+  return request<any>({
+    url: '/ai/question',
+    method: 'post',
+    data: { chunkId, content }
+  });
+}
+
+/**
+ * 删除问题
+ */
+export function deleteQuestion(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/question/${id}`,
+    method: 'delete'
+  });
+}
+
+/**
+ * AI自动生成问题
+ */
+export function generateQuestions(chunkId: CommonType.IdType, modelId?: CommonType.IdType) {
+  return request<Api.AI.KB.Question[]>({
+    url: '/ai/question/generate',
+    method: 'post',
+    data: { chunkId, modelId }
+  });
+}

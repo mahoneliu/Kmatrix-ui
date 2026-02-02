@@ -12,7 +12,7 @@ import {
   fetchSessionList
 } from '@km/shared';
 import { getColorPalette, getRgb } from '@sa/color';
-import logoImg from '@/assets/imgs/logo.png';
+import logoImg from '@sa/materials/assets/svg-icon/logo.svg';
 
 // 嵌入参数
 interface EmbedParams {

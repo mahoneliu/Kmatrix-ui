@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import logo from '@/assets/imgs/logo.png';
+import logo from '@sa/materials/assets/imgs/logo.png';
 
 defineOptions({ name: 'SystemLogo' });
 </script>

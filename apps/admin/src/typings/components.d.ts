@@ -7,7 +7,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import { GlobalComponents } from 'vue'
 
-export { }
+export {}
 
 /* prettier-ignore */
 declare module 'vue' {
@@ -76,7 +76,6 @@ declare module 'vue' {
     IconMaterialSymbolsSyncOutline: typeof import('~icons/material-symbols/sync-outline')['default']
     IconMaterialSymbolsUploadRounded: typeof import('~icons/material-symbols/upload-rounded')['default']
     IconMaterialSymbolsWarningOutlineRounded: typeof import('~icons/material-symbols/warning-outline-rounded')['default']
-
     IconMdiArrowDownThin: typeof import('~icons/mdi/arrow-down-thin')['default']
     IconMdiArrowUpThin: typeof import('~icons/mdi/arrow-up-thin')['default']
     IconMdiClose: typeof import('~icons/mdi/close')['default']
@@ -278,7 +277,6 @@ declare global {
   const IconMaterialSymbolsSyncOutline: typeof import('~icons/material-symbols/sync-outline')['default']
   const IconMaterialSymbolsUploadRounded: typeof import('~icons/material-symbols/upload-rounded')['default']
   const IconMaterialSymbolsWarningOutlineRounded: typeof import('~icons/material-symbols/warning-outline-rounded')['default']
-
   const IconMdiArrowDownThin: typeof import('~icons/mdi/arrow-down-thin')['default']
   const IconMdiArrowUpThin: typeof import('~icons/mdi/arrow-up-thin')['default']
   const IconMdiClose: typeof import('~icons/mdi/close')['default']

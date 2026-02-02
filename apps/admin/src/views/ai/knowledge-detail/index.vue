@@ -36,6 +36,7 @@ import {
 import DatasetModal from './modules/dataset-modal.vue';
 import OnlineDocModal from './modules/online-doc-modal.vue';
 import WebLinkModal from './modules/web-link-modal.vue';
+import ChunkManagerModal from './modules/chunk-manager-modal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -56,6 +57,9 @@ const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
 // 在线文档和网页链接模态框
 const onlineDocModalVisible = ref(false);
 const webLinkModalVisible = ref(false);
+const chunkManagerModalVisible = ref(false);
+const currentDocumentId = ref<string | undefined>(undefined);
+
 const editingDocument = ref<Api.AI.KB.Document | null>(null);
 const uploading = ref(false);
 
@@ -238,6 +242,12 @@ async function handleSubmitWebLink(data: { urls: string[] }) {
   } catch {
     message.error('添加失败');
   }
+}
+
+function handleOpenChunkManager(doc: Api.AI.KB.Document) {
+  if (!doc.id) return;
+  currentDocumentId.value = String(doc.id);
+  chunkManagerModalVisible.value = true;
 }
 
 // 获取当前选中的数据集
@@ -508,6 +518,12 @@ onUnmounted(() => {
                   </template>
                   <template #header-extra>
                     <NSpace>
+                      <NButton size="tiny" secondary type="primary" @click="handleOpenChunkManager(doc)">
+                        <template #icon>
+                          <SvgIcon icon="mdi:puzzle-edit" />
+                        </template>
+                        切片管理
+                      </NButton>
                       <NPopconfirm @positive-click="handleReprocessDocument(doc)">
                         <template #trigger>
                           <NButton quaternary size="tiny" :disabled="doc.status === 'PROCESSING'">
@@ -556,6 +572,8 @@ onUnmounted(() => {
       :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
       @submit="handleSubmitWebLink"
     />
+
+    <ChunkManagerModal v-model:visible="chunkManagerModalVisible" :document-id="currentDocumentId" />
   </div>
 </template>
 
