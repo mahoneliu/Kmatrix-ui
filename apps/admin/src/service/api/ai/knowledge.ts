@@ -463,6 +463,50 @@ export function disableChunk(id: CommonType.IdType) {
   });
 }
 
+/**
+ * 批量启用切片
+ */
+export function batchEnableChunks(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/chunk/batchEnable',
+    method: 'put',
+    data: ids
+  });
+}
+
+/**
+ * 批量禁用切片
+ */
+export function batchDisableChunks(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/chunk/batchDisable',
+    method: 'put',
+    data: ids
+  });
+}
+
+/**
+ * 批量删除切片
+ */
+export function batchDeleteChunks(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/chunk/batchDelete',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
+ * 批量为切片生成问题
+ */
+export function batchGenerateQuestionsByChunks(chunkIds: CommonType.IdType[], modelId?: CommonType.IdType) {
+  return request<any>({
+    url: '/ai/question/batchGenerate',
+    method: 'post',
+    data: { chunkIds, modelId }
+  });
+}
+
 // ========== 问题 API ==========
 
 /**
@@ -483,6 +527,28 @@ export function addQuestion(chunkId: CommonType.IdType, content: string) {
     url: '/ai/question',
     method: 'post',
     data: { chunkId, content }
+  });
+}
+
+/**
+ * 关联现有问题
+ */
+export function linkQuestion(chunkId: CommonType.IdType, questionId: CommonType.IdType) {
+  return request<any>({
+    url: '/ai/question/link',
+    method: 'post',
+    data: { chunkId, questionId }
+  });
+}
+
+/**
+ * 取消关联问题
+ */
+export function unlinkQuestion(chunkId: CommonType.IdType, questionId: CommonType.IdType) {
+  return request<any>({
+    url: '/ai/question/unlink',
+    method: 'post',
+    data: { chunkId, questionId }
   });
 }
 

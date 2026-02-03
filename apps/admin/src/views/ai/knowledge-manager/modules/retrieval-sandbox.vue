@@ -333,10 +333,18 @@ function handleReset() {
 
                   <!-- 内容 -->
                   <div class="min-w-0 flex-1">
-                    <div class="mb-1 flex items-center gap-2">
-                      <SvgIcon icon="mdi:file-document-outline" class="text-gray-400" />
-                      <NText class="text-sm font-medium">{{ item.documentName || '未知文档' }}</NText>
+                    <div class="mb-1 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <SvgIcon icon="mdi:file-document-outline" class="text-gray-400" />
+                        <NText class="text-sm font-medium">{{ item.documentName || '未知文档' }}</NText>
+                      </div>
                     </div>
+
+                    <!-- 标题展示 -->
+                    <div v-if="item.title" class="mb-2 text-sm text-gray-800 font-bold dark:text-gray-200">
+                      {{ item.title }}
+                    </div>
+
                     <!-- 高亮内容使用 v-html -->
                     <!-- eslint-disable vue/no-v-html -->
                     <div

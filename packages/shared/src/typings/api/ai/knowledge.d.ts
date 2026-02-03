@@ -107,6 +107,7 @@ declare namespace Api.AI.KB {
     documentId: CommonType.IdType;
     documentName?: string;
     content: string;
+    title?: string;
     score: number;
     rerankScore?: number;
     metadata?: Record<string, any>;

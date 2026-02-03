@@ -29,6 +29,8 @@ declare namespace Api.AI.KB {
     pageSize?: number;
     enabled?: number;
     keyword?: string;
+    title?: string;
+    content?: string;
   }
 
   /**

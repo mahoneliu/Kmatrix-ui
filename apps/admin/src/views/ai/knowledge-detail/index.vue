@@ -25,7 +25,6 @@ import {
 import DatasetModal from './modules/dataset-modal.vue';
 import OnlineDocModal from './modules/online-doc-modal.vue';
 import WebLinkModal from './modules/web-link-modal.vue';
-import ChunkManagerModal from './modules/chunk-manager-modal.vue';
 import DocumentTable from './modules/document-table.vue';
 
 const route = useRoute();
@@ -46,8 +45,7 @@ const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
 // 在线文档和网页链接模态框
 const onlineDocModalVisible = ref(false);
 const webLinkModalVisible = ref(false);
-const chunkManagerModalVisible = ref(false);
-const currentDocumentId = ref<string | undefined>(undefined);
+// const chunkManagerModalVisible = ref(false);
 
 const tableRef = ref<any>(null);
 
@@ -137,12 +135,6 @@ async function handleSubmitWebLink(data: { urls: string[] }) {
   } catch {
     message.error('添加失败');
   }
-}
-
-function handleOpenChunkManager(doc: Api.AI.KB.Document) {
-  if (!doc.id) return;
-  currentDocumentId.value = String(doc.id);
-  chunkManagerModalVisible.value = true;
 }
 
 // 获取当前选中的数据集
@@ -281,6 +273,7 @@ onMounted(() => {
         <NEmpty v-else description="暂无数据集" />
       </NCard>
 
+      <!-- @open-chunk-manager="handleOpenChunkManager" -->
       <!-- 右侧文档表格 -->
       <DocumentTable
         v-if="selectedDatasetId"
@@ -288,7 +281,6 @@ onMounted(() => {
         :dataset-id="selectedDatasetId"
         :process-type="selectedDataset?.processType"
         class="flex-1 card-wrapper"
-        @open-chunk-manager="handleOpenChunkManager"
         @add-online-doc="onlineDocModalVisible = true"
         @add-web-link="webLinkModalVisible = true"
       />
@@ -317,7 +309,7 @@ onMounted(() => {
       @submit="handleSubmitWebLink"
     />
 
-    <ChunkManagerModal v-model:visible="chunkManagerModalVisible" :document-id="currentDocumentId" />
+    <!-- <ChunkManagerModal v-model:visible="chunkManagerModalVisible" :document-id="currentDocumentId" /> -->
   </div>
 </template>
 
