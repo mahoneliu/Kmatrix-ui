@@ -255,6 +255,105 @@ export function createWebLinkDocument(datasetId: CommonType.IdType, url: string)
   });
 }
 
+/**
+ * 分页查询文档列表
+ */
+export function fetchDocumentPage(params: Api.AI.KB.DocumentQuery) {
+  return request<Api.Common.PaginatingQueryRecord<Api.AI.KB.Document>>({
+    url: '/ai/document/list',
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 启用文档
+ */
+export function enableDocument(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/document/enable/${id}`,
+    method: 'put'
+  });
+}
+
+/**
+ * 禁用文档
+ */
+export function disableDocument(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/document/disable/${id}`,
+    method: 'put'
+  });
+}
+
+/**
+ * 批量启用文档
+ */
+export function batchEnableDocuments(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/document/batchEnable',
+    method: 'put',
+    data: ids
+  });
+}
+
+/**
+ * 批量禁用文档
+ */
+export function batchDisableDocuments(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/document/batchDisable',
+    method: 'put',
+    data: ids
+  });
+}
+
+/**
+ * 批量删除文档
+ */
+export function batchDeleteDocuments(ids: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/document/batchDelete',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
+ * 更新文档信息
+ */
+export function updateDocument(id: CommonType.IdType, data: Partial<Api.AI.KB.Document>) {
+  return request<any>({
+    url: `/ai/document/${id}`,
+    method: 'put',
+    params: {
+      originalFilename: data.originalFilename
+    }
+  });
+}
+
+/**
+ * 批量向量化生成
+ */
+export function batchEmbedding(documentIds: CommonType.IdType[]) {
+  return request<any>({
+    url: '/ai/document/batchEmbedding',
+    method: 'post',
+    data: documentIds
+  });
+}
+
+/**
+ * 批量问题生成
+ */
+export function batchGenerateQuestionsByDocuments(documentIds: CommonType.IdType[], modelId?: CommonType.IdType) {
+  return request<any>({
+    url: '/ai/document/batchGenerateQuestions',
+    method: 'post',
+    data: { documentIds, modelId }
+  });
+}
+
 // ========== 检索 API ==========
 
 /**
@@ -292,6 +391,17 @@ export function fetchChunksByDocumentId(documentId: CommonType.IdType) {
 }
 
 /**
+ * 分页获取文档切片列表
+ */
+export function fetchChunksByPage(params: Api.AI.KB.ChunkPageQuery) {
+  return request<Api.Common.PaginatingQueryRecord<Api.AI.KB.DocumentChunk>>({
+    url: '/ai/chunk/list',
+    method: 'get',
+    params
+  });
+}
+
+/**
  * 获取切片详情
  */
 export function fetchChunkDetail(id: CommonType.IdType) {
@@ -319,6 +429,37 @@ export function deleteChunk(id: CommonType.IdType) {
   return request<any>({
     url: `/ai/chunk/${id}`,
     method: 'delete'
+  });
+}
+
+/**
+ * 添加切片
+ */
+export function addChunk(data: { documentId: CommonType.IdType; title?: string; content: string }) {
+  return request<Api.AI.KB.DocumentChunk>({
+    url: '/ai/chunk',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 启用切片
+ */
+export function enableChunk(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/chunk/enable/${id}`,
+    method: 'put'
+  });
+}
+
+/**
+ * 禁用切片
+ */
+export function disableChunk(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/chunk/disable/${id}`,
+    method: 'put'
   });
 }
 
@@ -363,5 +504,15 @@ export function generateQuestions(chunkId: CommonType.IdType, modelId?: CommonTy
     url: '/ai/question/generate',
     method: 'post',
     data: { chunkId, modelId }
+  });
+}
+
+/**
+ * 获取文档下的所有问题
+ */
+export function fetchQuestionsByDocumentId(documentId: CommonType.IdType) {
+  return request<Api.AI.KB.Question[]>({
+    url: `/ai/question/listByDocument/${documentId}`,
+    method: 'get'
   });
 }

@@ -73,6 +73,14 @@ declare namespace Api.AI.KB {
     fileType?: string;
     fileSize?: number;
     status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'ERROR';
+    /** 启用状态 (0=禁用, 1=启用) */
+    enabled?: number;
+    /** 向量化状态 (0=未生成, 1=生成中, 2=已生成, 3=失败) */
+    embeddingStatus?: number;
+    /** 问题生成状态 (0=未生成, 1=生成中, 2=已生成, 3=失败) */
+    questionStatus?: number;
+    /** 状态追踪元数据 */
+    statusMeta?: Record<string, any>;
     errorMsg?: string;
     tokenCount?: number;
     chunkCount?: number;
@@ -114,5 +122,27 @@ declare namespace Api.AI.KB {
     totalChunks: number;
     processingDocs: number;
     errorDocs: number;
+  }
+
+  /** 文档查询参数 (分页) */
+  interface DocumentQuery {
+    /** 数据集ID */
+    datasetId?: CommonType.IdType;
+    /** 启用状态 (0=禁用, 1=启用) */
+    enabled?: number;
+    /** 向量化状态 (0=未生成, 1=生成中, 2=已生成, 3=生成失败) */
+    embeddingStatus?: number;
+    /** 问题生成状态 (0=未生成, 1=生成中, 2=已生成, 3=生成失败) */
+    questionStatus?: number;
+    /** 关键词搜索 */
+    keyword?: string;
+    /** 页码 */
+    pageNum?: number;
+    /** 每页数量 */
+    pageSize?: number;
+    /** 排序字段 */
+    orderByColumn?: string;
+    /** 是否升序 */
+    isAsc?: string;
   }
 }

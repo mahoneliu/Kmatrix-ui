@@ -18,6 +18,17 @@ declare namespace Api.AI.KB {
     tokenCount?: number;
     metadata?: Record<string, any>;
     createTime?: string;
+    /** 启用状态 (0=禁用, 1=启用) */
+    enabled?: number;
+  }
+
+  /** 分块分页查询参数 */
+  interface ChunkPageQuery {
+    documentId: CommonType.IdType;
+    pageNum?: number;
+    pageSize?: number;
+    enabled?: number;
+    keyword?: string;
   }
 
   /**

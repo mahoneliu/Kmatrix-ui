@@ -93,6 +93,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_chunk-manager',
+        path: '/ai/chunk-manager',
+        component: 'view.ai_chunk-manager',
+        meta: {
+          title: 'ai_chunk-manager',
+          i18nKey: 'route.ai_chunk-manager'
+        }
+      },
+      {
         name: 'ai_datasource-manager',
         path: '/ai/datasource-manager',
         component: 'view.ai_datasource-manager',

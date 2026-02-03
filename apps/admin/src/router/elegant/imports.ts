@@ -26,6 +26,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "ai_app-detail": () => import("@/views/ai/app-detail/index.vue"),
   "ai_app-manager": () => import("@/views/ai/app-manager/index.vue"),
   ai_chat: () => import("@/views/ai/chat/index.vue"),
+  "ai_chunk-manager": () => import("@/views/ai/chunk-manager/index.vue"),
   "ai_datasource-manager": () => import("@/views/ai/datasource-manager/index.vue"),
   "ai_knowledge-detail": () => import("@/views/ai/knowledge-detail/index.vue"),
   "ai_knowledge-manager": () => import("@/views/ai/knowledge-manager/index.vue"),

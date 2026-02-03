@@ -314,7 +314,8 @@ const local: App.I18n.Schema = {
     'ai_knowledge-manager': 'Knowledge Base Manager',
     'ai_knowledge-detail': 'Knowledge Base Detail',
     ai_chat: 'AI Chat',
-    'ai_template-editor': 'Template Editor'
+    'ai_template-editor': 'Template Editor',
+    'ai_chunk-manager': 'Chunk Manager'
   },
   menu: {
     system_tenant: 'Tenant Management',

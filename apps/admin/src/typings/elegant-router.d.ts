@@ -29,6 +29,7 @@ declare module "@elegant-router/types" {
     "ai_app-detail": "/ai/app-detail";
     "ai_app-manager": "/ai/app-manager";
     "ai_chat": "/ai/chat";
+    "ai_chunk-manager": "/ai/chunk-manager";
     "ai_datasource-manager": "/ai/datasource-manager";
     "ai_knowledge-detail": "/ai/knowledge-detail";
     "ai_knowledge-manager": "/ai/knowledge-manager";
@@ -143,6 +144,7 @@ declare module "@elegant-router/types" {
     | "ai_app-detail"
     | "ai_app-manager"
     | "ai_chat"
+    | "ai_chunk-manager"
     | "ai_datasource-manager"
     | "ai_knowledge-detail"
     | "ai_knowledge-manager"
