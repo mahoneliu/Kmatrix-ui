@@ -14,8 +14,8 @@ interface Props {
 
 interface Emits {
   (e: 'edit'): void;
-  (e: 'toggle-status', enabled: boolean): void;
-  (e: 'generate-questions'): void;
+  (e: 'toggleStatus', enabled: boolean): void;
+  (e: 'generateQuestions'): void;
   (e: 'delete'): void;
 }
 
@@ -37,7 +37,7 @@ const dropdownOptions = [
 
 function handleDropdownSelect(key: string) {
   if (key === 'generate') {
-    emit('generate-questions');
+    emit('generateQuestions');
   } else if (key === 'delete') {
     emit('delete');
   }
@@ -60,11 +60,7 @@ function handleDropdownSelect(key: string) {
         <!-- 悬浮操作栏 -->
         <div class="flex items-center gap-2" @click.stop>
           <!-- 启用/禁用开关 -->
-          <NSwitch
-            :value="chunk.enabled === 1"
-            size="small"
-            @update:value="enabled => emit('toggle-status', enabled)"
-          />
+          <NSwitch :value="chunk.enabled === 1" size="small" @update:value="enabled => emit('toggleStatus', enabled)" />
 
           <!-- 编辑按钮 -->
           <NButton size="small" text @click="emit('edit')">

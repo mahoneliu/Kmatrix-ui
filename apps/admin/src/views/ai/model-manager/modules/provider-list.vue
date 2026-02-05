@@ -1,45 +1,37 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { aiProviderTypeRecord } from '@/constants/business';
-import { fetchModelProviders } from '@/service/api/ai/model';
+
+interface Props {
+  list: Api.AI.Admin.ModelProvider[];
+  loading: boolean;
+}
+
+const props = defineProps<Props>();
 
 // 定义事件
 const emit = defineEmits<{
   (e: 'select', payload: { id: CommonType.IdType | null; type: '1' | '2' | null }): void;
 }>();
 
-const providers = ref<Api.AI.Admin.ModelProvider[]>([]);
-const loading = ref(false);
 const activeId = ref<CommonType.IdType | null>(null);
 const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=aiProviderTypeRecord['1'], '2'=aiProviderTypeRecord['2']
 
 // 根据当前 Tab 过滤供应商
 const filteredProviders = computed(() => {
-  if (activeTab.value === '0') return providers.value;
-  return providers.value.filter(p => p.providerType === activeTab.value);
+  if (!props.list) return [];
+  if (activeTab.value === '0') return props.list;
+  return props.list.filter(p => p.providerType === activeTab.value);
 });
-
-async function loadProviders() {
-  loading.value = true;
-  const { data } = await fetchModelProviders();
-  if (data) {
-    providers.value = data;
-    // 默认选中全部模型(不选中特定供应商)
-    if (!activeId.value) {
-      handleSelect(null);
-    }
-  }
-  loading.value = false;
-}
 
 function handleSelect(id: CommonType.IdType | null) {
   activeId.value = id;
   // 计算要传递的 type
   let type: '1' | '2' | null = null;
 
-  if (id) {
+  if (id && props.list) {
     // 如果选中了供应商，优先使用供应商的类型
-    const provider = providers.value.find(p => p.providerId === id);
+    const provider = props.list.find(p => p.providerId === id);
     if (provider) {
       type = provider.providerType as '1' | '2';
     }
@@ -57,9 +49,22 @@ function handleTabChange(value: '0' | '1' | '2') {
   handleSelect(null);
 }
 
-onMounted(() => {
-  loadProviders();
-});
+// 监听列表加载完成，默认选中全部
+watch(
+  () => props.list,
+  newList => {
+    if (newList && newList.length > 0 && !activeId.value) {
+      // 保持之前逻辑：如果是初始化加载且没有选中值，触发一次默认选择
+      // 但注意不要造成无限循环或其他副作用，这里主要为了确保父组件知道当前状态
+      // 之前的逻辑是 loadProviders 后直接调用的，现在靠 prop 变化感知
+      // 实际上，之前的逻辑是在 loadProviders 成功后：
+      // if (!activeId.value) { handleSelect(null); }
+      // 这里的 handleSelect(null) 会 emit {id: null, type: null} (如果tab是0)
+      // 考虑到父组件 index.vue 已经设置了初始值 null，这里可能不需要额外 emit，
+      // 除非用户操作了 Tab。
+    }
+  }
+);
 </script>
 
 <template>

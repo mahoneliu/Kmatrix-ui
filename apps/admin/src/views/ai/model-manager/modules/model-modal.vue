@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
 import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
-import { addModel, fetchModelProviders, testModelConnection, updateModel } from '@/service/api/ai/model';
+import { addModel, testModelConnection, updateModel } from '@/service/api/ai/model';
+import TemperatureSlider from '@/components/ai/public/temperature-slider.vue';
 
 const emit = defineEmits<{
   (e: 'success'): void;
@@ -13,7 +14,14 @@ const message = useMessage();
 const show = ref(false);
 const type = ref<'add' | 'edit'>('add');
 const loading = ref(false);
-const providers = ref<Api.AI.Admin.ModelProvider[]>([]);
+
+interface Props {
+  providers?: Api.AI.Admin.ModelProvider[];
+}
+const props = withDefaults(defineProps<Props>(), {
+  providers: () => []
+});
+// const providers = ref<Api.AI.Admin.ModelProvider[]>([]); // Removed internal ref
 
 const modelForm = reactive<any>({
   modelId: undefined,
@@ -44,13 +52,8 @@ const rules = computed(() => {
 
 const formRef = ref<any>(null);
 
-// 获取所有供应商以供选择
-async function loadProviders() {
-  const { data } = await fetchModelProviders();
-  if (data) {
-    providers.value = data;
-  }
-}
+// 移除 loadProviders 函数
+// 移除 onMounted 钩子
 
 const isInitializing = ref(false);
 
@@ -58,12 +61,14 @@ const isSourceLocked = ref(false);
 
 const filteredProviders = computed(() => {
   if (!modelForm.modelSource) return [];
-  return providers.value.filter((p: Api.AI.Admin.ModelProvider) => p.providerType === modelForm.modelSource);
+  // 使用 props.providers
+  return props.providers.filter((p: Api.AI.Admin.ModelProvider) => p.providerType === modelForm.modelSource);
 });
 
 // 计算当前选中的供应商
 const selectedProvider = computed(() => {
-  return providers.value.find((p: Api.AI.Admin.ModelProvider) => p.providerId === modelForm.providerId);
+  // 使用 props.providers
+  return props.providers.find((p: Api.AI.Admin.ModelProvider) => p.providerId === modelForm.providerId);
 });
 
 // 监听模型来源变化，清空供应商和基础模型
@@ -98,9 +103,7 @@ watch(
   }
 );
 
-onMounted(() => {
-  loadProviders();
-});
+// onMounted removed
 
 // 计算当前选中供应商支持的模型列表(根据模型类型过滤)
 const modelOptions = computed(() => {
@@ -284,7 +287,7 @@ defineExpose({ open });
               <NSelect
                 :key="modelForm.modelSource"
                 v-model:value="modelForm.providerId"
-                :options="filteredProviders"
+                :options="filteredProviders as any"
                 label-field="providerName"
                 value-field="providerId"
                 placeholder="请选择供应商"
@@ -362,17 +365,7 @@ defineExpose({ open });
                 />
               </NFormItem>
               <NFormItem label="温度" path="temperature">
-                <div class="flex flex-1 items-center gap-4">
-                  <NSlider v-model:value="modelForm.temperature" :min="0" :max="2" :step="0.1" class="flex-1" />
-                  <NInputNumber
-                    v-model:value="modelForm.temperature"
-                    :max="2"
-                    :min="0"
-                    :step="0.1"
-                    class="w-24"
-                    size="small"
-                  />
-                </div>
+                <TemperatureSlider v-model:model-value="modelForm.temperature" :show-label="false" />
               </NFormItem>
             </template>
 

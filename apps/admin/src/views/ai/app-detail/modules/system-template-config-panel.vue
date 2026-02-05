@@ -184,7 +184,7 @@ async function loadOptions() {
   loading.value = true;
   try {
     // 加载模型列表 (语言模型)
-    const modelRes = await fetchModelList({ modelType: '1', status: '1' });
+    const modelRes = await fetchModelList({ modelType: '1', status: '0' });
     if (modelRes.data) {
       modelOptions.value = modelRes.data.map(m => ({
         label: m.modelName,
@@ -406,7 +406,7 @@ onMounted(() => {
                     :marks="temperatureMarks"
                     class="flex-1"
                   />
-                  <span class="w-12 text-center text-nowrap text-xs text-gray-400 font-bold">
+                  <span class="w-12 text-center text-nowrap text-xs text-gray-500 font-bold -mt-6">
                     {{ (Number(formData.temperature) || 0).toFixed(1) }}
                   </span>
                 </div>

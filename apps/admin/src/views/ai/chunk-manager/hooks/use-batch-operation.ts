@@ -9,10 +9,11 @@ import {
 
 interface UseBatchOperationOptions {
   onBatchComplete: () => Promise<void>;
+  onGenerate?: () => void;
 }
 
 export function useBatchOperation(options: UseBatchOperationOptions) {
-  const { onBatchComplete } = options;
+  const { onBatchComplete, onGenerate } = options;
   const message = useMessage();
 
   const isBatchMode = ref(false);
@@ -53,6 +54,11 @@ export function useBatchOperation(options: UseBatchOperationOptions) {
   async function handleBatchAction(key: string) {
     if (selectedChunkIds.value.length === 0) {
       message.warning('请先选择分块');
+      return;
+    }
+
+    if (key === 'generate' && onGenerate) {
+      onGenerate();
       return;
     }
 

@@ -1,16 +1,20 @@
 <script setup lang="tsx">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { NButton, NCollapse, NCollapseItem, NDivider, NInput, NSpace, NUpload, NUploadDragger } from 'naive-ui';
+import { NButton, NCard, NDropdown, NInput, NSpace, NSwitch, NUpload, NUploadDragger } from 'naive-ui';
 import type { DataTableSortState, UploadFileInfo } from 'naive-ui';
 import { debounce } from 'lodash-es';
 import { SvgIcon } from '@sa/materials';
+import { useBoolean } from '@sa/hooks';
 import {
   batchDeleteDocuments,
   batchDisableDocuments,
   batchEmbedding,
   batchEnableDocuments,
   batchGenerateQuestionsByDocuments,
+  disableDocument,
+  embeddingDocument,
+  enableDocument,
   fetchDocumentPage,
   updateDocument,
   uploadDocument
@@ -19,7 +23,10 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { useAuth } from '@/hooks/business/auth';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import { $t } from '@/locales';
+import ModelSelectorBasic from '@/components/ai/public/model-selector-basic.vue';
+import EmbeddingConfirmModal from './embedding-confirm-modal.vue';
 import DocumentSearch from './document-search.vue';
+import DocumentStatusModal from './document-status-modal.vue';
 
 defineOptions({
   name: 'DocumentTable'
@@ -42,6 +49,14 @@ const emit = defineEmits<{
 
 const { hasAuth } = useAuth();
 const router = useRouter();
+
+// 向量化确认弹窗状态
+const embeddingModalVisible = ref(false);
+const embeddingType = ref<'single' | 'batch'>('single');
+const currentEmbeddingDocId = ref<CommonType.IdType | null>(null);
+
+// 模型选择器状态
+const modelSelectorVisible = ref(false);
 
 // 内联编辑状态
 const editingId = ref<CommonType.IdType | null>(null);
@@ -127,14 +142,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 80,
         render(row) {
-          return row.enabled === 1 ? (
-            <n-tag type="success" size="small">
-              启用
-            </n-tag>
-          ) : (
-            <n-tag type="default" size="small">
-              禁用
-            </n-tag>
+          return (
+            <NSwitch size="small" value={row.enabled === 1} onUpdateValue={(val: boolean) => handleEnable(row, val)}>
+              {{
+                checked: () => '启用',
+                unchecked: () => '禁用'
+              }}
+            </NSwitch>
           );
         }
       },
@@ -211,13 +225,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 180,
         render: row => {
-          const divider = () => {
-            if (!hasAuth('ai:document:edit') || !hasAuth('ai:document:remove')) {
-              return null;
-            }
-            return <NDivider vertical />;
-          };
-
           const chunkBtn = () => {
             return (
               <ButtonIcon
@@ -230,27 +237,53 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             );
           };
 
-          const deleteBtn = () => {
-            if (!hasAuth('ai:document:remove')) {
-              return null;
-            }
+          const embeddingBtn = () => {
             return (
               <ButtonIcon
                 text
-                type="error"
-                icon="material-symbols:delete-outline"
-                tooltipContent={$t('common.delete')}
-                popconfirmContent={$t('common.confirmDelete')}
-                onPositiveClick={() => handleDelete(row.id!)}
+                type="info"
+                icon="mdi:vector-square"
+                tooltipContent="向量化"
+                onClick={() => handleEmbedding(row)}
               />
+            );
+          };
+
+          const moreOptions = [
+            {
+              label: 'AI生成问题',
+              key: 'generateQuestion',
+              icon: () => <SvgIcon icon="mdi:chat-question" class="text-primary" />
+            },
+            {
+              label: '状态记录',
+              key: 'status',
+              icon: () => <SvgIcon icon="carbon:time" class="text-info" />
+            },
+            {
+              label: '删除',
+              key: 'delete',
+              icon: () => <SvgIcon icon="mdi:delete" class="text-error" />
+            }
+          ];
+
+          const dropdownBtn = () => {
+            return (
+              <div class="h-full flex-center">
+                <NDropdown trigger="hover" options={moreOptions} onSelect={key => handleDropdownSelect(key, row)}>
+                  <NButton text class="h-[36px] text-icon">
+                    <SvgIcon icon="mdi:dots-vertical" />
+                  </NButton>
+                </NDropdown>
+              </div>
             );
           };
 
           return (
             <div class="flex-center gap-8px">
               {chunkBtn()}
-              {divider()}
-              {deleteBtn()}
+              {embeddingBtn()}
+              {dropdownBtn()}
             </div>
           );
         }
@@ -259,6 +292,44 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
   });
 
 const { checkedRowKeys, onBatchDeleted, onDeleted } = useTableOperate(data, 'id', getData);
+
+async function handleEnable(row: Api.AI.KB.Document, value: boolean) {
+  try {
+    const { error } = value ? await enableDocument(row.id!) : await disableDocument(row.id!);
+    if (error) return;
+    window.$message?.success(value ? '启用成功' : '禁用成功');
+    await getData();
+  } catch {
+    // ignore
+  }
+}
+
+async function handleEmbedding(row: Api.AI.KB.Document) {
+  currentEmbeddingDocId.value = row.id!;
+  embeddingType.value = 'single';
+  embeddingModalVisible.value = true;
+}
+
+async function handleGenerateQuestions(row: Api.AI.KB.Document) {
+  checkedRowKeys.value = [row.id!];
+  modelSelectorVisible.value = true;
+}
+
+function handleDropdownSelect(key: string | number, row: Api.AI.KB.Document) {
+  if (key === 'generateQuestion') {
+    handleGenerateQuestions(row);
+  } else if (key === 'status') {
+    handleViewStatus(row);
+  } else if (key === 'delete') {
+    window.$dialog?.warning({
+      title: '确认删除',
+      content: '确定要删除该文档吗？',
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => handleDelete(row.id!)
+    });
+  }
+}
 
 function handleSorterChange(sorter: DataTableSortState | DataTableSortState[] | null) {
   // 处理单列排序
@@ -346,20 +417,81 @@ async function handleBatchDisable() {
 }
 
 async function handleBatchEmbedding() {
-  const { error } = await batchEmbedding(checkedRowKeys.value);
-  if (error) return;
-  window.$message?.success('向量化生成任务已开始');
-  await getData();
+  embeddingType.value = 'batch';
+  embeddingModalVisible.value = true;
 }
 
-async function handleBatchGenerateQuestions() {
-  const { error } = await batchGenerateQuestionsByDocuments(checkedRowKeys.value);
+// 确认向量化
+async function handleConfirmEmbedding(option: 'UNEMBEDDED_ONLY' | 'ALL') {
+  try {
+    if (embeddingType.value === 'single' && currentEmbeddingDocId.value) {
+      const { error } = await embeddingDocument(currentEmbeddingDocId.value, option);
+      if (error) return;
+    } else {
+      const { error } = await batchEmbedding(checkedRowKeys.value, option);
+      if (error) return;
+    }
+    window.$message?.success('向量化任务已开始，请稍候');
+    await getData();
+  } catch {
+    window.$message?.error('操作失败');
+  }
+}
+
+// 文档问题生成的默认提示词
+const documentPrompt = `请根据以下参考文本，识别 3-5 个潜在的用户问题。
+仅输出问题，每行一个。不要对它们进行编号。
+参考文本：
+{data}`;
+
+// 提示信息内容
+const documentAlertContent = computed(() => {
+  return `
+    <div class="mb-2">
+      提示词中的
+      <code class="rounded bg-gray-100 px-1">{data}</code>
+      为分段内容的占位符,执行时替换为分段内容发送给 AI 模型;
+    </div>
+    <div class="mb-2">
+      AI 模型根据分段内容生成相关问题,每行一个问题返回;
+    </div>
+    <div>生成效果依赖于所选模型和提示词,用户可自行调整至最佳效果。</div>
+  `;
+});
+
+// 打开模型选择器
+function handleBatchGenerateQuestions() {
+  modelSelectorVisible.value = true;
+}
+
+// 确认生成问题
+async function handleConfirmGenerateQuestions(params: {
+  modelId: CommonType.IdType;
+  prompt: string;
+  temperature: number;
+  maxTokens: number;
+}) {
+  const { error } = await batchGenerateQuestionsByDocuments(checkedRowKeys.value, {
+    modelId: params.modelId,
+    prompt: params.prompt,
+    temperature: params.temperature,
+    maxTokens: params.maxTokens
+  });
   if (error) return;
   window.$message?.success('问题生成任务已开始');
   await getData();
 }
 
+const { bool: statusVisible, setTrue: openStatusModal } = useBoolean();
+const currentStatusMeta = ref<Record<string, any> | null>(null);
+
+function handleViewStatus(row: Api.AI.KB.Document) {
+  currentStatusMeta.value = row.statusMeta || null;
+  openStatusModal();
+}
+
 async function handleResetSearch() {
+  checkedRowKeys.value = [];
   searchParams.value = {
     datasetId: props.datasetId ?? undefined,
     enabled: undefined,
@@ -376,28 +508,76 @@ async function handleResetSearch() {
   await getDataByPage();
 }
 
+function handleRefresh() {
+  checkedRowKeys.value = [];
+  getData();
+}
+
 // 监听 datasetId 变化
 watch(
   () => props.datasetId,
   (newVal: CommonType.IdType | null) => {
+    checkedRowKeys.value = [];
     searchParams.value.datasetId = newVal ?? undefined;
     getDataByPage();
   }
 );
 
+// 轮询状态
+const pollingInterval = ref<number | null>(null);
+
+function stopPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value);
+    pollingInterval.value = null;
+  }
+}
+
+function startPolling() {
+  if (pollingInterval.value) return;
+  pollingInterval.value = window.setInterval(async () => {
+    try {
+      // 静默获取数据
+      const response = await fetchDocumentPage(searchParams.value);
+      if (!response.error) {
+        const transformed = defaultTransform(response);
+        // 如果当前有数据，且 API 返回了数据，则更新
+        if (transformed.data) {
+          data.value = transformed.data;
+        }
+      }
+    } catch {
+      stopPolling();
+    }
+  }, 3000);
+}
+
+// 监听数据变化，自动管理轮询
+watch(
+  data,
+  newData => {
+    const hasPending = newData.some(item => item.embeddingStatus === 1 || item.questionStatus === 1);
+    if (hasPending) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+onUnmounted(() => {
+  stopPolling();
+});
+
 // 文件上传相关
 const fileList = ref<UploadFileInfo[]>([]);
 const uploading = ref(false);
-const uploadAreaExpanded = ref<string[]>([]);
+const uploadAreaVisible = ref(false);
 
 // 是否需要显示文件上传区域（仅限本地文件和QA对类型）
 const showFileUpload = computed(() => {
   return props.processType === 'GENERIC_FILE' || props.processType === 'QA_PAIR';
-});
-
-// 是否需要显示按钮区域（在线文档/网页链接类型）
-const showButtonActions = computed(() => {
-  return props.processType === 'ONLINE_DOC' || props.processType === 'WEB_LINK';
 });
 
 const debouncedSuccessMessage = debounce(() => {
@@ -430,7 +610,41 @@ function getUploadAreaTitle() {
   if (props.processType === 'QA_PAIR') {
     return '上传QA对文件（Excel/CSV）';
   }
-  return '上传文档';
+  return '上传文件';
+}
+
+// 统一的添加文档入口
+function handleAddDocument() {
+  if (props.processType === 'GENERIC_FILE' || props.processType === 'QA_PAIR') {
+    // 展开/收起上传区域
+    uploadAreaVisible.value = !uploadAreaVisible.value;
+  } else if (props.processType === 'ONLINE_DOC') {
+    emit('addOnlineDoc');
+  } else if (props.processType === 'WEB_LINK') {
+    emit('addWebLink');
+  }
+}
+
+// 获取按钮文本
+function getAddButtonText() {
+  const textMap: Record<string, string> = {
+    GENERIC_FILE: '上传文件',
+    QA_PAIR: '上传QA对',
+    ONLINE_DOC: '添加在线文档',
+    WEB_LINK: '添加网页链接'
+  };
+  return textMap[props.processType] || '添加文档';
+}
+
+// 获取按钮图标
+function getAddButtonIcon() {
+  const iconMap: Record<string, string> = {
+    GENERIC_FILE: 'mdi:cloud-upload-outline',
+    QA_PAIR: 'mdi:table-arrow-up',
+    ONLINE_DOC: 'mdi:text-box-plus',
+    WEB_LINK: 'mdi:link-plus'
+  };
+  return iconMap[props.processType] || 'mdi:plus';
 }
 
 defineExpose({
@@ -442,70 +656,42 @@ defineExpose({
   <div class="h-full flex-col-stretch gap-12px overflow-hidden">
     <DocumentSearch v-model:model="searchParams" @reset="handleResetSearch" @search="getDataByPage" />
 
-    <!-- 折叠式上传区域 -->
-    <NCollapse v-model:expanded-names="uploadAreaExpanded" class="upload-collapse">
-      <NCollapseItem name="upload" :title="getUploadAreaTitle()">
-        <template #header-extra>
-          <NSpace size="small">
-            <!-- 在线文档入口 -->
-            <NButton
-              v-if="props.processType === 'ONLINE_DOC'"
-              size="small"
-              type="primary"
-              @click.stop="emit('addOnlineDoc')"
-            >
-              <template #icon>
-                <SvgIcon icon="mdi:text-box-plus" />
-              </template>
-              添加在线文档
-            </NButton>
-            <!-- 网页链接入口 -->
-            <NButton
-              v-if="props.processType === 'WEB_LINK'"
-              size="small"
-              type="primary"
-              @click.stop="emit('addWebLink')"
-            >
-              <template #icon>
-                <SvgIcon icon="mdi:link-plus" />
-              </template>
-              添加网页链接
-            </NButton>
-          </NSpace>
-        </template>
-
-        <!-- 文件上传区域 (适用于GENERIC_FILE和QA_PAIR类型) -->
-        <NUpload
-          v-if="showFileUpload"
-          v-model:file-list="fileList"
-          multiple
-          :show-file-list="true"
-          :custom-request="handleUpload"
-          :disabled="uploading"
-        >
-          <NUploadDragger class="upload-dragger">
-            <div class="flex flex-col items-center gap-2">
-              <SvgIcon icon="mdi:cloud-upload-outline" class="text-4xl text-primary" />
-              <p class="text-base font-medium">点击或拖拽文件到此处上传</p>
-              <p class="text-sm text-gray-500">
-                <template v-if="props.processType === 'QA_PAIR'">
-                  支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案
-                </template>
-                <template v-else>支持 PDF、Word、TXT、Markdown 等常见文档格式</template>
-              </p>
-            </div>
-          </NUploadDragger>
-        </NUpload>
-
-        <!-- 在线文档/网页链接提示 -->
-        <div v-if="showButtonActions" class="p-4 text-center text-gray-500">
-          请点击上方按钮添加{{ props.processType === 'ONLINE_DOC' ? '在线文档' : '网页链接' }}
+    <!-- 受控展开的上传区域 (仅文件上传类型) -->
+    <NCard v-if="uploadAreaVisible && showFileUpload" :bordered="true" size="small" class="upload-area-card">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <span>{{ getUploadAreaTitle() }}</span>
+          <NButton text type="primary" @click="uploadAreaVisible = false">
+            <template #icon>
+              <SvgIcon icon="mdi:close" />
+            </template>
+          </NButton>
         </div>
-      </NCollapseItem>
-    </NCollapse>
+      </template>
+      <NUpload
+        v-model:file-list="fileList"
+        multiple
+        :show-file-list="true"
+        :custom-request="handleUpload"
+        :disabled="uploading"
+      >
+        <NUploadDragger class="upload-dragger">
+          <div class="flex flex-col items-center gap-2">
+            <SvgIcon icon="mdi:cloud-upload-outline" class="text-4xl text-primary" />
+            <p class="text-base font-medium">点击或拖拽文件到此处上传</p>
+            <p class="text-sm text-gray-500">
+              <template v-if="props.processType === 'QA_PAIR'">
+                支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案
+              </template>
+              <template v-else>支持 PDF、Word、TXT、Markdown 等常见文件格式</template>
+            </p>
+          </div>
+        </NUploadDragger>
+      </NUpload>
+    </NCard>
 
-    <TableRowCheckAlert v-model:checked-row-keys="checkedRowKeys" />
-    <NCard :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <TableRowCheckAlert v-if="checkedRowKeys.length > 0" v-model:checked-row-keys="checkedRowKeys" />
+    <NCard title="文档" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -515,39 +701,48 @@ defineExpose({
           :show-delete="hasAuth('ai:document:remove')"
           :show-export="false"
           @delete="handleBatchDelete"
-          @refresh="getData"
+          @refresh="handleRefresh"
         >
           <template #prefix>
             <NSpace>
+              <!-- 统一添加文档入口按钮 -->
+              <NButton size="small" type="primary" @click="handleAddDocument">
+                <template #icon>
+                  <SvgIcon :icon="getAddButtonIcon()" />
+                </template>
+                {{ getAddButtonText() }}
+              </NButton>
+
+              <!-- 批量操作按钮 -->
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="primary" @click="handleBatchEnable">
                 <template #icon>
-                  <icon-mdi-check-circle class="text-icon" />
+                  <SvgIcon icon="mdi:check-circle" class="text-icon" />
                 </template>
-                批量启用
+                启用
               </NButton>
-              <NButton v-if="checkedRowKeys.length > 0" ghost size="small" @click="handleBatchDisable">
+              <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchDisable">
                 <template #icon>
-                  <icon-mdi-cancel class="text-icon" />
+                  <SvgIcon icon="mdi:cancel" class="text-icon" />
                 </template>
-                批量禁用
+                禁用
               </NButton>
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchEmbedding">
                 <template #icon>
-                  <icon-mdi-vector-square class="text-icon" />
+                  <SvgIcon icon="mdi:vector-square" class="text-icon" />
                 </template>
-                批量向量化
+                向量化
               </NButton>
               <NButton
                 v-if="checkedRowKeys.length > 0"
                 ghost
                 size="small"
-                type="warning"
+                type="info"
                 @click="handleBatchGenerateQuestions"
               >
                 <template #icon>
-                  <icon-mdi-chat-question class="text-icon" />
+                  <SvgIcon icon="mdi:chat-question" class="text-icon" />
                 </template>
-                批量生成问题
+                生成问题
               </NButton>
             </NSpace>
           </template>
@@ -568,5 +763,37 @@ defineExpose({
         @update:sorter="handleSorterChange"
       />
     </NCard>
+
+    <!-- 模型选择器 -->
+    <ModelSelectorBasic
+      v-model:show="modelSelectorVisible"
+      title="批量生成问题"
+      :default-prompt="documentPrompt"
+      :default-temperature="0.7"
+      :default-max-tokens="2048"
+      :alert-content="documentAlertContent"
+      :show-alert="true"
+      @confirm="handleConfirmGenerateQuestions"
+    />
+
+    <EmbeddingConfirmModal v-model:show="embeddingModalVisible" @confirm="handleConfirmEmbedding" />
+    <DocumentStatusModal v-model:visible="statusVisible" :meta="currentStatusMeta" />
   </div>
 </template>
+
+<style scoped>
+.upload-area-card {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -8,7 +8,7 @@ import {
   NEmpty,
   NList,
   NListItem,
-  NSpace,
+  NPopover,
   NTag,
   NThing,
   useDialog,
@@ -28,7 +28,6 @@ import WebLinkModal from './modules/web-link-modal.vue';
 import DocumentTable from './modules/document-table.vue';
 
 const route = useRoute();
-const router = useRouter();
 const message = useMessage();
 const dialog = useDialog();
 
@@ -171,10 +170,6 @@ function getProcessTypeLabel(type?: string) {
   }
 }
 
-function goBack() {
-  router.push({ name: 'ai_knowledge-manager' });
-}
-
 onMounted(() => {
   loadKnowledgeBase();
   loadDatasets();
@@ -184,52 +179,81 @@ onMounted(() => {
 <template>
   <div class="h-full flex flex-col">
     <!-- 头部 -->
-    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+    <NCard :bordered="false" size="small" class="mb-2 card-wrapper">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <NButton quaternary @click="goBack">
+          <!--
+ <NButton quaternary @click="goBack">
             <template #icon>
               <SvgIcon icon="mdi:arrow-left" />
             </template>
-          </NButton>
+          </NButton> 
+-->
           <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-            <SvgIcon icon="mdi:book-open-page-variant" />
+            <SvgIcon icon="mdi:book-open-variant" />
           </div>
           <div>
             <div class="text-lg font-bold">{{ kb?.name || '知识库详情' }}</div>
             <div class="text-xs text-gray-400">{{ kb?.description }}</div>
           </div>
         </div>
-        <NSpace>
+        <!--
+ <NSpace>
           <NButton type="primary" ghost @click="handleAddDataset">
             <template #icon>
               <SvgIcon icon="mdi:folder-plus" />
             </template>
             新建数据集
           </NButton>
-        </NSpace>
+        </NSpace> 
+-->
       </div>
     </NCard>
 
     <!-- 主内容区 -->
     <div class="flex flex-1 gap-4 overflow-hidden">
       <!-- 左侧数据集列表 -->
-      <NCard :bordered="false" size="small" class="w-64 card-wrapper" title="数据集">
+      <NCard :bordered="false" size="small" class="w-64 card-wrapper">
+        <template #header>
+          <div class="flex items-center gap-1">
+            <span>数据集</span>
+            <NPopover trigger="hover" title="数据集说明" placement="right">
+              <template #trigger>
+                <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
+                  <SvgIcon icon="mdi:help-circle-outline" class="text-base" />
+                </div>
+              </template>
+              <div class="w-64">
+                <p>数据集用于归类管理知识库文档</p>
+                <p class="mt-1">不同的数据集，对应不同的收录方式和处理规则</p>
+              </div>
+            </NPopover>
+          </div>
+        </template>
+        <template #header-extra>
+          <NButton type="primary" ghost size="tiny" title="添加数据集" @click="handleAddDataset">
+            <template #icon>
+              <SvgIcon icon="mdi:plus" />
+            </template>
+          </NButton>
+        </template>
+
         <NList v-if="datasets.length > 0" hoverable clickable>
           <NListItem
             v-for="ds in datasets"
             :key="ds.id"
+            class="group"
             :class="{ 'bg-primary/10': selectedDatasetId === ds.id }"
             @click="selectedDatasetId = ds.id ?? null"
           >
             <NThing content-indented>
               <template #avatar>
                 <div
-                  class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
+                  class="h-8 w-8 flex items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
                 >
                   <SvgIcon
                     :icon="getDatasetIcon(ds.processType)"
-                    class="text-2xl text-primary transition-transform group-hover:scale-110"
+                    class="text-xl text-primary transition-transform group-hover:scale-110"
                   />
                 </div>
               </template>
@@ -249,7 +273,7 @@ onMounted(() => {
                     { label: '编辑', key: 'edit' },
                     { label: '删除', key: 'delete' }
                   ]"
-                  trigger="click"
+                  trigger="hover"
                   @select="
                     key => {
                       if (key === 'edit') handleEditDataset(ds);
@@ -259,11 +283,11 @@ onMounted(() => {
                 >
                   <NButton
                     quaternary
-                    size="tiny"
+                    size="small"
                     class="opacity-0 transition-opacity group-hover:opacity-100"
                     @click.stop
                   >
-                    <SvgIcon icon="mdi:dots-vertical" />
+                    <SvgIcon icon="mdi:dots-horizontal" />
                   </NButton>
                 </NDropdown>
               </template>
@@ -308,14 +332,12 @@ onMounted(() => {
       :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
       @submit="handleSubmitWebLink"
     />
-
-    <!-- <ChunkManagerModal v-model:visible="chunkManagerModalVisible" :document-id="currentDocumentId" /> -->
   </div>
 </template>
 
 <style scoped>
 .n-list.n-list--bordered .n-list-item,
 .n-list.n-list--hoverable .n-list-item {
-  padding: 12px 1px;
+  padding: 12px 5px;
 }
 </style>

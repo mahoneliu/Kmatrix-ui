@@ -3,7 +3,7 @@ import { computed, reactive, ref } from 'vue';
 import type { SelectOption } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import CryptoJS from 'crypto-js';
-import { fetchCaptchaCode, fetchTenantList } from '@/service/api';
+import { fetchCaptchaCode } from '@/service/api';
 import { fetchSocialAuthBinding } from '@/service/api/system';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
@@ -22,7 +22,7 @@ const authStore = useAuthStore();
 const { toggleLoginModule } = useRouterPush();
 const { formRef, validate } = useNaiveForm();
 const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCodeLoading } = useLoading();
-const { loading: tenantLoading, startLoading: startTenantLoading, endLoading: endTenantLoading } = useLoading();
+const { loading: tenantLoading } = useLoading();
 
 const codeUrl = ref<string>();
 const captchaEnabled = ref<boolean>(false);
@@ -55,23 +55,23 @@ const rules = computed<Record<RuleKey, App.Global.FormRule[]>>(() => {
   return loginRules;
 });
 
-async function handleFetchTenantList() {
-  startTenantLoading();
-  const { data, error } = await fetchTenantList();
-  if (error) return;
-  tenantEnabled.value = data.tenantEnabled;
-  if (data.tenantEnabled) {
-    tenantOption.value = data.voList.map(tenant => {
-      return {
-        label: tenant.companyName,
-        value: tenant.tenantId
-      };
-    });
-  }
-  endTenantLoading();
-}
+// async function handleFetchTenantList() {
+//   startTenantLoading();
+//   const { data, error } = await fetchTenantList();
+//   if (error) return;
+//   tenantEnabled.value = data.tenantEnabled;
+//   if (data.tenantEnabled) {
+//     tenantOption.value = data.voList.map(tenant => {
+//       return {
+//         label: tenant.companyName,
+//         value: tenant.tenantId
+//       };
+//     });
+//   }
+//   endTenantLoading();
+// }
 
-handleFetchTenantList();
+// handleFetchTenantList();
 
 async function handleSubmit() {
   await validate();

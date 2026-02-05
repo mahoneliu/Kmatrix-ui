@@ -101,12 +101,31 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     }
   }
 
-  async function handleGenerateQuestions() {
+  // 模型选择弹窗状态
+  const showModelSelectModal = ref(false);
+
+  // 打开模型选择弹窗
+  function handleOpenModelSelect() {
+    showModelSelectModal.value = true;
+  }
+
+  // 生成问题(带模型参数)
+  async function handleGenerateQuestions(params: {
+    modelId: CommonType.IdType;
+    prompt: string;
+    temperature: number;
+    maxTokens: number;
+  }) {
     if (!selectedChunkId.value) return;
     generatingQuestions.value = true;
-    const msg = message.loading('AI 正在生成问题，请稍候...', { duration: 0 });
+    const msg = message.loading('AI 正在生成问题,请稍候...', { duration: 0 });
     try {
-      await generateQuestions(selectedChunkId.value);
+      await generateQuestions(selectedChunkId.value, {
+        modelId: params.modelId,
+        prompt: params.prompt,
+        temperature: params.temperature,
+        maxTokens: params.maxTokens
+      });
       msg.destroy();
       message.success('生成成功');
       await loadQuestions(selectedChunkId.value);
@@ -125,11 +144,13 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     documentQuestions,
     documentQuestionOptions,
     newQuestionContent,
+    showModelSelectModal,
     loadQuestions,
     loadDocumentQuestions,
     handleSelectQuestion,
     handleCreateQuestion,
     handleDeleteQuestion,
+    handleOpenModelSelect,
     handleGenerateQuestions
   };
 }

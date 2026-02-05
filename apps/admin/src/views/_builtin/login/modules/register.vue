@@ -2,7 +2,7 @@
 import { computed, reactive, ref } from 'vue';
 import type { SelectOption } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
-import { fetchCaptchaCode, fetchRegister, fetchTenantList } from '@/service/api';
+import { fetchCaptchaCode, fetchRegister } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -72,19 +72,19 @@ async function handleSubmit() {
   }
 }
 
-async function handleFetchTenantList() {
-  const { data, error } = await fetchTenantList();
-  if (error) return;
-  tenantEnabled.value = data.tenantEnabled;
-  tenantOption.value = data.voList.map(tenant => {
-    return {
-      label: tenant.companyName,
-      value: tenant.tenantId
-    };
-  });
-}
+// async function handleFetchTenantList() {
+//   const { data, error } = await fetchTenantList();
+//   if (error) return;
+//   tenantEnabled.value = data.tenantEnabled;
+//   tenantOption.value = data.voList.map(tenant => {
+//     return {
+//       label: tenant.companyName,
+//       value: tenant.tenantId
+//     };
+//   });
+// }
 
-handleFetchTenantList();
+// handleFetchTenantList();
 
 async function handleFetchCaptchaCode() {
   startCodeLoading();

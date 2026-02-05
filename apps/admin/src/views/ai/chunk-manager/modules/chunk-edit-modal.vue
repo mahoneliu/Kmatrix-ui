@@ -10,7 +10,6 @@ defineOptions({
 interface Props {
   show: boolean;
   chunk: Api.AI.KB.DocumentChunk | null;
-  chunkIndex: number;
   questions: Api.AI.KB.Question[];
   documentQuestionOptions: Array<{ label: string; value: string | number }>;
   loadingQuestions: boolean;
@@ -21,11 +20,11 @@ interface Props {
 interface Emits {
   (e: 'update:show', value: boolean): void;
   (e: 'save', data: { title: string; content: string }): void;
-  (e: 'select-question', questionId: string | number | null): void;
-  (e: 'create-question', event: KeyboardEvent): void;
-  (e: 'delete-question', questionId: string | number): void;
-  (e: 'generate-questions'): void;
-  (e: 'load-questions'): void;
+  (e: 'selectQuestion', questionId: string | number | null): void;
+  (e: 'createQuestion', event: KeyboardEvent): void;
+  (e: 'deleteQuestion', questionId: string | number): void;
+  (e: 'generateQuestions'): void;
+  (e: 'loadQuestions'): void;
 }
 
 const props = defineProps<Props>();
@@ -44,7 +43,7 @@ watch(
       editTitleValue.value = props.chunk.title || '';
       editContentValue.value = props.chunk.content || '';
       isEditing.value = false;
-      emit('load-questions');
+      emit('loadQuestions');
     }
   }
 );
@@ -134,7 +133,7 @@ function handleCancelEdit() {
         <div class="w-500px flex flex-col border-l border-gray-100 pl-4">
           <div class="mb-3 flex items-center justify-between">
             <span class="text-sm font-medium">关联问题</span>
-            <NButton size="small" :loading="generatingQuestions" @click="emit('generate-questions')">
+            <NButton size="small" :loading="generatingQuestions" @click="emit('generateQuestions')">
               <template #icon>
                 <SvgIcon icon="mdi:magic-staff" />
               </template>
@@ -150,8 +149,8 @@ function handleCancelEdit() {
               clearable
               placeholder="新增：输入->回车，或者选择已有问题"
               :options="documentQuestionOptions"
-              @update:value="val => emit('select-question', val)"
-              @keydown.enter="(e: KeyboardEvent) => emit('create-question', e)"
+              @update:value="val => emit('selectQuestion', val)"
+              @keydown.enter="(e: KeyboardEvent) => emit('createQuestion', e)"
             />
           </div>
 
@@ -175,7 +174,7 @@ function handleCancelEdit() {
                   text
                   type="error"
                   class="opacity-0 transition-opacity group-hover:opacity-100"
-                  @click="emit('delete-question', q.id)"
+                  @click="emit('deleteQuestion', q.id)"
                 >
                   <template #icon>
                     <icon-material-symbols-close />

@@ -335,22 +335,44 @@ export function updateDocument(id: CommonType.IdType, data: Partial<Api.AI.KB.Do
 /**
  * 批量向量化生成
  */
-export function batchEmbedding(documentIds: CommonType.IdType[]) {
+export function batchEmbedding(
+  documentIds: CommonType.IdType[],
+  option: 'UNEMBEDDED_ONLY' | 'ALL' = 'UNEMBEDDED_ONLY'
+) {
   return request<any>({
     url: '/ai/document/batchEmbedding',
     method: 'post',
-    data: documentIds
+    data: { documentIds, option }
   });
 }
 
 /**
  * 批量问题生成
  */
-export function batchGenerateQuestionsByDocuments(documentIds: CommonType.IdType[], modelId?: CommonType.IdType) {
+export function batchGenerateQuestionsByDocuments(
+  documentIds: CommonType.IdType[],
+  params?: {
+    modelId?: CommonType.IdType;
+    prompt?: string;
+    temperature?: number;
+    maxTokens?: number;
+  }
+) {
   return request<any>({
     url: '/ai/document/batchGenerateQuestions',
     method: 'post',
-    data: { documentIds, modelId }
+    data: { documentIds, ...params }
+  });
+}
+
+/**
+ * 单个文档向量化
+ */
+export function embeddingDocument(id: CommonType.IdType, option: 'UNEMBEDDED_ONLY' | 'ALL' = 'UNEMBEDDED_ONLY') {
+  return request<any>({
+    url: `/ai/document/embedding/${id}`,
+    method: 'post',
+    params: { option }
   });
 }
 
@@ -499,11 +521,19 @@ export function batchDeleteChunks(ids: CommonType.IdType[]) {
 /**
  * 批量为切片生成问题
  */
-export function batchGenerateQuestionsByChunks(chunkIds: CommonType.IdType[], modelId?: CommonType.IdType) {
+export function batchGenerateQuestionsByChunks(
+  chunkIds: CommonType.IdType[],
+  params?: {
+    modelId?: CommonType.IdType;
+    prompt?: string;
+    temperature?: number;
+    maxTokens?: number;
+  }
+) {
   return request<any>({
     url: '/ai/question/batchGenerate',
     method: 'post',
-    data: { chunkIds, modelId }
+    data: { chunkIds, ...params }
   });
 }
 
@@ -565,11 +595,19 @@ export function deleteQuestion(id: CommonType.IdType) {
 /**
  * AI自动生成问题
  */
-export function generateQuestions(chunkId: CommonType.IdType, modelId?: CommonType.IdType) {
+export function generateQuestions(
+  chunkId: CommonType.IdType,
+  params?: {
+    modelId?: CommonType.IdType;
+    prompt?: string;
+    temperature?: number;
+    maxTokens?: number;
+  }
+) {
   return request<Api.AI.KB.Question[]>({
     url: '/ai/question/generate',
     method: 'post',
-    data: { chunkId, modelId }
+    data: { chunkId, ...params }
   });
 }
 

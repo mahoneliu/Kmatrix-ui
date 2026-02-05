@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { NButton, NCheckbox, NDropdown, NEmpty, NInput, NInputGroup, NSelect, NSpin, NTag } from 'naive-ui';
+import { computed, h } from 'vue';
+import { NButton, NCheckbox, NDropdown, NEmpty, NInput, NInputGroup, NSpin, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 
 defineOptions({
@@ -20,20 +21,22 @@ interface Props {
   searchKeyword: string;
   batchActionOptions: Array<{ label?: string; key: string; type?: string }>;
   batchOperating: boolean;
+  displayLevel: 'concise' | 'medium' | 'detailed';
 }
 
 interface Emits {
   (e: 'select', chunkId: string): void;
-  (e: 'toggle-selection', chunkId: string): void;
+  (e: 'toggleSelection', chunkId: string): void;
   (e: 'scroll', event: Event): void;
-  (e: 'open-add-modal'): void;
-  (e: 'enter-batch'): void;
-  (e: 'exit-batch'): void;
-  (e: 'batch-action', key: string): void;
+  (e: 'openAddModal'): void;
+  (e: 'enterBatch'): void;
+  (e: 'exitBatch'): void;
+  (e: 'batchAction', key: string): void;
   (e: 'update:search-field', value: 'title' | 'content'): void;
   (e: 'update:search-keyword', value: string): void;
   (e: 'search'): void;
-  (e: 'open-edit-modal'): void;
+  (e: 'openEditModal'): void;
+  (e: 'update:display-level', value: 'concise' | 'medium' | 'detailed'): void;
 }
 
 const props = defineProps<Props>();
@@ -45,7 +48,7 @@ function isChunkSelected(chunkId: string) {
 
 function handleChunkClick(chunkId: string) {
   if (props.isBatchMode) {
-    emit('toggle-selection', chunkId);
+    emit('toggleSelection', chunkId);
   } else {
     emit('select', chunkId);
   }
@@ -53,15 +56,32 @@ function handleChunkClick(chunkId: string) {
 
 function handleChunkDblClick() {
   if (!props.isBatchMode) {
-    emit('open-edit-modal');
+    emit('openEditModal');
   }
 }
+
+const displayLevelOptions = computed(() => {
+  return [
+    { label: '精简', key: 'concise' },
+    { label: '中等', key: 'medium' },
+    { label: '详细', key: 'detailed' }
+  ].map(item => ({
+    ...item,
+    icon: props.displayLevel === item.key ? () => h(SvgIcon, { icon: 'mdi:check', class: 'text-primary' }) : undefined
+  }));
+});
 </script>
 
 <template>
-  <div class="w-800px flex flex-col border-r border-gray-200 pr-4">
+  <div
+    class="flex flex-col border-r border-gray-200 pr-4 transition-all duration-300"
+    :class="displayLevel === 'detailed' ? 'w-1000px' : 'w-800px'"
+  >
     <!-- 文档名称 -->
-    <div v-if="documentName" class="text-md mb-4 flex items-center gap-2 font-bold font-medium">
+    <div
+      v-if="documentName"
+      class="text-md mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 font-bold font-medium"
+    >
       <div class="h-6 w-6 flex items-center justify-center rounded-sm bg-primary/10 text-xl text-primary">
         <SvgIcon icon="mdi:book-open-page-variant" />
       </div>
@@ -72,17 +92,26 @@ function handleChunkDblClick() {
     <!-- 工具栏 -->
     <div class="items-between mb-3 flex gap-3">
       <!-- 搜索栏 -->
-      <NInputGroup class="flex-1" style="max-width: 300px">
-        <NSelect
-          :value="searchField"
+      <NInputGroup class="max-w-300px flex-1">
+        <NDropdown
           :options="[
-            { label: '标题', value: 'title' },
-            { label: '内容', value: 'content' }
+            { label: '标题', key: 'title' },
+            { label: '内容', key: 'content' }
           ]"
-          class="w-100px"
-          size="small"
-          @update:value="(v: 'title' | 'content') => emit('update:search-field', v)"
-        />
+          @select="
+            (key: 'title' | 'content') => {
+              emit('update:search-field', key);
+            }
+          "
+        >
+          <NButton size="small">
+            {{ searchField === 'title' ? '标题' : '内容' }}
+            <template #icon>
+              <SvgIcon icon="mdi:chevron-down" />
+            </template>
+          </NButton>
+        </NDropdown>
+
         <NInput
           :value="searchKeyword"
           placeholder="搜索"
@@ -99,6 +128,23 @@ function handleChunkDblClick() {
         />
       </NInputGroup>
 
+      <!-- 显示层级选择 -->
+      <NDropdown
+        :options="displayLevelOptions"
+        @select="
+          (key: 'concise' | 'medium' | 'detailed') => {
+            emit('update:display-level', key);
+          }
+        "
+      >
+        <NButton size="small">
+          显示
+          <template #icon>
+            <SvgIcon icon="mdi:chevron-down" />
+          </template>
+        </NButton>
+      </NDropdown>
+
       <!-- 操作按钮 -->
       <div class="ml-auto flex items-center gap-2">
         <!-- 批量模式 -->
@@ -107,7 +153,7 @@ function handleChunkDblClick() {
           <NDropdown
             :options="batchActionOptions"
             :disabled="selectedChunkIds.length === 0 || batchOperating"
-            @select="(key: string) => emit('batch-action', key)"
+            @select="(key: string) => emit('batchAction', key)"
           >
             <NButton size="small" :loading="batchOperating" :disabled="selectedChunkIds.length === 0">
               操作
@@ -116,14 +162,14 @@ function handleChunkDblClick() {
               </template>
             </NButton>
           </NDropdown>
-          <NButton size="small" @click="emit('exit-batch')">取消选择</NButton>
+          <NButton size="small" @click="emit('exitBatch')">取消选择</NButton>
         </template>
         <template v-else>
-          <NButton size="small" title="批量选择" @click="emit('enter-batch')">批量选择</NButton>
+          <NButton size="small" title="批量选择" @click="emit('enterBatch')">批量选择</NButton>
         </template>
 
         <!-- 新增按钮 -->
-        <NButton size="small" ghost title="新增分块" @click="emit('open-add-modal')">
+        <NButton size="small" ghost title="新增分块" @click="emit('openAddModal')">
           <template #icon>
             <icon-material-symbols-add />
           </template>
@@ -142,7 +188,7 @@ function handleChunkDblClick() {
       <div
         v-for="(chunk, index) in chunks"
         :key="String(chunk.id)"
-        class="mb-0 cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
+        class="mb-1 cursor-pointer rounded-md p-1 transition-colors hover:border-gray-400"
         :class="{
           'bg-primary/10 border-1 border-primary': !isBatchMode && selectedChunkId === String(chunk.id),
           'bg-blue-50 border-1 border-blue-300': isBatchMode && isChunkSelected(String(chunk.id)),
@@ -158,14 +204,19 @@ function handleChunkDblClick() {
             v-if="isBatchMode"
             :checked="isChunkSelected(String(chunk.id))"
             @click.stop
-            @update:checked="emit('toggle-selection', String(chunk.id))"
+            @update:checked="emit('toggleSelection', String(chunk.id))"
           />
           <NTag size="small" :bordered="false">{{ index + 1 }}</NTag>
           <span class="flex-1 truncate text-sm font-medium">
             {{ chunk.title || `分块 ${index + 1}` }}
           </span>
         </div>
-        <div class="line-clamp-2 text-xs text-gray-400">
+
+        <div
+          v-if="displayLevel !== 'concise'"
+          class="text-xs text-gray-400"
+          :class="{ 'line-clamp-2': displayLevel === 'medium' }"
+        >
           {{ chunk.content }}
         </div>
       </div>
@@ -184,6 +235,7 @@ function handleChunkDblClick() {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

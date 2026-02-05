@@ -2,12 +2,13 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NCard, NEmpty, useMessage } from 'naive-ui';
-import { fetchDocumentDetail } from '@/service/api/ai/knowledge';
+import { batchGenerateQuestionsByChunks, fetchDocumentDetail } from '@/service/api/ai/knowledge';
 import { useBatchOperation, useChunkDetail, useChunkList, useChunkQuestions, useSearch } from './hooks';
 import ChunkListPanel from './modules/chunk-list-panel.vue';
 import ChunkDetailCard from './modules/chunk-detail-card.vue';
 import ChunkEditModal from './modules/chunk-edit-modal.vue';
 import ChunkAddModal from './modules/chunk-add-modal.vue';
+import ModelSelectModal from './modules/model-select-modal.vue';
 
 defineOptions({
   name: 'AiChunkManager'
@@ -51,16 +52,22 @@ const {
   loadingQuestions,
   generatingQuestions,
   documentQuestionOptions,
+  showModelSelectModal,
   loadQuestions,
   loadDocumentQuestions,
   handleSelectQuestion,
   handleCreateQuestion,
   handleDeleteQuestion,
+  handleOpenModelSelect,
   handleGenerateQuestions
 } = useChunkQuestions({
   documentId,
   selectedChunkId
 });
+
+// 新增弹窗
+const showAddChunkModal = ref(false);
+const showBatchModelSelectModal = ref(false);
 
 const {
   isBatchMode,
@@ -75,11 +82,40 @@ const {
   onBatchComplete: async () => {
     resetPagination();
     await loadChunks();
+  },
+  onGenerate: () => {
+    showBatchModelSelectModal.value = true;
   }
 });
 
-// 新增弹窗
-const showAddChunkModal = ref(false);
+const displayLevel = ref<'concise' | 'medium' | 'detailed'>('medium');
+
+async function handleBatchGenerateConfirm(data: {
+  modelId: CommonType.IdType;
+  prompt: string;
+  temperature: number;
+  maxTokens: number;
+}) {
+  if (selectedChunkIds.value.length === 0) return;
+
+  const msg = message.loading('批量生成问题中...', { duration: 0 });
+  try {
+    await batchGenerateQuestionsByChunks(selectedChunkIds.value, {
+      modelId: data.modelId,
+      prompt: data.prompt,
+      temperature: data.temperature,
+      maxTokens: data.maxTokens
+    });
+    message.success('批量生成问题成功');
+    exitBatchMode();
+    resetPagination();
+    await loadChunks();
+  } catch {
+    message.error('批量生成问题失败');
+  } finally {
+    msg.destroy();
+  }
+}
 
 // 初始化
 onMounted(async () => {
@@ -156,6 +192,8 @@ const chunkIndex = computed(() => {
           :search-keyword="searchKeyword"
           :batch-action-options="batchActionOptions"
           :batch-operating="batchOperating"
+          :display-level="displayLevel"
+          @update:display-level="displayLevel = $event"
           @select="handleSelectChunk"
           @toggle-selection="toggleChunkSelection"
           @scroll="handleScroll"
@@ -179,7 +217,7 @@ const chunkIndex = computed(() => {
               :chunk-index="chunkIndex"
               @edit="openEditModal"
               @toggle-status="handleToggleChunkStatus"
-              @generate-questions="handleGenerateQuestions"
+              @generate-questions="handleOpenModelSelect"
               @delete="handleDeleteChunk(String(selectedChunk.id))"
             />
           </div>
@@ -204,8 +242,15 @@ const chunkIndex = computed(() => {
       @select-question="handleSelectQuestion"
       @create-question="handleCreateQuestion"
       @delete-question="handleDeleteQuestion"
-      @generate-questions="handleGenerateQuestions"
+      @generate-questions="handleOpenModelSelect"
       @load-questions="handleLoadQuestions"
     />
+
+    <!-- 模型选择弹窗 -->
+    <!-- 模型选择弹窗 (单条生成) -->
+    <ModelSelectModal v-model:show="showModelSelectModal" @confirm="handleGenerateQuestions" />
+
+    <!-- 模型选择弹窗 (批量生成) -->
+    <ModelSelectModal v-model:show="showBatchModelSelectModal" @confirm="handleBatchGenerateConfirm" />
   </div>
 </template>

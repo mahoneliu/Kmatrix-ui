@@ -35,7 +35,7 @@ export const useAiModelStore = defineStore('ai-model', () => {
     }
 
     loading.value = true;
-    loadingPromise = fetchModelList({ modelType: '1' })
+    loadingPromise = fetchModelList({ modelType: '1', status: '0' })
       .then(res => {
         if (res.data) {
           models.value = res.data;

@@ -9,6 +9,7 @@ import ModelModal from './model-modal.vue';
 interface Props {
   providerId: CommonType.IdType | null;
   providerType: '1' | '2' | null;
+  providers: Api.AI.Admin.ModelProvider[];
 }
 
 const props = defineProps<Props>();
@@ -19,14 +20,25 @@ const dialog = useDialog();
 const loading = ref(false);
 const models = ref<Api.AI.Admin.Model[]>([]);
 const searchText = ref('');
+const searchType = ref<'name' | 'modelKey'>('name');
+
+const searchOptions = [
+  { label: '模型名称', value: 'name' },
+  { label: '基础模型', value: 'modelKey' }
+];
 
 const filteredModels = computed(() => {
   if (!searchText.value) return models.value;
-  return models.value.filter(
-    (m: Api.AI.Admin.Model) =>
-      m.modelName.toLowerCase().includes(searchText.value.toLowerCase()) ||
-      m.modelKey.toLowerCase().includes(searchText.value.toLowerCase())
-  );
+  const text = searchText.value.toLowerCase();
+  return models.value.filter((m: Api.AI.Admin.Model) => {
+    if (searchType.value === 'name') {
+      return m.modelName.toLowerCase().includes(text);
+    }
+    if (searchType.value === 'modelKey') {
+      return m.modelKey.toLowerCase().includes(text);
+    }
+    return false;
+  });
 });
 
 async function loadModels() {
@@ -111,13 +123,15 @@ async function handleCopy(item: Api.AI.Admin.Model) {
     >
       <template #header-extra>
         <div class="flex items-center gap-3">
-          <!--
- <NInput v-model:value="searchText" placeholder="搜索模型名称或基础模型" clearable size="small" class="w-60">
-            <template #prefix>
-              <div class="i-carbon-search"></div>
-            </template>
-          </NInput>
--->
+          <NInputGroup class="w-80">
+            <NSelect v-model:value="searchType" :options="searchOptions" class="w-[35%]" size="small" />
+            <NInput v-model:value="searchText" placeholder="请输入关键词" clearable size="small" class="w-[65%]">
+              <template #prefix>
+                <div class="i-carbon-search"></div>
+              </template>
+            </NInput>
+          </NInputGroup>
+
           <NButton type="primary" ghost size="small" @click="handleAdd">
             <template #icon>
               <SvgIcon icon="carbon:add" />
@@ -134,8 +148,8 @@ async function handleCopy(item: Api.AI.Admin.Model) {
             <NGi v-for="item in filteredModels" :key="item.modelId">
               <NCard
                 :bordered="false"
-                class="group relative rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] !border !border-gray-300 !border-solid dark:bg-white/5 dark:!border-gray-700"
-                content-class="p-4"
+                class="group relative h-45 rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] !border !border-gray-300 !border-solid dark:bg-white/5 dark:!border-gray-700"
+                content-class="p-4 h-full"
               >
                 <div
                   class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
@@ -168,7 +182,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                   </NDropdown>
                 </div>
 
-                <div class="flex flex-col gap-4">
+                <div class="h-full flex flex-col justify-between gap-3">
                   <div class="flex items-start justify-between">
                     <div class="min-w-0 flex flex-1 items-center gap-3 overflow-hidden">
                       <div class="h-12 w-12 flex-center flex-shrink-0">
@@ -196,7 +210,10 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                     </div>
                   </div>
 
-                  <div class="flex flex-col gap-2 border-t border-gray-100 pt-2 text-sm dark:border-gray-800/50">
+                  <div class="mt-auto flex flex-col gap-2 border-gray-100 text-sm dark:border-gray-800/50">
+                    <div v-if="item.apiBase" class="truncate text-xs text-gray-400">
+                      {{ item.apiBase }}
+                    </div>
                     <div class="flex items-center justify-start gap-4">
                       <span class="flex-shrink-0 text-gray-400">基础模型</span>
                       <span :title="item.modelKey" class="truncate text-xs text-gray-600 font-mono dark:text-gray-300">
@@ -215,9 +232,6 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                         </span>
                       </div>
                     </div>
-                    <div v-if="item.apiBase" class="truncate text-xs text-gray-400">
-                      {{ item.apiBase }}
-                    </div>
                   </div>
                 </div>
               </NCard>
@@ -227,7 +241,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
       </NSpin>
     </NCard>
 
-    <ModelModal ref="modalRef" @success="loadModels" />
+    <ModelModal ref="modalRef" :providers="props.providers" @success="loadModels" />
   </div>
 </template>
 

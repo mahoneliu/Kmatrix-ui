@@ -1,26 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { fetchModelProviders } from '@/service/api/ai/model';
 import ProviderList from './modules/provider-list.vue';
 import ModelList from './modules/model-list.vue';
 
 const currentProviderId = ref<CommonType.IdType | null>(null);
-const currentProviderType = ref<'1' | '2' | null>('1');
+const currentProviderType = ref<'1' | '2' | null>(null);
+
+const providers = ref<Api.AI.Admin.ModelProvider[]>([]);
+const providersLoading = ref(false);
+
+async function loadProviders() {
+  providersLoading.value = true;
+  const { data } = await fetchModelProviders();
+  if (data) {
+    providers.value = data;
+  }
+  providersLoading.value = false;
+}
 
 function handleSelectProvider(data: { id: CommonType.IdType | null; type: '1' | '2' | null }) {
   currentProviderId.value = data.id;
   currentProviderType.value = data.type;
 }
+
+onMounted(() => {
+  loadProviders();
+});
 </script>
 
 <template>
   <TableSiderLayout default-expanded sider-title="供应商">
     <!-- 左侧供应商列表 -->
     <template #sider>
-      <ProviderList @select="handleSelectProvider" />
+      <ProviderList :list="providers" :loading="providersLoading" @select="handleSelectProvider" />
     </template>
 
     <!-- 右侧模型列表 -->
-    <ModelList :provider-id="currentProviderId" :provider-type="currentProviderType" />
+    <ModelList :provider-id="currentProviderId" :provider-type="currentProviderType" :providers="providers" />
   </TableSiderLayout>
 </template>
 
