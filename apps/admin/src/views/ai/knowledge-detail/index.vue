@@ -9,8 +9,9 @@ import {
   NList,
   NListItem,
   NPopover,
+  NTabPane,
+  NTabs,
   NTag,
-  NThing,
   useDialog,
   useMessage
 } from 'naive-ui';
@@ -20,12 +21,14 @@ import {
   createWebLinkDocument,
   deleteDataset,
   fetchDatasetsByKbId,
-  fetchKnowledgeBaseDetail
+  fetchKnowledgeBaseDetail,
+  fetchKnowledgeBaseDetailStatistics
 } from '@/service/api/ai/knowledge';
 import DatasetModal from './modules/dataset-modal.vue';
 import OnlineDocModal from './modules/online-doc-modal.vue';
 import WebLinkModal from './modules/web-link-modal.vue';
 import DocumentTable from './modules/document-table.vue';
+import QuestionTable from './modules/question-table.vue';
 
 const route = useRoute();
 const message = useMessage();
@@ -34,6 +37,7 @@ const dialog = useDialog();
 const kbId = computed(() => route.query.kbId as string);
 
 const kb = ref<Api.AI.KB.KnowledgeBase | null>(null);
+const stats = ref<Api.AI.KB.Statistics | null>(null);
 const datasets = ref<Api.AI.KB.Dataset[]>([]);
 const selectedDatasetId = ref<CommonType.IdType | null>(null);
 
@@ -47,6 +51,8 @@ const webLinkModalVisible = ref(false);
 // const chunkManagerModalVisible = ref(false);
 
 const tableRef = ref<any>(null);
+const questionTableRef = ref<any>(null);
+const activeTab = ref('documents');
 
 async function loadKnowledgeBase() {
   if (!kbId.value) return;
@@ -55,6 +61,16 @@ async function loadKnowledgeBase() {
     kb.value = data;
   } catch {
     message.error('加载知识库失败');
+  }
+}
+
+async function loadStats() {
+  if (!kbId.value) return;
+  try {
+    const { data } = await fetchKnowledgeBaseDetailStatistics(kbId.value);
+    stats.value = data;
+  } catch {
+    // ignore
   }
 }
 
@@ -172,145 +188,179 @@ function getProcessTypeLabel(type?: string) {
 
 onMounted(() => {
   loadKnowledgeBase();
+  loadStats();
   loadDatasets();
 });
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-0 flex flex-col flex-1">
     <!-- 头部 -->
     <NCard :bordered="false" size="small" class="mb-2 card-wrapper">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <!--
- <NButton quaternary @click="goBack">
-            <template #icon>
-              <SvgIcon icon="mdi:arrow-left" />
-            </template>
-          </NButton> 
--->
           <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
             <SvgIcon icon="mdi:book-open-variant" />
           </div>
-          <div>
-            <div class="text-lg font-bold">{{ kb?.name || '知识库详情' }}</div>
-            <div class="text-xs text-gray-400">{{ kb?.description }}</div>
+          <div class="flex flex-col">
+            <h1 class="text-xl text-gray-700 font-bold">{{ kb?.name }}</h1>
+            <p class="text-sm text-gray-500">{{ kb?.description }}</p>
           </div>
         </div>
-        <!--
- <NSpace>
-          <NButton type="primary" ghost @click="handleAddDataset">
-            <template #icon>
-              <SvgIcon icon="mdi:folder-plus" />
-            </template>
-            新建数据集
-          </NButton>
-        </NSpace> 
--->
+
+        <div class="flex items-center justify-between gap-12 pr-4 text-gray-500">
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">文档</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:file-document-outline" class="text-green-500" />
+              <span>{{ stats?.totalDocuments || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">切片</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:vector-square" class="text-orange-500" />
+              <span>{{ stats?.totalChunks || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">处理中</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:clock-outline" class="text-blue-500" />
+              <span>{{ stats?.processingDocs || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">失败</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:alert-circle-outline" class="text-red-500" />
+              <span>{{ stats?.errorDocs || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">问题</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:frequently-asked-questions" class="text-purple-500" />
+              <span>{{ stats?.questionCount || 0 }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </NCard>
 
     <!-- 主内容区 -->
-    <div class="flex flex-1 gap-4 overflow-hidden">
-      <!-- 左侧数据集列表 -->
-      <NCard :bordered="false" size="small" class="w-64 card-wrapper">
-        <template #header>
-          <div class="flex items-center gap-1">
-            <span>数据集</span>
-            <NPopover trigger="hover" title="数据集说明" placement="right">
-              <template #trigger>
-                <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
-                  <SvgIcon icon="mdi:help-circle-outline" class="text-base" />
-                </div>
-              </template>
-              <div class="w-64">
-                <p>数据集用于归类管理知识库文档</p>
-                <p class="mt-1">不同的数据集，对应不同的收录方式和处理规则</p>
-              </div>
-            </NPopover>
-          </div>
-        </template>
-        <template #header-extra>
-          <NButton type="primary" ghost size="tiny" title="添加数据集" @click="handleAddDataset">
-            <template #icon>
-              <SvgIcon icon="mdi:plus" />
-            </template>
-          </NButton>
-        </template>
-
-        <NList v-if="datasets.length > 0" hoverable clickable>
-          <NListItem
-            v-for="ds in datasets"
-            :key="ds.id"
-            class="group"
-            :class="{ 'bg-primary/10': selectedDatasetId === ds.id }"
-            @click="selectedDatasetId = ds.id ?? null"
-          >
-            <NThing content-indented>
-              <template #avatar>
-                <div
-                  class="h-8 w-8 flex items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
-                >
-                  <SvgIcon
-                    :icon="getDatasetIcon(ds.processType)"
-                    class="text-xl text-primary transition-transform group-hover:scale-110"
-                  />
-                </div>
-              </template>
+    <div class="h-full min-h-0 flex flex-1 overflow-hidden">
+      <NTabs
+        v-model:value="activeTab"
+        type="line"
+        pane-style="height: 100%; display: flex; flex-direction: column;"
+        class="h-full min-h-0 flex flex-col flex-1"
+        pane-class="flex-1 overflow-hidden h-full"
+      >
+        <NTabPane name="documents" tab="文档列表" class="h-full min-h-0 flex flex-col flex-1">
+          <div class="h-full min-h-0 flex flex-1 gap-4 overflow-hidden p-4">
+            <!-- 左侧数据集列表 -->
+            <NCard :bordered="false" size="small" class="w-50 shrink-0 card-wrapper">
               <template #header>
-                <span class="truncate font-medium">{{ ds.name }}</span>
-              </template>
-              <template #description>
                 <div class="flex items-center gap-1">
-                  <NTag v-if="ds.isSystem" size="tiny" type="success" :bordered="false" round>系统</NTag>
-                  <NTag size="tiny" :bordered="false" round>{{ getProcessTypeLabel(ds.processType) }}</NTag>
-                  <span class="text-xs text-gray-400">{{ ds.documentCount || 0 }} 文档</span>
+                  <span>数据集</span>
+                  <NPopover trigger="hover" title="数据集说明" placement="right">
+                    <template #trigger>
+                      <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
+                        <SvgIcon icon="mdi:help-circle-outline" class="text-base" />
+                      </div>
+                    </template>
+                    <div class="w-64">
+                      <p>数据集用于归类管理知识库文档</p>
+                      <p class="mt-1">不同的数据集，对应不同的收录方式和处理规则</p>
+                    </div>
+                  </NPopover>
                 </div>
               </template>
               <template #header-extra>
-                <NDropdown
-                  :options="[
-                    { label: '编辑', key: 'edit' },
-                    { label: '删除', key: 'delete' }
-                  ]"
-                  trigger="hover"
-                  @select="
-                    key => {
-                      if (key === 'edit') handleEditDataset(ds);
-                      else if (key === 'delete') handleDeleteDataset(ds);
-                    }
-                  "
-                >
-                  <NButton
-                    quaternary
-                    size="small"
-                    class="opacity-0 transition-opacity group-hover:opacity-100"
-                    @click.stop
-                  >
-                    <SvgIcon icon="mdi:dots-horizontal" />
-                  </NButton>
-                </NDropdown>
+                <NButton type="primary" ghost size="tiny" title="添加数据集" @click="handleAddDataset">
+                  <template #icon>
+                    <SvgIcon icon="mdi:plus" />
+                  </template>
+                </NButton>
               </template>
-            </NThing>
-          </NListItem>
-        </NList>
-        <NEmpty v-else description="暂无数据集" />
-      </NCard>
 
-      <!-- @open-chunk-manager="handleOpenChunkManager" -->
-      <!-- 右侧文档表格 -->
-      <DocumentTable
-        v-if="selectedDatasetId"
-        ref="tableRef"
-        :dataset-id="selectedDatasetId"
-        :process-type="selectedDataset?.processType"
-        class="flex-1 card-wrapper"
-        @add-online-doc="onlineDocModalVisible = true"
-        @add-web-link="webLinkModalVisible = true"
-      />
-      <NCard v-else :bordered="false" size="small" class="flex-1 card-wrapper">
-        <NEmpty description="请先选择或创建数据集" class="h-full flex-center" />
-      </NCard>
+              <NList v-if="datasets.length > 0" hoverable clickable>
+                <NListItem
+                  v-for="ds in datasets"
+                  :key="ds.id"
+                  class="group"
+                  :class="{ 'bg-primary/10': selectedDatasetId === ds.id }"
+                  @click="selectedDatasetId = ds.id ?? null"
+                >
+                  <div class="flex flex-col gap-1 py-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2 overflow-hidden">
+                        <div
+                          class="h-6 w-6 flex shrink-0 items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
+                        >
+                          <SvgIcon
+                            :icon="getDatasetIcon(ds.processType)"
+                            class="text-lg text-primary transition-transform group-hover:scale-110"
+                          />
+                        </div>
+                        <span class="truncate text-sm font-medium">{{ ds.name }}</span>
+                      </div>
+                      <NDropdown
+                        :options="[
+                          { label: '编辑', key: 'edit' },
+                          { label: '删除', key: 'delete' }
+                        ]"
+                        trigger="hover"
+                        @select="
+                          key => {
+                            if (key === 'edit') handleEditDataset(ds);
+                            else if (key === 'delete') handleDeleteDataset(ds);
+                          }
+                        "
+                      >
+                        <NButton
+                          quaternary
+                          size="small"
+                          class="opacity-0 transition-opacity group-hover:opacity-100"
+                          @click.stop
+                        >
+                          <SvgIcon icon="mdi:dots-horizontal" />
+                        </NButton>
+                      </NDropdown>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                      <NTag v-if="ds.isSystem" size="tiny" type="success" :bordered="false" round>系统</NTag>
+                      <NTag size="tiny" :bordered="false" round>{{ getProcessTypeLabel(ds.processType) }}</NTag>
+                      <span class="text-xs text-gray-400">{{ ds.documentCount || 0 }} 文档</span>
+                    </div>
+                  </div>
+                </NListItem>
+              </NList>
+              <NEmpty v-else description="暂无数据集" />
+            </NCard>
+
+            <!-- 右侧内容区域 -->
+            <div v-if="selectedDatasetId" class="h-full flex flex-col flex-1 overflow-hidden card-wrapper">
+              <DocumentTable
+                ref="tableRef"
+                class="h-full flex flex-col flex-1"
+                :dataset-id="selectedDatasetId"
+                :process-type="selectedDataset?.processType"
+                @add-online-doc="onlineDocModalVisible = true"
+                @add-web-link="webLinkModalVisible = true"
+              />
+            </div>
+            <NCard v-else :bordered="false" size="small" class="flex-1 card-wrapper">
+              <NEmpty description="请先选择或创建数据集" class="h-full flex-center" />
+            </NCard>
+          </div>
+        </NTabPane>
+        <NTabPane name="questions" tab="问题列表" class="h-full">
+          <QuestionTable ref="questionTableRef" :kb-id="kbId" />
+        </NTabPane>
+      </NTabs>
     </div>
 
     <DatasetModal

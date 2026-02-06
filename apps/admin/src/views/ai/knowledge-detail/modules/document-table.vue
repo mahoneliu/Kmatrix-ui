@@ -70,7 +70,7 @@ const searchParams = ref<Api.AI.KB.DocumentQuery>({
   questionStatus: undefined,
   keyword: '',
   pageNum: 1,
-  pageSize: 20,
+  pageSize: 10,
   orderByColumn: 'createTime',
   isAsc: 'desc'
 });
@@ -653,7 +653,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="h-full flex-col-stretch gap-12px overflow-hidden">
+  <div class="h-full flex flex-col gap-12px">
     <DocumentSearch v-model:model="searchParams" @reset="handleResetSearch" @search="getDataByPage" />
 
     <!-- 受控展开的上传区域 (仅文件上传类型) -->
@@ -691,7 +691,13 @@ defineExpose({
     </NCard>
 
     <TableRowCheckAlert v-if="checkedRowKeys.length > 0" v-model:checked-row-keys="checkedRowKeys" />
-    <NCard title="文档" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      title="文档"
+      :bordered="false"
+      size="small"
+      class="min-h-0 flex-1 card-wrapper sm:flex-1-hidden"
+      content-style="height: 100%; display: flex; flex-direction: column; padding: 0;"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -759,7 +765,7 @@ defineExpose({
         remote
         :row-key="row => row.id!"
         :pagination="mobilePagination"
-        class="h-full"
+        class="flex-1"
         @update:sorter="handleSorterChange"
       />
     </NCard>

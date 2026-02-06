@@ -43,5 +43,36 @@ declare namespace Api.AI.KB {
     hitNum?: number;
     sourceType?: string; // MANUAL, LLM
     createTime?: string;
+    updateTime?: string;
+    chunkCount?: number; // 关联分段数量
+  }
+  /**
+   * Question Query Params
+   */
+  interface QuestionQuery {
+    kbId?: CommonType.IdType;
+    content?: string;
+    pageNum?: number;
+    pageSize?: number;
+  }
+
+  /**
+   * Knowledge Base Statistics
+   */
+  interface Statistics {
+    /** 知识库总数 */
+    totalKbs?: number;
+    /** 数据集总数 */
+    totalDatasets?: number;
+    /** 文档总数 */
+    totalDocuments?: number;
+    /** 切片总数 */
+    totalChunks?: number;
+    /** 问题总数 */
+    questionCount?: number;
+    /** 处理中文档数 */
+    processingDocs?: number;
+    /** 失败文档数 */
+    errorDocs?: number;
   }
 }

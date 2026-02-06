@@ -18,11 +18,21 @@ export function fetchKnowledgeBaseList(params?: Api.AI.KB.KnowledgeBaseSearchPar
 }
 
 /**
- * 获取知识库统计信息
+ * 获取知识库统计信息 (全局)
  */
 export function fetchKnowledgeBaseStatistics() {
   return request<Api.AI.KB.Statistics>({
     url: '/ai/kb/statistics',
+    method: 'get'
+  });
+}
+
+/**
+ * 获取指定知识库统计信息
+ */
+export function fetchKnowledgeBaseDetailStatistics(id: CommonType.IdType) {
+  return request<Api.AI.KB.Statistics>({
+    url: `/ai/kb/${id}/statistics`,
     method: 'get'
   });
 }
@@ -190,6 +200,16 @@ export function uploadDocuments(datasetId: CommonType.IdType, files: File[]) {
 export function fetchDocumentsByDataset(datasetId: CommonType.IdType) {
   return request<Api.AI.KB.Document[]>({
     url: `/ai/document/listByDataset/${datasetId}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取知识库下的所有文档列表
+ */
+export function fetchDocumentsByKbId(kbId: CommonType.IdType) {
+  return request<Api.AI.KB.Document[]>({
+    url: `/ai/document/listByKb/${kbId}`,
     method: 'get'
   });
 }
@@ -618,5 +638,91 @@ export function fetchQuestionsByDocumentId(documentId: CommonType.IdType) {
   return request<Api.AI.KB.Question[]>({
     url: `/ai/question/listByDocument/${documentId}`,
     method: 'get'
+  });
+}
+
+/**
+ * 查询知识库下的所有问题
+ */
+export function fetchQuestionsByKbId(kbId: CommonType.IdType) {
+  return request<Api.AI.KB.Question[]>({
+    url: `/ai/question/listByKb/${kbId}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 分页查询问题列表
+ */
+export function fetchQuestionPage(params: Api.AI.KB.QuestionQuery) {
+  return request<Api.Common.PaginatingQueryRecord<Api.AI.KB.Question>>({
+    url: '/ai/question/list',
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 更新问题内容
+ */
+export function updateQuestion(id: CommonType.IdType, content: string) {
+  return request({
+    url: `/ai/question/${id}`,
+    method: 'put',
+    data: { content }
+  });
+}
+
+/**
+ * 批量删除问题
+ */
+export function batchDeleteQuestions(ids: CommonType.IdType[]) {
+  return request({
+    url: '/ai/question/batch',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
+ * 批量添加问题到知识库（不关联特定分块）
+ */
+export function batchAddQuestions(kbId: CommonType.IdType, contents: string[]) {
+  return request({
+    url: '/ai/question/batchAdd',
+    method: 'post',
+    data: { kbId, contents }
+  });
+}
+
+/**
+ * 获取问题关联的知识分段
+ */
+export function fetchQuestionLinkedChunks(questionId: CommonType.IdType) {
+  return request<Array<Api.AI.KB.DocumentChunk & { documentTitle?: string; documentId?: CommonType.IdType }>>({
+    url: `/ai/question/${questionId}/chunks`,
+    method: 'get'
+  });
+}
+
+/**
+ * 取消问题与分段的关联
+ */
+export function unlinkQuestionFromChunk(questionId: CommonType.IdType, chunkId: CommonType.IdType) {
+  return request({
+    url: '/ai/question/unlink',
+    method: 'post',
+    data: { questionId, chunkId }
+  });
+}
+
+/**
+ * 批量关联问题到分段
+ */
+export function batchLinkQuestionToChunks(questionId: CommonType.IdType, chunkIds: CommonType.IdType[]) {
+  return request({
+    url: '/ai/question/batchLink',
+    method: 'post',
+    data: { questionId, chunkIds }
   });
 }
