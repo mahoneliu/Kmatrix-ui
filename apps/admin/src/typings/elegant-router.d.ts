@@ -31,6 +31,9 @@ declare module "@elegant-router/types" {
     "ai_chat": "/ai/chat";
     "ai_chunk-manager": "/ai/chunk-manager";
     "ai_datasource-manager": "/ai/datasource-manager";
+    "ai_document-upload": "/ai/document-upload";
+    "ai_document-upload_step1": "/ai/document-upload/step1";
+    "ai_document-upload_step2": "/ai/document-upload/step2";
     "ai_knowledge-detail": "/ai/knowledge-detail";
     "ai_knowledge-manager": "/ai/knowledge-manager";
     "ai_model-manager": "/ai/model-manager";
@@ -146,6 +149,9 @@ declare module "@elegant-router/types" {
     | "ai_chat"
     | "ai_chunk-manager"
     | "ai_datasource-manager"
+    | "ai_document-upload"
+    | "ai_document-upload_step1"
+    | "ai_document-upload_step2"
     | "ai_knowledge-detail"
     | "ai_knowledge-manager"
     | "ai_model-manager"

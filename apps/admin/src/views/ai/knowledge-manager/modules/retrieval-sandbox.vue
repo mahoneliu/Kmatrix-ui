@@ -28,6 +28,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+interface Props {
+  visible: boolean;
+  kbId?: CommonType.IdType;
+  fixedKb?: boolean;
+}
+
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void;
 }>();
@@ -79,6 +85,13 @@ const modeOptions = [
 async function loadKnowledgeBases() {
   try {
     const { data } = await fetchAllKnowledgeBases();
+
+    // 如果指定了 kbId，则只保留该知识库，或者在列表中选中
+    if (props.kbId) {
+      // 如果是固定模式，我们可以只显示该知识库，或者仍然显示所有但选中且禁用
+      // 这里为了简单，如果 fixedKb 为 true，我们仍然加载所有以便显示名称，但会强制选中
+    }
+
     knowledgeBases.value = data || [];
   } catch {
     // ignore
@@ -87,7 +100,8 @@ async function loadKnowledgeBases() {
 
 // 加载数据集列表（基于选择的知识库）
 async function loadDatasets() {
-  if (selectedKbIds.value.length === 0) {
+  const ids = selectedKbIds.value;
+  if (ids.length === 0) {
     datasets.value = [];
     selectedDatasetIds.value = [];
     return;
@@ -95,7 +109,7 @@ async function loadDatasets() {
 
   try {
     const allDatasets: Api.AI.KB.Dataset[] = [];
-    const resultsList = await Promise.all(selectedKbIds.value.map(id => fetchDatasetsByKbId(id)));
+    const resultsList = await Promise.all(ids.map(id => fetchDatasetsByKbId(id)));
     for (const { data } of resultsList) {
       if (data) {
         allDatasets.push(...data);
@@ -153,9 +167,16 @@ watch(selectedKbIds, () => {
 // 监听弹窗打开
 watch(
   () => props.visible,
-  val => {
-    if (val && knowledgeBases.value.length === 0) {
-      loadKnowledgeBases();
+  async val => {
+    if (val) {
+      if (knowledgeBases.value.length === 0) {
+        await loadKnowledgeBases();
+      }
+
+      // 如果传入了 kbId，初始化选中状态
+      if (props.kbId && (!selectedKbIds.value.length || props.fixedKb)) {
+        selectedKbIds.value = [props.kbId];
+      }
     }
   }
 );
@@ -163,7 +184,12 @@ watch(
 // 重置
 function handleReset() {
   query.value = '';
-  selectedKbIds.value = [];
+  // 如果是固定 KB，重置时不清除 KB 选择
+  if (props.fixedKb && props.kbId) {
+    selectedKbIds.value = [props.kbId];
+  } else {
+    selectedKbIds.value = [];
+  }
   selectedDatasetIds.value = [];
   topK.value = 5;
   threshold.value = 0.5;
@@ -224,6 +250,7 @@ function handleReset() {
                 multiple
                 clearable
                 placeholder="选择知识库 (可多选)"
+                :disabled="fixedKb"
               />
             </div>
 
@@ -269,7 +296,7 @@ function handleReset() {
             </div>
 
             <!-- Rerank -->
-            <div class="flex items-center gap-2">
+            <div class="mr-auto flex items-center gap-2">
               <div class="text-sm text-gray-500">启用 Rerank</div>
               <NSwitch v-model:value="enableRerank" />
               <NTooltip>

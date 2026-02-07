@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { computed, h } from 'vue';
+import { computed, h, ref } from 'vue';
+import { useIntersectionObserver } from '@vueuse/core';
 import { NButton, NCheckbox, NDropdown, NEmpty, NInput, NInputGroup, NSpin, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 
@@ -37,6 +38,7 @@ interface Emits {
   (e: 'search'): void;
   (e: 'openEditModal'): void;
   (e: 'update:display-level', value: 'concise' | 'medium' | 'detailed'): void;
+  (e: 'loadMore'): void;
 }
 
 const props = defineProps<Props>();
@@ -70,6 +72,19 @@ const displayLevelOptions = computed(() => {
     icon: props.displayLevel === item.key ? () => h(SvgIcon, { icon: 'mdi:check', class: 'text-primary' }) : undefined
   }));
 });
+
+// 滚动加载
+const sentinelRef = ref<HTMLElement | null>(null);
+
+useIntersectionObserver(
+  sentinelRef,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && props.hasMore && !props.loadingMore) {
+      emit('loadMore');
+    }
+  },
+  { rootMargin: '100px' }
+);
 </script>
 
 <template>
@@ -227,6 +242,9 @@ const displayLevelOptions = computed(() => {
         <span class="ml-2">加载中...</span>
       </div>
       <div v-else-if="!hasMore && chunks.length > 0" class="py-3 text-center text-sm text-gray-400">已加载全部分块</div>
+
+      <!-- 滚动监听哨兵 -->
+      <div v-if="hasMore && !loadingMore" ref="sentinelRef" class="h-1px w-full" />
     </div>
   </div>
 </template>

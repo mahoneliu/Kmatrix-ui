@@ -307,7 +307,7 @@ onMounted(() => {
                       labelProps: { class: 'text-error' }
                     }
                   ]"
-                  trigger="click"
+                  trigger="hover"
                   @select="
                     key => {
                       if (key === 'manage') handleManage(item);

@@ -315,7 +315,10 @@ const local: App.I18n.Schema = {
     'ai_knowledge-detail': 'Knowledge Base Detail',
     ai_chat: 'AI Chat',
     'ai_template-editor': 'Template Editor',
-    'ai_chunk-manager': 'Chunk Manager'
+    'ai_chunk-manager': 'Chunk Manager',
+    'ai_document-upload': 'Document Upload',
+    'ai_document-upload_step1': 'Document Upload Step 1',
+    'ai_document-upload_step2': 'Document Upload Step 2'
   },
   menu: {
     system_tenant: 'Tenant Management',

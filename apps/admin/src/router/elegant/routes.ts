@@ -111,6 +111,35 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_document-upload',
+        path: '/ai/document-upload',
+        component: 'view.ai_document-upload',
+        meta: {
+          title: 'ai_document-upload',
+          i18nKey: 'route.ai_document-upload'
+        },
+        children: [
+          {
+            name: 'ai_document-upload_step1',
+            path: '/ai/document-upload/step1',
+            component: 'view.ai_document-upload_step1',
+            meta: {
+              title: 'ai_document-upload_step1',
+              i18nKey: 'route.ai_document-upload_step1'
+            }
+          },
+          {
+            name: 'ai_document-upload_step2',
+            path: '/ai/document-upload/step2',
+            component: 'view.ai_document-upload_step2',
+            meta: {
+              title: 'ai_document-upload_step2',
+              i18nKey: 'route.ai_document-upload_step2'
+            }
+          }
+        ]
+      },
+      {
         name: 'ai_knowledge-detail',
         path: '/ai/knowledge-detail',
         component: 'view.ai_knowledge-detail',

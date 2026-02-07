@@ -24,6 +24,7 @@ import {
   fetchKnowledgeBaseDetail,
   fetchKnowledgeBaseDetailStatistics
 } from '@/service/api/ai/knowledge';
+import RetrievalSandbox from '../knowledge-manager/modules/retrieval-sandbox.vue';
 import DatasetModal from './modules/dataset-modal.vue';
 import OnlineDocModal from './modules/online-doc-modal.vue';
 import WebLinkModal from './modules/web-link-modal.vue';
@@ -44,6 +45,7 @@ const selectedDatasetId = ref<CommonType.IdType | null>(null);
 const loading = ref(false);
 const datasetModalVisible = ref(false);
 const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
+const sandboxVisible = ref(false);
 
 // 在线文档和网页链接模态框
 const onlineDocModalVisible = ref(false);
@@ -210,10 +212,10 @@ onMounted(() => {
 
         <div class="flex items-center justify-between gap-12 pr-4 text-gray-500">
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">文档</span>
+            <span class="text-xs text-gray-400">问题</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:file-document-outline" class="text-green-500" />
-              <span>{{ stats?.totalDocuments || 0 }}</span>
+              <SvgIcon icon="mdi:frequently-asked-questions" class="text-purple-500" />
+              <span>{{ stats?.questionCount || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
@@ -221,6 +223,13 @@ onMounted(() => {
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon icon="mdi:vector-square" class="text-orange-500" />
               <span>{{ stats?.totalChunks || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">文档</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon icon="mdi:file-document-outline" class="text-green-500" />
+              <span>{{ stats?.totalDocuments || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
@@ -237,13 +246,12 @@ onMounted(() => {
               <span>{{ stats?.errorDocs || 0 }}</span>
             </div>
           </div>
-          <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">问题</span>
-            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:frequently-asked-questions" class="text-purple-500" />
-              <span>{{ stats?.questionCount || 0 }}</span>
-            </div>
-          </div>
+          <NButton type="info" ghost @click="sandboxVisible = true">
+            <template #icon>
+              <SvgIcon icon="mdi:flask" />
+            </template>
+            检索测试
+          </NButton>
         </div>
       </div>
     </NCard>
@@ -258,9 +266,9 @@ onMounted(() => {
         pane-class="flex-1 overflow-hidden h-full"
       >
         <NTabPane name="documents" tab="文档列表" class="h-full min-h-0 flex flex-col flex-1">
-          <div class="h-full min-h-0 flex flex-1 gap-4 overflow-hidden p-4">
+          <div class="h-full min-h-0 flex flex-1 gap-4 overflow-hidden">
             <!-- 左侧数据集列表 -->
-            <NCard :bordered="false" size="small" class="w-50 shrink-0 card-wrapper">
+            <NCard :bordered="false" size="small" class="w-55 shrink-0 card-wrapper">
               <template #header>
                 <div class="flex items-center gap-1">
                   <span>数据集</span>
@@ -278,7 +286,13 @@ onMounted(() => {
                 </div>
               </template>
               <template #header-extra>
-                <NButton type="primary" ghost size="tiny" title="添加数据集" @click="handleAddDataset">
+                <NButton
+                  ghost
+                  class="hover:(bg-primary bg-opacity-20)"
+                  size="tiny"
+                  title="添加数据集"
+                  @click="handleAddDataset"
+                >
                   <template #icon>
                     <SvgIcon icon="mdi:plus" />
                   </template>
@@ -382,6 +396,8 @@ onMounted(() => {
       :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
       @submit="handleSubmitWebLink"
     />
+
+    <RetrievalSandbox v-model:visible="sandboxVisible" :kb-id="kb?.id" :fixed-kb="true" />
   </div>
 </template>
 

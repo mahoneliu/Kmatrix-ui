@@ -3,8 +3,8 @@ import type { Ref } from 'vue';
 import { useMessage } from 'naive-ui';
 import {
   addQuestion,
+  fetchQuestionPage,
   fetchQuestionsByChunkId,
-  fetchQuestionsByDocumentId,
   generateQuestions,
   linkQuestion,
   unlinkQuestion
@@ -13,23 +13,33 @@ import {
 interface UseChunkQuestionsOptions {
   documentId: Ref<string | undefined>;
   selectedChunkId: Ref<string | null>;
+  kbId: Ref<string | undefined>;
 }
 
 export function useChunkQuestions(options: UseChunkQuestionsOptions) {
-  const { documentId, selectedChunkId } = options;
+  const { selectedChunkId, kbId } = options;
   const message = useMessage();
 
   const questions = ref<Api.AI.KB.Question[]>([]);
   const loadingQuestions = ref(false);
   const generatingQuestions = ref(false);
 
-  const documentQuestions = ref<Api.AI.KB.Question[]>([]);
-  const documentQuestionOptions = computed(() => {
-    return Array.from(documentQuestions.value.values()).map(q => ({
+  // 知识库问题列表(用于下拉选择)
+  const kbQuestions = ref<Api.AI.KB.Question[]>([]);
+  const kbQuestionOptions = computed(() => {
+    return kbQuestions.value.map(q => ({
       label: q.content,
       value: q.id
     }));
   });
+
+  // 分页状态
+  const questionPageNum = ref(1);
+  const questionPageSize = ref(100);
+  const questionTotal = ref(0);
+  const questionHasMore = ref(true);
+  const loadingMoreQuestions = ref(false);
+  const questionSearchKeyword = ref('');
 
   const newQuestionContent = ref<string | number | null>(null);
 
@@ -43,10 +53,56 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     }
   }
 
-  async function loadDocumentQuestions() {
-    if (!documentId.value) return;
-    const { data } = await fetchQuestionsByDocumentId(documentId.value);
-    documentQuestions.value = data || [];
+  // 加载知识库问题(支持分页和搜索)
+  async function loadKbQuestions(reset = false) {
+    if (reset) {
+      questionPageNum.value = 1;
+      kbQuestions.value = [];
+      questionHasMore.value = true;
+    }
+
+    if (!kbId.value || loadingMoreQuestions.value || !questionHasMore.value) return;
+
+    loadingMoreQuestions.value = true;
+    try {
+      const { data } = await fetchQuestionPage({
+        kbId: kbId.value,
+        content: questionSearchKeyword.value || undefined,
+        pageNum: questionPageNum.value,
+        pageSize: questionPageSize.value
+      });
+
+      if (reset) {
+        kbQuestions.value = data?.rows || [];
+      } else {
+        kbQuestions.value.push(...(data?.rows || []));
+      }
+
+      questionTotal.value = data?.total || 0;
+      questionHasMore.value = kbQuestions.value.length < questionTotal.value;
+      questionPageNum.value += 1;
+    } finally {
+      loadingMoreQuestions.value = false;
+    }
+  }
+
+  // 搜索问题
+  function handleQuestionSearch(keyword: string) {
+    questionSearchKeyword.value = keyword;
+    loadKbQuestions(true);
+  }
+
+  // 滚动加载更多
+  function handleQuestionScroll(e: Event) {
+    const target = e.target as HTMLElement;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+
+    // 滚动到底部时加载更多
+    if (scrollHeight - scrollTop - clientHeight < 50 && questionHasMore.value && !loadingMoreQuestions.value) {
+      loadKbQuestions(false);
+    }
   }
 
   async function handleSelectQuestion(val: string | number | null) {
@@ -72,7 +128,7 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     if (!contentStr) return;
 
     try {
-      const existingQuestion = documentQuestions.value.find(q => q.content === contentStr);
+      const existingQuestion = kbQuestions.value.find((q: Api.AI.KB.Question) => q.content === contentStr);
 
       if (existingQuestion) {
         await linkQuestion(selectedChunkId.value, existingQuestion.id);
@@ -80,7 +136,7 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
       } else {
         await addQuestion(selectedChunkId.value, contentStr);
         message.success('添加成功');
-        await loadDocumentQuestions();
+        await loadKbQuestions(true);
       }
 
       newQuestionContent.value = null;
@@ -141,12 +197,16 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     questions,
     loadingQuestions,
     generatingQuestions,
-    documentQuestions,
-    documentQuestionOptions,
+    kbQuestions,
+    kbQuestionOptions,
+    loadingMoreQuestions,
+    questionHasMore,
     newQuestionContent,
     showModelSelectModal,
     loadQuestions,
-    loadDocumentQuestions,
+    loadKbQuestions,
+    handleQuestionSearch,
+    handleQuestionScroll,
     handleSelectQuestion,
     handleCreateQuestion,
     handleDeleteQuestion,

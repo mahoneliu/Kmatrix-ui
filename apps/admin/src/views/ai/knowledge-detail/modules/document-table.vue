@@ -119,9 +119,27 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           }
           // 普通显示模式，双击编辑
           return (
-            <span class="cursor-pointer hover:text-primary" onDblclick={() => startEdit(row)} title="双击编辑">
-              {row.originalFilename}
-            </span>
+            <div class="group flex items-center gap-2">
+              <span
+                class="flex-1 cursor-pointer hover:text-primary"
+                title="点击查看分块"
+                onClick={() => router.push({ name: 'ai_chunk-manager', query: { documentId: row.id } })}
+              >
+                {row.originalFilename}
+              </span>
+              <span
+                class="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={(e: MouseEvent) => {
+                  e.stopPropagation();
+                  startEdit(row);
+                }}
+              >
+                <SvgIcon icon="mdi:pencil" />
+              </span>
+            </div>
+            // <span class="cursor-pointer hover:text-primary" onDblclick={() => startEdit(row)} title="双击编辑">
+            //   {row.originalFilename}
+            // </span>
           );
         }
       },
@@ -616,13 +634,24 @@ function getUploadAreaTitle() {
 // 统一的添加文档入口
 function handleAddDocument() {
   if (props.processType === 'GENERIC_FILE' || props.processType === 'QA_PAIR') {
-    // 展开/收起上传区域
+    // 通用文件和QA对使用内联上传
     uploadAreaVisible.value = !uploadAreaVisible.value;
   } else if (props.processType === 'ONLINE_DOC') {
     emit('addOnlineDoc');
   } else if (props.processType === 'WEB_LINK') {
     emit('addWebLink');
   }
+}
+
+// 自定义分块上传（跳转到分块预览流程）
+function handleCustomChunk() {
+  router.push({
+    name: 'ai_document-upload_step1',
+    query: {
+      kbId: (router.currentRoute.value.query.kbId as string) || '',
+      datasetId: props.datasetId?.toString() || ''
+    }
+  });
 }
 
 // 获取按钮文本
@@ -661,11 +690,20 @@ defineExpose({
       <template #header>
         <div class="flex items-center justify-between">
           <span>{{ getUploadAreaTitle() }}</span>
-          <NButton text type="primary" @click="uploadAreaVisible = false">
-            <template #icon>
-              <SvgIcon icon="mdi:close" />
-            </template>
-          </NButton>
+          <div class="flex items-center gap-8px">
+            <!-- 自定义分块选项（仅通用文件类型） -->
+            <NButton v-if="props.processType === 'GENERIC_FILE'" text type="info" @click="handleCustomChunk">
+              <template #icon>
+                <SvgIcon icon="mdi:puzzle-outline" />
+              </template>
+              自定义分块
+            </NButton>
+            <NButton text type="primary" @click="uploadAreaVisible = false">
+              <template #icon>
+                <SvgIcon icon="mdi:close" />
+              </template>
+            </NButton>
+          </div>
         </div>
       </template>
       <NUpload

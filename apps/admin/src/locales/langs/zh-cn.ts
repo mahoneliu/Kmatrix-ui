@@ -311,7 +311,10 @@ const local: App.I18n.Schema = {
     ai_chat: 'AI对话',
     'ai_workflow-template': '工作流模板',
     'ai_template-editor': '模板编辑器',
-    'ai_chunk-manager': '分块管理'
+    'ai_chunk-manager': '分块管理',
+    'ai_document-upload': '文档上传',
+    'ai_document-upload_step1': '文档上传-第一步',
+    'ai_document-upload_step2': '文档上传-第二步'
   },
   menu: {
     system_tenant: '租户管理',

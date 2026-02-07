@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NCard, NEmpty, useMessage } from 'naive-ui';
-import { batchGenerateQuestionsByChunks, fetchDocumentDetail } from '@/service/api/ai/knowledge';
+import { batchGenerateQuestionsByChunks, fetchDatasetDetail, fetchDocumentDetail } from '@/service/api/ai/knowledge';
 import { useBatchOperation, useChunkDetail, useChunkList, useChunkQuestions, useSearch } from './hooks';
 import ChunkListPanel from './modules/chunk-list-panel.vue';
 import ChunkDetailCard from './modules/chunk-detail-card.vue';
@@ -20,15 +20,17 @@ const message = useMessage();
 // 从 query 参数获取 documentId
 const documentId = computed(() => route.query.documentId as string | undefined);
 const documentName = ref('');
+const kbId = ref<string | undefined>();
 
 // 使用 Hooks
 const { searchField, searchKeyword } = useSearch();
 
-const { chunks, loading, total, hasMore, loadingMore, loadChunks, handleScroll, resetPagination } = useChunkList({
-  documentId,
-  searchField,
-  searchKeyword
-});
+const { chunks, loading, total, hasMore, loadingMore, loadChunks, loadMoreChunks, handleScroll, resetPagination } =
+  useChunkList({
+    documentId,
+    searchField,
+    searchKeyword
+  });
 
 const {
   selectedChunkId,
@@ -51,10 +53,12 @@ const {
   questions,
   loadingQuestions,
   generatingQuestions,
-  documentQuestionOptions,
+  kbQuestionOptions,
+  loadingMoreQuestions,
   showModelSelectModal,
   loadQuestions,
-  loadDocumentQuestions,
+  handleQuestionSearch,
+  handleQuestionScroll,
   handleSelectQuestion,
   handleCreateQuestion,
   handleDeleteQuestion,
@@ -62,7 +66,8 @@ const {
   handleGenerateQuestions
 } = useChunkQuestions({
   documentId,
-  selectedChunkId
+  selectedChunkId,
+  kbId
 });
 
 // 新增弹窗
@@ -121,8 +126,14 @@ async function handleBatchGenerateConfirm(data: {
 onMounted(async () => {
   if (documentId.value) {
     try {
-      const { data } = await fetchDocumentDetail(documentId.value);
-      documentName.value = data?.originalFilename || '';
+      const { data: doc } = await fetchDocumentDetail(documentId.value);
+      documentName.value = doc?.originalFilename || '';
+
+      // 获取知识库ID
+      if (doc?.datasetId) {
+        const { data: dataset } = await fetchDatasetDetail(doc.datasetId);
+        kbId.value = dataset?.kbId ? String(dataset.kbId) : undefined;
+      }
     } catch {
       // ignore
     }
@@ -161,7 +172,7 @@ async function handleSaveChunkFromModal(data: { title: string; content: string }
 function handleLoadQuestions() {
   if (selectedChunkId.value) {
     loadQuestions(selectedChunkId.value);
-    loadDocumentQuestions();
+    handleQuestionSearch('');
   }
 }
 
@@ -205,6 +216,7 @@ const chunkIndex = computed(() => {
           @update:search-keyword="searchKeyword = $event"
           @search="handleSearch"
           @open-edit-modal="openEditModal"
+          @load-more="loadMoreChunks"
         />
 
         <!-- 右侧:分块详情 -->
@@ -228,14 +240,14 @@ const chunkIndex = computed(() => {
     <!-- 新建分块弹窗 -->
     <ChunkAddModal v-model:show="showAddChunkModal" :document-id="documentId" @success="handleAddChunkSuccess" />
 
-    <!-- 编辑分块弹窗 -->
     <ChunkEditModal
       v-model:show="showEditModal"
       :chunk="selectedChunk"
       :chunk-index="chunkIndex"
       :questions="questions"
-      :document-question-options="documentQuestionOptions"
+      :kb-question-options="kbQuestionOptions"
       :loading-questions="loadingQuestions"
+      :loading-more-questions="loadingMoreQuestions"
       :generating-questions="generatingQuestions"
       :saving-chunk="savingChunk"
       @save="handleSaveChunkFromModal"
@@ -244,6 +256,8 @@ const chunkIndex = computed(() => {
       @delete-question="handleDeleteQuestion"
       @generate-questions="handleOpenModelSelect"
       @load-questions="handleLoadQuestions"
+      @question-search="handleQuestionSearch"
+      @question-scroll="handleQuestionScroll"
     />
 
     <!-- 模型选择弹窗 -->

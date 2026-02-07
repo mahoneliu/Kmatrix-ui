@@ -279,13 +279,20 @@ watch(
 </script>
 
 <template>
-  <NModal :show="visible" preset="card" title="关联分段" class="w-1000px" @update:show="handleClose">
+  <NModal
+    :mask-closable="false"
+    :show="visible"
+    preset="card"
+    title="关联分段"
+    class="w-1000px"
+    @update:show="handleClose"
+  >
     <!-- 标题下方的分割线 -->
     <div class="mb-16px border-b border-gray-200 -mt-16px"></div>
 
-    <div class="h-600px flex gap-16px">
+    <div class="h-700px flex gap-6px">
       <!-- 左侧文档列表 -->
-      <div class="w-280px flex flex-col gap-12px border-r border-gray-200 pr-16px">
+      <div class="w-280px flex flex-col gap-12px border-r border-gray-200 pr-6px">
         <NCard title="选择文档" :bordered="false" size="small">
           <template #header-extra>
             <NTag size="small" :bordered="false">{{ documents.length }} 个</NTag>
@@ -299,24 +306,23 @@ watch(
 
           <div v-if="loadingDocuments" class="py-32px text-center text-gray-400">加载中...</div>
           <div v-else-if="filteredDocuments.length === 0" class="py-32px text-center text-gray-400">暂无文档</div>
-          <NList v-else hoverable clickable class="max-h-450px overflow-y-auto">
+          <NList v-else hoverable clickable class="max-h-550px overflow-x-hidden overflow-y-auto">
             <NListItem
               v-for="doc in filteredDocuments"
               :key="doc.id"
               :class="{ 'bg-primary/10': selectedDocumentId === doc.id }"
               @click="handleSelectDocument(doc.id!)"
             >
-              <div class="flex items-center justify-between gap-8px">
-                <div class="flex-1 truncate text-14px">{{ doc.originalFilename }}</div>
-                <NTag
-                  v-if="documentLinkCounts.get(doc.id!) || 0 > 0"
-                  size="small"
-                  type="primary"
-                  round
-                  :bordered="false"
-                >
-                  {{ documentLinkCounts.get(doc.id!) }}
-                </NTag>
+              <div class="grid grid-cols-[1fr_auto] w-full items-center gap-8px">
+                <div class="min-w-0 truncate text-14px" :title="doc.originalFilename">
+                  {{ doc.originalFilename }}
+                </div>
+                <!-- 保持标记存在时的占位，避免网格塌陷 -->
+                <div v-if="(documentLinkCounts.get(doc.id!) ?? 0) > 0">
+                  <NTag class="shrink-0" size="small" type="primary" round :bordered="false">
+                    {{ documentLinkCounts.get(doc.id!) }}
+                  </NTag>
+                </div>
               </div>
             </NListItem>
           </NList>
@@ -324,13 +330,13 @@ watch(
       </div>
 
       <!-- 右侧分段列表 -->
-      <div class="flex flex-col flex-1 gap-12px pl-16px">
+      <div class="flex flex-col flex-1 gap-12px pl-6px">
         <NCard title="选择分段" :bordered="false" size="small">
           <template #header-extra>
             <NSpace :size="8">
-              <NTag size="small" :bordered="false">已关联 {{ linkedChunkIds.size }} 个</NTag>
-              <NTag size="small" type="info" :bordered="false">
-                共 {{ chunks.filter(c => c.documentId === selectedDocumentId).length }} 个
+              <NTag size="small" type="info" :bordered="false">已关联 {{ linkedChunkIds.size }} 个</NTag>
+              <NTag size="small" :bordered="false">
+                当前文档 {{ chunks.filter(c => c.documentId === selectedDocumentId).length }} 个
               </NTag>
               <NDropdown
                 :options="displayLevelOptions"
@@ -359,14 +365,15 @@ watch(
           <div v-if="!selectedDocumentId" class="py-64px text-center text-gray-400">请先选择左侧文档</div>
           <div v-else-if="loadingChunks" class="py-32px text-center text-gray-400">加载中...</div>
           <div v-else-if="filteredChunks.length === 0" class="py-32px text-center text-gray-400">暂无分段</div>
-          <div v-else class="max-h-450px flex-col-stretch gap-12px overflow-y-auto" @scroll="handleScroll">
+          <div v-else class="max-h-550px flex-col-stretch gap-5px overflow-y-auto" @scroll="handleScroll">
             <NCard
               v-for="chunk in filteredChunks"
               :key="chunk.id"
               size="small"
               :bordered="true"
+              :embedded="linkedChunkIds.has(chunk.id!)"
               hoverable
-              class="cursor-pointer transition-all"
+              class="cursor-pointer py-4px transition-all"
               :class="{
                 'border-primary': linkedChunkIds.has(chunk.id!),
                 'bg-primary/5': linkedChunkIds.has(chunk.id!)

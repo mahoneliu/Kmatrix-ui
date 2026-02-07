@@ -23,19 +23,24 @@ interface Props {
   questionId?: CommonType.IdType | null;
   questions?: Api.AI.KB.Question[]; // 所有问题列表
   kbId?: CommonType.IdType;
+  hasNextPage?: boolean;
+  loading?: boolean;
 }
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
   (e: 'update:selected-row', value: CommonType.IdType | null): void;
   (e: 'refresh'): void;
+  (e: 'loadNextPage'): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   questionId: null,
   questions: () => [],
-  kbId: undefined
+  kbId: undefined,
+  hasNextPage: false,
+  loading: false
 });
 
 const emit = defineEmits<Emits>();
@@ -55,6 +60,7 @@ const loadingChunks = ref(false);
 const showEditModal = ref(false);
 const editingChunk = ref<Api.AI.KB.DocumentChunk | null>(null);
 const currentDocumentId = ref<string | undefined>(undefined);
+const currentKbId = computed(() => (props.kbId ? String(props.kbId) : undefined));
 const selectedChunkId = computed(() => (editingChunk.value ? String(editingChunk.value.id) : null));
 
 // 关联分段弹窗
@@ -65,10 +71,14 @@ const {
   questions: chunkQuestions,
   loadingQuestions,
   generatingQuestions,
-  documentQuestionOptions,
+  kbQuestionOptions,
+  loadingMoreQuestions,
+  questionHasMore,
   showModelSelectModal,
   loadQuestions,
-  loadDocumentQuestions,
+  loadKbQuestions,
+  handleQuestionSearch,
+  handleQuestionScroll,
   handleSelectQuestion,
   handleCreateQuestion,
   handleDeleteQuestion,
@@ -76,7 +86,8 @@ const {
   handleGenerateQuestions
 } = useChunkQuestions({
   documentId: currentDocumentId,
-  selectedChunkId
+  selectedChunkId,
+  kbId: currentKbId
 });
 
 // 当前问题
@@ -91,7 +102,9 @@ const currentIndex = computed(() => {
 
 // 是否可以上一条/下一条
 const canPrevious = computed(() => currentIndex.value > 0);
-const canNext = computed(() => currentIndex.value < props.questions.length - 1);
+const canNext = computed(() => {
+  return currentIndex.value < props.questions.length - 1 || props.hasNextPage;
+});
 
 // 关闭抽屉
 function handleClose() {
@@ -194,8 +207,8 @@ function handleLoadQuestions() {
   if (editingChunk.value?.id) {
     loadQuestions(String(editingChunk.value.id));
   }
-  if (currentDocumentId.value) {
-    loadDocumentQuestions();
+  if (currentKbId.value) {
+    loadKbQuestions(true);
   }
 }
 
@@ -236,7 +249,7 @@ async function handleSaveChunk(data: { title: string; content: string }) {
 
 // 导航到上一条
 function handlePrevious() {
-  if (!canPrevious.value) return;
+  if (!canPrevious.value || props.loading) return;
   const prevQuestion = props.questions[currentIndex.value - 1];
   if (prevQuestion) {
     emit('update:selected-row', prevQuestion.id);
@@ -245,7 +258,14 @@ function handlePrevious() {
 
 // 导航到下一条
 function handleNext() {
-  if (!canNext.value) return;
+  if (!canNext.value || props.loading) return;
+
+  // 如果是当前页最后一条，且有下一页
+  if (currentIndex.value === props.questions.length - 1 && props.hasNextPage) {
+    emit('loadNextPage');
+    return;
+  }
+
   const nextQuestion = props.questions[currentIndex.value + 1];
   if (nextQuestion) {
     emit('update:selected-row', nextQuestion.id);
@@ -383,8 +403,10 @@ watch(
     v-model:show="showEditModal"
     :chunk="editingChunk"
     :questions="chunkQuestions"
-    :document-question-options="documentQuestionOptions"
+    :kb-question-options="kbQuestionOptions"
     :loading-questions="loadingQuestions"
+    :loading-more-questions="loadingMoreQuestions"
+    :question-has-more="questionHasMore"
     :generating-questions="generatingQuestions"
     :saving-chunk="savingChunk"
     @save="handleSaveChunk"
@@ -393,6 +415,8 @@ watch(
     @delete-question="handleDeleteQuestion"
     @generate-questions="handleOpenGenerateModal"
     @load-questions="handleLoadQuestions"
+    @question-search="handleQuestionSearch"
+    @question-scroll="handleQuestionScroll"
   />
 
   <ModelSelectModal v-model:show="showModelSelectModal" @confirm="handleGenerateQuestions" />

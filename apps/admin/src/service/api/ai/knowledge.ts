@@ -195,6 +195,47 @@ export function uploadDocuments(datasetId: CommonType.IdType, files: File[]) {
 }
 
 /**
+ * 上传临时文件 (分块预览流程第一步)
+ */
+export function uploadTempFile(datasetId: CommonType.IdType, file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('datasetId', datasetId.toString());
+
+  return request<Api.AI.KB.TempFile>({
+    url: '/ai/document/uploadTemp',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      repeatSubmit: false
+    }
+  });
+}
+
+/**
+ * 分块预览 (分块预览流程第二步)
+ */
+export function previewChunks(data: Api.AI.KB.ChunkPreviewRequest) {
+  return request<Api.AI.KB.ChunkPreview[]>({
+    url: '/ai/document/previewChunks',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 提交分块并入库 (分块预览流程第三步)
+ */
+export function submitChunks(data: Api.AI.KB.ChunkSubmitRequest) {
+  return request<Api.AI.KB.Document>({
+    url: '/ai/document/submitChunks',
+    method: 'post',
+    data
+  });
+}
+
+/**
  * 获取数据集下的文档列表
  */
 export function fetchDocumentsByDataset(datasetId: CommonType.IdType) {
@@ -237,12 +278,12 @@ export function deleteDocument(id: CommonType.IdType) {
 /**
  * 重新处理文档
  */
-export function reprocessDocument(id: CommonType.IdType) {
-  return request<any>({
-    url: `/ai/document/reprocess/${id}`,
-    method: 'post'
-  });
-}
+// export function reprocessDocument(id: CommonType.IdType) {
+//   return request<any>({
+//     url: `/ai/document/reprocess/${id}`,
+//     method: 'post'
+//   });
+// }
 
 /**
  * 创建在线文档

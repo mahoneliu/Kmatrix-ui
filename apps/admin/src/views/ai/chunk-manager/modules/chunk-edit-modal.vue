@@ -11,8 +11,9 @@ interface Props {
   show: boolean;
   chunk: Api.AI.KB.DocumentChunk | null;
   questions: Api.AI.KB.Question[];
-  documentQuestionOptions: Array<{ label: string; value: string | number }>;
+  kbQuestionOptions: Array<{ label: string; value: string | number }>;
   loadingQuestions: boolean;
+  loadingMoreQuestions: boolean;
   generatingQuestions: boolean;
   savingChunk: boolean;
 }
@@ -25,6 +26,8 @@ interface Emits {
   (e: 'deleteQuestion', questionId: string | number): void;
   (e: 'generateQuestions'): void;
   (e: 'loadQuestions'): void;
+  (e: 'questionSearch', keyword: string): void;
+  (e: 'questionScroll', event: Event): void;
 }
 
 const props = defineProps<Props>();
@@ -44,6 +47,7 @@ watch(
       editContentValue.value = props.chunk.content || '';
       isEditing.value = false;
       emit('loadQuestions');
+      newQuestionContent.value = null;
     }
   }
 );
@@ -146,11 +150,18 @@ function handleCancelEdit() {
             <NSelect
               v-model:value="newQuestionContent"
               filterable
+              remote
               clearable
+              tag
               placeholder="新增：输入->回车，或者选择已有问题"
-              :options="documentQuestionOptions"
+              :options="kbQuestionOptions"
+              :loading="loadingMoreQuestions"
+              virtual-scroll
+              :show-arrow="false"
               @update:value="val => emit('selectQuestion', val)"
               @keydown.enter="(e: KeyboardEvent) => emit('createQuestion', e)"
+              @search="(keyword: string) => emit('questionSearch', keyword)"
+              @scroll="(e: Event) => emit('questionScroll', e)"
             />
           </div>
 

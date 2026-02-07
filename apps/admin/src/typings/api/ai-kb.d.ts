@@ -75,4 +75,68 @@ declare namespace Api.AI.KB {
     /** 失败文档数 */
     errorDocs?: number;
   }
+
+  /**
+   * 临时文件信息
+   */
+  interface TempFile {
+    id: CommonType.IdType;
+    datasetId: CommonType.IdType;
+    originalFilename: string;
+    fileExtension: string;
+    fileSize: number;
+    tempPath: string;
+  }
+
+  /**
+   * 分块预览请求
+   */
+  interface ChunkPreviewRequest {
+    /** 临时文件ID */
+    tempFileId: CommonType.IdType;
+    /** 分块策略 (AUTO=自动, CUSTOM=自定义) */
+    chunkStrategy: 'AUTO' | 'CUSTOM';
+    /** 自定义分隔符列表 */
+    separators?: string[];
+    /** 最大分块大小 */
+    chunkSize?: number;
+    /** 重叠大小 */
+    overlap?: number;
+  }
+
+  /**
+   * 分块预览结果
+   */
+  interface ChunkPreview {
+    /** 临时分块ID */
+    chunkId: string;
+    /** 标题 */
+    title?: string;
+    /** 内容 */
+    content: string;
+    /** 序号 */
+    index: number;
+  }
+
+  /**
+   * 分块提交请求
+   */
+  interface ChunkSubmitRequest {
+    /** 临时文件ID */
+    tempFileId: CommonType.IdType;
+    /** 数据集ID */
+    datasetId: CommonType.IdType;
+    /** 分块列表 */
+    chunks: ChunkSubmitItem[];
+  }
+
+  /**
+   * 分块提交项
+   */
+  interface ChunkSubmitItem {
+    /** 标题 */
+    title?: string;
+    /** 内容 */
+    content: string;
+  }
 }

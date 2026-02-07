@@ -1,11 +1,12 @@
 <script setup lang="tsx">
-import { nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { NButton, NCard, NDataTable, NInput, NSpace, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { batchDeleteQuestions, deleteQuestion, fetchQuestionPage, updateQuestion } from '@/service/api/ai/knowledge';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import ChunkLinkModal from './chunk-link-modal.vue';
 import QuestionAddModal from './question-add-modal.vue';
 import QuestionDetailDrawer from './question-detail-drawer.vue';
 
@@ -28,6 +29,10 @@ const editInputRef = ref<InstanceType<typeof NInput> | null>(null);
 
 // 添加弹窗状态
 const addModalVisible = ref(false);
+
+// 关联分段弹窗状态
+const linkModalVisible = ref(false);
+const linkQuestionId = ref<CommonType.IdType | null>(null);
 
 // 问题详情抽屉状态
 const detailDrawerVisible = ref(false);
@@ -69,9 +74,6 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
               v-model:value={editingContent.value}
               type="text"
               size="small"
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-              }}
               onBlur={() => saveEdit(row)}
               onKeydown={(e: KeyboardEvent) => {
                 if (e.key === 'Escape') cancelEdit();
@@ -92,10 +94,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
             </span>
             <span
               class="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                startEdit(row);
-              }}
+              onClick={() => startEdit(row)}
             >
               <SvgIcon icon="mdi:pencil" />
             </span>
@@ -160,7 +159,22 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
       width: 80,
       render(row) {
         return (
-          <ButtonIcon text type="error" icon="mdi:delete" tooltipContent="删除" onClick={() => handleDelete(row.id)} />
+          <div class="flex items-center gap-2">
+            <ButtonIcon
+              text
+              type="primary"
+              icon="mdi:link-variant-plus"
+              tooltipContent="关联分段"
+              onClick={() => handleLink(row)}
+            />
+            <ButtonIcon
+              text
+              type="error"
+              icon="mdi:delete"
+              tooltipContent="删除"
+              onClick={() => handleDelete(row.id)}
+            />
+          </div>
         );
       }
     }
@@ -223,19 +237,35 @@ async function handleDelete(id: CommonType.IdType) {
 
 // 批量删除
 async function handleBatchDelete() {
-  window.$dialog?.warning({
-    title: '确认批量删除',
-    content: `确定要删除选中的 ${checkedRowKeys.value.length} 个问题吗？`,
-    positiveText: '确定',
-    negativeText: '取消',
-    async onPositiveClick() {
-      const { error } = await batchDeleteQuestions(checkedRowKeys.value);
-      if (!error) {
-        window.$message?.success('删除成功');
-        onBatchDeleted();
-      }
-    }
-  });
+  const { error } = await batchDeleteQuestions(checkedRowKeys.value);
+  if (!error) {
+    window.$message?.success('删除成功');
+    onBatchDeleted();
+  }
+  // window.$dialog?.warning({
+  //   title: '确认批量删除',
+  //   content: `确定要删除选中的 ${checkedRowKeys.value.length} 个问题吗？`,
+  //   positiveText: '确定',
+  //   negativeText: '取消',
+  //   async onPositiveClick() {
+  //     const { error } = await batchDeleteQuestions(checkedRowKeys.value);
+  //     if (!error) {
+  //       window.$message?.success('删除成功');
+  //       onBatchDeleted();
+  //     }
+  //   }
+  // });
+}
+
+// 关联分段
+function handleLink(row: Api.AI.KB.Question) {
+  linkQuestionId.value = row.id;
+  linkModalVisible.value = true;
+}
+
+// 关联成功后的回调
+function handleLinkSuccess() {
+  getData();
 }
 
 // 添加问题后的回调
@@ -249,11 +279,6 @@ function handleRowClick(row: Api.AI.KB.Question) {
   selectedQuestionId.value = row.id;
   detailDrawerVisible.value = true;
 }
-
-// 处理抽屉中的选中行变化
-// function handleDetailSelectedRowChange(questionId: CommonType.IdType | null) {
-//   selectedQuestionId.value = questionId;
-// }
 
 // 格式化日期
 function formatDate(dateStr?: string) {
@@ -277,6 +302,34 @@ watch(
     getDataByPage();
   }
 );
+
+// 是否还有下一页
+const hasNextPage = computed(() => {
+  const { page, pageSize, itemCount } = mobilePagination.value;
+  return (page || 1) * (pageSize || 10) < (itemCount || 0);
+});
+
+// 处理加载下一页
+async function handleLoadNextPage() {
+  if (!hasNextPage.value || loading.value) return;
+
+  // 计算目标页码
+  const targetPage = (mobilePagination.value.page || 1) + 1;
+
+  // 创建一次性监听器等待加载完成
+  const unwatch = watch(loading, newLoading => {
+    if (!newLoading) {
+      // 加载完成，选中第一条
+      if (data.value.length > 0) {
+        selectedQuestionId.value = data.value[0].id;
+      }
+      unwatch();
+    }
+  });
+
+  // 触发翻页
+  await getDataByPage(targetPage);
+}
 
 defineExpose({
   getData
@@ -324,14 +377,33 @@ defineExpose({
         :flex-height="true"
         :scroll-x="scrollX"
         :loading="loading"
-        :row-key="(row: Api.AI.KB.Question) => row.id"
+        :row-key="row => row.id"
         :pagination="mobilePagination"
-        :row-props="(row: Api.AI.KB.Question) => ({
+        :row-props="(row) => ({
           style: {
             cursor: 'pointer',
             backgroundColor: selectedQuestionId === row.id ? 'rgba(24, 160, 88, 0.1)' : undefined
           },
-          onClick: () => handleRowClick(row)
+          onClick: (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (
+              target.closest('.n-checkbox') || 
+              target.closest('.n-button') || 
+              target.closest('.prevent-row-click') ||
+              target.tagName === 'INPUT'
+            ) {
+              return;
+            }
+            
+            const index = checkedRowKeys.findIndex(id => id === row.id);
+            if (index > -1) {
+              const newKeys = [...checkedRowKeys];
+              newKeys.splice(index, 1);
+              checkedRowKeys = newKeys;
+            } else {
+              checkedRowKeys = [...checkedRowKeys, row.id];
+            }
+          }
         })"
         remote
         class="h-full flex-col flex-1"
@@ -340,13 +412,23 @@ defineExpose({
 
     <QuestionAddModal v-model:visible="addModalVisible" :kb-id="kbId" @success="handleAddSuccess" />
 
+    <ChunkLinkModal
+      v-model:visible="linkModalVisible"
+      :question-id="linkQuestionId"
+      :kb-id="kbId || undefined"
+      @success="handleLinkSuccess"
+    />
+
     <QuestionDetailDrawer
       v-model:visible="detailDrawerVisible"
       v-model:selected-row="selectedQuestionId"
       :question-id="selectedQuestionId"
       :questions="data"
       :kb-id="kbId || undefined"
+      :has-next-page="hasNextPage"
+      :loading="loading"
       @refresh="getData"
+      @load-next-page="handleLoadNextPage"
     />
   </div>
 </template>
