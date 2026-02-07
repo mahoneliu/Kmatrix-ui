@@ -214,11 +214,54 @@ export function uploadTempFile(datasetId: CommonType.IdType, file: File) {
 }
 
 /**
+ * 批量上传临时文件 (分块预览流程第一步 - 批量版本)
+ */
+export function uploadTempFiles(datasetId: CommonType.IdType, files: File[]) {
+  const formData = new FormData();
+  files.forEach(file => formData.append('files', file));
+  formData.append('datasetId', datasetId.toString());
+
+  return request<Api.AI.KB.TempFile[]>({
+    url: '/ai/document/uploadTempBatch',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      repeatSubmit: false
+    }
+  });
+}
+
+/**
  * 分块预览 (分块预览流程第二步)
  */
-export function previewChunks(data: Api.AI.KB.ChunkPreviewRequest) {
+export function previewChunks(
+  data: Api.AI.KB.ChunkPreviewRequest & {
+    chunkSize?: number;
+    overlap?: number;
+    autoClean?: boolean;
+  }
+) {
   return request<Api.AI.KB.ChunkPreview[]>({
     url: '/ai/document/previewChunks',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 批量分块预览 (分块预览流程第二步 - 批量版本)
+ */
+export function batchPreviewChunks(data: {
+  tempFileIds: number[];
+  chunkStrategy: 'AUTO' | 'CUSTOM';
+  separators?: string[];
+  chunkSize?: number;
+  overlap?: number;
+  autoClean?: boolean;
+}) {
+  return request<Record<number, Api.AI.KB.ChunkPreview[]>>({
+    url: '/ai/document/batchPreviewChunks',
     method: 'post',
     data
   });

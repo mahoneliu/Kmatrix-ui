@@ -137,9 +137,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 <SvgIcon icon="mdi:pencil" />
               </span>
             </div>
-            // <span class="cursor-pointer hover:text-primary" onDblclick={() => startEdit(row)} title="双击编辑">
-            //   {row.originalFilename}
-            // </span>
           );
         }
       },
@@ -624,13 +621,6 @@ async function handleUpload(options: { file: UploadFileInfo; onFinish: () => voi
   }
 }
 
-function getUploadAreaTitle() {
-  if (props.processType === 'QA_PAIR') {
-    return '上传QA对文件（Excel/CSV）';
-  }
-  return '上传文件';
-}
-
 // 统一的添加文档入口
 function handleAddDocument() {
   if (props.processType === 'GENERIC_FILE' || props.processType === 'QA_PAIR') {
@@ -687,25 +677,15 @@ defineExpose({
 
     <!-- 受控展开的上传区域 (仅文件上传类型) -->
     <NCard v-if="uploadAreaVisible && showFileUpload" :bordered="true" size="small" class="upload-area-card">
-      <template #header>
+      <!--
+ <template #header>
         <div class="flex items-center justify-between">
           <span>{{ getUploadAreaTitle() }}</span>
-          <div class="flex items-center gap-8px">
-            <!-- 自定义分块选项（仅通用文件类型） -->
-            <NButton v-if="props.processType === 'GENERIC_FILE'" text type="info" @click="handleCustomChunk">
-              <template #icon>
-                <SvgIcon icon="mdi:puzzle-outline" />
-              </template>
-              自定义分块
-            </NButton>
-            <NButton text type="primary" @click="uploadAreaVisible = false">
-              <template #icon>
-                <SvgIcon icon="mdi:close" />
-              </template>
-            </NButton>
-          </div>
+
         </div>
-      </template>
+      </template> 
+-->
+
       <NUpload
         v-model:file-list="fileList"
         multiple
@@ -719,13 +699,31 @@ defineExpose({
             <p class="text-base font-medium">点击或拖拽文件到此处上传</p>
             <p class="text-sm text-gray-500">
               <template v-if="props.processType === 'QA_PAIR'">
-                支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案
+                QA对支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案
               </template>
               <template v-else>支持 PDF、Word、TXT、Markdown 等常见文件格式</template>
             </p>
           </div>
         </NUploadDragger>
       </NUpload>
+      <div class="relative flex items-center justify-end gap-8px">
+        <!-- 收起上传区域图标 -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <NButton text deep-class="text-gray-400 hover:text-primary" @click="uploadAreaVisible = false">
+            <template #icon>
+              <SvgIcon icon="mdi:chevron-up" class="text-24px" />
+            </template>
+          </NButton>
+        </div>
+
+        <!-- 自定义分块选项（仅通用文件类型） -->
+        <NButton v-if="props.processType === 'GENERIC_FILE'" secondary type="info" @click="handleCustomChunk">
+          <template #icon>
+            <SvgIcon icon="mdi:puzzle-edit" />
+          </template>
+          我要自定义分块
+        </NButton>
+      </div>
     </NCard>
 
     <TableRowCheckAlert v-if="checkedRowKeys.length > 0" v-model:checked-row-keys="checkedRowKeys" />

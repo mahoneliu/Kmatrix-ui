@@ -139,4 +139,23 @@ declare namespace Api.AI.KB {
     /** 内容 */
     content: string;
   }
+
+  /**
+   * 检索结果
+   */
+  interface RetrievalResult {
+    chunkId: CommonType.IdType;
+    documentId: CommonType.IdType;
+    documentName?: string;
+    content: string;
+    title?: string;
+    score: number;
+    rerankScore?: number;
+    metadata?: any;
+    highlight?: string;
+    /** 匹配的问题列表 */
+    matchedQuestions?: string[];
+    /** 匹配来源类型列表 (CONTENT, TITLE, QUESTION) */
+    sourceTypes?: string[];
+  }
 }

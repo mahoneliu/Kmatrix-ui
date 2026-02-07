@@ -159,6 +159,26 @@ function getScoreType(score: number): 'success' | 'warning' | 'error' {
   return 'error';
 }
 
+// 获取来源类型标签
+function getSourceTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    CONTENT: '全文',
+    TITLE: '标题',
+    QUESTION: '问题'
+  };
+  return map[type] || type;
+}
+
+// 获取来源类型颜色
+function getSourceTypeType(type: string): 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error' {
+  const map: Record<string, 'info' | 'success' | 'warning'> = {
+    CONTENT: 'info',
+    TITLE: 'success',
+    QUESTION: 'warning'
+  };
+  return map[type] || 'default';
+}
+
 // 监听知识库选择变化
 watch(selectedKbIds, () => {
   loadDatasets();
@@ -202,7 +222,7 @@ function handleReset() {
 </script>
 
 <template>
-  <NModal v-model:show="showModal" preset="card" title="检索测试沙箱" class="w-220">
+  <NModal v-model:show="showModal" :mask-closable="false" preset="card" title="检索测试沙箱" class="w-220">
     <template #header-extra>
       <NButton tertiary size="small" @click="handleReset">
         <template #icon>
@@ -296,15 +316,17 @@ function handleReset() {
             </div>
 
             <!-- Rerank -->
-            <div class="mr-auto flex items-center gap-2">
-              <div class="text-sm text-gray-500">启用 Rerank</div>
+            <div>
+              <div class="text-sm text-gray-500">
+                启用 Rerank
+                <NTooltip>
+                  <template #trigger>
+                    <SvgIcon icon="mdi:help-circle-outline" class="cursor-help text-gray-400" />
+                  </template>
+                  使用重排序模型对结果进行二次排序，提高准确性
+                </NTooltip>
+              </div>
               <NSwitch v-model:value="enableRerank" />
-              <NTooltip>
-                <template #trigger>
-                  <SvgIcon icon="mdi:help-circle-outline" class="cursor-help text-gray-400" />
-                </template>
-                使用重排序模型对结果进行二次排序，提高准确性
-              </NTooltip>
             </div>
 
             <!-- Highlight (only for KEYWORD mode) -->
@@ -344,7 +366,7 @@ function handleReset() {
               >
                 <div class="flex items-start gap-3">
                   <!-- 序号和分数 -->
-                  <div class="flex flex-col items-center gap-1">
+                  <div class="flex flex-col items-end gap-1">
                     <div
                       class="h-6 w-6 flex items-center justify-center rounded-full bg-primary/10 text-xs text-primary font-bold"
                     >
@@ -360,18 +382,24 @@ function handleReset() {
 
                   <!-- 内容 -->
                   <div class="min-w-0 flex-1">
-                    <div class="mb-1 flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <SvgIcon icon="mdi:file-document-outline" class="text-gray-400" />
-                        <NText class="text-sm font-medium">{{ item.documentName || '未知文档' }}</NText>
+                    <div class="items-between flex justify-between gap-2">
+                      <!-- 标题展示 -->
+                      <div v-if="item.title" class="mb-2 text-sm text-gray-800 font-bold dark:text-gray-200">
+                        {{ item.title }}
+                      </div>
+                      <div v-if="item.sourceTypes && item.sourceTypes.length > 0" class="flex gap-1">
+                        <NTag
+                          v-for="type in item.sourceTypes"
+                          :key="type"
+                          :type="getSourceTypeType(type)"
+                          size="small"
+                          :bordered="false"
+                          class="origin-right scale-75 transform"
+                        >
+                          {{ getSourceTypeLabel(type) }}
+                        </NTag>
                       </div>
                     </div>
-
-                    <!-- 标题展示 -->
-                    <div v-if="item.title" class="mb-2 text-sm text-gray-800 font-bold dark:text-gray-200">
-                      {{ item.title }}
-                    </div>
-
                     <!-- 高亮内容使用 v-html -->
                     <!-- eslint-disable vue/no-v-html -->
                     <div
@@ -383,6 +411,35 @@ function handleReset() {
                     <NText v-else class="line-clamp-4 text-sm text-gray-600 dark:text-gray-300">
                       {{ item.content }}
                     </NText>
+                    <div class="mb-1 mt-2 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <SvgIcon icon="mdi:file-document-outline" class="text-gray-300" />
+                        <NText class="text-xs font-medium">{{ item.documentName || '未知文档' }}</NText>
+                      </div>
+
+                      <!-- 来源类型标签 -->
+                    </div>
+
+                    <!-- 匹配问题展示 -->
+                    <div
+                      v-if="item.matchedQuestions && item.matchedQuestions.length > 0"
+                      class="mt-2 rounded bg-primary/5 p-2"
+                    >
+                      <div class="mb-1 flex items-center gap-1 text-xs text-gray-500">
+                        <SvgIcon icon="mdi:help-circle-outline" class="text-primary" />
+                        <span>匹配关联问题:</span>
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <div
+                          v-for="(q, qIndex) in item.matchedQuestions"
+                          :key="qIndex"
+                          class="line-clamp-1 text-xs text-gray-600 dark:text-gray-300"
+                          :title="q"
+                        >
+                          • {{ q }}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </NCard>
