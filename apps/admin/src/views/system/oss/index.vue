@@ -165,7 +165,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:download-rounded"
+                local-icon="material-symbols-download-rounded"
                 class="text-20px"
                 tooltipContent={$t('common.download')}
                 onClick={() => download(row.ossId!)}
@@ -181,7 +181,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 class="text-20px"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}

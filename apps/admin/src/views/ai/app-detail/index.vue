@@ -23,6 +23,7 @@ import { useEcharts } from '@/hooks/common/echarts';
 import { validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
 import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vue';
+import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
 
 const SvgIcon = resolveComponent('SvgIcon');
@@ -37,6 +38,9 @@ const appInfo = ref<Api.AI.Admin.App | null>(null);
 const tokenList = ref<any[]>([]);
 const loading = ref(false);
 const showConfigPanel = ref(true);
+
+// 调试对话窗口
+const showDebugDialog = ref(false);
 
 // 是否已发布
 const isPublished = computed(() => appInfo.value?.status === '1');
@@ -192,9 +196,9 @@ function handleGoToChat() {
 
 // 跳转工作流设置
 function handleSettings() {
-  if (!appInfo.value) return;
+  if (!appInfo.value || appInfo.value.appType !== '2') return;
   router.push({
-    name: appInfo.value.appType === '2' ? 'ai_workflow' : 'ai_simple_rag',
+    name: 'ai_workflow',
     query: { appId: appId.value }
   });
 }
@@ -210,13 +214,6 @@ async function handlePublish() {
       message.warning('请先选择大模型');
       return;
     }
-    // 校验知识库
-    // const kbIds = appInfo.value.knowledgeIds;
-    // if (!kbIds || kbIds === '') {
-    //   message.warning('请先选择知识库');
-    //   return;
-    // }
-
     // 发布确认
     dialog.create({
       title: '发布应用',
@@ -328,6 +325,12 @@ async function handlePublish() {
   });
 }
 
+// 调试应用
+function handleDebug() {
+  if (!appInfo.value) return;
+  showDebugDialog.value = true;
+}
+
 // 嵌入第三方弹窗
 const showEmbedModal = ref(false);
 
@@ -379,12 +382,12 @@ const runOptions = computed(() => {
     {
       label: '去对话',
       key: 'chat',
-      icon: () => h(SvgIcon, { icon: 'carbon:chat' })
+      icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
     },
     {
       label: '嵌入第三方',
       key: 'embed',
-      icon: () => h(SvgIcon, { icon: 'mdi:code-tags' })
+      icon: () => h(SvgIcon, { localIcon: 'mdi-code-tags' })
     },
     {
       type: 'divider',
@@ -395,8 +398,8 @@ const runOptions = computed(() => {
       key: 'enableExecutionDetail',
       icon: () =>
         appInfo.value?.enableExecutionDetail === '1'
-          ? h(SvgIcon, { icon: 'mdi:bug-check-outline', class: 'text-primary' })
-          : h(SvgIcon, { icon: 'mdi:close-circle-outline', class: 'text-gray-500' })
+          ? h(SvgIcon, { localIcon: 'mdi-bug-check-outline', class: 'text-primary' })
+          : h(SvgIcon, { localIcon: 'mdi-close-circle-outline', class: 'text-gray-500' })
     }
   ];
 });
@@ -453,7 +456,7 @@ onMounted(async () => {
         <div class="min-w-0 flex-1">
           <div class="mb-3 flex items-center justify-start gap-3">
             <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-              <SvgIcon icon="carbon:application" />
+              <SvgIcon local-icon="carbon-application" />
             </div>
             <div class="min-w-0 flex-1 truncate text-base font-bold">{{ appInfo?.appName }}</div>
             <div class="ml-auto">
@@ -466,7 +469,7 @@ onMounted(async () => {
               <NInput :value="publicAccessUrl" readonly size="small" placeholder="" class="w-80" />
               <NButton size="small" @click="copyToClipboard(publicAccessUrl, '链接')">
                 <template #icon>
-                  <SvgIcon icon="mdi:content-copy" />
+                  <SvgIcon local-icon="mdi-content-copy" />
                 </template>
               </NButton>
             </NInputGroup>
@@ -489,7 +492,7 @@ onMounted(async () => {
 
             <NButton v-else size="small" @click="handleSettings">
               <template #icon>
-                <SvgIcon icon="mdi:settings" />
+                <SvgIcon local-icon="mdi-settings" />
               </template>
               流程设置
             </NButton>
@@ -499,17 +502,25 @@ onMounted(async () => {
               <NDropdown trigger="hover" :options="runOptions" @select="handleRunSelect">
                 <NButton size="small">
                   <template #icon>
-                    <SvgIcon icon="mdi:play" />
+                    <SvgIcon local-icon="mdi-play" />
                   </template>
                   运行
                 </NButton>
               </NDropdown>
             </template>
 
+            <!-- 调试按钮 -->
+            <NButton size="small" @click="handleDebug">
+              <template #icon>
+                <SvgIcon local-icon="mdi-bug-outline" />
+              </template>
+              调试
+            </NButton>
+
             <!-- 显示发布按钮 -->
             <NButton type="primary" size="small" @click="handlePublish">
               <template #icon>
-                <SvgIcon icon="mdi:rocket-launch" />
+                <SvgIcon local-icon="mdi-rocket-launch" />
               </template>
               发布应用
             </NButton>
@@ -563,7 +574,7 @@ onMounted(async () => {
         <NGridItem>
           <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
             <div class="h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-500">
-              <SvgIcon icon="mdi:account-group" class="text-xl" />
+              <SvgIcon local-icon="mdi-account-group" class="text-xl" />
             </div>
             <div>
               <div class="text-xs text-gray-500">用户总数</div>
@@ -579,7 +590,7 @@ onMounted(async () => {
         <NGridItem>
           <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
             <div class="h-10 w-10 flex items-center justify-center rounded-full bg-orange-100 text-orange-500">
-              <SvgIcon icon="mdi:message-text" class="text-xl" />
+              <SvgIcon local-icon="mdi-message-text" class="text-xl" />
             </div>
             <div>
               <div class="text-xs text-gray-500">提问次数</div>
@@ -590,7 +601,7 @@ onMounted(async () => {
         <NGridItem>
           <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
             <div class="h-10 w-10 flex items-center justify-center rounded-full bg-green-100 text-green-500">
-              <SvgIcon icon="mdi:key-variant" class="text-xl" />
+              <SvgIcon local-icon="mdi-key-variant" class="text-xl" />
             </div>
             <div>
               <div class="text-xs text-gray-500">Tokens 总数</div>
@@ -601,7 +612,7 @@ onMounted(async () => {
         <NGridItem>
           <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
             <div class="h-10 w-10 flex items-center justify-center rounded-full bg-pink-100 text-pink-500">
-              <SvgIcon icon="mdi:emoticon-happy" class="text-xl" />
+              <SvgIcon local-icon="mdi-emoticon-happy" class="text-xl" />
             </div>
             <div>
               <div class="text-xs text-gray-500">用户满意度</div>
@@ -631,6 +642,7 @@ onMounted(async () => {
       </NGrid>
     </NCard>
     <AppOperateModal v-model:visible="modalVisible" :app-type="appType" @success="id => onModalClose(id, appType)" />
+    <DebugChatDialog v-model:visible="showDebugDialog" :app-id="appId" :app-name="appInfo?.appName || ''" />
 
     <!-- 嵌入第三方弹窗 -->
     <NModal v-model:show="showEmbedModal" preset="card" title="嵌入第三方" class="w-240" :bordered="false">
@@ -653,7 +665,7 @@ onMounted(async () => {
             <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
             <NButton text size="tiny" @click="copyToClipboard(embedFullscreenCode, '全屏模式代码')">
               <template #icon>
-                <SvgIcon icon="mdi:content-copy" class="text-xs" />
+                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>
             </NButton>
           </div>
@@ -680,7 +692,7 @@ onMounted(async () => {
             <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
             <NButton text size="tiny" @click="copyToClipboard(embedMobileCode, '移动端模式代码')">
               <template #icon>
-                <SvgIcon icon="mdi:content-copy" class="text-xs" />
+                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>
             </NButton>
           </div>
@@ -707,7 +719,7 @@ onMounted(async () => {
             <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
             <NButton text size="tiny" @click="copyToClipboard(embedFloatCode, '浮窗模式代码')">
               <template #icon>
-                <SvgIcon icon="mdi:content-copy" class="text-xs" />
+                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>
             </NButton>
           </div>

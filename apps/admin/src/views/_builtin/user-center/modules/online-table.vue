@@ -81,7 +81,7 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
             <ButtonIcon
               text
               type="error"
-              icon="material-symbols:delete-outline"
+              local-icon="material-symbols-delete-outline"
               loading={btnLoading.value}
               class="text-18px"
               tooltipContent="强制下线"

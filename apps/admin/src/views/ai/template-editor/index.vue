@@ -158,22 +158,26 @@ onMounted(async () => {
         <WorkflowSaveStatus v-if="workflowStore.autoSaveEnabled" class="mr-2" />
         <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
           <template #trigger>
-            <NButton class="bg-white/90 shadow-md">
+            <NButton class="bg-white/90 shadow-md dark:bg-dark-2 dark:text-white">
               <template #icon>
-                <SvgIcon icon="carbon:add" />
+                <SvgIcon local-icon="carbon-add" />
               </template>
               组件
             </NButton>
           </template>
         </ComponentLibraryModal>
-        <NButton class="bg-white/90 shadow-md" :loading="loading" @click="() => handleSave(false)">
+        <NButton
+          class="bg-white/90 shadow-md dark:bg-dark-2 dark:text-white"
+          :loading="loading"
+          @click="() => handleSave(false)"
+        >
           <template #icon>
-            <SvgIcon icon="mdi:content-save-outline" />
+            <SvgIcon local-icon="mdi-content-save-outline" />
           </template>
           保存
         </NButton>
-        <div class="flex items-center gap-2 rounded bg-white/90 px-3 py-1.5 shadow-md">
-          <SvgIcon icon="mdi:content-save-cog-outline" class="text-gray-500" />
+        <div class="flex items-center gap-2 rounded bg-white/90 px-3 py-1.5 shadow-md dark:bg-dark-2 dark:text-white">
+          <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-gray-500 dark:text-white" />
           <span class="text-sm">自动保存</span>
           <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
         </div>

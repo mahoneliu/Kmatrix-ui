@@ -96,7 +96,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
               class="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
               onClick={() => startEdit(row)}
             >
-              <SvgIcon icon="mdi:pencil" />
+              <SvgIcon local-icon="mdi-pencil" />
             </span>
           </div>
         );
@@ -163,14 +163,14 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
             <ButtonIcon
               text
               type="primary"
-              icon="mdi:link-variant-plus"
+              local-icon="mdi-link-variant-plus"
               tooltipContent="关联分段"
               onClick={() => handleLink(row)}
             />
             <ButtonIcon
               text
               type="error"
-              icon="mdi:delete"
+              local-icon="mdi-delete"
               tooltipContent="删除"
               onClick={() => handleDelete(row.id)}
             />
@@ -361,7 +361,7 @@ defineExpose({
             <NSpace>
               <NButton size="small" type="primary" @click="addModalVisible = true">
                 <template #icon>
-                  <SvgIcon icon="mdi:plus" />
+                  <SvgIcon local-icon="mdi-plus" />
                 </template>
                 添加问题
               </NButton>

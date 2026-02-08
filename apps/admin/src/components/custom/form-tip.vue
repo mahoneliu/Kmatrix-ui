@@ -19,7 +19,7 @@ defineProps<Props>();
     </template>
     <template #trigger>
       <div class="cursor-pointer pr-3px">
-        <SvgIcon class="text-15px" icon="ph:warning-circle-bold" />
+        <SvgIcon class="text-15px" local-icon="ph-warning-circle-bold" />
       </div>
     </template>
   </NTooltip>

@@ -12,8 +12,6 @@ interface Emits {
   (e: 'update:visible', visible: boolean): void;
   (e: 'success', appId?: CommonType.IdType): void;
 }
-
-/** 应用表单模型 */
 type AppFormModel = Partial<Api.AI.Admin.App>;
 
 const props = withDefaults(defineProps<Props>(), {

@@ -104,7 +104,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:visibility-outline"
+                local-icon="material-symbols-visibility-outline"
                 tooltipContent="预览"
                 onClick={() => handlePreview(row.tableId!)}
               />
@@ -116,7 +116,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.tableId!)}
               />
@@ -128,7 +128,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:sync-outline"
+                local-icon="material-symbols-sync-outline"
                 tooltipContent="同步"
                 onClick={() => refresh(row.tableId!)}
               />
@@ -140,7 +140,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:download-rounded"
+                local-icon="material-symbols-download-rounded"
                 tooltipContent="生成代码"
                 onClick={() => handleGenCode(row)}
               />
@@ -152,7 +152,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="error"
                 text
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.tableId!)}

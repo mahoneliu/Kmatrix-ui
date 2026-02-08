@@ -69,20 +69,20 @@ const templateForm = ref<Partial<WorkflowTemplate>>({
   templateName: '',
   templateCode: '',
   description: '',
-  icon: 'mdi:file-document-outline',
+  localIcon: 'mdi-file-document-outline',
   category: 'custom'
 });
 
 // 图标选项
 const iconOptions = [
-  { label: '📄 文档', value: 'mdi:file-document-outline' },
-  { label: '🤖 机器人', value: 'mdi:robot' },
-  { label: '💬 对话', value: 'mdi:chat-processing' },
-  { label: '🔍 搜索', value: 'mdi:magnify' },
-  { label: '📊 数据', value: 'mdi:chart-bar' },
-  { label: '🧠 智能', value: 'mdi:brain' },
-  { label: '⚡ 自动化', value: 'mdi:lightning-bolt' },
-  { label: '📝 编辑', value: 'mdi:pencil' }
+  { label: '📄 文档', value: 'mdi-file-document-outline' },
+  { label: '🤖 机器人', value: 'mdi-robot' },
+  { label: '💬 对话', value: 'mdi-chat-processing' },
+  { label: '🔍 搜索', value: 'mdi-magnify' },
+  { label: '📊 数据', value: 'mdi-chart-bar' },
+  { label: '🧠 智能', value: 'mdi-brain' },
+  { label: '⚡ 自动化', value: 'mdi-lightning-bolt' },
+  { label: '📝 编辑', value: 'mdi-pencil' }
 ];
 
 async function loadCategories() {
@@ -192,7 +192,7 @@ function handleShowAddModal() {
     templateName: '',
     templateCode: '',
     description: '',
-    icon: 'mdi:file-document-outline',
+    localIcon: 'mdi-file-document-outline',
     category: 'custom'
   };
   showTemplateModal.value = true;
@@ -210,7 +210,7 @@ function handleEdit(item: WorkflowTemplate) {
     templateName: item.templateName,
     templateCode: item.templateCode,
     description: item.description,
-    icon: item.icon || 'mdi:file-document-outline',
+    localIcon: item.localIcon || item.icon?.replace(':', '-') || 'mdi-file-document-outline',
     category: item.category || 'custom'
   };
   showTemplateModal.value = true;
@@ -343,7 +343,7 @@ onMounted(() => {
       <template #header-extra>
         <NButton type="primary" ghost size="small" @click="handleShowAddModal">
           <template #icon>
-            <SvgIcon icon="carbon:add" />
+            <SvgIcon local-icon="carbon-add" />
           </template>
           新建模板
         </NButton>
@@ -368,7 +368,10 @@ onMounted(() => {
               <!-- 标题和图标 -->
               <template #header>
                 <div class="mr-16 flex items-center gap-2">
-                  <SvgIcon :icon="item.icon || 'mdi:file-document-outline'" class="text-xl text-primary" />
+                  <SvgIcon
+                    :local-icon="item.localIcon || item.icon?.replace(':', '-') || 'mdi-file-document-outline'"
+                    class="text-xl text-primary"
+                  />
                   <span class="font-medium">{{ item.templateName }}</span>
                 </div>
               </template>
@@ -394,27 +397,27 @@ onMounted(() => {
               >
                 <NDropdown
                   :options="[
-                    { label: '使用此模板', key: 'use', icon: () => h(SvgIcon, { icon: 'carbon:add-filled' }) },
-                    { label: '复制至自定义', key: 'copy', icon: () => h(SvgIcon, { icon: 'carbon:copy' }) },
+                    { label: '使用此模板', key: 'use', icon: () => h(SvgIcon, { localIcon: 'carbon-add-filled' }) },
+                    { label: '复制至自定义', key: 'copy', icon: () => h(SvgIcon, { localIcon: 'carbon-copy' }) },
                     ...(item.scopeType !== '0'
                       ? [
                           {
                             label: '工作流配置',
                             key: 'design',
-                            icon: () => h(SvgIcon, { icon: 'carbon:settings' })
+                            icon: () => h(SvgIcon, { localIcon: 'carbon-settings' })
                           }
                         ]
                       : []),
                     {
                       label: '编辑',
                       key: 'edit',
-                      icon: () => h(SvgIcon, { icon: 'carbon:edit' }),
+                      icon: () => h(SvgIcon, { localIcon: 'carbon-edit' }),
                       disabled: item.scopeType === '0'
                     },
                     {
                       label: '删除',
                       key: 'delete',
-                      icon: () => h(SvgIcon, { icon: 'carbon:trash-can' }),
+                      icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can' }),
                       disabled: item.scopeType === '0'
                     }
                   ]"
@@ -430,7 +433,7 @@ onMounted(() => {
                 >
                   <NButton class="text-gray-500 hover:text-primary" quaternary size="small" @click.stop>
                     <template #icon>
-                      <SvgIcon icon="carbon:overflow-menu-horizontal" />
+                      <SvgIcon local-icon="carbon-overflow-menu-horizontal" />
                     </template>
                   </NButton>
                 </NDropdown>
@@ -444,7 +447,7 @@ onMounted(() => {
           v-if="templateList.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-16 text-gray-400"
         >
-          <SvgIcon icon="carbon:document-blank" class="mb-4 text-6xl" />
+          <SvgIcon local-icon="carbon-document-blank" class="mb-4 text-6xl" />
           <span>暂无模板</span>
         </div>
       </NScrollbar>
@@ -485,7 +488,7 @@ onMounted(() => {
         </NFormItem>
         <NFormItem label="图标" :show-feedback="false">
           <NSelect
-            v-model:value="templateForm.icon"
+            v-model:value="templateForm.localIcon"
             :options="iconOptions"
             placeholder="选择图标"
             :render-label="(option: any) => option.label"

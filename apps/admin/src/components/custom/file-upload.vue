@@ -148,7 +148,7 @@ async function handleRemove(file: UploadFileInfo) {
     >
       <NUploadDragger v-if="uploadType === 'file'">
         <div class="mb-12px flex-center">
-          <SvgIcon icon="material-symbols:unarchive-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
+          <SvgIcon local-icon="material-symbols-unarchive-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
         </div>
         <NText class="text-16px">点击或者拖动文件到该区域来上传</NText>
         <NP v-if="showTip" depth="3" class="mt-8px text-center">

@@ -148,7 +148,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:visibility-outline"
+                local-icon="material-symbols-visibility-outline"
                 tooltipContent="详情"
                 onClick={() => view(row.infoId!)}
               />
@@ -162,7 +162,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 <ButtonIcon
                   type="primary"
                   text
-                  icon="material-symbols:lock-open-outline"
+                  local-icon="material-symbols-lock-open-outline"
                   tooltipContent="解锁"
                   popconfirmContent={`确认解锁用户 ${row.userName} 吗？`}
                   onPositiveClick={() => handleUnlockLoginInfor(row.userName!)}

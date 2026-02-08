@@ -123,6 +123,8 @@ declare namespace Workflow {
     modelId: CommonType.IdType;
     /** 系统提示词 */
     systemPrompt?: string;
+    /** 用户提示词 */
+    userPrompt?: string;
     /** 温度参数 */
     temperature?: number;
     /** 最大令牌数 */

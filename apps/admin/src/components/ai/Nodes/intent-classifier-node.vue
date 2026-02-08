@@ -81,7 +81,7 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
   <BaseNode
     v-slot="{ showHandles, isHandleConnected, checkHandleHighlight, getHandleStyle }"
     v-bind="props"
-    :data="{ ...data, icon: 'mdi:brain' }"
+    :data="{ ...data, localIcon: 'mdi-brain' }"
     :hide-source-handle="true"
     :no-content-padding="true"
     class="intent-classifier-node"
@@ -93,7 +93,7 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           <label>定义意图分支</label>
           <NButton secondary size="tiny" class="mr-2" @click="addIntent">
             <template #icon>
-              <SvgIcon icon="mdi:plus" />
+              <SvgIcon local-icon="mdi-plus" />
             </template>
           </NButton>
         </div>
@@ -108,7 +108,7 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           <!-- 删除按钮 -->
           <NButton class="workflow-btn-remove mr-3" secondary size="tiny" @click="removeIntent(index)">
             <template #icon>
-              <SvgIcon icon="mdi:minus" class="workflow-btn-icon" />
+              <SvgIcon local-icon="mdi-minus" class="workflow-btn-icon" />
             </template>
           </NButton>
 

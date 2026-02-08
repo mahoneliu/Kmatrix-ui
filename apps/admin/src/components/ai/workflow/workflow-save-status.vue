@@ -36,19 +36,19 @@ const lastSavedText = computed(() => {
   <div class="workflow-save-status flex items-center gap-2 text-13px">
     <!-- 保存中 -->
     <div v-if="workflowStore.isSaving" class="flex items-center gap-1 text-blue-500">
-      <SvgIcon icon="mdi:loading" class="animate-spin" :size="14" />
+      <SvgIcon local-icon="mdi-loading" class="animate-spin" :size="14" />
       <span>保存中...</span>
     </div>
 
     <!-- 未保存 -->
     <div v-else-if="workflowStore.isDirty" class="flex items-center gap-1 text-blue-500">
-      <SvgIcon icon="mdi:circle" :size="8" />
+      <SvgIcon local-icon="mdi-circle" :size="8" />
       <span>待保存</span>
     </div>
 
     <!-- 已保存 -->
     <div v-else-if="workflowStore.savedInSession && tipFlag" class="flex items-center gap-1 text-gray-400">
-      <SvgIcon icon="mdi:check-circle" :size="14" />
+      <SvgIcon local-icon="mdi-check-circle" :size="14" />
       <span>{{ lastSavedText }}</span>
     </div>
   </div>

@@ -48,7 +48,7 @@ const getParamTypeName = (type: string | undefined) => {
 // 复制参数引用
 async function copyParamRef(e: Event) {
   e.stopPropagation();
-  const ref = `{${props.param.key}}`;
+  const ref = `\${${props.param.key}}`;
 
   try {
     await navigator.clipboard.writeText(ref);
@@ -59,7 +59,7 @@ async function copyParamRef(e: Event) {
 }
 
 // Tooltip 文本
-const tooltipText = computed(() => `点击复制 {${props.param.key}}`);
+const tooltipText = computed(() => `点击复制 \${${props.param.key}}`);
 </script>
 
 <template>
@@ -88,13 +88,13 @@ const tooltipText = computed(() => `点击复制 {${props.param.key}}`);
       <!-- <span class="c-gray-4">·</span> -->
 
       <!-- 数据类型 -->
-      <span class="c-gray-5">{{ getParamTypeName(param.type) }}</span>
+      <span class="c-gray-5 dark:c-gray-4">{{ getParamTypeName(param.type) }}</span>
 
       <!-- 分隔符 -->
-      <span class="c-gray-4">·</span>
+      <span class="c-gray-4 dark:c-gray-6">·</span>
 
       <!-- 参数名称 -->
-      <span class="c-gray-6">{{ param.label }}</span>
+      <span class="c-gray-6 dark:c-gray-3">{{ param.label }}</span>
     </div>
   </div>
 </template>

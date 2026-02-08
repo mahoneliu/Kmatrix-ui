@@ -7,12 +7,13 @@
  * @date 2026-01-23
  */
 import { computed, h } from 'vue';
-import { NSelect } from 'naive-ui';
+import { NPopover, NSelect } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/ai/param-resolver';
 import { getNodeIconBackground } from '@/utils/color';
+import { type CompatibilityLevel, getTypeCompatibilityInfo } from '@/utils/ai/type-compatibility';
 
 interface Props {
   /** 当前节点ID */
@@ -88,11 +89,23 @@ const variableOptions = computed(() => {
       key: `g-${source.sourceKey}`,
       icon,
       color,
-      children: source.params.map(param => ({
-        label: `${param.label} - ${param.type}`,
-        value: `${source.type}|${source.sourceKey}|${param.key}`,
-        color
-      }))
+      children: source.params.map(param => {
+        // 检查类型兼容性
+        const targetType = props.paramDef?.type;
+        const compatInfo = targetType ? getTypeCompatibilityInfo(param.type, targetType) : null;
+
+        return {
+          label: `${param.label} - ${param.type}`,
+          value: `${source.type}|${source.sourceKey}|${param.key}`,
+          color,
+          sourceType: param.type,
+          compatLevel: compatInfo?.level || 'compatible',
+          compatIcon: compatInfo?.icon || '',
+          compatColor: compatInfo?.color || '',
+          compatMessage: compatInfo?.message || '',
+          disabled: compatInfo?.level === 'incompatible'
+        };
+      })
     });
   });
 
@@ -155,24 +168,73 @@ function parseBinding(value: string, paramKey: string): Workflow.ParamBinding | 
   };
 }
 
-// 渲染选项标签（带图标和颜色）
-function renderLabel(option: { label?: string; icon?: string; color?: string }) {
-  if (!option.icon) return option.label;
+// 渲染选项标签（带图标、颜色和类型兼容性警告）
+function renderLabel(option: {
+  label?: string;
+  icon?: string;
+  color?: string;
+  compatLevel?: CompatibilityLevel;
+  compatIcon?: string;
+  compatColor?: string;
+  compatMessage?: string;
+  disabled?: boolean;
+}) {
+  // 分组标签（有图标）
+  if (option.icon) {
+    return h('div', { class: 'flex items-center gap-2' }, [
+      h(
+        'div',
+        {
+          class: 'h-5 w-5 flex flex-shrink-0 items-center justify-center rounded-1',
+          style: {
+            backgroundColor: getNodeIconBackground(option.color || PARAM_GLOBAL_COLORS),
+            color: option.color
+          }
+        },
+        h(SvgIcon, { icon: option.icon, class: 'text-12px' })
+      ),
+      h('span', { class: 'text-12px' }, option.label)
+    ]);
+  }
 
-  return h('div', { class: 'flex items-center gap-2' }, [
+  // 选项标签（带类型兼容性信息）
+  const children: any[] = [
     h(
-      'div',
+      'span',
       {
-        class: 'h-5 w-5 flex flex-shrink-0 items-center justify-center rounded-1',
-        style: {
-          backgroundColor: getNodeIconBackground(option.color || PARAM_GLOBAL_COLORS),
-          color: option.color
-        }
+        class: 'text-12px',
+        style: option.disabled ? { opacity: 0.5, textDecoration: 'line-through' } : {}
       },
-      h(SvgIcon, { icon: option.icon, class: 'text-12px' })
-    ),
-    h('span', { class: 'text-12px' }, option.label)
-  ]);
+      option.label
+    )
+  ];
+
+  // 添加类型兼容性警告图标
+  if (option.compatIcon && option.compatLevel !== 'compatible') {
+    const iconEl = h(SvgIcon, {
+      icon: option.compatIcon,
+      class: 'ml-1 mt-1 text-14px',
+      style: { color: option.compatColor }
+    });
+
+    // 用 NPopover 包裹显示提示
+    if (option.compatMessage) {
+      children.push(
+        h(
+          NPopover,
+          { trigger: 'hover', placement: 'top' },
+          {
+            trigger: () => iconEl,
+            default: () => h('span', { class: 'text-12px' }, option.compatMessage)
+          }
+        )
+      );
+    } else {
+      children.push(iconEl);
+    }
+  }
+
+  return h('div', { class: 'flex items-center' }, children);
 }
 
 // 处理值变化

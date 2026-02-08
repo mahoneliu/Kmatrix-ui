@@ -159,8 +159,8 @@ export const aiModelTypeOptions = transformRecordToOption(aiModelTypeRecord);
 
 /** ai app type */
 export const aiAppTypeRecord: Record<string, string> = {
-  '1': '对话',
-  '2': '工作流',
+  '1': '固定模板',
+  '2': '自定义模板',
   '3': '智能体'
 };
 

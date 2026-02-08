@@ -91,7 +91,7 @@ function deleteEdge() {
           class="h-5 w-5 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md transition-transform active:scale-95 hover:scale-110"
           @click="deleteEdge"
         >
-          <SvgIcon icon="mdi:close" class="text-3" />
+          <SvgIcon local-icon="mdi-close" class="text-3" />
         </button>
       </div>
     </EdgeLabelRenderer>

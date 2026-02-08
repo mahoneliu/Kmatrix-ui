@@ -118,11 +118,11 @@ function updateCustomParamKey(oldKey: string, newKey: string, type: 'input' | 'o
 // 复制参数键名
 async function copyParamKey(e: Event, key: string) {
   e.stopPropagation();
-  const ref = `{${key}}`;
+  const ref = `\${${key}}`;
 
   try {
     await navigator.clipboard.writeText(ref);
-    message.success(`已复制: ${ref}`);
+    message.success(`复制成功: ${ref}`);
   } catch {
     message.error('复制失败,请手动复制');
   }
@@ -200,13 +200,13 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
     <!-- 输入参数 -->
     <div
       v-if="inputParams.length > 0 || customInputParams.length > 0 || allowCustomInput"
-      class="workflow-config-item-section"
+      class="workflow-config-item-section dark:bg-white/5"
     >
       <div class="flex items-center justify-between">
         <span class="text-12px">输入参数</span>
         <NButton v-if="allowCustomInput" size="tiny" secondary @click="handleAddParam('input')">
           <template #icon>
-            <SvgIcon icon="mdi:plus" />
+            <SvgIcon local-icon="mdi-plus" />
           </template>
         </NButton>
       </div>
@@ -215,12 +215,12 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
       <div class="flex flex-col gap-1 font-500">
         <div class="flex items-center gap-4">
           <!-- 左侧: 变量名 -->
-          <div class="w-100px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5">
+          <div class="w-100px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
             <span class="text-12px font-500">参数名</span>
           </div>
 
           <!-- 右侧: 参数选择器 -->
-          <div class="w-240px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5">
+          <div class="w-240px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
             <span class="text-12px font-500">变量选择</span>
           </div>
         </div>
@@ -247,7 +247,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
               <div class="max-w-200px text-12px">
                 {{ param.description ? param.description : '' }}
                 <br />
-                点击复制参数 {{ param.key }}
+                点击复制参数 {{ '${' + param.key + '}' }}
               </div>
             </NPopover>
             <span v-if="param.required" class="c-red-5">*</span>
@@ -293,7 +293,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
           <!-- 右侧: 删除按钮 -->
           <NButton secondary size="tiny" @click="handleRemoveParam(param.key, 'input')">
             <template #icon>
-              <SvgIcon icon="mdi:minus" />
+              <SvgIcon local-icon="mdi-minus" />
             </template>
           </NButton>
         </div>
@@ -303,13 +303,13 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
     <!-- 输出参数 -->
     <div
       v-if="outputParams.length > 0 || customOutputParams.length > 0 || allowCustomOutput"
-      class="workflow-config-item-section"
+      class="workflow-config-item-section dark:bg-white/5"
     >
       <div class="flex items-center justify-between">
         <span class="text-12px">输出参数</span>
         <NButton v-if="allowCustomOutput" size="tiny" secondary @click="handleAddParam('output')">
           <template #icon>
-            <SvgIcon icon="mdi:plus" />
+            <SvgIcon local-icon="mdi-plus" />
           </template>
         </NButton>
       </div>
@@ -336,7 +336,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
             <span>自定义输出</span>
             <NButton v-if="allowCustomOutput" size="tiny" secondary @click="handleAddParam('output')">
               <template #icon>
-                <SvgIcon icon="mdi:plus" />
+                <SvgIcon local-icon="mdi-plus" />
               </template>
             </NButton>
           </div>
@@ -367,7 +367,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
 
             <!-- 右侧: 删除按钮 -->
             <NButton secondary size="tiny" @click="handleRemoveParam(param.key, 'output')">
-              <SvgIcon icon="mdi:minus" />
+              <SvgIcon local-icon="mdi-minus" />
             </NButton>
           </div>
         </div>

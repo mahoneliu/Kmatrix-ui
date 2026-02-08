@@ -184,7 +184,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
           <div class="mr-2 flex flex-shrink-0 items-center">
             <NButton secondary size="tiny" @click="addBranch">
               <template #icon>
-                <SvgIcon icon="mdi:plus" />
+                <SvgIcon local-icon="mdi-plus" />
               </template>
             </NButton>
           </div>
@@ -230,7 +230,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
                 <div class="mb-3 flex items-center justify-between">
                   <div class="text-sm c-gray-8 font-bold dark:c-gray-1">配置分支条件</div>
                   <NButton text type="error" size="tiny" @click="removeBranch(index)">
-                    <template #icon><SvgIcon icon="mdi:delete" /></template>
+                    <template #icon><SvgIcon local-icon="mdi-delete" /></template>
                     删除
                   </NButton>
                 </div>
@@ -248,7 +248,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
           <div class="flex flex-shrink-0 items-center justify-between pr-1">
             <NButton secondary size="tiny" @click="removeBranch(index)">
               <template #icon>
-                <SvgIcon icon="mdi:minus" />
+                <SvgIcon local-icon="mdi-minus" />
               </template>
             </NButton>
             <div class="h-full flex items-center justify-center">

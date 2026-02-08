@@ -128,7 +128,15 @@ watch(visible, val => {
 <template>
   <NDrawer v-model:show="visible" title="Title" display-directive="show" :width="600">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
-      <NForm ref="formRef" :model="model" :rules="rules" label-placement="left" :label-width="100">
+      <NForm
+        ref="formRef"
+        :model="model"
+        class="flex flex-col gap-y-15px"
+        :rules="rules"
+        :show-feedback="false"
+        label-placement="left"
+        :label-width="100"
+      >
         <template v-if="operateType === 'copy'">
           <NFormItem label="源节点" path="nodeType">
             <NInput v-model:value="model.nodeType" disabled />
@@ -158,7 +166,7 @@ watch(visible, val => {
         <NFormItem label="图标" path="nodeIcon">
           <NInput v-model:value="model.nodeIcon" placeholder="例如: mdi:robot">
             <template #prefix>
-              <SvgIcon :icon="model.nodeIcon" class="text-lg" />
+              <SvgIcon :local-icon="model.nodeIcon" class="text-lg" />
             </template>
           </NInput>
         </NFormItem>
@@ -175,24 +183,40 @@ watch(visible, val => {
         </NFormItem>
 
         <NFormItem label="描述" path="description">
-          <NInput v-model:value="model.description" type="textarea" />
+          <NInput v-model:value="model.description" type="textarea" :autosize="{ minRows: 2 }" placeholder="节点描述" />
         </NFormItem>
 
-        <NFormItem label="自定义输入" path="allowCustomInputParams">
+        <NFormItem label="自定义入参" path="allowCustomInputParams">
           <NRadioGroup v-model:value="model.allowCustomInputParams">
             <NRadio value="1">允许</NRadio>
             <NRadio value="0">禁止</NRadio>
           </NRadioGroup>
         </NFormItem>
 
-        <NFormItem label="自定义输出" path="allowCustomOutputParams">
+        <NFormItem label="自定义出参" path="allowCustomOutputParams">
           <NRadioGroup v-model:value="model.allowCustomOutputParams">
             <NRadio value="1">允许</NRadio>
             <NRadio value="0">禁止</NRadio>
           </NRadioGroup>
         </NFormItem>
 
-        <NDivider>参数配置</NDivider>
+        <NDivider class="!my-12px">参数配置</NDivider>
+
+        <NAlert type="warning" closable>
+          <template #icon>
+            <icon-ic-round-info class="text-icon" />
+          </template>
+          <template #header>
+            <span class="text-sm font-medium">提示</span>
+          </template>
+          <template #default>
+            <span class="text-sm">
+              参数配置与开发密切相关，除非你清楚自己在干什么，否则不要随意修改
+              <br />
+            </span>
+            <span class="text-sm">参数键名在工作流中用于引用该参数的值,请确保键名唯一且数据类型正确</span>
+          </template>
+        </NAlert>
 
         <NodeParamEditor v-model="model.inputParams" title="输入参数" />
 

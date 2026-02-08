@@ -53,7 +53,7 @@ const toGitee = () => {
               <template #trigger>
                 <NButton quaternary>
                   <div class="flex-center gap-8px">
-                    <SvgIcon icon="lucide:mail-check" class="text-16px" />
+                    <SvgIcon local-icon="lucide-mail-check" class="text-16px" />
                   </div>
                 </NButton>
               </template>

@@ -25,15 +25,15 @@ export default defineConfig<Theme>({
   shortcuts: {
     'card-wrapper': 'rd-8px shadow-sm',
     // 工作流节点样式
-    'workflow-label': 'flex items-center justify-start text-12px c-gray-5 font-600',
+    'workflow-label': 'flex items-center justify-start text-12px c-gray-5 dark:c-gray-4 font-600',
     'workflow-label-required': 'ml-0.5 c-red-5',
     'workflow-input': 'text-11px',
     'workflow-textarea': 'text-11px',
-    'workflow-btn-icon': 'text-4 c-gray-5',
-    'workflow-collapse-icon': 'text-4 c-gray-5', // 折叠面板箭头图标
+    'workflow-btn-icon': 'text-4 c-gray-5 dark:c-gray-4',
+    'workflow-collapse-icon': 'text-4 c-gray-5 dark:c-gray-4', // 折叠面板箭头图标
     'workflow-config-section': 'flex flex-col gap-3',
     'workflow-config-item': 'flex flex-col gap-1.5',
-    'workflow-config-item-section': 'flex flex-col gap-3 pb-2 bg-slate-50 p-2 rounded'
+    'workflow-config-item-section': 'flex flex-col gap-3 pb-2 bg-slate-50 dark:bg-white/5 p-2 rounded'
   },
   transformers: [transformerDirectives(), transformerVariantGroup()],
   presets: [presetWind3({ dark: 'class' }), presetSoybeanAdmin()]

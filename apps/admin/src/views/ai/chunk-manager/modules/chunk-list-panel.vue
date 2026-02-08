@@ -69,7 +69,8 @@ const displayLevelOptions = computed(() => {
     { label: '详细', key: 'detailed' }
   ].map(item => ({
     ...item,
-    icon: props.displayLevel === item.key ? () => h(SvgIcon, { icon: 'mdi:check', class: 'text-primary' }) : undefined
+    icon:
+      props.displayLevel === item.key ? () => h(SvgIcon, { localIcon: 'mdi-check', class: 'text-primary' }) : undefined
   }));
 });
 
@@ -98,7 +99,7 @@ useIntersectionObserver(
       class="text-md mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 font-bold font-medium"
     >
       <div class="h-6 w-6 flex items-center justify-center rounded-sm bg-primary/10 text-xl text-primary">
-        <SvgIcon icon="mdi:book-open-page-variant" />
+        <SvgIcon local-icon="mdi-book-open-page-variant" />
       </div>
       {{ documentName }}
       <span class="whitespace-nowrap text-xs text-gray-400">{{ total }}分块</span>
@@ -122,7 +123,7 @@ useIntersectionObserver(
           <NButton size="small">
             {{ searchField === 'title' ? '标题' : '内容' }}
             <template #icon>
-              <SvgIcon icon="mdi:chevron-down" />
+              <SvgIcon local-icon="mdi-chevron-down" />
             </template>
           </NButton>
         </NDropdown>
@@ -155,7 +156,7 @@ useIntersectionObserver(
         <NButton size="small">
           显示
           <template #icon>
-            <SvgIcon icon="mdi:chevron-down" />
+            <SvgIcon local-icon="mdi-chevron-down" />
           </template>
         </NButton>
       </NDropdown>
@@ -173,7 +174,7 @@ useIntersectionObserver(
             <NButton size="small" :loading="batchOperating" :disabled="selectedChunkIds.length === 0">
               操作
               <template #icon>
-                <SvgIcon icon="mdi:chevron-down" />
+                <SvgIcon local-icon="mdi-chevron-down" />
               </template>
             </NButton>
           </NDropdown>

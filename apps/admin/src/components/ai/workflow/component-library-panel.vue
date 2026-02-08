@@ -92,7 +92,7 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
 </script>
 
 <template>
-  <div class="max-h-125 w-110 overflow-y-auto rounded-2 bg-container p-4 shadow-lg">
+  <div class="max-h-160 w-80 overflow-y-auto rounded-2 bg-container p-4 shadow-lg">
     <!-- 循环渲染所有分类 -->
     <div
       v-for="(category, index) in nodeTypesByCategory"
@@ -113,25 +113,25 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
         >
           <template #trigger>
             <div
-              class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-white px-3 py-2 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
+              class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-gray-1 px-1 py-1 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
               @mousedown="handleMouseDown($event, categoryNodes.nodeType)"
             >
               <div
-                class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
+                class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-2"
                 :style="{
                   backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
                   color: categoryNodes.nodeColor
                 }"
               >
-                <SvgIcon :icon="categoryNodes.nodeIcon" class="text-lg" />
+                <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-lg" />
               </div>
-              <div class="flex-1 text-3.5 c-gray-7 font-500 leading-tight dark:c-gray-2">
+              <div class="flex-1 text-3 c-gray-7 font-500 leading-tight dark:c-gray-2">
                 {{ categoryNodes.nodeLabel }}
               </div>
             </div>
           </template>
           <!-- Popover 详情 -->
-          <div class="max-w-65 rounded-2 bg-container p-3 shadow-md">
+          <div class="max-w-45 rounded-2 bg-container p-3 shadow-md">
             <!-- 上部：图标 + 标题 -->
             <div class="mb-2 flex items-center gap-2.5">
               <div
@@ -141,7 +141,7 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
                   color: categoryNodes.nodeColor
                 }"
               >
-                <SvgIcon :icon="categoryNodes.nodeIcon" class="text-xl" />
+                <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-xl" />
               </div>
               <div class="text-3.75 c-base-text font-600">{{ categoryNodes.nodeLabel }}</div>
             </div>
@@ -152,7 +152,7 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
       </div>
     </div>
     <div v-if="nodeTypesByCategory.length < 1" class="text-ms c-gray-5">
-      <SvgIcon icon="carbon:close-filled" class="mr-2 inline-block text-5 text-red-4" />
+      <SvgIcon local-icon="carbon-close-filled" class="mr-2 inline-block text-5 text-red-4" />
       没有节点可添加
     </div>
   </div>

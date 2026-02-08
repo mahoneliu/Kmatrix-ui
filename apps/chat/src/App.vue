@@ -215,7 +215,7 @@ onMounted(async () => {
                 class="absolute right-4 top-3 z-20 h-6 w-6 flex cursor-pointer items-center justify-center border rounded-full bg-white shadow-lg transition-colors -right-3 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50"
                 @click="showSessions = false"
               >
-                <SvgIcon icon="mdi:chevron-left" class="text-26px text-gray-600 dark:text-gray-300" />
+                <SvgIcon local-icon="mdi-chevron-left" class="text-26px text-gray-600 dark:text-gray-300" />
               </div>
 
               <div class="flex-1 overflow-hidden">
@@ -243,7 +243,7 @@ onMounted(async () => {
           <div class="flex items-center gap-2">
             <NButton quaternary circle size="small" @click="toggleSessions">
               <template #icon>
-                <SvgIcon icon="mdi:menu" />
+                <SvgIcon local-icon="mdi-menu" />
               </template>
             </NButton>
             <img :src="logoImg" class="h-5 w-auto flex-shrink-0" alt="Logo" />
@@ -259,7 +259,7 @@ onMounted(async () => {
               <template #trigger>
                 <NButton quaternary circle size="small" @click="handleNewSession">
                   <template #icon>
-                    <SvgIcon icon="mdi:chat-plus-outline" />
+                    <SvgIcon local-icon="mdi-chat-plus-outline" />
                   </template>
                 </NButton>
               </template>
@@ -269,7 +269,7 @@ onMounted(async () => {
               <template #trigger>
                 <NButton quaternary circle size="small" @click="handleMaximize">
                   <template #icon>
-                    <SvgIcon icon="mdi:fullscreen" />
+                    <SvgIcon local-icon="mdi-fullscreen" />
                   </template>
                 </NButton>
               </template>
@@ -279,7 +279,7 @@ onMounted(async () => {
               <template #trigger>
                 <NButton quaternary circle size="small" @click="handleClose">
                   <template #icon>
-                    <SvgIcon icon="mdi:close" />
+                    <SvgIcon local-icon="mdi-close" />
                   </template>
                 </NButton>
               </template>

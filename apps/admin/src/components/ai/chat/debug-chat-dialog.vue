@@ -75,21 +75,21 @@ watch(
 <template>
   <div
     v-if="visible"
-    class="fixed z-2000 flex flex-col overflow-hidden border border-[var(--n-divider-color)] rounded-12px bg-white shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 ease"
+    class="fixed z-2000 flex flex-col overflow-hidden border border-[var(--n-divider-color)] rounded-12px bg-white shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all duration-300 ease dark:bg-dark-1"
     :style="dialogStyle"
   >
     <!-- 标题栏：精致简约的蓝灰渐变设计 -->
     <div
-      class="relative z-10 flex select-none items-center justify-between from-slate-100 to-zinc-200/60 bg-gradient-to-r px-16px py-10px shadow-sm"
+      class="relative z-10 flex select-none items-center justify-between from-slate-100 to-zinc-200/60 bg-gradient-to-r px-16px py-10px shadow-sm dark:from-dark-2 dark:to-dark-1"
     >
-      <div class="flex items-center text-slate-800 font-600">
-        <SvgIcon icon="mdi:bug-outline" class="mr-2 text-18px text-primary" />
+      <div class="flex items-center text-slate-800 font-600 dark:text-white">
+        <SvgIcon local-icon="mdi-bug-outline" class="mr-2 text-18px text-primary" />
         <span class="text-14px tracking-tight">{{ appName }} - 调试</span>
       </div>
       <div class="flex gap-4px">
         <NButton quaternary circle size="small" @click="toggleMinimize">
           <template #icon>
-            <SvgIcon icon="mdi:minus" />
+            <SvgIcon local-icon="mdi-minus" />
           </template>
         </NButton>
         <NButton quaternary circle size="small" @click="toggleMaximize">
@@ -99,14 +99,14 @@ watch(
         </NButton>
         <NButton quaternary circle size="small" @click="handleClose">
           <template #icon>
-            <SvgIcon icon="mdi:close" />
+            <SvgIcon local-icon="mdi-close" />
           </template>
         </NButton>
       </div>
     </div>
 
     <!-- 内容区域 -->
-    <div v-show="!isMinimized" class="flex flex-col flex-1 overflow-hidden bg-white p-0">
+    <div v-show="!isMinimized" class="flex flex-col flex-1 overflow-hidden bg-white p-0 dark:bg-dark-1">
       <div class="p-2">
         <NAlert type="info" size="medium" :bordered="false" closable>
           调试使用最新草稿，临时对话，数据不保存。修改工作流实时生效，无需重新打开窗口。

@@ -135,7 +135,7 @@ watch(
           <ModelSelector v-model="formData.modelId" class="flex-1" placeholder="请选择 AI 模型" />
           <NButton text type="primary" @click="showAdvanced = !showAdvanced">
             <template #icon>
-              <SvgIcon :icon="showAdvanced ? 'mdi:chevron-up' : 'mdi:chevron-down'" size="16" />
+              <SvgIcon :local-icon="showAdvanced ? 'mdi-chevron-up' : 'mdi-chevron-down'" size="16" />
             </template>
             参数设置
           </NButton>

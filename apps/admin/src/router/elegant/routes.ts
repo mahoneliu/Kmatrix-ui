@@ -46,7 +46,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'about',
       i18nKey: 'route.about',
-      icon: 'fluent:book-information-24-regular',
+      localIcon: 'fluent-book-information-24-regular',
       order: 99
     }
   },
@@ -57,7 +57,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'ai',
       i18nKey: 'route.ai',
-      icon: 'carbon:bot',
+      localIcon: 'carbon-bot',
       order: 2
     },
     children: [
@@ -244,7 +244,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'home',
       i18nKey: 'route.home',
-      icon: 'mdi:monitor-dashboard',
+      localIcon: 'mdi-monitor-dashboard',
       order: 1
     }
   },
@@ -416,7 +416,7 @@ export const generatedRoutes: GeneratedRoute[] = [
           i18nKey: 'route.system_oss-config',
           constant: true,
           hideInMenu: true,
-          icon: 'hugeicons:configuration-01'
+          localIcon: 'hugeicons-configuration-01'
         }
       },
       {
@@ -497,7 +497,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'user-center',
       i18nKey: 'route.user-center',
-      icon: 'material-symbols:account-circle-full',
+      localIcon: 'material-symbols-account-circle-full',
       hideInMenu: true
     }
   }

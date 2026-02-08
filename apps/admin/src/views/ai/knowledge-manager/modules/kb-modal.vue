@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NModal, NSelect, NSpace, useMessage } from 'naive-ui';
+import { NButton, NForm, NFormItem, NInput, NModal, NSpace, useMessage } from 'naive-ui';
 import type { FormInst, FormRules } from 'naive-ui';
 import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/knowledge';
 
@@ -31,12 +31,6 @@ const formData = ref<Partial<Api.AI.KB.KnowledgeBase>>({
   description: '',
   permissionLevel: 'PRIVATE'
 });
-
-const permissionOptions = [
-  { label: '私有', value: 'PRIVATE' },
-  { label: '团队', value: 'TEAM' },
-  { label: '公开', value: 'PUBLIC' }
-];
 
 const rules: FormRules = {
   name: [
@@ -118,9 +112,11 @@ function handleCancel() {
           maxlength="200"
         />
       </NFormItem>
-      <NFormItem label="权限" path="permissionLevel">
+      <!--
+ <NFormItem label="权限" path="permissionLevel">
         <NSelect v-model:value="formData.permissionLevel" :options="permissionOptions" placeholder="选择权限级别" />
-      </NFormItem>
+      </NFormItem> 
+-->
     </NForm>
 
     <template #footer>

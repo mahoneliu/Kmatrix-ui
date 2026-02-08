@@ -72,7 +72,7 @@ onMounted(() => {
     <div class="w-80">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
-          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="config">

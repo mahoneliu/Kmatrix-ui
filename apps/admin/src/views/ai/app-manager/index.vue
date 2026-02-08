@@ -49,8 +49,8 @@ async function getData() {
   }
 }
 
-function handleAdd(type: '1' | '2' | 'template') {
-  if (type === 'template') {
+function handleAdd(type: '1' | '2') {
+  if (type === '1') {
     templateModalVisible.value = true;
     return;
   }
@@ -124,11 +124,11 @@ function getDropdownOptions(item: Api.AI.Admin.App) {
   const options: DropdownOption[] = [];
 
   if (item.appType === '2' || (item.sourceTemplateId && item.sourceTemplateScope !== '0')) {
-    options.push({ label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { icon: 'carbon:settings' }) });
+    options.push({ label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { localIcon: 'carbon-settings' }) });
   }
 
   if (item.status === '1') {
-    options.push({ label: '去对话', key: 'chat', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) });
+    options.push({ label: '去对话', key: 'chat', icon: () => h(SvgIcon, { localIcon: 'carbon-chat' }) });
   }
 
   options.push(
@@ -136,7 +136,7 @@ function getDropdownOptions(item: Api.AI.Admin.App) {
     {
       label: '删除',
       key: 'delete',
-      icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
+      icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can', class: 'text-error' }),
       labelProps: { class: 'text-error' }
     }
   );
@@ -184,17 +184,16 @@ onMounted(() => {
       <template #header-extra>
         <NDropdown
           :options="[
-            { label: '固定模板', key: '1', icon: () => h(SvgIcon, { icon: 'carbon:chat' }) },
+            { label: '自定义工作流', key: '2', icon: () => h(SvgIcon, { localIcon: 'carbon-flow' }) },
             { type: 'divider', key: 'd1' },
-            { label: '自定义工作流', key: '2', icon: () => h(SvgIcon, { icon: 'carbon:flow' }) },
-            { label: '从自建模板创建', key: 'template', icon: () => h(SvgIcon, { icon: 'mdi:file-document-outline' }) }
+            { label: '从模板创建', key: '1', icon: () => h(SvgIcon, { localIcon: 'carbon-chat' }) }
           ]"
           trigger="click"
-          @select="key => handleAdd(key as '1' | '2' | 'template')"
+          @select="key => handleAdd(key as '1' | '2')"
         >
           <NButton type="primary" ghost size="small">
             <template #icon>
-              <SvgIcon icon="carbon:add" />
+              <SvgIcon local-icon="carbon-add" />
             </template>
             新建应用
           </NButton>
@@ -213,15 +212,15 @@ onMounted(() => {
             >
               <!-- 右上角应用类型标签 -->
               <div class="absolute right-3 top-3 z-10">
-                <NTag :bordered="false" :type="item.appType === '2' ? 'warning' : 'info'" size="small">
-                  {{ item.appType === '2' ? '工作流' : '简单应用' }}
+                <NTag :bordered="false" :type="item.appType === '2' ? 'success' : 'info'" size="small">
+                  {{ item.appType === '2' ? '自定义工作流' : '固定模板' }}
                 </NTag>
               </div>
 
               <template #header>
                 <div class="flex items-center gap-3 pr-20">
                   <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-                    <SvgIcon v-if="!item.icon" icon="mdi:application" />
+                    <SvgIcon v-if="!item.icon" local-icon="mdi-application" />
                     <SvgIcon v-else :icon="item.icon" />
                   </div>
                   <div class="min-w-0 flex-1">
@@ -266,7 +265,7 @@ onMounted(() => {
                 >
                   <NButton class="text-gray-500 hover:text-primary" quaternary size="small" @click.stop>
                     <template #icon>
-                      <SvgIcon icon="carbon:overflow-menu-horizontal" />
+                      <SvgIcon local-icon="carbon-overflow-menu-horizontal" />
                     </template>
                   </NButton>
                 </NDropdown>

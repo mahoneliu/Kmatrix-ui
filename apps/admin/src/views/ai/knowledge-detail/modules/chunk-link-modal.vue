@@ -69,7 +69,8 @@ const displayLevelOptions = computed(() => {
     { label: '详细', key: 'detailed' }
   ].map(item => ({
     ...item,
-    icon: displayLevel.value === item.key ? () => h(SvgIcon, { icon: 'mdi:check', class: 'text-primary' }) : undefined
+    icon:
+      displayLevel.value === item.key ? () => h(SvgIcon, { localIcon: 'mdi-check', class: 'text-primary' }) : undefined
   }));
 });
 
@@ -300,7 +301,7 @@ watch(
 
           <NInput v-model:value="documentSearchKeyword" placeholder="搜索文档..." clearable class="mb-12px">
             <template #prefix>
-              <SvgIcon icon="mdi:magnify" />
+              <SvgIcon local-icon="mdi-magnify" />
             </template>
           </NInput>
 
@@ -349,7 +350,7 @@ watch(
                 <NButton size="tiny" class="mt-1px">
                   显示
                   <template #icon>
-                    <SvgIcon icon="mdi:chevron-down" />
+                    <SvgIcon local-icon="mdi-chevron-down" />
                   </template>
                 </NButton>
               </NDropdown>
@@ -358,7 +359,7 @@ watch(
 
           <NInput v-model:value="chunkSearchKeyword" placeholder="搜索分段标题或内容..." clearable class="mb-12px">
             <template #prefix>
-              <SvgIcon icon="mdi:magnify" />
+              <SvgIcon local-icon="mdi-magnify" />
             </template>
           </NInput>
 

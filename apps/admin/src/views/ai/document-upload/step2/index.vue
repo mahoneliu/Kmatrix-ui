@@ -300,7 +300,7 @@ onMounted(() => {
     >
       <template #header>
         <div class="flex items-center gap-2 border-b border-gray-200 pb-4">
-          <SvgIcon icon="carbon:document-add" class="text-xl" />
+          <SvgIcon local-icon="carbon-document-add" class="text-xl" />
           <NH3 class="m-0">上传文件 - 分块预览</NH3>
           <NTag v-if="tempFiles.length === 1" type="info" size="small">{{ currentTempFile?.filename }}</NTag>
           <NTag v-else type="info" size="small">{{ tempFiles.length }} 个文件</NTag>
@@ -359,7 +359,7 @@ onMounted(() => {
                             分段标识
                             <NTooltip trigger="hover">
                               <template #trigger>
-                                <SvgIcon icon="carbon:information" class="text-gray-400" />
+                                <SvgIcon local-icon="carbon-information" class="text-gray-400" />
                               </template>
                               如果不设置，则默认使用双换行符
                             </NTooltip>
@@ -427,7 +427,7 @@ onMounted(() => {
               </div>
               <NButton type="primary" block :loading="loading" @click="handleGeneratePreview">
                 <template #icon>
-                  <SvgIcon icon="carbon:play" />
+                  <SvgIcon local-icon="carbon-play" />
                 </template>
                 生成预览
               </NButton>
@@ -440,7 +440,7 @@ onMounted(() => {
                 @click="handleBatchPreview"
               >
                 <template #icon>
-                  <SvgIcon icon="carbon:batch-job" />
+                  <SvgIcon local-icon="carbon-batch-job" />
                 </template>
                 为所有未预览文件生成预览
               </NButton>
@@ -459,7 +459,7 @@ onMounted(() => {
             <div class="mb-2">
               <NInput v-model:value="searchKeyword" placeholder="搜索文件..." size="small" clearable>
                 <template #prefix>
-                  <SvgIcon icon="mdi:magnify" class="text-gray-400" />
+                  <SvgIcon local-icon="mdi-magnify" class="text-gray-400" />
                 </template>
               </NInput>
             </div>
@@ -475,7 +475,7 @@ onMounted(() => {
                   >
                     <div class="min-w-0 flex flex-1 items-center gap-2">
                       <SvgIcon
-                        icon="mdi:file-document-outline"
+                        local-icon="mdi-file-document-outline"
                         class="flex-shrink-0 text-lg"
                         :class="currentTempFile?.id === file.id ? 'text-primary' : 'text-gray-400'"
                       />
@@ -504,7 +504,7 @@ onMounted(() => {
           <!-- 当前文件标题 -->
           <div v-if="tempFiles.length > 1" class="mb-4 mr-2 flex items-center justify-between rounded-md p-3">
             <div class="flex items-center gap-2 overflow-hidden">
-              <SvgIcon icon="mdi:file-document-outline" class="text-xl text-primary" />
+              <SvgIcon local-icon="mdi-file-document-outline" class="text-xl text-primary" />
               <span class="truncate font-medium" :title="currentTempFile?.filename">
                 {{ currentTempFile?.filename }}
               </span>
@@ -542,12 +542,12 @@ onMounted(() => {
                         <div class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                           <NButton size="tiny" secondary type="primary" @click="handleEditChunk(chunk)">
                             <template #icon>
-                              <SvgIcon icon="carbon:edit" />
+                              <SvgIcon local-icon="carbon-edit" />
                             </template>
                           </NButton>
                           <NButton size="tiny" secondary type="error" @click="handleDeleteChunk(chunk)">
                             <template #icon>
-                              <SvgIcon icon="carbon:trash-can" />
+                              <SvgIcon local-icon="carbon-trash-can" />
                             </template>
                           </NButton>
                         </div>
@@ -570,14 +570,14 @@ onMounted(() => {
         <div class="flex justify-between">
           <NButton @click="handleBack">
             <template #icon>
-              <SvgIcon icon="carbon:arrow-left" />
+              <SvgIcon local-icon="carbon-arrow-left" />
             </template>
             上一步
           </NButton>
 
           <NButton type="primary" :loading="submitting" :disabled="chunks.length === 0" @click="handleSubmit">
             <template #icon>
-              <SvgIcon icon="carbon:checkmark" />
+              <SvgIcon local-icon="carbon-checkmark" />
             </template>
             提交入库
           </NButton>

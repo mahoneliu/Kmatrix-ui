@@ -66,7 +66,7 @@ onMounted(() => {
     <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
-          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="config">
@@ -77,7 +77,7 @@ onMounted(() => {
                 <NTooltip trigger="hover">
                   <template #trigger>
                     <span class="inline-flex items-center">
-                      <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
+                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
                   如果指定回复内容，就是最终工作流的输出。

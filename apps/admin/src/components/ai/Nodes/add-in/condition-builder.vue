@@ -115,15 +115,15 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
         @update:value="val => updateGroup({ logicalOperator: val as any })"
       />
       <NButton size="tiny" secondary @click="addRule">
-        <template #icon><SvgIcon icon="mdi:plus" /></template>
+        <template #icon><SvgIcon local-icon="mdi-plus" /></template>
         条件
       </NButton>
       <NButton size="tiny" secondary @click="addNestedGroup">
-        <template #icon><SvgIcon icon="mdi:folder-plus" /></template>
+        <template #icon><SvgIcon local-icon="mdi-folder-plus" /></template>
         条件组
       </NButton>
       <NButton v-if="!isRoot" size="tiny" type="error" text @click="$emit('delete')">
-        <template #icon><SvgIcon icon="mdi:delete" /></template>
+        <template #icon><SvgIcon local-icon="mdi-delete" /></template>
       </NButton>
     </div>
 
@@ -189,7 +189,7 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
 
             <!-- 删除按钮 -->
             <NButton size="tiny" type="error" text @click="removeCondition(index)">
-              <template #icon><SvgIcon icon="mdi:close" /></template>
+              <template #icon><SvgIcon local-icon="mdi-close" /></template>
             </NButton>
           </div>
         </template>

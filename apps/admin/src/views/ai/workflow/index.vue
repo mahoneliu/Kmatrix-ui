@@ -17,6 +17,7 @@ import ComponentLibraryPanel from '@/components/ai/workflow/component-library-pa
 import WorkflowSaveStatus from '@/components/ai/workflow/workflow-save-status.vue';
 import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
+import PublishHistoryModal from '@/components/ai/workflow/publish-history-modal.vue';
 import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
 import { useGraphInteraction } from '../../../composables/ai/workflow/useGraphInteraction';
 import { useComponentPanel } from '../../../composables/ai/workflow/useComponentPanel';
@@ -75,6 +76,9 @@ const { handleAutoLayout, handleCollapseAll, handleExpandAll, handleCollapseAndL
 const showDebugDialog = ref(false);
 const debugAppName = ref('');
 
+// 发布历史弹窗
+const showPublishHistory = ref(false);
+
 async function handleDebug() {
   const success = await handleSave(true);
   if (!success) return;
@@ -95,7 +99,7 @@ function handleGoToChat() {
 }
 
 function handlePublishHistory() {
-  message.info('发布历史功能开发中...');
+  showPublishHistory.value = true;
 }
 
 // 节点组件映射
@@ -156,6 +160,7 @@ onMounted(async () => {
       </VueFlow>
 
       <DebugChatDialog v-model:visible="showDebugDialog" :app-id="String(appId)" :app-name="debugAppName" />
+      <PublishHistoryModal v-model:visible="showPublishHistory" :app-id="String(appId)" />
 
       <div
         v-if="showHandlePanel"
@@ -185,56 +190,54 @@ onMounted(async () => {
         <WorkflowSaveStatus v-if="workflowStore.autoSaveEnabled" class="mr-2" />
         <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
           <template #trigger>
-            <NButton class="bg-white/90 shadow-md">
+            <NButton class="bg-white/90 shadow-md dark:bg-dark-2">
               <template #icon>
-                <SvgIcon icon="carbon:add" />
+                <SvgIcon local-icon="carbon-add" />
               </template>
               组件
             </NButton>
           </template>
         </ComponentLibraryModal>
-        <NButton class="bg-white/90 shadow-md" :loading="loading" @click="handleSave">
+        <NButton class="bg-white/90 shadow-md dark:bg-dark-2" :loading="loading" @click="handleSave">
           <template #icon>
-            <SvgIcon icon="mdi:content-save-outline" />
+            <SvgIcon local-icon="mdi-content-save-outline" />
           </template>
           保存
         </NButton>
-        <NButton class="bg-white/90 shadow-md" @click="handleDebug">
+        <NButton class="bg-white/90 shadow-md dark:bg-dark-2" @click="handleDebug">
           <template #icon>
-            <SvgIcon icon="mdi:bug-outline" />
+            <SvgIcon local-icon="mdi-bug-outline" />
           </template>
           调试
         </NButton>
         <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">发布</NButton>
-        <NPopover trigger="click" placement="bottom-end" :show-arrow="false" class="w-[180px] p-0">
+        <NPopover trigger="hover" placement="bottom" :show-arrow="false">
           <template #trigger>
             <NButton quaternary circle class="ml-1">
               <template #icon>
-                <SvgIcon icon="mdi:dots-vertical" class="text-xl" />
+                <SvgIcon local-icon="mdi-dots-vertical" class="text-xl" />
               </template>
             </NButton>
           </template>
-          <div
-            class="flex flex-col border border-gray-100 rounded-md bg-white py-1 text-sm shadow-lg dark:border-gray-700 dark:bg-dark-2"
-          >
+          <div class="min-w-[160px] flex flex-col rounded-md bg-white py-1 text-sm dark:bg-dark-2">
             <div
-              class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+              class="flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="handleGoToChat"
             >
-              <SvgIcon icon="mdi:chat-processing-outline" class="text-base text-gray-500" />
+              <SvgIcon local-icon="mdi-chat-processing-outline" class="text-base text-gray-500" />
               <span>去对话</span>
             </div>
             <div
-              class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+              class="flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="handlePublishHistory"
             >
-              <SvgIcon icon="mdi:history" class="text-base text-gray-500" />
+              <SvgIcon local-icon="mdi-history" class="text-base text-gray-500" />
               <span>发布历史</span>
             </div>
-            <div class="mx-2 my-1 h-px bg-gray-100 dark:bg-gray-700" />
-            <div class="flex items-center justify-between px-4 py-2.5">
+            <div class="mx-2 my-0.5 h-px bg-gray-200 dark:bg-gray-700" />
+            <div class="flex items-center justify-between px-3 py-2">
               <div class="flex items-center gap-2">
-                <SvgIcon icon="mdi:content-save-cog-outline" class="text-base text-gray-500" />
+                <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-base text-gray-500" />
                 <span>自动保存</span>
               </div>
               <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />

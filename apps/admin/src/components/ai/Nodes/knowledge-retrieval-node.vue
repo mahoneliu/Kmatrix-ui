@@ -34,7 +34,7 @@ const formModel = reactive<Workflow.KnowledgeRetrievalConfig>({
   topK: 5,
   threshold: 0.5,
   mode: 'VECTOR',
-  enableRerank: false,
+  enableRerank: true,
   emptyResponse: ''
 });
 
@@ -128,7 +128,7 @@ onMounted(() => {
     <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
-          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
         <NCollapseItem title="检索配置" name="config">
@@ -161,9 +161,9 @@ onMounted(() => {
               <NSlider v-model:value="formModel.threshold" :min="0" :max="1" :step="0.05" />
             </div>
 
-            <div class="workflow-config-item">
+            <div class="workflow-config-item flex-row">
               <label class="workflow-label">启用重排序 (Rerank)</label>
-              <NSwitch v-model:value="formModel.enableRerank" size="small" />
+              <NSwitch v-model:value="formModel.enableRerank" size="small" class="ml-auto" />
             </div>
 
             <div class="workflow-config-item">

@@ -124,7 +124,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:visibility-outline"
+                local-icon="material-symbols-visibility-outline"
                 tooltipContent="详情"
                 onClick={() => view(row.operId!)}
               />

@@ -109,7 +109,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.id)}
               />
@@ -124,7 +124,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.id)}

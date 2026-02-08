@@ -47,7 +47,7 @@ function handleTemperatureChange(value: number) {
       <label class="mb-0 workflow-label">温度</label>
       <NTooltip v-if="showTooltip">
         <template #trigger>
-          <SvgIcon icon="mdi:information-outline" class="cursor-help text-12px text-gray-400" />
+          <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
         </template>
         温度越高,模型越随机,越倾向于创造性和创新性,但可能会降低准确性。
       </NTooltip>

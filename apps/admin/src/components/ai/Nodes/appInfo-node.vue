@@ -238,7 +238,7 @@ onMounted(() => {
     <div class="w-60">
       <NCollapse :default-expanded-names="['basic']">
         <template #arrow>
-          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="basic">
@@ -291,7 +291,7 @@ onMounted(() => {
                 <div class="flex items-center justify-between text-12px c-gray-5 font-600">应用参数</div>
                 <NButton secondary size="tiny" @click="addAppParam">
                   <template #icon>
-                    <SvgIcon icon="mdi:plus" />
+                    <SvgIcon local-icon="mdi-plus" />
                   </template>
                 </NButton>
               </div>
@@ -314,12 +314,12 @@ onMounted(() => {
                   <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <NButton text size="tiny" @click.stop="editAppParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:pencil" />
+                        <SvgIcon local-icon="mdi-pencil" />
                       </template>
                     </NButton>
                     <NButton text type="error" size="tiny" @click.stop="removeAppParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:delete" />
+                        <SvgIcon local-icon="mdi-delete" />
                       </template>
                     </NButton>
                   </div>
@@ -334,7 +334,7 @@ onMounted(() => {
                 <div class="flex items-center justify-between text-12px c-gray-5 font-600">接口参数</div>
                 <NButton secondary size="tiny" @click="addInterfaceParam">
                   <template #icon>
-                    <SvgIcon icon="mdi:plus" />
+                    <SvgIcon local-icon="mdi-plus" />
                   </template>
                 </NButton>
               </div>
@@ -357,12 +357,12 @@ onMounted(() => {
                   <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <NButton text size="tiny" @click.stop="editInterfaceParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:pencil" />
+                        <SvgIcon local-icon="mdi-pencil" />
                       </template>
                     </NButton>
                     <NButton text type="error" size="tiny" @click.stop="removeInterfaceParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:delete" />
+                        <SvgIcon local-icon="mdi-delete" />
                       </template>
                     </NButton>
                   </div>
@@ -376,7 +376,7 @@ onMounted(() => {
                 <div class="flex items-center justify-between text-12px c-gray-5 font-600">会话参数</div>
                 <NButton secondary size="tiny" @click="addSessionParam">
                   <template #icon>
-                    <SvgIcon icon="mdi:plus" />
+                    <SvgIcon local-icon="mdi-plus" />
                   </template>
                 </NButton>
               </div>
@@ -399,12 +399,12 @@ onMounted(() => {
                   <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <NButton text size="tiny" @click.stop="editSessionParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:pencil" />
+                        <SvgIcon local-icon="mdi-pencil" />
                       </template>
                     </NButton>
                     <NButton text type="error" size="tiny" @click.stop="removeSessionParam(index)">
                       <template #icon>
-                        <SvgIcon icon="mdi:delete" />
+                        <SvgIcon local-icon="mdi-delete" />
                       </template>
                     </NButton>
                   </div>

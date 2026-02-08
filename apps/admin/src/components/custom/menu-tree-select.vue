@@ -32,7 +32,7 @@ async function getMenuList() {
     {
       menuId: 0,
       menuName: '根目录',
-      icon: 'material-symbols:home-outline-rounded',
+      localIcon: 'material-symbols-home-outline-rounded',
       children: tree
     }
   ] as Api.System.MenuList;

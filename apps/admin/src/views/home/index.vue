@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
 import { useEcharts } from '@/hooks/common/echarts';
 
 defineOptions({ name: 'HomeAnalysis' });
@@ -8,15 +7,15 @@ defineOptions({ name: 'HomeAnalysis' });
 interface StatCard {
   title: string;
   value: string;
-  icon: string;
+  localIcon: string;
   color: string;
 }
 
 const stats: StatCard[] = [
-  { title: '总文档数', value: '1,280', icon: 'lucide:file-text', color: 'text-blue-600' },
-  { title: 'AI 消耗 Token', value: '850K', icon: 'lucide:bot', color: 'text-emerald-500' },
-  { title: '活跃知识库', value: '12', icon: 'lucide:database', color: 'text-purple-600' },
-  { title: '昨日新增笔记', value: '34', icon: 'lucide:file-plus', color: 'text-orange-500' }
+  { title: '总文档数', value: '1,280', localIcon: 'lucide-file-text', color: 'text-blue-600' },
+  { title: 'AI 消耗 Token', value: '850K', localIcon: 'lucide-bot', color: 'text-emerald-500' },
+  { title: '活跃知识库', value: '12', localIcon: 'lucide-database', color: 'text-purple-600' },
+  { title: '昨日新增笔记', value: '34', localIcon: 'lucide-file-plus', color: 'text-orange-500' }
 ];
 
 // Mock data for recent docs
@@ -94,7 +93,7 @@ const { domRef: chartRef } = useEcharts(() => ({
             <h3 class="text-2xl text-slate-800 font-bold dark:text-white">{{ stat.value }}</h3>
           </div>
           <div class="rounded-lg bg-slate-50 p-3 transition-colors dark:bg-slate-800 group-hover:bg-slate-100">
-            <Icon :icon="stat.icon" class="text-xl" :class="stat.color" />
+            <SvgIcon :local-icon="stat.localIcon" class="text-xl" :class="stat.color" />
           </div>
         </div>
       </div>
@@ -108,7 +107,7 @@ const { domRef: chartRef } = useEcharts(() => ({
         <div class="mb-6 flex items-center justify-between">
           <h2 class="flex items-center gap-2 text-lg text-slate-800 font-bold dark:text-white">
             <div class="rounded-md bg-blue-100 p-1.5 dark:bg-blue-900">
-              <Icon icon="lucide:clock" class="text-sm text-blue-600 dark:text-blue-400" />
+              <SvgIcon local-icon="lucide-clock" class="text-sm text-blue-600 dark:text-blue-400" />
             </div>
             最近编辑文档
           </h2>
@@ -125,7 +124,7 @@ const { domRef: chartRef } = useEcharts(() => ({
               <div
                 class="rounded-xl bg-blue-50 p-3 text-blue-600 shadow-sm transition-all duration-300 dark:bg-blue-900/30 group-hover:bg-blue-600 dark:text-blue-400 group-hover:text-white group-hover:shadow-blue-500/30 group-hover:shadow-md"
               >
-                <Icon icon="lucide:file-text" class="text-xl" />
+                <SvgIcon local-icon="lucide-file-text" class="text-xl" />
               </div>
               <div>
                 <h3
@@ -156,7 +155,7 @@ const { domRef: chartRef } = useEcharts(() => ({
         <div class="mb-4 flex items-center justify-between">
           <h2 class="flex items-center gap-2 text-lg text-slate-800 font-bold dark:text-white">
             <div class="rounded-md bg-emerald-100 p-1.5 dark:bg-emerald-900">
-              <Icon icon="lucide:activity" class="text-sm text-emerald-500" />
+              <SvgIcon local-icon="lucide-activity" class="text-sm text-emerald-500" />
             </div>
             AI 资源使用
           </h2>
@@ -175,7 +174,7 @@ const { domRef: chartRef } = useEcharts(() => ({
     <button
       class="group fixed bottom-8 right-8 z-50 flex items-center gap-2 rounded-full bg-[#1e293b] p-4 text-white shadow-2xl shadow-slate-900/20 transition-all duration-300 active:scale-95 hover:scale-105 dark:bg-blue-600 hover:bg-slate-700 dark:hover:bg-blue-500"
     >
-      <Icon icon="lucide:plus" class="text-xl transition-transform duration-300 group-hover:rotate-90" />
+      <SvgIcon local-icon="lucide-plus" class="text-xl transition-transform duration-300 group-hover:rotate-90" />
       <span class="pr-1 font-medium">新建知识库</span>
     </button>
   </div>

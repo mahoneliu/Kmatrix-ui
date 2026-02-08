@@ -52,7 +52,7 @@ const hasAnyParams = computed(
       <NCollapse :default-expanded-names="['globalParams']">
         <NCollapseItem title="全局参数" name="globalParams">
           <template #arrow>
-            <SvgIcon icon="mdi:play" class="text-4 c-gray-5" />
+            <SvgIcon local-icon="mdi-play" class="text-4 c-gray-5" />
           </template>
           <div class="workflow-config-item-section">
             <div class="min-w-full w-0 flex flex-wrap gap-1.5">
@@ -69,7 +69,7 @@ const hasAnyParams = computed(
 
         <NCollapseItem v-if="hasAnyParams" title="自定义参数" name="params">
           <template #arrow>
-            <SvgIcon icon="mdi:play" class="text-4 c-gray-5" />
+            <SvgIcon local-icon="mdi-play" class="text-4 c-gray-5" />
           </template>
           <div class="flex flex-col gap-3">
             <!-- 应用参数 -->

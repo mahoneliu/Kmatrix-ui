@@ -134,7 +134,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                   startEdit(row);
                 }}
               >
-                <SvgIcon icon="mdi:pencil" />
+                <SvgIcon local-icon="mdi-pencil" />
               </span>
             </div>
           );
@@ -245,7 +245,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="mdi:puzzle-edit"
+                local-icon="mdi-puzzle-edit"
                 tooltipContent="切片管理"
                 onClick={() => router.push({ name: 'ai_chunk-manager', query: { documentId: row.id } })}
               />
@@ -257,7 +257,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="info"
-                icon="mdi:vector-square"
+                local-icon="mdi-vector-square"
                 tooltipContent="向量化"
                 onClick={() => handleEmbedding(row)}
               />
@@ -268,17 +268,17 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             {
               label: 'AI生成问题',
               key: 'generateQuestion',
-              icon: () => <SvgIcon icon="mdi:chat-question" class="text-primary" />
+              icon: () => <SvgIcon local-icon="mdi-chat-question" class="text-primary" />
             },
             {
               label: '状态记录',
               key: 'status',
-              icon: () => <SvgIcon icon="carbon:time" class="text-info" />
+              icon: () => <SvgIcon local-icon="carbon-time" class="text-info" />
             },
             {
               label: '删除',
               key: 'delete',
-              icon: () => <SvgIcon icon="mdi:delete" class="text-error" />
+              icon: () => <SvgIcon local-icon="mdi-delete" class="text-error" />
             }
           ];
 
@@ -287,7 +287,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <div class="h-full flex-center">
                 <NDropdown trigger="hover" options={moreOptions} onSelect={key => handleDropdownSelect(key, row)}>
                   <NButton text class="h-[36px] text-icon">
-                    <SvgIcon icon="mdi:dots-vertical" />
+                    <SvgIcon local-icon="mdi-dots-vertical" />
                   </NButton>
                 </NDropdown>
               </div>
@@ -695,7 +695,7 @@ defineExpose({
       >
         <NUploadDragger class="upload-dragger">
           <div class="flex flex-col items-center gap-2">
-            <SvgIcon icon="mdi:cloud-upload-outline" class="text-4xl text-primary" />
+            <SvgIcon local-icon="mdi-cloud-upload-outline" class="text-4xl text-primary" />
             <p class="text-base font-medium">点击或拖拽文件到此处上传</p>
             <p class="text-sm text-gray-500">
               <template v-if="props.processType === 'QA_PAIR'">
@@ -711,7 +711,7 @@ defineExpose({
         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <NButton text deep-class="text-gray-400 hover:text-primary" @click="uploadAreaVisible = false">
             <template #icon>
-              <SvgIcon icon="mdi:chevron-up" class="text-24px" />
+              <SvgIcon local-icon="mdi-chevron-up" class="text-24px" />
             </template>
           </NButton>
         </div>
@@ -719,7 +719,7 @@ defineExpose({
         <!-- 自定义分块选项（仅通用文件类型） -->
         <NButton v-if="props.processType === 'GENERIC_FILE'" secondary type="info" @click="handleCustomChunk">
           <template #icon>
-            <SvgIcon icon="mdi:puzzle-edit" />
+            <SvgIcon local-icon="mdi-puzzle-edit" />
           </template>
           我要自定义分块
         </NButton>
@@ -758,19 +758,19 @@ defineExpose({
               <!-- 批量操作按钮 -->
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="primary" @click="handleBatchEnable">
                 <template #icon>
-                  <SvgIcon icon="mdi:check-circle" class="text-icon" />
+                  <SvgIcon local-icon="mdi-check-circle" class="text-icon" />
                 </template>
                 启用
               </NButton>
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchDisable">
                 <template #icon>
-                  <SvgIcon icon="mdi:cancel" class="text-icon" />
+                  <SvgIcon local-icon="mdi-cancel" class="text-icon" />
                 </template>
                 禁用
               </NButton>
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchEmbedding">
                 <template #icon>
-                  <SvgIcon icon="mdi:vector-square" class="text-icon" />
+                  <SvgIcon local-icon="mdi-vector-square" class="text-icon" />
                 </template>
                 向量化
               </NButton>
@@ -782,7 +782,7 @@ defineExpose({
                 @click="handleBatchGenerateQuestions"
               >
                 <template #icon>
-                  <SvgIcon icon="mdi:chat-question" class="text-icon" />
+                  <SvgIcon local-icon="mdi-chat-question" class="text-icon" />
                 </template>
                 生成问题
               </NButton>

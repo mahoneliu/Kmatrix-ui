@@ -202,7 +202,7 @@ onMounted(() => {
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-            <SvgIcon icon="mdi:book-open-variant" />
+            <SvgIcon local-icon="mdi-book-open-variant" />
           </div>
           <div class="flex flex-col">
             <h1 class="text-xl text-gray-700 font-bold">{{ kb?.name }}</h1>
@@ -214,41 +214,41 @@ onMounted(() => {
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">问题</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:frequently-asked-questions" class="text-purple-500" />
+              <SvgIcon local-icon="mdi-frequently-asked-questions" class="text-purple-500" />
               <span>{{ stats?.questionCount || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">切片</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:vector-square" class="text-orange-500" />
+              <SvgIcon local-icon="mdi-vector-square" class="text-orange-500" />
               <span>{{ stats?.totalChunks || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">文档</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:file-document-outline" class="text-green-500" />
+              <SvgIcon local-icon="mdi-file-document-outline" class="text-green-500" />
               <span>{{ stats?.totalDocuments || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">处理中</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:clock-outline" class="text-blue-500" />
+              <SvgIcon local-icon="mdi-clock-outline" class="text-blue-500" />
               <span>{{ stats?.processingDocs || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">失败</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
-              <SvgIcon icon="mdi:alert-circle-outline" class="text-red-500" />
+              <SvgIcon local-icon="mdi-alert-circle-outline" class="text-red-500" />
               <span>{{ stats?.errorDocs || 0 }}</span>
             </div>
           </div>
           <NButton type="info" ghost @click="sandboxVisible = true">
             <template #icon>
-              <SvgIcon icon="mdi:flask" />
+              <SvgIcon local-icon="mdi-flask" />
             </template>
             检索测试
           </NButton>
@@ -275,7 +275,7 @@ onMounted(() => {
                   <NPopover trigger="hover" title="数据集说明" placement="right">
                     <template #trigger>
                       <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
-                        <SvgIcon icon="mdi:help-circle-outline" class="text-base" />
+                        <SvgIcon local-icon="mdi-help-circle-outline" class="text-base" />
                       </div>
                     </template>
                     <div class="w-64">
@@ -294,7 +294,7 @@ onMounted(() => {
                   @click="handleAddDataset"
                 >
                   <template #icon>
-                    <SvgIcon icon="mdi:plus" />
+                    <SvgIcon local-icon="mdi-plus" />
                   </template>
                 </NButton>
               </template>
@@ -339,7 +339,7 @@ onMounted(() => {
                           class="opacity-0 transition-opacity group-hover:opacity-100"
                           @click.stop
                         >
-                          <SvgIcon icon="mdi:dots-horizontal" />
+                          <SvgIcon local-icon="mdi-dots-horizontal" />
                         </NButton>
                       </NDropdown>
                     </div>

@@ -1,0 +1,2916 @@
+{
+  "icons": [
+    "06:00",
+    "08:00",
+    "10:00",
+    "12:00",
+    "14:00",
+    "16:00",
+    "18:00",
+    "20:00",
+    "22:00",
+    "24:00",
+    "ant-design:bar-chart-outlined",
+    "ant-design:close-outlined",
+    "ant-design:column-width-outlined",
+    "ant-design:line-outlined",
+    "ant-design:money-collect-outlined",
+    "ant-design:trademark-circle-outlined",
+    "arcticons:dingtalk",
+    "arcticons:quark-browser",
+    "arcticons:uc-browser",
+    "carbon:add",
+    "carbon:add-filled",
+    "carbon:application",
+    "carbon:arrow-left",
+    "carbon:arrow-right",
+    "carbon:batch-job",
+    "carbon:bot",
+    "carbon:chat",
+    "carbon:checkmark",
+    "carbon:checkmark-filled",
+    "carbon:chevron-right",
+    "carbon:close-filled",
+    "carbon:cloud",
+    "carbon:copy",
+    "carbon:data-blob",
+    "carbon:document-add",
+    "carbon:document-blank",
+    "carbon:document-download",
+    "carbon:edit",
+    "carbon:error-outline",
+    "carbon:flow",
+    "carbon:folder-add",
+    "carbon:grid",
+    "carbon:information",
+    "carbon:laptop",
+    "carbon:network-overlay",
+    "carbon:overflow-menu-horizontal",
+    "carbon:play",
+    "carbon:send-alt",
+    "carbon:settings",
+    "carbon:time",
+    "carbon:trash-can",
+    "cbi:imac",
+    "codex:hidden",
+    "devicon:linux",
+    "devicon:windows8",
+    "ep:plus",
+    "file-icons:apple",
+    "fluent:book-information-24-regular",
+    "heroicons:language",
+    "hugeicons:configuration-01",
+    "ic:baseline-wechat",
+    "ic:outline-key",
+    "ic:outline-save",
+    "ic:outline-wechat",
+    "ic:round-refresh",
+    "line-md:menu-fold-left",
+    "line-md:menu-fold-right",
+    "logos:android-icon",
+    "logos:chrome",
+    "logos:firefox",
+    "logos:microsoft-edge",
+    "logos:opera",
+    "logos:safari",
+    "lt-sm:w-200px",
+    "lucide:activity",
+    "lucide:bot",
+    "lucide:clock",
+    "lucide:database",
+    "lucide:file-plus",
+    "lucide:file-text",
+    "lucide:mail-check",
+    "lucide:plus",
+    "majesticons:color-swatch-line",
+    "material-symbols:account-circle-full",
+    "material-symbols:add-2-rounded",
+    "material-symbols:add-rounded",
+    "material-symbols:assignment-ind-outline",
+    "material-symbols:buttons-alt-outline-rounded",
+    "material-symbols:database",
+    "material-symbols:delete-outline",
+    "material-symbols:download-rounded",
+    "material-symbols:drive-file-rename-outline-outline",
+    "material-symbols:hdr-auto",
+    "material-symbols:home-outline-rounded",
+    "material-symbols:iframe-outline",
+    "material-symbols:key-vertical-outline",
+    "material-symbols:lock-open-outline",
+    "material-symbols:nightlight-rounded",
+    "material-symbols:refresh-rounded",
+    "material-symbols:sunny",
+    "material-symbols:sync-outline",
+    "material-symbols:unarchive-outline",
+    "material-symbols:visibility-outline",
+    "mdi:account-group",
+    "mdi:alert-circle",
+    "mdi:alert-circle-outline",
+    "mdi:api",
+    "mdi:application",
+    "mdi:auto-fix",
+    "mdi:book-open-page-variant",
+    "mdi:book-open-variant",
+    "mdi:brain",
+    "mdi:bug-check-outline",
+    "mdi:bug-outline",
+    "mdi:cancel",
+    "mdi:chart-bar",
+    "mdi:chat-plus-outline",
+    "mdi:chat-processing",
+    "mdi:chat-processing-outline",
+    "mdi:chat-question",
+    "mdi:check",
+    "mdi:check-circle",
+    "mdi:chevron-down",
+    "mdi:chevron-left",
+    "mdi:chevron-right",
+    "mdi:chevron-up",
+    "mdi:circle",
+    "mdi:clock-outline",
+    "mdi:close",
+    "mdi:close-circle-outline",
+    "mdi:cloud-upload-outline",
+    "mdi:code-json",
+    "mdi:code-tags",
+    "mdi:cog",
+    "mdi:content-copy",
+    "mdi:content-save",
+    "mdi:content-save-cog-outline",
+    "mdi:content-save-outline",
+    "mdi:database-search",
+    "mdi:delete",
+    "mdi:delete-outline",
+    "mdi:dots-horizontal",
+    "mdi:dots-vertical",
+    "mdi:earth",
+    "mdi:emoticon-happy",
+    "mdi:file-document",
+    "mdi:file-document-outline",
+    "mdi:fit-to-screen-outline",
+    "mdi:flask",
+    "mdi:folder",
+    "mdi:folder-outline",
+    "mdi:folder-plus",
+    "mdi:format-align-justify",
+    "mdi:format-horizontal-align-left",
+    "mdi:format-horizontal-align-right",
+    "mdi:format-list-bulleted",
+    "mdi:frequently-asked-questions",
+    "mdi:fullscreen",
+    "mdi:github",
+    "mdi:help-circle-outline",
+    "mdi:history",
+    "mdi:information",
+    "mdi:information-outline",
+    "mdi:key-variant",
+    "mdi:lightning-bolt",
+    "mdi:link-plus",
+    "mdi:link-variant-off",
+    "mdi:link-variant-plus",
+    "mdi:loading",
+    "mdi:magic-staff",
+    "mdi:magnify",
+    "mdi:magnify-minus-outline",
+    "mdi:magnify-plus-outline",
+    "mdi:menu",
+    "mdi:menu-open",
+    "mdi:message-text",
+    "mdi:minus",
+    "mdi:monitor-dashboard",
+    "mdi:none",
+    "mdi:pencil",
+    "mdi:pin-off-outline",
+    "mdi:pin-outline",
+    "mdi:play",
+    "mdi:plus",
+    "mdi:progress-clock",
+    "mdi:puzzle",
+    "mdi:puzzle-edit",
+    "mdi:refresh",
+    "mdi:rename-box",
+    "mdi:robot",
+    "mdi:rocket-launch",
+    "mdi:send",
+    "mdi:settings",
+    "mdi:sync",
+    "mdi:table-arrow-up",
+    "mdi:text-box-multiple",
+    "mdi:text-box-plus",
+    "mdi:unfold-less-horizontal",
+    "mdi:unfold-more-horizontal",
+    "mdi:vector-square",
+    "mdi:web",
+    "mdi:window-maximize",
+    "mdi:window-restore",
+    "mingcute:device-fill",
+    "node:fs",
+    "node:path",
+    "node:process",
+    "node:url",
+    "ph:sign-out",
+    "ph:user-circle",
+    "ph:warning-circle-bold",
+    "ri:baidu-fill",
+    "ri:prohibited-line",
+    "simple-icons:authy",
+    "simple-icons:gitcode",
+    "simple-icons:gitee",
+    "simple-icons:github",
+    "simple-icons:tencentqq",
+    "sm:h-full",
+    "stash:browser-light",
+    "update:binding",
+    "update:bindings",
+    "update:display-level",
+    "update:mode",
+    "update:search-field",
+    "update:search-keyword",
+    "update:selected-row",
+    "update:show",
+    "update:visible",
+    "virtual:svg-icons-register"
+  ],
+  "usages": [
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\build\\plugins\\unocss.ts",
+      "icon": "node:process",
+      "index": 20
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\build\\plugins\\unocss.ts",
+      "icon": "node:path",
+      "index": 53
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\build\\plugins\\unplugin.ts",
+      "icon": "node:process",
+      "index": 20
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\build\\plugins\\unplugin.ts",
+      "icon": "node:path",
+      "index": 53
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\advanced\\table-header-operation.vue",
+      "icon": "lt-sm:w-200px",
+      "index": 912
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "update:visible",
+      "index": 373
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "update:visible",
+      "index": 1312
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "mdi:bug-outline",
+      "index": 2041
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "mdi:minus",
+      "index": 2343
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "mdi:window-restore",
+      "index": 2541
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "mdi:window-maximize",
+      "index": 2564
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\chat\\debug-chat-dialog.vue",
+      "icon": "mdi:close",
+      "index": 2754
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\edges\\custom-edge.vue",
+      "icon": "mdi:close",
+      "index": 2750
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\ai-config-panel.vue",
+      "icon": "mdi:robot",
+      "index": 1667
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\ai-config-panel.vue",
+      "icon": "mdi:information-outline",
+      "index": 2349
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\ai-config-panel.vue",
+      "icon": "mdi:information-outline",
+      "index": 3189
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\ai-config-panel.vue",
+      "icon": "mdi:information-outline",
+      "index": 3914
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\condition-builder.vue",
+      "icon": "mdi:plus",
+      "index": 3072
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\condition-builder.vue",
+      "icon": "mdi:folder-plus",
+      "index": 3225
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\condition-builder.vue",
+      "icon": "mdi:delete",
+      "index": 3410
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\condition-builder.vue",
+      "icon": "mdi:close",
+      "index": 5733
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "update:bindings",
+      "index": 891
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "update:bindings",
+      "index": 1745
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "update:bindings",
+      "index": 3175
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "update:bindings",
+      "index": 3718
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "mdi:plus",
+      "index": 6377
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "mdi:minus",
+      "index": 9736
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "mdi:plus",
+      "index": 10269
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "mdi:plus",
+      "index": 11282
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-binding-panel.vue",
+      "icon": "mdi:minus",
+      "index": 12320
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "update:binding",
+      "index": 1077
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "mdi:earth",
+      "index": 1764
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "mdi:application",
+      "index": 1866
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "mdi:api",
+      "index": 1993
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "mdi:message-text",
+      "index": 2116
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "update:binding",
+      "index": 5028
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\param-selector.vue",
+      "icon": "update:binding",
+      "index": 5480
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\variable-mention.vue",
+      "icon": "mdi:earth",
+      "index": 1504
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\variable-mention.vue",
+      "icon": "mdi:application",
+      "index": 1606
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\variable-mention.vue",
+      "icon": "mdi:api",
+      "index": 1733
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\add-in\\variable-mention.vue",
+      "icon": "mdi:message-text",
+      "index": 1856
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:play",
+      "index": 7187
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:plus",
+      "index": 9220
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:pencil",
+      "index": 10511
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:delete",
+      "index": 10765
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:plus",
+      "index": 11407
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:pencil",
+      "index": 12727
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:delete",
+      "index": 12987
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:plus",
+      "index": 13535
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:pencil",
+      "index": 14847
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\appInfo-node.vue",
+      "icon": "mdi:delete",
+      "index": 15105
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:rename-box",
+      "index": 7295
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:content-copy",
+      "index": 7420
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:delete-outline",
+      "index": 7544
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 10940
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:information-outline",
+      "index": 11266
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:dots-horizontal",
+      "index": 11875
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:chevron-up",
+      "index": 12247
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:chevron-down",
+      "index": 12266
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:play",
+      "index": 13092
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\base-node.vue",
+      "icon": "mdi:play",
+      "index": 13411
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\condition-node.vue",
+      "icon": "mdi:plus",
+      "index": 5363
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\condition-node.vue",
+      "icon": "mdi:delete",
+      "index": 7386
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\condition-node.vue",
+      "icon": "mdi:minus",
+      "index": 8015
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\db-query-node.vue",
+      "icon": "mdi:play",
+      "index": 2609
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\db-query-node.vue",
+      "icon": "mdi:play",
+      "index": 3604
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\end-node.vue",
+      "icon": "mdi:play",
+      "index": 1883
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\end-node.vue",
+      "icon": "mdi:information-outline",
+      "index": 2421
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\fixed-response-node.vue",
+      "icon": "mdi:message-text",
+      "index": 1398
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\fixed-response-node.vue",
+      "icon": "mdi:play",
+      "index": 1577
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\fixed-response-node.vue",
+      "icon": "mdi:information-outline",
+      "index": 2178
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\intent-classifier-node.vue",
+      "icon": "mdi:brain",
+      "index": 2271
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\intent-classifier-node.vue",
+      "icon": "mdi:plus",
+      "index": 2722
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\intent-classifier-node.vue",
+      "icon": "mdi:minus",
+      "index": 3294
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\knowledge-retrieval-node.vue",
+      "icon": "mdi:play",
+      "index": 3849
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\llm-chat-node.vue",
+      "icon": "mdi:play",
+      "index": 1806
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\llm-chat-node.vue",
+      "icon": "mdi:information-outline",
+      "index": 2329
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\llm-chat-node.vue",
+      "icon": "mdi:information-outline",
+      "index": 2945
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\sql-execute-node.vue",
+      "icon": "mdi:play",
+      "index": 2047
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\sql-generate-node.vue",
+      "icon": "mdi:play",
+      "index": 2409
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\start-node.vue",
+      "icon": "mdi:play",
+      "index": 1838
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\Nodes\\start-node.vue",
+      "icon": "mdi:play",
+      "index": 2425
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "update:show",
+      "index": 629
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "update:show",
+      "index": 2110
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "update:show",
+      "index": 2177
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "update:show",
+      "index": 2746
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "mdi:chevron-up",
+      "index": 3388
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\model-selector-basic.vue",
+      "icon": "mdi:chevron-down",
+      "index": 3407
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\public\\temperature-slider.vue",
+      "icon": "mdi:information-outline",
+      "index": 946
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\component-library-panel.vue",
+      "icon": "carbon:close-filled",
+      "index": 5113
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\publish-history-modal.vue",
+      "icon": "update:visible",
+      "index": 323
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\publish-history-modal.vue",
+      "icon": "update:visible",
+      "index": 1614
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:magnify-plus-outline",
+      "index": 621
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:magnify-minus-outline",
+      "index": 812
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:fit-to-screen-outline",
+      "index": 1006
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:unfold-less-horizontal",
+      "index": 1315
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:unfold-more-horizontal",
+      "index": 1514
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:auto-fix",
+      "index": 1821
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-controls.vue",
+      "icon": "mdi:format-align-justify",
+      "index": 2015
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-save-status.vue",
+      "icon": "mdi:loading",
+      "index": 1060
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-save-status.vue",
+      "icon": "mdi:circle",
+      "index": 1274
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\ai\\workflow\\workflow-save-status.vue",
+      "icon": "mdi:check-circle",
+      "index": 1480
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\lang-switch.vue",
+      "icon": "heroicons:language",
+      "index": 1242
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\menu-toggler.vue",
+      "icon": "line-md:menu-fold-left",
+      "index": 501
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\menu-toggler.vue",
+      "icon": "line-md:menu-fold-right",
+      "index": 536
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\theme-schema-switch.vue",
+      "icon": "material-symbols:sunny",
+      "index": 676
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\theme-schema-switch.vue",
+      "icon": "material-symbols:nightlight-rounded",
+      "index": 710
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\common\\theme-schema-switch.vue",
+      "icon": "material-symbols:hdr-auto",
+      "index": 757
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\file-upload.vue",
+      "icon": "material-symbols:unarchive-outline",
+      "index": 4190
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\form-tip.vue",
+      "icon": "ph:warning-circle-bold",
+      "index": 422
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree-select.vue",
+      "icon": "material-symbols:home-outline-rounded",
+      "index": 1073
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree.vue",
+      "icon": "material-symbols:home-outline-rounded",
+      "index": 1324
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree.vue",
+      "icon": "ri:prohibited-line",
+      "index": 2072
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree.vue",
+      "icon": "codex:hidden",
+      "index": 2296
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree.vue",
+      "icon": "material-symbols:buttons-alt-outline-rounded",
+      "index": 2586
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\components\\custom\\menu-tree.vue",
+      "icon": "material-symbols:buttons-alt-outline-rounded",
+      "index": 2771
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-header\\components\\message-button.vue",
+      "icon": "lucide:mail-check",
+      "index": 1713
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-header\\components\\theme-button.vue",
+      "icon": "majesticons:color-swatch-line",
+      "index": 229
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-header\\components\\user-avatar.vue",
+      "icon": "ph:user-circle",
+      "index": 1158
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-header\\components\\user-avatar.vue",
+      "icon": "ph:sign-out",
+      "index": 1350
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "ant-design:close-outlined",
+      "index": 1062
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "ant-design:column-width-outlined",
+      "index": 1218
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "mdi:format-horizontal-align-left",
+      "index": 1379
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "mdi:format-horizontal-align-right",
+      "index": 1542
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "ant-design:line-outlined",
+      "index": 1702
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "mdi:pin-off-outline",
+      "index": 1943
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\global-tab\\context-menu.vue",
+      "icon": "mdi:pin-outline",
+      "index": 2113
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\theme-drawer\\components\\layout-mode-card.vue",
+      "icon": "update:mode",
+      "index": 416
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\theme-drawer\\components\\layout-mode-card.vue",
+      "icon": "update:mode",
+      "index": 1484
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\theme-drawer\\modules\\appearance\\modules\\theme-schema.vue",
+      "icon": "material-symbols:sunny",
+      "index": 405
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\theme-drawer\\modules\\appearance\\modules\\theme-schema.vue",
+      "icon": "material-symbols:nightlight-rounded",
+      "index": 439
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\layouts\\modules\\theme-drawer\\modules\\appearance\\modules\\theme-schema.vue",
+      "icon": "material-symbols:hdr-auto",
+      "index": 486
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\plugins\\assets.ts",
+      "icon": "virtual:svg-icons-register",
+      "index": 7
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\elegant\\routes.ts",
+      "icon": "fluent:book-information-24-regular",
+      "index": 991
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\elegant\\routes.ts",
+      "icon": "carbon:bot",
+      "index": 1193
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\elegant\\routes.ts",
+      "icon": "mdi:monitor-dashboard",
+      "index": 5947
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\elegant\\routes.ts",
+      "icon": "hugeicons:configuration-01",
+      "index": 9995
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\elegant\\routes.ts",
+      "icon": "material-symbols:account-circle-full",
+      "index": 11825
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\routes\\index.ts",
+      "icon": "mdi:monitor-dashboard",
+      "index": 1020
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\routes\\index.ts",
+      "icon": "material-symbols:iframe-outline",
+      "index": 2222
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\routes\\index.ts",
+      "icon": "simple-icons:authy",
+      "index": 2524
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\router\\routes\\index.ts",
+      "icon": "material-symbols:account-circle-full",
+      "index": 2746
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:chrome",
+      "index": 412
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:microsoft-edge",
+      "index": 457
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:firefox",
+      "index": 508
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:opera",
+      "index": 555
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:safari",
+      "index": 598
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "ic:baseline-wechat",
+      "index": 643
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "ic:baseline-wechat",
+      "index": 702
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "arcticons:quark-browser",
+      "index": 760
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "ic:baseline-wechat",
+      "index": 815
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "simple-icons:tencentqq",
+      "index": 866
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "arcticons:dingtalk",
+      "index": 917
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "arcticons:uc-browser",
+      "index": 970
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "ri:baidu-fill",
+      "index": 1019
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "devicon:windows8",
+      "index": 1087
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "cbi:imac",
+      "index": 1137
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "devicon:linux",
+      "index": 1175
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "logos:android-icon",
+      "index": 1220
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "file-icons:apple",
+      "index": 1272
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "stash:browser-light",
+      "index": 1547
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\utils\\icon-tag-format.ts",
+      "icon": "mingcute:device-fill",
+      "index": 1788
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\about\\index.vue",
+      "icon": "simple-icons:github",
+      "index": 1289
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\about\\index.vue",
+      "icon": "simple-icons:gitcode",
+      "index": 1557
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\about\\index.vue",
+      "icon": "simple-icons:gitee",
+      "index": 1833
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "carbon:chat",
+      "index": 9987
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:code-tags",
+      "index": 10096
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:bug-check-outline",
+      "index": 10399
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:close-circle-outline",
+      "index": 10480
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "carbon:application",
+      "index": 12083
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:content-copy",
+      "index": 12769
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:chevron-up",
+      "index": 13457
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:chevron-down",
+      "index": 13476
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:settings",
+      "index": 13695
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:play",
+      "index": 14056
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:rocket-launch",
+      "index": 14362
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:account-group",
+      "index": 16265
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:message-text",
+      "index": 17027
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:key-variant",
+      "index": 17551
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:emoticon-happy",
+      "index": 18075
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:content-copy",
+      "index": 20463
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:content-copy",
+      "index": 21817
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\index.vue",
+      "icon": "mdi:content-copy",
+      "index": 23169
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\modules\\system-template-config-panel.vue",
+      "icon": "mdi:robot",
+      "index": 9418
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\modules\\system-template-config-panel.vue",
+      "icon": "mdi:database-search",
+      "index": 15200
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-detail\\modules\\system-template-config-panel.vue",
+      "icon": "mdi:content-save",
+      "index": 19453
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:settings",
+      "index": 3082
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:chat",
+      "index": 3218
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:trash-can",
+      "index": 3379
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:chat",
+      "index": 4588
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:flow",
+      "index": 4724
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 4824
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:add",
+      "index": 5085
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "mdi:application",
+      "index": 6386
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:checkmark-filled",
+      "index": 7158
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:error-outline",
+      "index": 7186
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\index.vue",
+      "icon": "carbon:overflow-menu-horizontal",
+      "index": 8445
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\app-operate-modal.vue",
+      "icon": "update:visible",
+      "index": 256
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\app-operate-modal.vue",
+      "icon": "update:visible",
+      "index": 1426
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\app-operate-modal.vue",
+      "icon": "update:visible",
+      "index": 2048
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\template-select-modal.vue",
+      "icon": "update:visible",
+      "index": 551
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\template-select-modal.vue",
+      "icon": "update:visible",
+      "index": 2575
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\template-select-modal.vue",
+      "icon": "update:visible",
+      "index": 3281
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\app-manager\\modules\\template-select-modal.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 4754
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chat\\index.vue",
+      "icon": "mdi:menu",
+      "index": 7018
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chat\\index.vue",
+      "icon": "mdi:menu-open",
+      "index": 7031
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chat\\index.vue",
+      "icon": "mdi:plus",
+      "index": 8064
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chat\\index.vue",
+      "icon": "mdi:plus",
+      "index": 8967
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-add-modal.vue",
+      "icon": "update:show",
+      "index": 321
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-add-modal.vue",
+      "icon": "update:show",
+      "index": 618
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-add-modal.vue",
+      "icon": "update:show",
+      "index": 1044
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-detail-card.vue",
+      "icon": "mdi:magic-staff",
+      "index": 591
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-detail-card.vue",
+      "icon": "mdi:delete-outline",
+      "index": 694
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-edit-modal.vue",
+      "icon": "update:show",
+      "index": 558
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-edit-modal.vue",
+      "icon": "update:show",
+      "index": 1912
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-edit-modal.vue",
+      "icon": "mdi:magic-staff",
+      "index": 4418
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:search-field",
+      "index": 1049
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:search-keyword",
+      "index": 1113
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:display-level",
+      "index": 1219
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "mdi:check",
+      "index": 2009
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "mdi:book-open-page-variant",
+      "index": 2804
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:search-field",
+      "index": 3322
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "mdi:chevron-down",
+      "index": 3533
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:search-keyword",
+      "index": 3786
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:search-keyword",
+      "index": 3915
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "update:display-level",
+      "index": 4203
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "mdi:chevron-down",
+      "index": 4360
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\chunk-list-panel.vue",
+      "icon": "mdi:chevron-down",
+      "index": 5073
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\model-select-modal.vue",
+      "icon": "update:show",
+      "index": 250
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\chunk-manager\\modules\\model-select-modal.vue",
+      "icon": "update:show",
+      "index": 1093
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\components\\data-source-form-modal.vue",
+      "icon": "update:show",
+      "index": 499
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\components\\data-source-form-modal.vue",
+      "icon": "update:show",
+      "index": 3819
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\components\\metadata-manager-modal.vue",
+      "icon": "update:show",
+      "index": 462
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\components\\metadata-manager-modal.vue",
+      "icon": "update:show",
+      "index": 3180
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\components\\metadata-manager-modal.vue",
+      "icon": "mdi:sync",
+      "index": 4453
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\index.vue",
+      "icon": "mdi:magnify",
+      "index": 4853
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\datasource-manager\\index.vue",
+      "icon": "mdi:plus",
+      "index": 5355
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "carbon:document-add",
+      "index": 3006
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "mdi:cloud-upload-outline",
+      "index": 3546
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "carbon:folder-add",
+      "index": 3875
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 4933
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "mdi:close",
+      "index": 5352
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "carbon:arrow-left",
+      "index": 5634
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step1\\index.vue",
+      "icon": "carbon:arrow-right",
+      "index": 5887
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:document-add",
+      "index": 8242
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:information",
+      "index": 11249
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:play",
+      "index": 14224
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:batch-job",
+      "index": 14656
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "mdi:magnify",
+      "index": 15313
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 16198
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 17560
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:edit",
+      "index": 19402
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:trash-can",
+      "index": 19690
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:arrow-left",
+      "index": 20467
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\document-upload\\step2\\index.vue",
+      "icon": "carbon:checkmark",
+      "index": 20720
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:frequently-asked-questions",
+      "index": 4208
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:text-box-multiple",
+      "index": 4278
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:web",
+      "index": 4337
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:folder",
+      "index": 4399
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:book-open-variant",
+      "index": 5168
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:frequently-asked-questions",
+      "index": 5731
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:vector-square",
+      "index": 6105
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 6464
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:clock-outline",
+      "index": 6834
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:alert-circle-outline",
+      "index": 7194
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:flask",
+      "index": 7462
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:help-circle-outline",
+      "index": 8567
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:plus",
+      "index": 9268
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\index.vue",
+      "icon": "mdi:dots-horizontal",
+      "index": 11358
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "update:visible",
+      "index": 583
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "mdi:check",
+      "index": 2024
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "update:visible",
+      "index": 6080
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "mdi:magnify",
+      "index": 8018
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "mdi:chevron-down",
+      "index": 10144
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\chunk-link-modal.vue",
+      "icon": "mdi:magnify",
+      "index": 10461
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\dataset-modal.vue",
+      "icon": "update:visible",
+      "index": 592
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\dataset-modal.vue",
+      "icon": "update:visible",
+      "index": 3171
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\dataset-modal.vue",
+      "icon": "update:visible",
+      "index": 3299
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\dataset-modal.vue",
+      "icon": "update:visible",
+      "index": 3514
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-status-modal.vue",
+      "icon": "update:visible",
+      "index": 301
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-status-modal.vue",
+      "icon": "update:visible",
+      "index": 422
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:pencil",
+      "index": 4379
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:puzzle-edit",
+      "index": 7568
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:vector-square",
+      "index": 7931
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:chat-question",
+      "index": 8243
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "carbon:time",
+      "index": 8414
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:delete",
+      "index": 8574
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:dots-vertical",
+      "index": 8952
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:cloud-upload-outline",
+      "index": 18192
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:table-arrow-up",
+      "index": 18233
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:text-box-plus",
+      "index": 18271
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:link-plus",
+      "index": 18306
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:plus",
+      "index": 18366
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:cloud-upload-outline",
+      "index": 19210
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:chevron-up",
+      "index": 20021
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:puzzle-edit",
+      "index": 20318
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:check-circle",
+      "index": 21696
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:cancel",
+      "index": 21989
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:vector-square",
+      "index": 22278
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\document-table.vue",
+      "icon": "mdi:chat-question",
+      "index": 22678
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\embedding-confirm-modal.vue",
+      "icon": "update:show",
+      "index": 189
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\embedding-confirm-modal.vue",
+      "icon": "update:show",
+      "index": 512
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\embedding-confirm-modal.vue",
+      "icon": "update:show",
+      "index": 670
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\embedding-confirm-modal.vue",
+      "icon": "update:show",
+      "index": 905
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\online-doc-modal.vue",
+      "icon": "update:visible",
+      "index": 229
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\online-doc-modal.vue",
+      "icon": "update:visible",
+      "index": 872
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\online-doc-modal.vue",
+      "icon": "update:visible",
+      "index": 1343
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-add-modal.vue",
+      "icon": "update:visible",
+      "index": 405
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-add-modal.vue",
+      "icon": "update:visible",
+      "index": 600
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-add-modal.vue",
+      "icon": "update:visible",
+      "index": 1587
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "update:visible",
+      "index": 962
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "update:selected-row",
+      "index": 1009
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "update:visible",
+      "index": 3056
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "update:selected-row",
+      "index": 6451
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "update:selected-row",
+      "index": 6821
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:close",
+      "index": 7272
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:pencil",
+      "index": 7605
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:plus",
+      "index": 8874
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:link-variant-off",
+      "index": 9717
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:chevron-left",
+      "index": 10692
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-detail-drawer.vue",
+      "icon": "mdi:chevron-right",
+      "index": 10923
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-table.vue",
+      "icon": "mdi:pencil",
+      "index": 3024
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-table.vue",
+      "icon": "mdi:link-variant-plus",
+      "index": 4589
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-table.vue",
+      "icon": "mdi:delete",
+      "index": 4799
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\question-table.vue",
+      "icon": "mdi:plus",
+      "index": 9444
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\web-link-modal.vue",
+      "icon": "update:visible",
+      "index": 221
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\web-link-modal.vue",
+      "icon": "update:visible",
+      "index": 555
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-detail\\modules\\web-link-modal.vue",
+      "icon": "update:visible",
+      "index": 1517
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:book-open-page-variant",
+      "index": 3503
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:folder",
+      "index": 3773
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:file-document",
+      "index": 4024
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:puzzle",
+      "index": 4282
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:progress-clock",
+      "index": 4537
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:alert-circle",
+      "index": 4791
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:magnify",
+      "index": 5363
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:flask",
+      "index": 5903
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:plus",
+      "index": 6110
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:book-open-page-variant",
+      "index": 7387
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:folder-outline",
+      "index": 8147
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 8344
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:cog",
+      "index": 8984
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:pencil",
+      "index": 9079
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:delete",
+      "index": 9286
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\index.vue",
+      "icon": "mdi:dots-horizontal",
+      "index": 9952
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\kb-modal.vue",
+      "icon": "update:visible",
+      "index": 509
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\kb-modal.vue",
+      "icon": "update:visible",
+      "index": 2017
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\kb-modal.vue",
+      "icon": "update:visible",
+      "index": 2145
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\kb-modal.vue",
+      "icon": "update:visible",
+      "index": 2360
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "update:visible",
+      "index": 657
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "update:visible",
+      "index": 1358
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:refresh",
+      "index": 5165
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:magnify",
+      "index": 5579
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:send",
+      "index": 5811
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:chevron-right",
+      "index": 6013
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:help-circle-outline",
+      "index": 8359
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:help-circle-outline",
+      "index": 8959
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:format-list-bulleted",
+      "index": 9395
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 12469
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\knowledge-manager\\modules\\retrieval-sandbox.vue",
+      "icon": "mdi:help-circle-outline",
+      "index": 13074
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:add",
+      "index": 3672
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:edit",
+      "index": 4765
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:copy",
+      "index": 4866
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:trash-can",
+      "index": 5041
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:overflow-menu-horizontal",
+      "index": 5669
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:chat",
+      "index": 6471
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-list.vue",
+      "icon": "carbon:data-blob",
+      "index": 6487
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\model-modal.vue",
+      "icon": "carbon:network-overlay",
+      "index": 11559
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\provider-list.vue",
+      "icon": "carbon:grid",
+      "index": 2203
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\provider-list.vue",
+      "icon": "carbon:cloud",
+      "index": 2472
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\provider-list.vue",
+      "icon": "carbon:laptop",
+      "index": 2770
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\model-manager\\modules\\provider-list.vue",
+      "icon": "carbon:chevron-right",
+      "index": 4078
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\node-definition\\index.vue",
+      "icon": "sm:h-full",
+      "index": 6566
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\node-definition\\modules\\node-operate-drawer.vue",
+      "icon": "mdi:code-json",
+      "index": 1426
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\template-editor\\index.vue",
+      "icon": "carbon:add",
+      "index": 5847
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\template-editor\\index.vue",
+      "icon": "mdi:content-save-outline",
+      "index": 6137
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\template-editor\\index.vue",
+      "icon": "mdi:content-save-cog-outline",
+      "index": 6333
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\composables\\use-workflow-persistence.ts",
+      "icon": "mdi:information",
+      "index": 1489
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "carbon:add",
+      "index": 6790
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:content-save-outline",
+      "index": 7082
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:bug-outline",
+      "index": 7303
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:dots-vertical",
+      "index": 7701
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:chat-processing-outline",
+      "index": 8137
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:history",
+      "index": 8484
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow\\index.vue",
+      "icon": "mdi:content-save-cog-outline",
+      "index": 8810
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 1547
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 1659
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:robot",
+      "index": 1718
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:chat-processing",
+      "index": 1760
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:magnify",
+      "index": 1812
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:chart-bar",
+      "index": 1856
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:brain",
+      "index": 1902
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:lightning-bolt",
+      "index": 1944
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:pencil",
+      "index": 1995
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 4442
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 4902
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:add",
+      "index": 8444
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "mdi:file-document-outline",
+      "index": 9591
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:add-filled",
+      "index": 10712
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:copy",
+      "index": 10821
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:settings",
+      "index": 11088
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:edit",
+      "index": 11337
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:trash-can",
+      "index": 11580
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:overflow-menu-horizontal",
+      "index": 12351
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\ai\\workflow-template\\index.vue",
+      "icon": "carbon:document-blank",
+      "index": 12764
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\demo\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 2938
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\demo\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3376
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\demo\\index.vue",
+      "icon": "sm:h-full",
+      "index": 5951
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\tree\\index.vue",
+      "icon": "material-symbols:add-2-rounded",
+      "index": 2093
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\tree\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 2400
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\tree\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 2727
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\demo\\tree\\index.vue",
+      "icon": "sm:h-full",
+      "index": 5903
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:file-text",
+      "index": 341
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:bot",
+      "index": 434
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:database",
+      "index": 516
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:file-plus",
+      "index": 603
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:clock",
+      "index": 3614
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:file-text",
+      "index": 4581
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:activity",
+      "index": 6048
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\index.vue",
+      "icon": "lucide:plus",
+      "index": 6847
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\card-data.vue",
+      "icon": "ant-design:bar-chart-outlined",
+      "index": 615
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\card-data.vue",
+      "icon": "ant-design:money-collect-outlined",
+      "index": 821
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\card-data.vue",
+      "icon": "carbon:document-download",
+      "index": 1042
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\card-data.vue",
+      "icon": "ant-design:trademark-circle-outlined",
+      "index": 1244
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "06:00",
+      "index": 2069
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "08:00",
+      "index": 2078
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "10:00",
+      "index": 2087
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "12:00",
+      "index": 2096
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "14:00",
+      "index": 2105
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "16:00",
+      "index": 2114
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "18:00",
+      "index": 2123
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "20:00",
+      "index": 2132
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "22:00",
+      "index": 2141
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\home\\modules\\line-chart.vue",
+      "icon": "24:00",
+      "index": 2150
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\logininfor\\index.vue",
+      "icon": "material-symbols:visibility-outline",
+      "index": 4014
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\logininfor\\index.vue",
+      "icon": "material-symbols:lock-open-outline",
+      "index": 4403
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\logininfor\\index.vue",
+      "icon": "sm:h-full",
+      "index": 7496
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\online\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3056
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\online\\index.vue",
+      "icon": "sm:h-full",
+      "index": 4338
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\operlog\\index.vue",
+      "icon": "material-symbols:visibility-outline",
+      "index": 3346
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\monitor\\operlog\\index.vue",
+      "icon": "sm:h-full",
+      "index": 6008
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\client\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 4615
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\client\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 5058
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\client\\index.vue",
+      "icon": "sm:h-full",
+      "index": 7781
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\config\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3447
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\config\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3896
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\config\\index.vue",
+      "icon": "sm:h-full",
+      "index": 6820
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dept\\index.vue",
+      "icon": "material-symbols:add-2-rounded",
+      "index": 2323
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dept\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 2630
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dept\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 2961
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dept\\index.vue",
+      "icon": "sm:h-full",
+      "index": 5717
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3989
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 4436
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 7918
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 8229
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:add-rounded",
+      "index": 10005
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:download-rounded",
+      "index": 10281
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\dict\\index.vue",
+      "icon": "material-symbols:refresh-rounded",
+      "index": 10523
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:home-outline-rounded",
+      "index": 2597
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "ri:prohibited-line",
+      "index": 4084
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "codex:hidden",
+      "index": 4308
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 8090
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 8486
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:add-rounded",
+      "index": 9462
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 9740
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\menu\\index.vue",
+      "icon": "material-symbols:refresh-rounded",
+      "index": 9990
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\notice\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 2929
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\notice\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3378
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\notice\\index.vue",
+      "icon": "sm:h-full",
+      "index": 5504
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss\\index.vue",
+      "icon": "material-symbols:download-rounded",
+      "index": 4863
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 5331
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss\\index.vue",
+      "icon": "sm:h-full",
+      "index": 10095
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss-config\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3779
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss-config\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 4234
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\oss-config\\index.vue",
+      "icon": "sm:h-full",
+      "index": 6792
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\post\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3280
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\post\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3725
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\post\\index.vue",
+      "icon": "ic:round-refresh",
+      "index": 6024
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\post\\index.vue",
+      "icon": "sm:h-full",
+      "index": 8145
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\role\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3659
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\role\\index.vue",
+      "icon": "material-symbols:database",
+      "index": 4017
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\role\\index.vue",
+      "icon": "material-symbols:assignment-ind-outline",
+      "index": 4342
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\role\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 4674
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\role\\index.vue",
+      "icon": "sm:h-full",
+      "index": 8081
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3210
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant\\index.vue",
+      "icon": "material-symbols:sync-outline",
+      "index": 3560
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3967
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant\\index.vue",
+      "icon": "sm:h-full",
+      "index": 8217
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant-package\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3259
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant-package\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 3716
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\tenant-package\\index.vue",
+      "icon": "sm:h-full",
+      "index": 6594
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\user\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 4430
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\user\\index.vue",
+      "icon": "material-symbols:key-vertical-outline",
+      "index": 4787
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\user\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 5124
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\user\\index.vue",
+      "icon": "ic:round-refresh",
+      "index": 8424
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\system\\user\\modules\\user-import-modal.vue",
+      "icon": "material-symbols:unarchive-outline",
+      "index": 3310
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "material-symbols:visibility-outline",
+      "index": 3005
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "material-symbols:drive-file-rename-outline-outline",
+      "index": 3339
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "material-symbols:sync-outline",
+      "index": 3697
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "material-symbols:download-rounded",
+      "index": 4022
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 4347
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\tool\\gen\\index.vue",
+      "icon": "sm:h-full",
+      "index": 8812
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\index.vue",
+      "icon": "ic:outline-save",
+      "index": 6150
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\index.vue",
+      "icon": "ic:outline-key",
+      "index": 7720
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\modules\\online-table.vue",
+      "icon": "material-symbols:delete-outline",
+      "index": 2516
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\modules\\social-card.vue",
+      "icon": "ic:outline-wechat",
+      "index": 1426
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\modules\\social-card.vue",
+      "icon": "simple-icons:gitee",
+      "index": 1641
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\modules\\social-card.vue",
+      "icon": "mdi:github",
+      "index": 1723
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\src\\views\\_builtin\\user-center\\modules\\user-avatar.vue",
+      "icon": "ep:plus",
+      "index": 2886
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\admin\\vite.config.ts",
+      "icon": "node:url",
+      "index": 35
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\src\\App.vue",
+      "icon": "mdi:chevron-left",
+      "index": 5544
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\src\\App.vue",
+      "icon": "mdi:menu",
+      "index": 6667
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\src\\App.vue",
+      "icon": "mdi:chat-plus-outline",
+      "index": 7264
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\src\\App.vue",
+      "icon": "mdi:fullscreen",
+      "index": 7624
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\src\\App.vue",
+      "icon": "mdi:close",
+      "index": 7973
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\apps\\chat\\vite.config.ts",
+      "icon": "node:url",
+      "index": 35
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\commands\\git-commit.ts",
+      "icon": "node:path",
+      "index": 17
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\commands\\git-commit.ts",
+      "icon": "node:fs",
+      "index": 59
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\commands\\router.ts",
+      "icon": "node:process",
+      "index": 20
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\commands\\router.ts",
+      "icon": "node:path",
+      "index": 53
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\commands\\router.ts",
+      "icon": "node:fs",
+      "index": 150
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\scripts\\src\\config\\index.ts",
+      "icon": "node:process",
+      "index": 20
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:circle",
+      "index": 3592
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "carbon:copy",
+      "index": 5538
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:play",
+      "index": 6553
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:clock-outline",
+      "index": 7506
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:play",
+      "index": 8093
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:none",
+      "index": 9735
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "carbon:copy",
+      "index": 11790
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "mdi:bug-check-outline",
+      "index": 13650
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\ChatPanel.vue",
+      "icon": "carbon:send-alt",
+      "index": 14170
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "carbon:edit",
+      "index": 2328
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "carbon:trash-can",
+      "index": 2395
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "mdi:chat-plus-outline",
+      "index": 3427
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "carbon:trash-can",
+      "index": 3788
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "mdi:dots-horizontal",
+      "index": 5701
+    },
+    {
+      "file": "F:\\code\\KMatrix\\kmatrix-ui\\packages\\shared\\src\\components\\SessionList.vue",
+      "icon": "carbon:chat",
+      "index": 6004
+    }
+  ]
+}

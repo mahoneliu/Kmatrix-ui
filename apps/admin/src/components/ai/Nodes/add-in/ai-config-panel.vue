@@ -57,7 +57,7 @@ function handleConfigChange() {
     <template #header-extra>
       <NTooltip>
         <template #trigger>
-          <SvgIcon icon="mdi:robot" class="text-14px text-primary" />
+          <SvgIcon local-icon="mdi-robot" class="text-14px text-primary" />
         </template>
         配置大语言模型的行为参数
       </NTooltip>
@@ -78,17 +78,18 @@ function handleConfigChange() {
           <span class="workflow-label">系统提示词</span>
           <NTooltip>
             <template #trigger>
-              <SvgIcon icon="mdi:information-outline" class="cursor-help text-12px text-gray-400" />
+              <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
             </template>
-            定义AI助手的角色和行为规范
+            定义AI助手的角色和行为规范,输入 / 选择变量
           </NTooltip>
         </div>
       </div>
       <div>
         <VariableMention
           v-model:model-value="systemPrompt"
+          class="text-xs"
           :node-id="nodeId"
-          :rows="3"
+          :rows="2"
           placeholder="例如:你是一个专业的客服助手... (输入 / 选择变量)"
           @update:model-value="handleConfigChange"
         />
@@ -103,7 +104,7 @@ function handleConfigChange() {
           <span class="workflow-label">Max Tokens</span>
           <NTooltip>
             <template #trigger>
-              <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
+              <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-gray-400" />
             </template>
             模型生成的最大token数,留空则使用模型默认值
           </NTooltip>
@@ -126,7 +127,7 @@ function handleConfigChange() {
           <label class="workflow-label">流式输出</label>
           <NTooltip>
             <template #trigger>
-              <SvgIcon icon="mdi:information-outline" class="cursor-help text-gray-400" />
+              <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-gray-400" />
             </template>
             开启后,模型将实时输出结果,而不是等待生成完成后一次性返回
           </NTooltip>
@@ -143,5 +144,9 @@ function handleConfigChange() {
 <style scoped>
 .ai-config-panel :deep(.n-slider-marks) {
   font-size: 10px;
+}
+:deep(.n-input__textarea-el),
+:deep(.n-input__placeholder) {
+  font-size: 12px;
 }
 </style>

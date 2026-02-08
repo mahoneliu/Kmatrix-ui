@@ -169,7 +169,7 @@ async function updatePassword() {
             <NFormItem class="flex items-center justify-end">
               <NButton class="ml-20px w-80px" type="primary" :loading="btnLoading" @click="updateProfile">
                 <template #icon>
-                  <SvgIcon icon="ic:outline-save" class="size-24px" />
+                  <SvgIcon local-icon="ic-outline-save" class="size-24px" />
                 </template>
                 保存
               </NButton>
@@ -212,7 +212,7 @@ async function updatePassword() {
             <NFormItem class="flex items-center justify-end">
               <NButton class="ml-20px w-120px" type="primary" :loading="btnLoading" @click="updatePassword">
                 <template #icon>
-                  <SvgIcon icon="ic:outline-key" class="size-24px" />
+                  <SvgIcon local-icon="ic-outline-key" class="size-24px" />
                 </template>
                 修改密码
               </NButton>

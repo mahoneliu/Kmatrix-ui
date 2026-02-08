@@ -70,7 +70,7 @@ const { messages, isStreaming, streamChat, clearMessages } = useStreamChat({
 });
 
 // 输入消息
-const inputMessage = ref('');
+const userInput = ref('');
 
 // 初始化开场白
 function initPrologue() {
@@ -98,10 +98,10 @@ onMounted(async () => {
 
 // 发送消息
 async function handleSend() {
-  if (!inputMessage.value.trim() || isStreaming.value) return;
+  if (!userInput.value.trim() || isStreaming.value) return;
 
-  const userMsg = inputMessage.value.trim();
-  inputMessage.value = '';
+  const userMsg = userInput.value.trim();
+  userInput.value = '';
 
   emit('messageSent', userMsg);
 
@@ -213,7 +213,7 @@ defineExpose({
                     @click="handleCopyMessage(msg.content)"
                   >
                     <template #icon>
-                      <SvgIcon icon="carbon:copy" />
+                      <SvgIcon local-icon="carbon-copy" />
                     </template>
                   </NButton>
                 </template>
@@ -235,7 +235,10 @@ defineExpose({
                         <span class="text-xs text-gray-500 dark:text-gray-200">思考过程</span>
                       </template>
                       <template #arrow>
-                        <SvgIcon icon="mdi:play" class="text-gray-400 workflow-collapse-icon dark:text-gray-200" />
+                        <SvgIcon
+                          local-icon="mdi-play"
+                          class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
+                        />
                       </template>
                       <div class="max-h-200px overflow-y-auto text-xs text-gray-500 -mt-5 dark:text-gray-200">
                         <MarkdownRenderer :content="msg.thinkingContent" />
@@ -253,7 +256,7 @@ defineExpose({
                   class="mt-3 border-t border-gray-200 pt-2 dark:border-gray-700"
                 >
                   <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
-                    <SvgIcon icon="mdi:clock-outline" />
+                    <SvgIcon local-icon="mdi-clock-outline" />
                     <span v-if="msg.durationMs">耗时 {{ (msg.durationMs / 1000).toFixed(2) }}s</span>
                     <span v-if="msg.tokens">· {{ msg.tokens.totalTokens }} tokens</span>
                   </div>
@@ -264,7 +267,7 @@ defineExpose({
                         <span class="text-xs text-gray-400">执行详情 ({{ msg.executions.length }}个节点)</span>
                       </template>
                       <template #arrow>
-                        <SvgIcon icon="mdi:play" class="text-gray-400 workflow-collapse-icon" />
+                        <SvgIcon local-icon="mdi-play" class="text-gray-400 workflow-collapse-icon" />
                       </template>
 
                       <div class="-ml-11 -mt-2 space-y-1">
@@ -280,7 +283,7 @@ defineExpose({
                                       color: getNodeInfo(exec.nodeType).color
                                     }"
                                   >
-                                    <SvgIcon :icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
+                                    <SvgIcon :local-icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
                                   </div>
                                   <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
                                   <span v-if="exec.durationMs" class="text-gray-400">{{ exec.durationMs }}ms</span>
@@ -290,7 +293,7 @@ defineExpose({
                                 </div>
                               </template>
                               <template #arrow>
-                                <SvgIcon icon="mdi:none" class="text-gray-400 workflow-collapse-icon" />
+                                <SvgIcon local-icon="mdi-none" class="text-gray-400 workflow-collapse-icon" />
                               </template>
 
                               <!-- 输入输出参数 -->
@@ -332,7 +335,7 @@ defineExpose({
                     @click="handleCopyMessage(msg.content)"
                   >
                     <template #icon>
-                      <SvgIcon icon="carbon:copy" />
+                      <SvgIcon local-icon="carbon-copy" />
                     </template>
                   </NButton>
                 </template>
@@ -358,7 +361,7 @@ defineExpose({
         class="relative border border-gray-200 rounded-2xl bg-white p-3 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] transition-all duration-300 dark:border-gray-700 focus-within:border-primary-300 dark:bg-gray-800 focus-within:shadow-[0_4px_16px_0_rgba(0,0,0,0.1)] dark:focus-within:border-primary-700"
       >
         <NInput
-          v-model:value="inputMessage"
+          v-model:value="userInput"
           :autosize="{ minRows: 2, maxRows: 6 }"
           :bordered="false"
           :disabled="isStreaming"
@@ -379,7 +382,7 @@ defineExpose({
                   @click="showExecutionInfo = !showExecutionInfo"
                 >
                   <template #icon>
-                    <SvgIcon icon="mdi:bug-check-outline" />
+                    <SvgIcon local-icon="mdi-bug-check-outline" />
                   </template>
                 </NButton>
               </template>
@@ -387,7 +390,7 @@ defineExpose({
             </NTooltip>
           </div>
           <NButton
-            :disabled="!inputMessage.trim() || isStreaming"
+            :disabled="!userInput.trim() || isStreaming"
             :loading="isStreaming"
             circle
             quaternary
@@ -396,7 +399,7 @@ defineExpose({
             @click="handleSend"
           >
             <template #icon>
-              <SvgIcon icon="carbon:send-alt" class="text-xl" />
+              <SvgIcon local-icon="carbon-send-alt" class="text-xl" />
             </template>
           </NButton>
         </div>

@@ -91,3 +91,13 @@ export function fetchAppStatistics(appId: CommonType.IdType, period: string = '7
     params: { period }
   });
 }
+
+/**
+ * 获取应用发布历史
+ */
+export function fetchPublishHistory(appId: CommonType.IdType) {
+  return request<Api.AI.Admin.AppVersion[]>({
+    url: `/ai/app/${appId}/publish-history`,
+    method: 'get'
+  });
+}

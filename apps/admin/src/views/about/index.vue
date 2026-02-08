@@ -51,20 +51,20 @@ function toLink(url: string) {
         <div class="flex gap-3px">
           <!--
  <ButtonIcon
-            icon="simple-icons:github"
+            local-icon="simple-icons-github"
             :tooltip-content="`GitHub ${$t('page.about.projectInfo.repositoryLink')}`"
             @click="toLink('https://github.com/kyxxjs/kmatrix-service')"
           />
           <ButtonIcon
             class="color-#da203e"
-            icon="simple-icons:gitcode"
+            local-icon="simple-icons-gitcode"
             :tooltip-content="`GitCode ${$t('page.about.projectInfo.repositoryLink')}`"
             @click="toLink('https://gitcode.com/kyxxjs/kmatrix-service')"
           /> 
 -->
           <ButtonIcon
             class="color-#c71d23"
-            icon="simple-icons:gitee"
+            local-icon="simple-icons-gitee"
             :tooltip-content="`Gitee ${$t('page.about.projectInfo.repositoryLink')}`"
             @click="toLink('https://gitee.com/kyxxjs/kmatrix-service')"
           />

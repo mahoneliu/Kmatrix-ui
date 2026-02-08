@@ -186,7 +186,7 @@ function handleClose() {
           <div class="flex justify-end">
             <NButton type="primary" :loading="syncLoading" @click="handleSyncFromJdbc">
               <template #icon>
-                <SvgIcon icon="mdi:sync" />
+                <SvgIcon local-icon="mdi-sync" />
               </template>
               同步元数据
             </NButton>

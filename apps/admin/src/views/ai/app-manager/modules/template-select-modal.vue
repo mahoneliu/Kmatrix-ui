@@ -54,7 +54,7 @@ const selectedScopeType = ref<'0' | '1' | undefined>(undefined);
 const scopeTypeOptions = [
   { label: '全部', value: undefined },
   { label: '系统模版', value: '0' },
-  { label: '自建模版', value: '1' }
+  { label: '自定义模版', value: '1' }
 ];
 
 // 创建应用弹窗
@@ -198,8 +198,8 @@ onMounted(() => {
                 <div class="min-w-0 flex-1">
                   <div class="mb-1 flex items-center gap-2">
                     <span class="truncate font-medium">{{ item.templateName }}</span>
-                    <NTag :bordered="false" size="small" :type="item.scopeType === '0' ? 'success' : 'default'">
-                      {{ item.scopeType === '0' ? '系统' : '自建' }}
+                    <NTag :bordered="false" size="small" :type="item.scopeType === '0' ? 'info' : 'success'">
+                      {{ item.scopeType === '0' ? '系统' : '自定义' }}
                     </NTag>
                     <NTag :bordered="false" size="small" type="default">
                       {{ getCategoryLabel(item.category) }}

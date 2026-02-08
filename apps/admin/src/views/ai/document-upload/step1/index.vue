@@ -119,7 +119,7 @@ function handleRemoveFile(fileId: string) {
     <NCard class="mx-auto mt-4 max-w-5xl">
       <template #header>
         <div class="flex items-center gap-2">
-          <SvgIcon icon="carbon:document-add" class="text-2xl" />
+          <SvgIcon local-icon="carbon-document-add" class="text-2xl" />
           <NH5 class="m-0">上传文件 - 选择文件</NH5>
         </div>
       </template>
@@ -133,12 +133,12 @@ function handleRemoveFile(fileId: string) {
         <NUpload v-model:file-list="fileList" :default-upload="false" multiple :show-file-list="false">
           <NUploadDragger>
             <div class="flex flex-col items-center gap-2">
-              <SvgIcon icon="mdi:cloud-upload-outline" class="text-4xl text-primary" />
+              <SvgIcon local-icon="mdi-cloud-upload-outline" class="text-4xl text-primary" />
               <div class="flex items-center gap-2">
                 <p class="text-normal font-normal">点击或拖拽文件到此处上传或</p>
                 <NButton text type="primary" @click="handleFolderUploadClick">
                   <template #icon>
-                    <SvgIcon icon="carbon:folder-add" />
+                    <SvgIcon local-icon="carbon-folder-add" />
                   </template>
                   点击上传文件夹
                 </NButton>
@@ -169,13 +169,13 @@ function handleRemoveFile(fileId: string) {
               class="flex items-center justify-between rounded bg-gray-50 px-3 py-2 transition-colors hover:bg-gray-100"
             >
               <div class="flex items-center gap-2 overflow-hidden">
-                <SvgIcon icon="mdi:file-document-outline" class="flex-shrink-0 text-lg text-gray-400" />
+                <SvgIcon local-icon="mdi-file-document-outline" class="flex-shrink-0 text-lg text-gray-400" />
                 <span class="truncate text-sm">{{ file.name }}</span>
                 <span class="flex-shrink-0 text-xs text-gray-400">{{ formatFileSize(file.file?.size) }}</span>
               </div>
               <NButton text size="small" @click="handleRemoveFile(file.id)">
                 <template #icon>
-                  <SvgIcon icon="mdi:close" />
+                  <SvgIcon local-icon="mdi-close" />
                 </template>
               </NButton>
             </div>
@@ -186,14 +186,14 @@ function handleRemoveFile(fileId: string) {
         <div class="flex justify-between">
           <NButton @click="handleBack">
             <template #icon>
-              <SvgIcon icon="carbon:arrow-left" />
+              <SvgIcon local-icon="carbon-arrow-left" />
             </template>
             返回
           </NButton>
 
           <NButton type="primary" :loading="uploading" :disabled="fileList.length === 0" @click="handleUpload">
             <template #icon>
-              <SvgIcon icon="carbon:arrow-right" />
+              <SvgIcon local-icon="carbon-arrow-right" />
             </template>
             下一步：预览分块
           </NButton>

@@ -289,6 +289,8 @@ declare namespace Api {
       perms: string;
       /** 菜单图标 */
       icon: string;
+      /** 本地图标 */
+      localIcon?: string;
       /** 备注 */
       remark?: string;
       /** 父菜单名称 */
@@ -323,6 +325,7 @@ declare namespace Api {
         | 'status'
         | 'perms'
         | 'icon'
+        | 'localIcon'
         | 'remark'
       >
     >;

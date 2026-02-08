@@ -26,12 +26,12 @@ const dropdownOptions = [
   {
     label: 'AI 生成问题',
     key: 'generate',
-    icon: () => h(SvgIcon, { icon: 'mdi:magic-staff' })
+    icon: () => h(SvgIcon, { localIcon: 'mdi-magic-staff' })
   },
   {
     label: '删除分块',
     key: 'delete',
-    icon: () => h(SvgIcon, { icon: 'mdi:delete-outline' })
+    icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline' })
   }
 ];
 

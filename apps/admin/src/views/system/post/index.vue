@@ -117,7 +117,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.postId!)}
               />
@@ -132,7 +132,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.postId!)}
@@ -221,7 +221,7 @@ function handleResetSearch() {
     <template #header-extra>
       <NButton size="small" text class="h-18px" @click.stop="() => handleResetTreeData()">
         <template #icon>
-          <SvgIcon icon="ic:round-refresh" />
+          <SvgIcon local-icon="ic-round-refresh" />
         </template>
       </NButton>
     </template>

@@ -134,7 +134,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
 
           <NButton type="primary" ghost size="small" @click="handleAdd">
             <template #icon>
-              <SvgIcon icon="carbon:add" />
+              <SvgIcon local-icon="carbon-add" />
             </template>
             新增模型
           </NButton>
@@ -157,12 +157,12 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                   <NDropdown
                     trigger="click"
                     :options="[
-                      { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { icon: 'carbon:edit' }) },
-                      { label: '复制', key: 'copy', icon: () => h(SvgIcon, { icon: 'carbon:copy' }) },
+                      { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { localIcon: 'carbon-edit' }) },
+                      { label: '复制', key: 'copy', icon: () => h(SvgIcon, { localIcon: 'carbon-copy' }) },
                       {
                         label: '删除',
                         key: 'delete',
-                        icon: () => h(SvgIcon, { icon: 'carbon:trash-can', class: 'text-error' }),
+                        icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can', class: 'text-error' }),
                         labelProps: { class: 'text-error' }
                       }
                     ]"
@@ -176,7 +176,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                   >
                     <NButton quaternary size="small" class="text-gray-500 hover:text-primary">
                       <template #icon>
-                        <SvgIcon icon="carbon:overflow-menu-horizontal" />
+                        <SvgIcon local-icon="carbon-overflow-menu-horizontal" />
                       </template>
                     </NButton>
                   </NDropdown>

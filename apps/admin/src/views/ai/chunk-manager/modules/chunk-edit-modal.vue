@@ -139,7 +139,7 @@ function handleCancelEdit() {
             <span class="text-sm font-medium">关联问题</span>
             <NButton size="small" :loading="generatingQuestions" @click="emit('generateQuestions')">
               <template #icon>
-                <SvgIcon icon="mdi:magic-staff" />
+                <SvgIcon local-icon="mdi-magic-staff" />
               </template>
               AI生成问题
             </NButton>

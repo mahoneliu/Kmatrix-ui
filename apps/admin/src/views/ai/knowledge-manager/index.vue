@@ -130,17 +130,6 @@ function getStatusColor(status?: string) {
   return status === 'ACTIVE' ? 'success' : 'warning';
 }
 
-function getPermissionLabel(level?: string) {
-  switch (level) {
-    case 'PUBLIC':
-      return '公开';
-    case 'TEAM':
-      return '团队';
-    default:
-      return '私有';
-  }
-}
-
 onMounted(() => {
   getData();
   loadStatistics();
@@ -155,42 +144,42 @@ onMounted(() => {
         <NGridItem>
           <NStatistic label="知识库" :value="statistics.totalKbs">
             <template #prefix>
-              <SvgIcon icon="mdi:book-open-page-variant" class="text-primary" />
+              <SvgIcon local-icon="mdi-book-open-page-variant" class="text-primary" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
           <NStatistic label="数据集" :value="statistics.totalDatasets">
             <template #prefix>
-              <SvgIcon icon="mdi:folder" class="text-info" />
+              <SvgIcon local-icon="mdi-folder" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
           <NStatistic label="文档" :value="statistics.totalDocuments">
             <template #prefix>
-              <SvgIcon icon="mdi:file-document" class="text-success" />
+              <SvgIcon local-icon="mdi-file-document" class="text-success" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
           <NStatistic label="切片" :value="statistics.totalChunks">
             <template #prefix>
-              <SvgIcon icon="mdi:puzzle" class="text-warning" />
+              <SvgIcon local-icon="mdi-puzzle" class="text-warning" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
           <NStatistic label="处理中" :value="statistics.processingDocs">
             <template #prefix>
-              <SvgIcon icon="mdi:progress-clock" class="text-info" />
+              <SvgIcon local-icon="mdi-progress-clock" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
           <NStatistic label="失败" :value="statistics.errorDocs">
             <template #prefix>
-              <SvgIcon icon="mdi:alert-circle" class="text-error" />
+              <SvgIcon local-icon="mdi-alert-circle" class="text-error" />
             </template>
           </NStatistic>
         </NGridItem>
@@ -205,7 +194,7 @@ onMounted(() => {
             <NInput v-model:value="searchParams.name" clearable placeholder="请输入知识库名称" @keyup.enter="getData" />
             <NButton type="primary" @click="getData">
               <template #icon>
-                <SvgIcon icon="mdi:magnify" />
+                <SvgIcon local-icon="mdi-magnify" />
               </template>
               搜索
             </NButton>
@@ -226,13 +215,13 @@ onMounted(() => {
         <NSpace>
           <NButton type="info" ghost size="small" @click="sandboxVisible = true">
             <template #icon>
-              <SvgIcon icon="mdi:flask" />
+              <SvgIcon local-icon="mdi-flask" />
             </template>
             检索测试
           </NButton>
           <NButton type="primary" ghost size="small" @click="handleAdd">
             <template #icon>
-              <SvgIcon icon="mdi:plus" />
+              <SvgIcon local-icon="mdi-plus" />
             </template>
             新建知识库
           </NButton>
@@ -259,13 +248,15 @@ onMounted(() => {
               <template #header>
                 <div class="flex items-center gap-3 pr-20">
                   <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
-                    <SvgIcon icon="mdi:book-open-page-variant" />
+                    <SvgIcon local-icon="mdi-book-open-page-variant" />
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="truncate text-base font-bold">{{ item.name }}</div>
-                    <div class="text-xs text-gray-400">
+                    <!--
+ <div class="text-xs text-gray-400">
                       {{ getPermissionLabel(item.permissionLevel) }}
-                    </div>
+                    </div> 
+-->
                   </div>
                 </div>
               </template>
@@ -277,11 +268,11 @@ onMounted(() => {
               <!-- 统计信息 -->
               <div class="flex items-center gap-4 text-xs text-gray-400">
                 <div class="flex items-center gap-1">
-                  <SvgIcon icon="mdi:folder-outline" />
+                  <SvgIcon local-icon="mdi-folder-outline" />
                   <span>{{ item.datasetCount || 0 }} 数据集</span>
                 </div>
                 <div class="flex items-center gap-1">
-                  <SvgIcon icon="mdi:file-document-outline" />
+                  <SvgIcon local-icon="mdi-file-document-outline" />
                   <span>{{ item.documentCount || 0 }} 文档</span>
                 </div>
               </div>
@@ -297,13 +288,13 @@ onMounted(() => {
               >
                 <NDropdown
                   :options="[
-                    { label: '管理', key: 'manage', icon: () => h(SvgIcon, { icon: 'mdi:cog' }) },
-                    { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { icon: 'mdi:pencil' }) },
+                    { label: '管理', key: 'manage', icon: () => h(SvgIcon, { localIcon: 'mdi-cog' }) },
+                    { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { localIcon: 'mdi-pencil' }) },
                     { type: 'divider' },
                     {
                       label: '删除',
                       key: 'delete',
-                      icon: () => h(SvgIcon, { icon: 'mdi:delete', class: 'text-error' }),
+                      icon: () => h(SvgIcon, { localIcon: 'mdi-delete', class: 'text-error' }),
                       labelProps: { class: 'text-error' }
                     }
                   ]"
@@ -318,7 +309,7 @@ onMounted(() => {
                 >
                   <NButton class="text-gray-500 hover:text-primary" quaternary size="small" @click.stop>
                     <template #icon>
-                      <SvgIcon icon="mdi:dots-horizontal" />
+                      <SvgIcon local-icon="mdi-dots-horizontal" />
                     </template>
                   </NButton>
                 </NDropdown>

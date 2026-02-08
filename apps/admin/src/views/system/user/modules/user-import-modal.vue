@@ -128,7 +128,7 @@ watch(visible, () => {
     >
       <NUploadDragger>
         <div class="mb-12px flex-center">
-          <SvgIcon icon="material-symbols:unarchive-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
+          <SvgIcon local-icon="material-symbols-unarchive-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
         </div>
         <NText class="text-16px">{{ $t('common.importTip') }}</NText>
         <NP depth="3" class="mt-8px text-center">

@@ -37,7 +37,7 @@ async function getMenuList() {
     {
       id: 0,
       label: '根目录',
-      icon: 'material-symbols:home-outline-rounded',
+      localIcon: 'material-symbols-home-outline-rounded',
       children: data
     }
   ] as Api.System.MenuList;
@@ -70,7 +70,7 @@ function renderLabel({ option }: { option: TreeOption }) {
     return (
       <div class="flex items-center gap-4px text-error-200">
         {label}
-        <SvgIcon icon="ri:prohibited-line" class="text-16px" />
+        <SvgIcon local-icon="ri-prohibited-line" class="text-16px" />
       </div>
     );
   }
@@ -79,7 +79,7 @@ function renderLabel({ option }: { option: TreeOption }) {
     return (
       <div class="flex items-center gap-4px text-gray-400">
         {label}
-        <SvgIcon icon="codex:hidden" class="text-21px" />
+        <SvgIcon local-icon="codex-hidden" class="text-21px" />
       </div>
     );
   }

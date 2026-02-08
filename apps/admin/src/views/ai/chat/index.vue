@@ -278,7 +278,7 @@ onMounted(async () => {
               <template #trigger>
                 <NButton quaternary circle @click="handleNewSession">
                   <template #icon>
-                    <SvgIcon icon="mdi:plus" class="text-lg" />
+                    <SvgIcon local-icon="mdi-plus" class="text-lg" />
                   </template>
                 </NButton>
               </template>
@@ -302,7 +302,7 @@ onMounted(async () => {
                 <template #trigger>
                   <NButton quaternary circle @click="handleNewSession">
                     <template #icon>
-                      <SvgIcon icon="mdi:plus" class="text-lg" />
+                      <SvgIcon local-icon="mdi-plus" class="text-lg" />
                     </template>
                   </NButton>
                 </template>

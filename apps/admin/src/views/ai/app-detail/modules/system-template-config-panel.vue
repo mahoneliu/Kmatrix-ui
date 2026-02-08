@@ -46,13 +46,14 @@ const formData = ref({
   topP: 0.9,
   maxTokens: 2048,
   systemPrompt: '',
+  userPrompt: '',
   enableHistory: false,
   historyCount: 5,
   streamOutput: true,
   kbMode: 'VECTOR' as 'VECTOR' | 'KEYWORD' | 'HYBRID',
   kbTopK: 5,
   kbThreshold: 0.5,
-  kbEnableRerank: false,
+  kbEnableRerank: true,
   kbEmptyResponse: ''
 });
 
@@ -61,6 +62,15 @@ const formData = ref({
  * 优先从工作流节点配置中提取 modelId、kbIds 等
  */
 /**
+ * 辅助函数:如果值已定义则执行赋值回调
+ */
+function assignIfDefined<T>(value: T | undefined, callback: (val: T) => void) {
+  if (value !== undefined) {
+    callback(value);
+  }
+}
+
+/**
  * 提取 LLM_CHAT 节点配置
  */
 function extractLlmChatConfig(config: any) {
@@ -68,24 +78,30 @@ function extractLlmChatConfig(config: any) {
     formData.value.modelId = config.modelId as number;
   }
   const aiConfig = config.aiConfig;
-  if (aiConfig?.temperature !== undefined) {
-    formData.value.temperature = Number(aiConfig.temperature) || 0;
-  }
-  if (aiConfig?.maxTokens !== undefined) {
-    formData.value.maxTokens = Number(aiConfig.maxTokens) || 2048;
-  }
-  if (aiConfig?.systemPrompt !== undefined) {
-    formData.value.systemPrompt = String(aiConfig.systemPrompt || '');
-  }
-  if (aiConfig?.streamOutput !== undefined) {
-    formData.value.streamOutput = Boolean(aiConfig.streamOutput);
-  }
-  if (aiConfig?.enableHistory !== undefined) {
-    formData.value.enableHistory = Boolean(aiConfig.enableHistory);
-  }
-  if (aiConfig?.historyCount !== undefined) {
-    formData.value.historyCount = Number(aiConfig.historyCount) || 5;
-  }
+  if (!aiConfig) return;
+
+  // 使用辅助函数处理 aiConfig 字段
+  assignIfDefined(aiConfig.temperature, val => {
+    formData.value.temperature = Number(val) || 0;
+  });
+  assignIfDefined(aiConfig.maxTokens, val => {
+    formData.value.maxTokens = Number(val) || 2048;
+  });
+  assignIfDefined(aiConfig.systemPrompt, val => {
+    formData.value.systemPrompt = String(val || '');
+  });
+  assignIfDefined(aiConfig.userPrompt, val => {
+    formData.value.userPrompt = String(val || '');
+  });
+  assignIfDefined(aiConfig.streamOutput, val => {
+    formData.value.streamOutput = Boolean(val);
+  });
+  assignIfDefined(aiConfig.enableHistory, val => {
+    formData.value.enableHistory = Boolean(val);
+  });
+  assignIfDefined(aiConfig.historyCount, val => {
+    formData.value.historyCount = Number(val) || 5;
+  });
 }
 
 /**
@@ -154,6 +170,7 @@ function initFormData() {
   formData.value.maxTokens = props.modelSetting?.max_tokens ?? 2048;
   // New fields default values
   formData.value.systemPrompt = '';
+  formData.value.userPrompt = '已知信息：\n{{知识库检索.data}}\n问题：\n{{开始.question}}';
   formData.value.enableHistory = false;
   formData.value.historyCount = 5;
   formData.value.streamOutput = true;
@@ -227,6 +244,7 @@ function updateGraphDataWithFormData(graphData: Workflow.GraphData): Workflow.Gr
             temperature: formData.value.temperature,
             maxTokens: formData.value.maxTokens,
             systemPrompt: formData.value.systemPrompt,
+            userPrompt: formData.value.userPrompt,
             enableHistory: formData.value.enableHistory,
             historyCount: formData.value.historyCount,
             streamOutput: formData.value.streamOutput
@@ -345,7 +363,7 @@ onMounted(() => {
           <NTabPane name="ai" tab="AI 模型配置">
             <template #tab>
               <div class="flex items-center gap-2">
-                <SvgIcon icon="mdi:robot" />
+                <SvgIcon local-icon="mdi-robot" />
                 <span>AI 模型配置</span>
               </div>
             </template>
@@ -360,7 +378,12 @@ onMounted(() => {
                 :show-feedback="false"
                 class="compact-form-item"
               >
-                <template #label><span class="whitespace-nowrap">推理模型</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">
+                    推理模型
+                    <span class="text-red-500">*</span>
+                  </span>
+                </template>
                 <NSelect
                   v-model:value="formData.modelId"
                   :options="modelOptions"
@@ -384,6 +407,24 @@ onMounted(() => {
                   type="textarea"
                   :autosize="{ minRows: 3, maxRows: 6 }"
                   placeholder="定义 AI 助手的角色和行为规范"
+                  class="w-full"
+                />
+              </NFormItem>
+
+              <!-- 用户提示词 -->
+              <NFormItem
+                label="用户提示词"
+                label-placement="left"
+                label-width="80"
+                :show-feedback="false"
+                class="compact-form-item"
+              >
+                <template #label><span class="whitespace-nowrap">用户提示词</span></template>
+                <NInput
+                  v-model:value="formData.userPrompt"
+                  type="textarea"
+                  :autosize="{ minRows: 2, maxRows: 4 }"
+                  placeholder="用户向大模型提出的具体问题或指令 (可选)"
                   class="w-full"
                 />
               </NFormItem>
@@ -496,7 +537,7 @@ onMounted(() => {
           <NTabPane name="kb" tab="知识检索配置">
             <template #tab>
               <div class="flex items-center gap-2">
-                <SvgIcon icon="mdi:database-search" />
+                <SvgIcon local-icon="mdi-database-search" />
                 <span>知识检索配置</span>
               </div>
             </template>
@@ -511,7 +552,10 @@ onMounted(() => {
                 :show-feedback="false"
                 class="compact-form-item"
               >
-                <template #label><span class="whitespace-nowrap">知识库</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">知识库</span>
+                  <span class="text-red-500">*</span>
+                </template>
                 <NSelect
                   v-model:value="formData.kbIds"
                   :options="kbOptions"
@@ -530,7 +574,12 @@ onMounted(() => {
                 :show-feedback="false"
                 class="compact-form-item flex-1"
               >
-                <template #label><span class="whitespace-nowrap">检索模式</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">
+                    检索模式
+                    <span class="text-red-500">*</span>
+                  </span>
+                </template>
                 <NSelect
                   v-model:value="formData.kbMode"
                   :options="[
@@ -607,7 +656,7 @@ onMounted(() => {
         <div class="flex justify-end pb-2 pt-2">
           <NButton type="primary" size="small" :loading="saving" :disabled="!canSave" class="px-8" @click="handleSave">
             <template #icon>
-              <SvgIcon icon="mdi:content-save" />
+              <SvgIcon local-icon="mdi-content-save" />
             </template>
             保存配置
           </NButton>

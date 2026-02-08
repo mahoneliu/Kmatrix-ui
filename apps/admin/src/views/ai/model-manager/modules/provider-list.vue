@@ -73,7 +73,7 @@ watch(
       <NTab name="0" tab="全部">
         <template #default>
           <div class="flex items-center gap-2">
-            <SvgIcon icon="carbon:grid" class="text-xs" />
+            <SvgIcon local-icon="carbon-grid" class="text-xs" />
             <span>全部</span>
           </div>
         </template>
@@ -81,7 +81,7 @@ watch(
       <NTab name="1" :tab="aiProviderTypeRecord['1']">
         <template #default>
           <div class="flex items-center gap-2">
-            <SvgIcon icon="carbon:cloud" class="text-xs" />
+            <SvgIcon local-icon="carbon-cloud" class="text-xs" />
             <span>{{ aiProviderTypeRecord['1'] }}</span>
           </div>
         </template>
@@ -89,7 +89,7 @@ watch(
       <NTab name="2" :tab="aiProviderTypeRecord['2']">
         <template #default>
           <div class="flex items-center gap2">
-            <SvgIcon icon="carbon:laptop" class="text-xs" />
+            <SvgIcon local-icon="carbon-laptop" class="text-xs" />
             <span>{{ aiProviderTypeRecord['2'] }}</span>
           </div>
         </template>
@@ -114,7 +114,7 @@ watch(
                 <!-- <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div> -->
               </div>
               <div v-if="activeId === item.providerId" class="animate-fade-in text-base text-lg text-primary">
-                <SvgIcon icon="carbon:chevron-right" />
+                <SvgIcon local-icon="carbon-chevron-right" />
               </div>
             </div>
           </div>

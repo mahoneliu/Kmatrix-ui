@@ -51,11 +51,11 @@ const socialSources: {
   color: string;
   name: string;
 }[] = [
-  { key: 'wechat_open', icon: 'ic:outline-wechat', color: '#44b549', name: '微信' },
+  { key: 'wechat_open', localIcon: 'ic-outline-wechat', color: '#44b549', name: '微信' },
   { key: 'topiam', localIcon: 'topiam', color: '', name: 'TopIAM' },
   { key: 'maxkey', localIcon: 'maxkey', color: '', name: 'MaxKey' },
-  { key: 'gitee', icon: 'simple-icons:gitee', color: '#c71d23', name: 'Gitee' },
-  { key: 'github', icon: 'mdi:github', color: '#010409', name: 'GitHub' }
+  { key: 'gitee', localIcon: 'simple-icons-gitee', color: '#c71d23', name: 'Gitee' },
+  { key: 'github', localIcon: 'mdi-github', color: '#010409', name: 'GitHub' }
 ];
 
 getSsoUserList();

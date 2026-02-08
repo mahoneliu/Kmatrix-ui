@@ -226,7 +226,7 @@ function handleReset() {
     <template #header-extra>
       <NButton tertiary size="small" @click="handleReset">
         <template #icon>
-          <SvgIcon icon="mdi:refresh" />
+          <SvgIcon local-icon="mdi-refresh" />
         </template>
         重置
       </NButton>
@@ -243,12 +243,12 @@ function handleReset() {
           @keyup.enter="handleSearch"
         >
           <template #prefix>
-            <SvgIcon icon="mdi:magnify" class="text-gray-400" />
+            <SvgIcon local-icon="mdi-magnify" class="text-gray-400" />
           </template>
         </NInput>
         <NButton type="primary" :loading="loading" :disabled="!query.trim()" @click="handleSearch">
           <template #icon>
-            <SvgIcon icon="mdi:send" />
+            <SvgIcon local-icon="mdi-send" />
           </template>
           检索
         </NButton>
@@ -257,7 +257,7 @@ function handleReset() {
       <!-- 配置面板 -->
       <NCollapse default-expanded-names="config">
         <template #arrow>
-          <SvgIcon icon="mdi:chevron-right" />
+          <SvgIcon local-icon="mdi-chevron-right" />
         </template>
         <NCollapseItem title="检索配置" name="config">
           <div class="grid grid-cols-2 gap-4">
@@ -321,7 +321,7 @@ function handleReset() {
                 启用 Rerank
                 <NTooltip>
                   <template #trigger>
-                    <SvgIcon icon="mdi:help-circle-outline" class="cursor-help text-gray-400" />
+                    <SvgIcon local-icon="mdi-help-circle-outline" class="cursor-help text-gray-400" />
                   </template>
                   使用重排序模型对结果进行二次排序，提高准确性
                 </NTooltip>
@@ -335,7 +335,7 @@ function handleReset() {
               <NSwitch v-model:value="enableHighlight" />
               <NTooltip>
                 <template #trigger>
-                  <SvgIcon icon="mdi:help-circle-outline" class="cursor-help text-gray-400" />
+                  <SvgIcon local-icon="mdi-help-circle-outline" class="cursor-help text-gray-400" />
                 </template>
                 在检索结果中高亮显示匹配的关键词
               </NTooltip>
@@ -348,7 +348,7 @@ function handleReset() {
       <NCard :bordered="false" size="small" class="bg-gray-50 dark:bg-gray-800/50">
         <template #header>
           <div class="flex items-center gap-2">
-            <SvgIcon icon="mdi:format-list-bulleted" />
+            <SvgIcon local-icon="mdi-format-list-bulleted" />
             <span>检索结果</span>
             <NTag v-if="searched" size="small" :bordered="false">{{ results.length }} 条</NTag>
           </div>
@@ -413,7 +413,7 @@ function handleReset() {
                     </NText>
                     <div class="mb-1 mt-2 flex items-center justify-between">
                       <div class="flex items-center gap-2">
-                        <SvgIcon icon="mdi:file-document-outline" class="text-gray-300" />
+                        <SvgIcon local-icon="mdi-file-document-outline" class="text-gray-300" />
                         <NText class="text-xs font-medium">{{ item.documentName || '未知文档' }}</NText>
                       </div>
 
@@ -426,7 +426,7 @@ function handleReset() {
                       class="mt-2 rounded bg-primary/5 p-2"
                     >
                       <div class="mb-1 flex items-center gap-1 text-xs text-gray-500">
-                        <SvgIcon icon="mdi:help-circle-outline" class="text-primary" />
+                        <SvgIcon local-icon="mdi-help-circle-outline" class="text-primary" />
                         <span>匹配关联问题:</span>
                       </div>
                       <div class="flex flex-col gap-1">

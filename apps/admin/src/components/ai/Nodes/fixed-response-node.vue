@@ -52,11 +52,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="{ ...data, icon: 'mdi:message-text' }" class="fixed-response-node">
+  <BaseNode v-bind="props" :data="{ ...data, localIcon: 'mdi-message-text' }" class="fixed-response-node">
     <div class="w-93">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
-          <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+          <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
         <NCollapseItem title="基础配置" name="config">
@@ -68,7 +68,7 @@ onMounted(() => {
                 <NTooltip trigger="hover">
                   <template #trigger>
                     <span class="inline-flex items-center">
-                      <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
+                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
                   该节点可以汇合各节点参数，定义特定的内容端，可以通过输入/来引用输入参数的值。

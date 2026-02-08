@@ -61,7 +61,7 @@ const getMeunTree = async () => {
     {
       menuId: 0,
       menuName: $t('page.system.menu.rootName'),
-      icon: 'material-symbols:home-outline-rounded',
+      localIcon: 'material-symbols-home-outline-rounded',
       children: tree
     }
   ] as Api.System.Menu[];
@@ -118,7 +118,7 @@ function renderLabel({ option }: { option: TreeOption }) {
     return (
       <div class="flex items-center gap-4px text-error-200">
         {label}
-        <SvgIcon icon="ri:prohibited-line" class="text-16px" />
+        <SvgIcon local-icon="ri-prohibited-line" class="text-16px" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ function renderLabel({ option }: { option: TreeOption }) {
     return (
       <div class="flex items-center gap-4px text-gray-400">
         {label}
-        <SvgIcon icon="codex:hidden" class="text-21px" />
+        <SvgIcon local-icon="codex-hidden" class="text-21px" />
       </div>
     );
   }
@@ -289,7 +289,7 @@ const btnColumns: DataTableColumns<Api.System.Menu> = [
           <ButtonIcon
             text
             type="primary"
-            icon="material-symbols:drive-file-rename-outline-outline"
+            local-icon="material-symbols-drive-file-rename-outline-outline"
             tooltipContent={$t('common.edit')}
             onClick={() => handleUpdateBtnMenu(row)}
           />
@@ -304,7 +304,7 @@ const btnColumns: DataTableColumns<Api.System.Menu> = [
           <ButtonIcon
             text
             type="error"
-            icon="material-symbols:delete-outline"
+            local-icon="material-symbols-delete-outline"
             tooltipContent={$t('common.delete')}
             popconfirmContent={$t('common.confirmDelete')}
             onPositiveClick={() => handleDeleteBtnMenu(row.menuId!)}
@@ -343,7 +343,7 @@ const renderIframeQuery = (queryParam: string) => {
       <ButtonIcon
         v-if="hasAuth('system:menu:add')"
         size="small"
-        icon="material-symbols:add-rounded"
+        local-icon="material-symbols-add-rounded"
         class="h-28px text-icon color-primary"
         :tooltip-content="$t('page.system.menu.addMenu')"
         @click.stop="handleAddMenu(0)"
@@ -351,14 +351,14 @@ const renderIframeQuery = (queryParam: string) => {
       <ButtonIcon
         v-if="hasAuth('system:menu:add')"
         size="small"
-        icon="material-symbols:delete-outline"
+        local-icon="material-symbols-delete-outline"
         class="h-28px text-icon color-error"
         :tooltip-content="$t('page.system.menu.cascadeDelete')"
         @click.stop="openCascadeDeleteDrawer"
       />
       <ButtonIcon
         size="small"
-        icon="material-symbols:refresh-rounded"
+        local-icon="material-symbols-refresh-rounded"
         class="h-28px text-icon"
         :tooltip-content="$t('common.refresh')"
         @click.stop="reset"

@@ -110,7 +110,7 @@ function handleClose() {
       <div
         class="absolute inset-0 flex-center bg-black/50 text-white opacity-0 transition-opacity duration-300 hover:opacity-100"
       >
-        <SvgIcon icon="ep:plus" class="text-24px" />
+        <SvgIcon local-icon="ep-plus" class="text-24px" />
       </div>
     </div>
 

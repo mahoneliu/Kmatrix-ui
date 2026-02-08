@@ -207,7 +207,7 @@ onMounted(() => {
             />
             <NButton type="primary" @click="loadDataSources">
               <template #icon>
-                <SvgIcon icon="mdi:magnify" />
+                <SvgIcon local-icon="mdi-magnify" />
               </template>
               搜索
             </NButton>
@@ -227,7 +227,7 @@ onMounted(() => {
       <template #header-extra>
         <NButton type="primary" size="small" @click="handleAdd">
           <template #icon>
-            <SvgIcon icon="mdi:plus" />
+            <SvgIcon local-icon="mdi-plus" />
           </template>
           新增数据源
         </NButton>

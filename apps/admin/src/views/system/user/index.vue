@@ -143,7 +143,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.userId)}
               />
@@ -155,7 +155,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:key-vertical-outline"
+                local-icon="material-symbols-key-vertical-outline"
                 tooltipContent="重置密码"
                 onClick={() => handleResetPwd(row.userId)}
               />
@@ -167,7 +167,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.userId)}
@@ -293,7 +293,7 @@ function handleResetSearch() {
     <template #header-extra>
       <NButton size="small" text class="h-18px" @click.stop="() => handleResetTreeData()">
         <template #icon>
-          <SvgIcon icon="ic:round-refresh" />
+          <SvgIcon local-icon="ic-round-refresh" />
         </template>
       </NButton>
     </template>

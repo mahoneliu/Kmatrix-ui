@@ -26,7 +26,7 @@ function handleDragStart(data: { type: Workflow.NodeType; x: number; y: number }
 <template>
   <NPopover
     v-model:show="showPopover"
-    trigger="click"
+    trigger="hover"
     placement="bottom-start"
     :show-arrow="false"
     raw

@@ -118,7 +118,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 type="primary"
                 text
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.id!)}
               />
@@ -130,7 +130,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:sync-outline"
+                local-icon="material-symbols-sync-outline"
                 tooltipContent="同步套餐"
                 popconfirmContent={`确认同步[${row.companyName}]的套餐吗?`}
                 onPositiveClick={() => handleSyncTenantPackage(row)}
@@ -143,7 +143,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.id!)}

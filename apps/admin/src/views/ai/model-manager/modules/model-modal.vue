@@ -384,7 +384,7 @@ defineExpose({ open });
           <NButton :loading="testingConnection" secondary @click="handleTestConnection">
             <!-- <template #icon><span class="i-carbon-network-overlay" /></template> -->
             <template #icon>
-              <SvgIcon icon="carbon:network-overlay" />
+              <SvgIcon local-icon="carbon-network-overlay" />
             </template>
             测试连接
           </NButton>

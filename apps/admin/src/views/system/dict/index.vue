@@ -136,7 +136,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:drive-file-rename-outline-outline"
+                local-icon="material-symbols-drive-file-rename-outline-outline"
                 tooltipContent={$t('common.edit')}
                 onClick={() => edit(row.dictCode!)}
               />
@@ -151,7 +151,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <ButtonIcon
                 text
                 type="error"
-                icon="material-symbols:delete-outline"
+                local-icon="material-symbols-delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.dictCode!)}
@@ -275,7 +275,7 @@ function renderSuffix({ option }: { option: TreeOption }) {
       <ButtonIcon
         text
         type="primary"
-        icon="material-symbols:drive-file-rename-outline-outline"
+        local-icon="material-symbols-drive-file-rename-outline-outline"
         tooltip-content={$t('common.edit')}
         onClick={(event: Event) => {
           event.stopPropagation();
@@ -285,7 +285,7 @@ function renderSuffix({ option }: { option: TreeOption }) {
       <ButtonIcon
         text
         type="error"
-        icon="material-symbols:delete-outline"
+        local-icon="material-symbols-delete-outline"
         tooltip-content={$t('common.delete')}
         popconfirm-content={`${$t('page.system.dict.confirmDeleteDictType')} ${option.dictType} ？`}
         onClick={(event: Event) => event.stopPropagation()}
@@ -347,7 +347,7 @@ const tableTitle = computed(() => {
       <ButtonIcon
         v-if="hasAuth('system:dict:add')"
         size="small"
-        icon="material-symbols:add-rounded"
+        local-icon="material-symbols-add-rounded"
         class="h-18px text-icon"
         :tooltip-content="$t('page.system.dict.addDictType')"
         @click.stop="() => handleAddType()"
@@ -355,14 +355,14 @@ const tableTitle = computed(() => {
       <ButtonIcon
         v-if="hasAuth('system:dict:export')"
         size="small"
-        icon="material-symbols:download-rounded"
+        local-icon="material-symbols-download-rounded"
         class="h-18px text-icon"
         :tooltip-content="$t('page.system.dict.exportDictType')"
         @click.stop="() => handleExportType()"
       />
       <ButtonIcon
         size="small"
-        icon="material-symbols:refresh-rounded"
+        local-icon="material-symbols-refresh-rounded"
         class="h-18px text-icon"
         :tooltip-content="$t('page.system.dict.refreshDictType')"
         @click.stop="() => handleResetTreeData()"

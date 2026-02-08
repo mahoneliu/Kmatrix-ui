@@ -38,7 +38,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     meta: {
       title: 'home',
       i18nKey: 'route.home',
-      icon: 'mdi:monitor-dashboard',
+      localIcon: 'mdi-monitor-dashboard',
       order: -1
     }
   },
@@ -98,7 +98,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
       constant: true,
       hideInMenu: true,
       keepAlive: true,
-      icon: 'material-symbols:iframe-outline'
+      localIcon: 'material-symbols-iframe-outline'
     }
   },
   {
@@ -110,7 +110,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
       i18nKey: 'route.social-callback',
       constant: true,
       hideInMenu: true,
-      icon: 'simple-icons:authy'
+      localIcon: 'simple-icons-authy'
     }
   },
   {
@@ -120,7 +120,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     meta: {
       title: 'user-center',
       i18nKey: 'route.user-center',
-      icon: 'material-symbols:account-circle-full',
+      localIcon: 'material-symbols-account-circle-full',
       hideInMenu: true
     }
   }

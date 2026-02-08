@@ -132,7 +132,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
     <div class="flex-shrink-0 px-4 pb-2">
       <NButton block type="primary" secondary @click="handleNewSession">
         <template #icon>
-          <SvgIcon icon="mdi:chat-plus-outline" />
+          <SvgIcon local-icon="mdi-chat-plus-outline" />
         </template>
         新建对话
       </NButton>
@@ -146,7 +146,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
         <span>历史记录</span>
       </div>
       <SvgIcon
-        icon="carbon:trash-can"
+        local-icon="carbon-trash-can"
         title="清空全部"
         class="cursor-pointer hover:text-red-500"
         @click="emit('delete', 'all')"
@@ -193,7 +193,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
               <NDropdown trigger="click" :options="menuOptions" @select="key => handleMenuSelect(key, session)">
                 <NButton circle quaternary size="small" @click.stop>
                   <template #icon>
-                    <SvgIcon icon="mdi:dots-horizontal" />
+                    <SvgIcon local-icon="mdi-dots-horizontal" />
                   </template>
                 </NButton>
               </NDropdown>
@@ -204,7 +204,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
 
       <NEmpty v-else class="mt-20" description="暂无对话">
         <template #icon>
-          <SvgIcon class="text-6xl" icon="carbon:chat" />
+          <SvgIcon class="text-6xl" local-icon="carbon-chat" />
         </template>
       </NEmpty>
     </div>

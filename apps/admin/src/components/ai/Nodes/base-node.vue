@@ -252,17 +252,17 @@ const menuOptions: DropdownOption[] = [
   {
     label: '重命名',
     key: 'rename',
-    icon: () => h(SvgIcon, { icon: 'mdi:rename-box', class: 'text-18px' })
+    icon: () => h(SvgIcon, { localIcon: 'mdi-rename-box', class: 'text-18px' })
   },
   {
     label: '复制节点',
     key: 'duplicate',
-    icon: () => h(SvgIcon, { icon: 'mdi:content-copy', class: 'text-18px' })
+    icon: () => h(SvgIcon, { localIcon: 'mdi-content-copy', class: 'text-18px' })
   },
   {
     label: '删除节点',
     key: 'delete',
-    icon: () => h(SvgIcon, { icon: 'mdi:delete-outline', class: 'text-18px' })
+    icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline', class: 'text-18px' })
   }
 ];
 
@@ -393,15 +393,15 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1 -ml-2"
         :style="{ backgroundColor: iconBackgroundColor, color: data.nodeColor }"
       >
-        <SvgIcon v-if="data.nodeIcon" :icon="data.nodeIcon" />
-        <SvgIcon v-else icon="mdi:file-document-outline" />
+        <SvgIcon v-if="data.nodeIcon" :local-icon="data.nodeIcon" />
+        <SvgIcon v-else local-icon="mdi-file-document-outline" />
       </div>
 
       <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-4 font-bold">{{ data.nodeLabel }}</span>
       <NTooltip v-if="data.description" trigger="hover">
         <template #trigger>
           <span class="inline-flex items-center">
-            <SvgIcon icon="mdi:information-outline" class="cursor-help text-4 c-gray-4" />
+            <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
           </span>
         </template>
         {{ data.description }}
@@ -418,7 +418,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
           @click.stop
         >
-          <SvgIcon icon="mdi:dots-horizontal" class="text-4 c-gray-5" />
+          <SvgIcon local-icon="mdi-dots-horizontal" class="text-4 c-gray-5" />
         </span>
       </NDropdown>
       <!-- 折叠按钮 -->
@@ -452,7 +452,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
         <NCollapse v-if="isAiNode" class="pt-3">
           <template #arrow>
-            <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
           </template>
           <!-- AI模型配置面板（仅AI节点显示） -->
           <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
@@ -460,7 +460,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
         <NCollapse class="pb-2 pt-3">
           <template #arrow>
-            <SvgIcon icon="mdi:play" class="workflow-collapse-icon" />
+            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
           </template>
           <!-- AI模型配置面板（仅AI节点显示） -->
           <!-- <AiConfigPanel v-if="isAiNode" :node-data="data" @update-ai-config="handleAiConfigUpdate" /> -->

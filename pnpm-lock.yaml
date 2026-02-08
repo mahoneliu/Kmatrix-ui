@@ -270,6 +270,9 @@ importers:
       '@sa/axios':
         specifier: workspace:*
         version: link:../../packages/axios
+      '@sa/color':
+        specifier: workspace:*
+        version: link:../../packages/color
       '@sa/hooks':
         specifier: workspace:*
         version: link:../../packages/hooks

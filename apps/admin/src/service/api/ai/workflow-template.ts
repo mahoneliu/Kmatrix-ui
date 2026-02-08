@@ -19,6 +19,7 @@ export interface WorkflowTemplate {
   templateCode: string;
   description?: string;
   icon?: string;
+  localIcon?: string;
   category?: string;
   scopeType: '0' | '1'; // 0=系统模板, 1=用户模板
   workflowConfig?: string;

@@ -290,7 +290,7 @@ watch(
     <template #header>
       <div class="flex items-center justify-between">
         <span>问题详情</span>
-        <ButtonIcon icon="mdi:close" type="default" text @click="handleClose" />
+        <ButtonIcon local-icon="mdi-close" type="default" text @click="handleClose" />
       </div>
     </template>
 
@@ -300,7 +300,7 @@ watch(
         <template #header-extra>
           <ButtonIcon
             v-if="!isEditing"
-            icon="mdi:pencil"
+            local-icon="mdi-pencil"
             type="primary"
             text
             tooltip-content="编辑"
@@ -335,7 +335,7 @@ watch(
         <template #header-extra>
           <div class="flex items-center gap-4px">
             <NButton type="primary" size="small" secondary @click="showLinkModal = true">
-              <SvgIcon icon="mdi:plus" />
+              <SvgIcon local-icon="mdi-plus" />
               添加关联
             </NButton>
           </div>
@@ -356,7 +356,7 @@ watch(
               <div class="flex items-center justify-between">
                 <span class="text-14px font-semibold">{{ chunk.title || '无标题' }}</span>
                 <ButtonIcon
-                  icon="mdi:link-variant-off"
+                  local-icon="mdi-link-variant-off"
                   type="warning"
                   text
                   tooltip-content="取消关联"
@@ -383,14 +383,14 @@ watch(
           <NSpace>
             <NButton :disabled="!canPrevious" @click="handlePrevious">
               <template #icon>
-                <SvgIcon icon="mdi:chevron-left" />
+                <SvgIcon local-icon="mdi-chevron-left" />
               </template>
               上一条
             </NButton>
             <NButton :disabled="!canNext" @click="handleNext">
               下一条
               <template #icon>
-                <SvgIcon icon="mdi:chevron-right" />
+                <SvgIcon local-icon="mdi-chevron-right" />
               </template>
             </NButton>
           </NSpace>

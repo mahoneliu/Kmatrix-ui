@@ -62,7 +62,7 @@ declare namespace Api.AI.Admin {
     appName: string;
     description: string;
     icon: string;
-    appType: '1' | '2'; // 1: 基础对话, 2: 工作流
+    appType: '1' | '2'; // 1: 固定模板, 2: 自定义工作流
     status: '0' | '1'; // 0: 草稿, 1: 发布
     prologue: string;
     /** 是否启用执行详情（0禁用 1启用） */
@@ -122,5 +122,25 @@ declare namespace Api.AI.Admin {
     };
     userTrend: Record<string, number>;
     questionTrend: Record<string, number>;
+  }
+
+  /** 应用版本历史 */
+  interface AppVersion {
+    /** 版本ID */
+    versionId: CommonType.IdType;
+    /** 应用ID */
+    appId: CommonType.IdType;
+    /** 版本号 */
+    version: number;
+    /** 应用配置快照 */
+    appSnapshot?: any;
+    /** 创建时间 */
+    createTime?: string;
+    /** 创建者ID */
+    createBy?: CommonType.IdType;
+    /** 创建人名称 */
+    createByName?: string;
+    /** 版本说明 */
+    remark?: string;
   }
 }

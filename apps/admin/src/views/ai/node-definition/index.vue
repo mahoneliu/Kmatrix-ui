@@ -2,6 +2,7 @@
 import { h, reactive } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
+import { NODE_CATEGORY_OPTIONS } from '@/constants/workflow';
 import { deleteNodeDefinitions, fetchNodeDefinitionList } from '@/service/api/ai/node';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
@@ -13,12 +14,12 @@ defineOptions({
 });
 
 const appStore = useAppStore();
-// removed manual useBoolean since hook provides it
 
 const searchParams = reactive({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 20,
   nodeType: '',
+  category: null,
   nodeLabel: ''
 });
 
@@ -33,12 +34,19 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     {
       type: 'selection',
       align: 'center',
-      width: 48
+      width: 20
+    },
+    {
+      key: 'nodeIcon',
+      title: '图标',
+      align: 'center',
+      width: 40,
+      render: row => h(SvgIcon, { localIcon: row.nodeIcon, style: { fontSize: '24px', color: row.nodeColor } })
     },
     {
       key: 'nodeType',
-      title: '类型',
-      align: 'center',
+      title: '节点类型',
+      align: 'left',
       width: 150
     },
     {
@@ -48,15 +56,8 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
       width: 150
     },
     {
-      key: 'nodeIcon',
-      title: '图标',
-      align: 'center',
-      width: 60,
-      render: row => h(SvgIcon, { icon: row.nodeIcon, style: { fontSize: '24px', color: row.nodeColor } })
-    },
-    {
       key: 'category',
-      title: '类别',
+      title: '功能',
       align: 'center',
       width: 100,
       render: row => {
@@ -137,8 +138,9 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
 
 function resetSearchParams() {
   searchParams.pageNum = 1;
-  searchParams.pageSize = 10;
+  searchParams.pageSize = 20;
   searchParams.nodeType = '';
+  searchParams.category = null;
   searchParams.nodeLabel = '';
   getDataByPage(1);
 }
@@ -174,27 +176,40 @@ async function handleBatchDelete() {
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="节点检索" :bordered="false" size="small" class="card-wrapper">
-      <NForm :model="searchParams" inline label-placement="left" :label-width="80">
-        <NFormItem label="类型" path="nodeType">
-          <NInput v-model:value="searchParams.nodeType" placeholder="类型" />
-        </NFormItem>
-        <NFormItem label="名称" path="nodeLabel">
-          <NInput v-model:value="searchParams.nodeLabel" placeholder="名称" />
-        </NFormItem>
-        <NFormItem>
+    <!-- 可折叠的搜索区域 -->
+    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+      <NCollapse default-expanded-names="search">
+        <NCollapseItem title="搜索" name="search">
           <NSpace>
-            <NButton type="primary" @click="getDataByPage(1)">
-              <icon-ic-round-search class="mr-4px text-20px" />
-              {{ $t('common.search') }}
-            </NButton>
-            <NButton @click="resetSearchParams">
-              <icon-ic-round-refresh class="mr-4px text-20px" />
-              {{ $t('common.reset') }}
-            </NButton>
+            <NForm :model="searchParams" inline label-placement="left" :label-width="80">
+              <NFormItem label="分类" path="category">
+                <NSelect
+                  v-model:value="searchParams.category"
+                  :options="NODE_CATEGORY_OPTIONS"
+                  placeholder="请选择分类"
+                  clearable
+                  class="w-180px"
+                />
+              </NFormItem>
+              <NFormItem label="名称" path="nodeLabel">
+                <NInput v-model:value="searchParams.nodeLabel" placeholder="名称" />
+              </NFormItem>
+              <NFormItem>
+                <NSpace>
+                  <NButton type="primary" @click="getDataByPage(1)">
+                    <icon-ic-round-search class="mr-4px text-20px" />
+                    {{ $t('common.search') }}
+                  </NButton>
+                  <NButton @click="resetSearchParams">
+                    <icon-ic-round-refresh class="mr-4px text-20px" />
+                    {{ $t('common.reset') }}
+                  </NButton>
+                </NSpace>
+              </NFormItem>
+            </NForm>
           </NSpace>
-        </NFormItem>
-      </NForm>
+        </NCollapseItem>
+      </NCollapse>
     </NCard>
 
     <NCard title="节点定义" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">

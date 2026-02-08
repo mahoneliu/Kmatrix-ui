@@ -17,27 +17,27 @@ export function getRequestMethodTagType(method: string): NaiveUI.ThemeColor {
 }
 
 const browserOptions = [
-  { icon: 'logos:chrome', value: 'chrome' },
-  { icon: 'logos:microsoft-edge', value: 'edge' },
-  { icon: 'logos:firefox', value: 'firefox' },
-  { icon: 'logos:opera', value: 'opera' },
-  { icon: 'logos:safari', value: 'safari' },
-  { icon: 'ic:baseline-wechat', value: 'micromessenger' },
-  { icon: 'ic:baseline-wechat', value: 'windowswechat' },
-  { icon: 'arcticons:quark-browser', value: 'quark' },
-  { icon: 'ic:baseline-wechat', value: 'wxwork' },
-  { icon: 'simple-icons:tencentqq', value: 'qq' },
-  { icon: 'arcticons:dingtalk', value: 'dingtalk' },
-  { icon: 'arcticons:uc-browser', value: 'uc' },
-  { icon: 'ri:baidu-fill', value: 'baidu' }
+  { localIcon: 'logos-chrome', value: 'chrome' },
+  { localIcon: 'logos-microsoft-edge', value: 'edge' },
+  { localIcon: 'logos-firefox', value: 'firefox' },
+  { localIcon: 'logos-opera', value: 'opera' },
+  { localIcon: 'logos-safari', value: 'safari' },
+  { localIcon: 'ic-baseline-wechat', value: 'micromessenger' },
+  { localIcon: 'ic-baseline-wechat', value: 'windowswechat' },
+  { localIcon: 'arcticons-quark-browser', value: 'quark' },
+  { localIcon: 'ic-baseline-wechat', value: 'wxwork' },
+  { localIcon: 'simple-icons-tencentqq', value: 'qq' },
+  { localIcon: 'arcticons-dingtalk', value: 'dingtalk' },
+  { localIcon: 'arcticons-uc-browser', value: 'uc' },
+  { localIcon: 'ri-baidu-fill', value: 'baidu' }
 ];
 
 const osOptions = [
-  { icon: 'devicon:windows8', value: 'windows' },
-  { icon: 'cbi:imac', value: 'osx' },
-  { icon: 'devicon:linux', value: 'linux' },
-  { icon: 'logos:android-icon', value: 'android' },
-  { icon: 'file-icons:apple', value: 'ios' }
+  { localIcon: 'devicon-windows8', value: 'windows' },
+  { localIcon: 'cbi-imac', value: 'osx' },
+  { localIcon: 'devicon-linux', value: 'linux' },
+  { localIcon: 'logos-android-icon', value: 'android' },
+  { localIcon: 'file-icons-apple', value: 'ios' }
 ];
 /**
  * 获取浏览器图标
@@ -47,7 +47,7 @@ const osOptions = [
  */
 export function getBrowserIcon(browser: string): string {
   const icon = browserOptions.find(item => browser.toLocaleLowerCase().includes(item.value));
-  return icon?.icon ?? 'stash:browser-light';
+  return icon?.localIcon ?? 'stash-browser-light';
 }
 
 /**
@@ -58,5 +58,5 @@ export function getBrowserIcon(browser: string): string {
  */
 export function getOsIcon(os: string): string {
   const icon = osOptions.find(item => os.toLocaleLowerCase().includes(item.value));
-  return icon?.icon || 'mingcute:device-fill';
+  return icon?.localIcon || 'mingcute-device-fill';
 }
