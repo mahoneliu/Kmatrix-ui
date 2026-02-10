@@ -426,6 +426,9 @@ export function batchDeleteDocuments(ids: CommonType.IdType[]) {
 /**
  * 更新文档信息
  */
+/**
+ * 更新文档信息
+ */
 export function updateDocument(id: CommonType.IdType, data: Partial<Api.AI.KB.Document>) {
   return request<any>({
     url: `/ai/document/${id}`,
@@ -433,6 +436,17 @@ export function updateDocument(id: CommonType.IdType, data: Partial<Api.AI.KB.Do
     params: {
       originalFilename: data.originalFilename
     }
+  });
+}
+
+/**
+ * 下载文档
+ */
+export function downloadDocument(id: CommonType.IdType) {
+  return request<Blob>({
+    url: `/ai/document/download/${id}`,
+    method: 'get',
+    responseType: 'blob' as 'json' // 强制类型转换以规避类型检查
   });
 }
 

@@ -24,7 +24,7 @@ function initData() {
   if (config) {
     formModel.historyEnabled = config.historyEnabled || false;
     formModel.historyLimit = config.historyLimit || 10;
-    userPrompt.value = config.userPrompt || `已知信息：\${context}\n问题：\${userInput}`;
+    userPrompt.value = config.userPrompt || `已知信息：\${chatContext}\n问题：\${userInput}`;
   }
 }
 
@@ -162,6 +162,7 @@ function handleConfigChange() {
   min-width: 420px !important;
   max-width: 450px;
 }
+
 :deep(.n-input__textarea-el),
 :deep(.n-input__placeholder) {
   font-size: 12px;

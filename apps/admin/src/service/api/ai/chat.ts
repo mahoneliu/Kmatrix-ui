@@ -22,10 +22,11 @@ export function sendAdminMessage(data: Api.AI.Chat.SendRequest) {
 /**
  * 获取会话历史消息
  */
-export function fetchAdminChatHistory(sessionId: CommonType.IdType) {
+export function fetchAdminChatHistory(sessionId: CommonType.IdType, includeExecutions?: boolean) {
   return request<Api.AI.Chat.Message[]>({
     url: `${ADMIN_CHAT_BASE}/history/${sessionId}`,
-    method: 'get'
+    method: 'get',
+    params: { includeExecutions }
   });
 }
 

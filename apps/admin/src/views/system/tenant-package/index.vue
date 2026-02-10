@@ -1,4 +1,4 @@
-<!-- <script setup lang="tsx">
+<script setup lang="tsx">
 import { defineOptions, ref } from 'vue';
 import { NDivider } from 'naive-ui';
 import {
@@ -234,4 +234,4 @@ async function handleStatusChange(
   </div>
 </template>
 
-<style scoped></style> -->
+<style scoped></style>

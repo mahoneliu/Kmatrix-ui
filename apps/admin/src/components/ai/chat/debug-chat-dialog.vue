@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { NAlert, NButton } from 'naive-ui';
 import { ChatPanel } from '@km/shared';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useWorkflowStore } from '@/store/modules/ai/workflow';
 
 interface Props {
   visible: boolean;
@@ -16,10 +17,15 @@ const emit = defineEmits<{
 }>();
 
 const nodeDefinitionStore = useNodeDefinitionStore();
+const workflowStore = useWorkflowStore();
 
 function getNodeDefinition(nodeType: string) {
   return nodeDefinitionStore.getNodeDefinition(nodeType);
 }
+
+onMounted(async () => {
+  await nodeDefinitionStore.loadNodeDefinitions();
+});
 
 // 窗口状态
 const isMinimized = ref(false);
@@ -94,7 +100,7 @@ watch(
         </NButton>
         <NButton quaternary circle size="small" @click="toggleMaximize">
           <template #icon>
-            <SvgIcon :icon="isMaximized ? 'mdi:window-restore' : 'mdi:window-maximize'" />
+            <SvgIcon :local-icon="isMaximized ? 'mdi-window-restore' : 'mdi-window-maximize'" />
           </template>
         </NButton>
         <NButton quaternary circle size="small" @click="handleClose">
@@ -109,7 +115,9 @@ watch(
     <div v-show="!isMinimized" class="flex flex-col flex-1 overflow-hidden bg-white p-0 dark:bg-dark-1">
       <div class="p-2">
         <NAlert type="info" size="medium" :bordered="false" closable>
-          调试使用最新草稿，临时对话，数据不保存。修改工作流实时生效，无需重新打开窗口。
+          调试使用最新未发布版本，临时对话，数据不入库。
+          <br />
+          修改工作流保存即生效，无需重新打开窗口。
         </NAlert>
       </div>
       <ChatPanel
@@ -119,6 +127,8 @@ watch(
         :app-name="appName"
         :get-node-definition="getNodeDefinition"
         class="flex-1 overflow-hidden"
+        @node-start="id => workflowStore.setRunningNodeId(id)"
+        @node-end="() => workflowStore.setRunningNodeId(null)"
       />
     </div>
   </div>

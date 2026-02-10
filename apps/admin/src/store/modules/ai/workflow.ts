@@ -36,6 +36,8 @@ interface WorkflowState {
   autoSaveEnabled: boolean;
   /** 当前会话是否执行过保存 */
   savedInSession: boolean;
+  /** 当前正在运行的节点ID (用于可视化高亮) */
+  runningNodeId: string | null;
 }
 
 export const useWorkflowStore = defineStore('workflow', {
@@ -53,7 +55,8 @@ export const useWorkflowStore = defineStore('workflow', {
     isSaving: false,
     autoSaveEnabled: true,
     savedInSession: false,
-    hoveredNodeId: null
+    hoveredNodeId: null,
+    runningNodeId: null
   }),
 
   getters: {
@@ -233,6 +236,11 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 切换自动保存 */
     toggleAutoSave(enabled: boolean) {
       this.autoSaveEnabled = enabled;
+    },
+
+    /** 设置正在运行的节点ID */
+    setRunningNodeId(nodeId: string | null) {
+      this.runningNodeId = nodeId;
     }
   }
 });

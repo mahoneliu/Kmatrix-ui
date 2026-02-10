@@ -229,6 +229,7 @@ onMounted(async () => {
                   @delete="handleDeleteSession"
                   @refresh="loadSessions"
                   @select="handleSelectSession"
+                  @new="handleNewSession"
                 />
               </div>
             </div>
@@ -313,6 +314,7 @@ onMounted(async () => {
   height: 100vh;
   width: 100vw;
 }
+
 .drawer-content-custom {
   --n-body-padding: 2px;
 }

@@ -109,3 +109,6 @@ export function copyModel(modelId: CommonType.IdType) {
     method: 'post'
   });
 }
+
+/** 测试模型对话 API URL */
+export const TestModelChatUrl = '/ai/model/chat/test/stream';

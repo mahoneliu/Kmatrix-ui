@@ -14,6 +14,7 @@
     "@better-scroll/core": "2.5.1",
     "@iconify/vue": "5.0.0",
     "@km/shared": "workspace:*",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@sa/axios": "workspace:*",
     "@sa/color": "workspace:*",
     "@sa/hooks": "workspace:*",

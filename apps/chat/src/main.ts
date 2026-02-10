@@ -2,6 +2,7 @@ import { createApp, reactive } from 'vue';
 import { createPinia } from 'pinia';
 import { setupIconifyOffline } from '@sa/materials';
 import App from './App.vue';
+import 'virtual:svg-icons-register';
 import 'virtual:uno.css';
 import './styles/global.css';
 import { useChatAuth } from './composables/use-chat-auth';

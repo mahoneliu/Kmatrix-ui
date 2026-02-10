@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NPopover, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
@@ -11,6 +11,7 @@ import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowLayout } from '@/composables/ai/workflow/use-workflow-layout';
 import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
 import { useUnsavedChangesGuard } from '@/composables/ai/workflow/use-unsaved-changes-guard';
+import { hexToRgba } from '@/utils/color';
 import ConnectionLine from '@/components/ai/edges/connection-line.vue';
 import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
@@ -117,6 +118,109 @@ onMounted(async () => {
     message.error('初始化失败,请刷新页面重试');
   }
 });
+
+const lastRunningNodeId = ref<string | null>(null);
+
+// 监听运行节点变化，更新节点状态
+watch(
+  () => workflowStore.runningNodeId,
+  (newId, oldId) => {
+    handleRunningNodeChange(newId, oldId);
+  }
+);
+
+function handleRunningNodeChange(newId: string | null, oldId: string | null) {
+  if (oldId) {
+    restoreOldNodeState(oldId);
+  }
+  if (newId) {
+    updateNewNodeState(newId, oldId);
+  }
+}
+
+function restoreOldNodeState(oldId: string) {
+  const oldNode = workflowStore.nodes.find(n => n.id === oldId);
+  if (oldNode) {
+    oldNode.data = { ...oldNode.data, running: false };
+    const oldClass = typeof oldNode.class === 'string' ? oldNode.class : '';
+    oldNode.class = oldClass.replace(/node-running/g, '').trim();
+
+    // 移除动态样式变量
+    if (oldNode.style) {
+      const newStyle = { ...oldNode.style };
+      // 使用类型断言避免TS报错
+      const styleAny = newStyle as any;
+      if (styleAny['--node-running-color']) delete styleAny['--node-running-color'];
+      if (styleAny['--node-running-shadow']) delete styleAny['--node-running-shadow'];
+      oldNode.style = newStyle;
+    }
+  }
+
+  // 恢复指向旧节点的边
+  const inboundEdges = workflowStore.edges.filter(e => e.target === oldId);
+  inboundEdges.forEach(edge => {
+    edge.animated = false;
+    edge.style = { ...edge.style, stroke: undefined, strokeWidth: undefined };
+    const edgeClass = typeof edge.class === 'string' ? edge.class : '';
+    edge.class = edgeClass.replace(/edge-running/g, '').trim();
+  });
+}
+
+function updateNewNodeState(newId: string, oldId: string | null) {
+  const newNode = workflowStore.nodes.find(n => n.id === newId);
+
+  // 获取节点定义及颜色
+  const nodeType = newNode?.data?.nodeType;
+  const nodeDef = nodeType ? nodeDefinitionStore.getNodeDefinition(nodeType) : null;
+  const nodeColor = nodeDef?.nodeColor || '#2d8cf0';
+  const runningColor = hexToRgba(nodeColor, 1);
+  const shadowColor = hexToRgba(nodeColor, 0.5);
+
+  if (newNode) {
+    newNode.data = { ...newNode.data, running: true };
+
+    // 设置动态样式变量
+    newNode.style = {
+      ...(newNode.style || {}),
+      '--node-running-color': runningColor,
+      '--node-running-shadow': shadowColor
+    };
+
+    const newClass = typeof newNode.class === 'string' ? newNode.class : '';
+    // 避免重复添加
+    if (!newClass.includes('node-running')) {
+      newNode.class = `${newClass} node-running`.trim();
+    }
+  }
+
+  // 高亮指向新节点的边
+  const inboundEdges = workflowStore.edges.filter(e => e.target === newId);
+  let edgesToAnimate = inboundEdges;
+
+  // 尝试获取上一个运行节点（优先使用 oldId，如果是 null 则使用 lastRunningNodeId）
+  const sourceNodeId = oldId || lastRunningNodeId.value;
+
+  // 如果有多个入边（如End节点），只高亮来自上一个运行节点的边
+  if (inboundEdges.length > 1 && sourceNodeId) {
+    const connectedEdges = inboundEdges.filter(e => e.source === sourceNodeId);
+    if (connectedEdges.length > 0) {
+      edgesToAnimate = connectedEdges;
+    }
+  }
+
+  edgesToAnimate.forEach(edge => {
+    edge.animated = true;
+    // 使用与节点一致的主题色
+    edge.style = { ...edge.style, stroke: runningColor, strokeWidth: 3 };
+    const edgeClass = typeof edge.class === 'string' ? edge.class : '';
+    if (!edgeClass.includes('edge-running')) {
+      edge.class = `${edgeClass} edge-running`.trim();
+    }
+  });
+
+  // 更新 lastRunningNodeId
+  lastRunningNodeId.value = newId;
+}
 </script>
 
 <template>
@@ -251,4 +355,36 @@ onMounted(async () => {
 
 <style scoped>
 @import '@/styles/modules/workflow.scss';
+
+:deep(.vue-flow__node.node-running) {
+  border-radius: 8px;
+  /* 使用动态变量，fallback 为默认蓝色 */
+  box-shadow:
+    0 0 0 2px var(--node-running-color, #2d8cf0),
+    0 0 10px var(--node-running-shadow, rgba(45, 140, 240, 0.5)) !important;
+  transition: all 0.3s ease;
+  z-index: 1000 !important;
+  /* 简单的脉冲动画 */
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--node-running-color, #2d8cf0),
+      0 0 0 0 var(--node-running-shadow, rgba(45, 140, 240, 0.7));
+  }
+
+  70% {
+    box-shadow:
+      0 0 0 2px var(--node-running-color, #2d8cf0),
+      0 0 0 6px rgba(45, 140, 240, 0);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 2px var(--node-running-color, #2d8cf0),
+      0 0 0 0 rgba(45, 140, 240, 0);
+  }
+}
 </style>

@@ -5,6 +5,7 @@ import { fetchTemplateDetail, updateTemplate } from '@/service/api/ai/workflow-t
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useAutoSave } from '@/composables/ai/workflow/use-auto-save';
+import { graphToDsl } from '@/utils/ai/dsl-converter';
 
 /**
  * 模板工作流持久化 composable
@@ -145,10 +146,14 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       edges: cleanEdges
     };
 
+    // 生成 DSL 数据
+    const dslData = graphToDsl(graphData, templateName.value || '未命名模板');
+
     try {
       const { error } = await updateTemplate({
         templateId: templateId.value as number,
-        graphData: JSON.stringify(graphData)
+        graphData: JSON.stringify(graphData),
+        dslData: JSON.stringify(dslData)
       });
 
       if (error) {

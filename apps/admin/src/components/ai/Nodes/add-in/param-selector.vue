@@ -64,17 +64,17 @@ const variableOptions = computed(() => {
     if (!source.params?.length) return;
 
     // 确定图标和颜色
-    let icon = 'mdi:earth';
+    let icon = 'mdi-earth';
     let color = PARAM_GLOBAL_COLORS;
 
     if (source.sourceKey === 'app') {
-      icon = 'mdi:application';
+      icon = 'mdi-application';
       color = PARAM_GLOBAL_NODE_COLORS.app;
     } else if (source.sourceKey === 'interface') {
-      icon = 'mdi:api';
+      icon = 'mdi-api';
       color = PARAM_GLOBAL_NODE_COLORS.interface;
     } else if (source.sourceKey === 'session') {
-      icon = 'mdi:message-text';
+      icon = 'mdi-message-text';
       color = PARAM_GLOBAL_NODE_COLORS.session;
     } else if (source.type === 'node') {
       const node = workflowStore.nodes.find(n => n.id === source.sourceKey);
@@ -191,7 +191,7 @@ function renderLabel(option: {
             color: option.color
           }
         },
-        h(SvgIcon, { icon: option.icon, class: 'text-12px' })
+        h(SvgIcon, { localIcon: option.icon, class: 'text-12px' })
       ),
       h('span', { class: 'text-12px' }, option.label)
     ]);

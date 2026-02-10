@@ -69,7 +69,7 @@ const templateForm = ref<Partial<WorkflowTemplate>>({
   templateName: '',
   templateCode: '',
   description: '',
-  localIcon: 'mdi-file-document-outline',
+  icon: 'mdi-file-document-outline',
   category: 'custom'
 });
 
@@ -192,8 +192,8 @@ function handleShowAddModal() {
     templateName: '',
     templateCode: '',
     description: '',
-    localIcon: 'mdi-file-document-outline',
-    category: 'custom'
+    icon: 'mdi-file-document-outline',
+    category: 'knowledge_qa'
   };
   showTemplateModal.value = true;
 }
@@ -210,8 +210,8 @@ function handleEdit(item: WorkflowTemplate) {
     templateName: item.templateName,
     templateCode: item.templateCode,
     description: item.description,
-    localIcon: item.localIcon || item.icon?.replace(':', '-') || 'mdi-file-document-outline',
-    category: item.category || 'custom'
+    icon: item.icon || 'mdi-file-document-outline',
+    category: item.category || 'knowledge_qa'
   };
   showTemplateModal.value = true;
 }
@@ -368,10 +368,7 @@ onMounted(() => {
               <!-- 标题和图标 -->
               <template #header>
                 <div class="mr-16 flex items-center gap-2">
-                  <SvgIcon
-                    :local-icon="item.localIcon || item.icon?.replace(':', '-') || 'mdi-file-document-outline'"
-                    class="text-xl text-primary"
-                  />
+                  <SvgIcon :local-icon="item.icon || 'mdi-file-document-outline'" class="text-xl text-primary" />
                   <span class="font-medium">{{ item.templateName }}</span>
                 </div>
               </template>
@@ -488,7 +485,7 @@ onMounted(() => {
         </NFormItem>
         <NFormItem label="图标" :show-feedback="false">
           <NSelect
-            v-model:value="templateForm.localIcon"
+            v-model:value="templateForm.icon"
             :options="iconOptions"
             placeholder="选择图标"
             :render-label="(option: any) => option.label"

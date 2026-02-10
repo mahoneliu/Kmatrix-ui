@@ -20,6 +20,7 @@ const emit = defineEmits<{
   refresh: [];
   select: [sessionId: string];
   delete: [sessionId: string];
+  new: [];
 }>();
 
 const router = useRouter();
@@ -36,7 +37,10 @@ function handleSelectSession(session: Api.AI.Chat.Session) {
 
 // 创建新会话
 function handleNewSession() {
-  router.push({ name: 'ai_chat', query: { appId: props.appId } });
+  if (router) {
+    router.push({ name: 'ai_chat', query: { appId: props.appId } });
+  }
+  emit('new');
   emit('refresh');
 }
 
@@ -223,12 +227,15 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
 :deep(.n-list-item) {
   padding: 1px 10px 1px 20px !important;
 }
+
 :deep(.n-list.n-list--hoverable .n-list-item:hover) {
   background-color: rgba(0, 0, 0, 0.08);
 }
+
 :deep(.n-list-item__divider) {
   display: none !important;
 }
+
 :deep(.n-list-item) {
   border-bottom: none !important;
 }

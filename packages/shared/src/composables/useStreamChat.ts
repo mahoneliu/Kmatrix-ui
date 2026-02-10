@@ -59,6 +59,13 @@ export interface StreamChatParams {
   showExecutionInfo?: boolean;
   /** 会话完成回调 */
   onDone?: (sessionId?: string) => void;
+  /** 节点开始执行回调 */
+  onNodeStart?: (nodeId: string) => void;
+  /** 节点执行完成回调 */
+  /** 节点执行完成回调 */
+  onNodeEnd?: (nodeId: string) => void;
+  /** 会话信息更新回调 */
+  onSessionUpdate?: (data: any) => void;
 }
 
 interface UseStreamChatOptions {
@@ -91,10 +98,26 @@ export function useStreamChat(options: UseStreamChatOptions) {
     onMessage: (msg: string, replace?: boolean) => void;
     onNodeStatus: (nodeName: string | null) => void;
     onThinking?: (content: string) => void;
+    onCitation?: (citations: Citation[]) => void;
     onComplete?: (content: string) => void;
     onDone?: (data: any) => void;
+    onNodeStart?: (nodeId: string) => void;
+    onNodeEnd?: (nodeId: string) => void;
+    onSessionUpdate?: (data: any) => void;
   }) {
-    const { reader, onMessage, onNodeStatus: _onNodeStatus, onThinking, onComplete, onDone } = params;
+    const {
+      reader,
+      onMessage,
+      onNodeStatus: _onNodeStatus,
+
+      onThinking,
+      onCitation,
+      onComplete,
+      onDone,
+      onNodeStart,
+      onNodeEnd,
+      onSessionUpdate
+    } = params;
     const decoder = new TextDecoder();
     let buffer = '';
 
@@ -107,15 +130,52 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
       const data = currentDataBuffer.join('\n');
 
-      // Reset for next event (do this first or after? standard says reset after dispatch)
-      // But we need to use currentEvent.
-
       if (currentEvent === 'node_execution_detail') {
         try {
           const executionDetail = JSON.parse(data);
           currentExecutions.value.push(executionDetail as NodeExecution);
+          if (executionDetail.nodeId && onNodeEnd) {
+            onNodeEnd(executionDetail.nodeId);
+          }
         } catch {
           console.error('Failed to parse node_execution_detail');
+        }
+      } else if (currentEvent === 'node_error') {
+        try {
+          const errorData = JSON.parse(data);
+          if (errorData && errorData.nodeId && onNodeEnd) {
+            onNodeEnd(errorData.nodeId);
+          }
+        } catch {
+          console.error('Failed to parse node_error');
+        }
+      } else if (currentEvent === 'node_start') {
+        try {
+          const startData = JSON.parse(data);
+          if (startData && startData.nodeId && onNodeStart) {
+            onNodeStart(startData.nodeId);
+          }
+        } catch {
+          console.error('Failed to parse node_start');
+        }
+      } else if (currentEvent === 'citation') {
+        try {
+          const citationData = JSON.parse(data);
+          if (citationData && citationData.citations) {
+            onCitation?.(citationData.citations);
+          }
+        } catch {
+          console.error('Failed to parse citation');
+          console.error('Failed to parse citation');
+        }
+      } else if (currentEvent === 'session_update') {
+        try {
+          const sessionData = JSON.parse(data);
+          if (sessionData && onSessionUpdate) {
+            onSessionUpdate(sessionData);
+          }
+        } catch {
+          console.error('Failed to parse session_update');
         }
       } else if (currentEvent === 'thinking') {
         onThinking?.(data);
@@ -272,6 +332,9 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
       await handleSSEEvents({
         reader,
+        onNodeStart: params.onNodeStart,
+        onNodeEnd: params.onNodeEnd,
+        onSessionUpdate: params.onSessionUpdate,
         onMessage: (msg: string, replace?: boolean) => {
           if (replace) {
             aiMsg.content = msg;
@@ -289,6 +352,13 @@ export function useStreamChat(options: UseStreamChatOptions) {
           // 强制触发响应式更新
           triggerRef(messages);
         },
+        onCitation: (citations: Citation[]) => {
+          if (citations && citations.length > 0) {
+            aiMsg.citations = citations;
+            triggerRef(messages);
+          }
+        },
+
         onComplete: data => {
           if (data.length > 0) {
             aiMsg.content = data;
@@ -332,12 +402,12 @@ export function useStreamChat(options: UseStreamChatOptions) {
             aiMsg.executions = [...currentExecutions.value];
 
             // 提取知识检索节点的 citations（如果存在）
-            const retrievalExec = currentExecutions.value.find(
-              exec => exec.nodeType === 'KNOWLEDGE_RETRIEVAL' && exec.outputs?.citations
-            );
-            if (retrievalExec?.outputs?.citations) {
-              aiMsg.citations = retrievalExec.outputs.citations;
-            }
+            // const retrievalExec = currentExecutions.value.find(
+            //   exec => exec.nodeType === 'KNOWLEDGE_RETRIEVAL' && exec.outputs?.citations
+            // );
+            // if (retrievalExec?.outputs?.citations) {
+            //   aiMsg.citations = retrievalExec.outputs.citations;
+            // }
           }
 
           // 触发完成回调

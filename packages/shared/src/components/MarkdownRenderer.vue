@@ -49,24 +49,41 @@ function processCitationMarkers(html: string): string {
     return html;
   }
 
-  // 匹配 [数字] 模式
-  const citationRegex = /\[(\d+)\]/g;
+  // 匹配 [数字] 或 [数字, 数字] 模式
+  // 也就是匹配方括号内包含数字、逗号和空格的字符串
+  const citationRegex = /\[([\d,\s]+)\]/g;
 
-  return html.replace(citationRegex, (match, indexStr) => {
-    const index = Number.parseInt(indexStr, 10);
-    const citation = props.citations?.find(c => c.index === index);
+  return html.replace(citationRegex, (match, content) => {
+    // 分割并清理数字
+    const indices = content
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter((s: string) => /^\d+$/.test(s))
+      .map((s: string) => Number.parseInt(s, 10));
 
-    if (citation) {
-      const docName = citation.documentName || '未知文档';
-      const contentPreview = citation.content
-        ? citation.content.substring(0, 100) + (citation.content.length > 100 ? '...' : '')
-        : '';
-
-      // 创建可点击的引用标签
-      return `<span class="citation-badge" data-citation-index="${index}" title="${docName}&#10;${contentPreview.replace(/"/g, '&quot;')}">[${index}]</span>`;
+    if (indices.length === 0) {
+      return match;
     }
 
-    return match; // 如果没有找到对应引用，保留原样
+    // 生成所有引用徽章
+    const badges = indices.map((index: number) => {
+      const citation = props.citations?.find(c => c.index === index);
+
+      if (citation) {
+        const docName = citation.documentName || '未知文档';
+        const contentPreview = citation.content
+          ? citation.content.substring(0, 100) + (citation.content.length > 100 ? '...' : '')
+          : '';
+
+        // 创建可点击的引用标签
+        return `<span class="citation-badge" data-citation-index="${index}" title="${docName}&#10;${contentPreview.replace(/"/g, '&quot;')}">[${index}]</span>`;
+      }
+      return `[${index}]`; // 如果找不到引用，保持原文本格式但作为一个独立单元? 或者保留原样?
+      // 为了保持一致性，如果找不到对应引用数据，就不渲染为交互式徽章，但这里我们已经拆分了。
+      // 如果原来的文本是 [1, 2] 且 2 找不到，那渲染成 [1] [2] (普通文本) 比较合理
+    });
+
+    return badges.join('');
   });
 }
 
@@ -92,9 +109,15 @@ const renderedHtml = computed(() => {
   }
 });
 
-// 处理代码块复制
-function handleCopyCode(event: Event) {
+const emit = defineEmits<{
+  clickCitation: [citation: Citation];
+}>();
+
+// 处理点击事件（包含代码复制和引用点击）
+function handleClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
+
+  // 处理代码复制
   if (target.classList.contains('copy-btn')) {
     const code = decodeURIComponent(target.getAttribute('data-code') || '');
     navigator.clipboard.writeText(code).then(() => {
@@ -103,13 +126,26 @@ function handleCopyCode(event: Event) {
         target.textContent = '复制';
       }, 2000);
     });
+    return;
+  }
+
+  // 处理引用点击
+  if (target.classList.contains('citation-badge')) {
+    const indexStr = target.getAttribute('data-citation-index');
+    if (indexStr) {
+      const index = Number.parseInt(indexStr, 10);
+      const citation = props.citations?.find(c => c.index === index);
+      if (citation) {
+        emit('clickCitation', citation);
+      }
+    }
   }
 }
 </script>
 
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div :class="{ 'is-streaming': streaming }" class="markdown-renderer" @click="handleCopyCode" v-html="renderedHtml" />
+  <div :class="{ 'is-streaming': streaming }" class="markdown-renderer" @click="handleClick" v-html="renderedHtml" />
   <span v-if="streaming" class="ml-1 inline-block h-4 w-2 animate-pulse bg-primary" />
 </template>
 

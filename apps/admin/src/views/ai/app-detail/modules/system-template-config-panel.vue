@@ -170,7 +170,7 @@ function initFormData() {
   formData.value.maxTokens = props.modelSetting?.max_tokens ?? 2048;
   // New fields default values
   formData.value.systemPrompt = '';
-  formData.value.userPrompt = '已知信息：\n{{知识库检索.data}}\n问题：\n{{开始.question}}';
+  formData.value.userPrompt = `已知信息：\${chatContext}\n问题：\${userInput}`;
   formData.value.enableHistory = false;
   formData.value.historyCount = 5;
   formData.value.streamOutput = true;

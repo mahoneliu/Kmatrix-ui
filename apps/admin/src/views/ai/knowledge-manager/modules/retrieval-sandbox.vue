@@ -21,18 +21,20 @@ import {
   NTooltip
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { fetchAllKnowledgeBases, fetchDatasetsByKbId, searchKnowledge } from '@/service/api/ai/knowledge';
+import {
+  downloadDocument,
+  fetchAllKnowledgeBases,
+  fetchDatasetsByKbId,
+  searchKnowledge
+} from '@/service/api/ai/knowledge';
 
-interface Props {
-  visible: boolean;
-}
-
-const props = defineProps<Props>();
 interface Props {
   visible: boolean;
   kbId?: CommonType.IdType;
   fixedKb?: boolean;
 }
+
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void;
@@ -45,7 +47,7 @@ const selectedDatasetIds = ref<CommonType.IdType[]>([]);
 const topK = ref(5);
 const threshold = ref(0.5);
 const mode = ref<'VECTOR' | 'KEYWORD' | 'HYBRID'>('HYBRID');
-const enableRerank = ref(false);
+const enableRerank = ref(true);
 const enableHighlight = ref(true); // 关键词模式默认开启高亮
 
 // 数据
@@ -54,6 +56,43 @@ const datasets = ref<Api.AI.KB.Dataset[]>([]);
 const results = ref<Api.AI.KB.RetrievalResult[]>([]);
 const loading = ref(false);
 const searched = ref(false);
+
+// 详情弹窗
+const showDetailModal = ref(false);
+const currentDetail = ref<Api.AI.KB.RetrievalResult | null>(null);
+
+function handleViewDetail(item: Api.AI.KB.RetrievalResult) {
+  currentDetail.value = item;
+  showDetailModal.value = true;
+}
+
+// 下载文档
+async function handleDownload(item: Api.AI.KB.RetrievalResult) {
+  if (!item.documentId) {
+    window.$message?.warning('无法下载：缺少文档ID');
+    return;
+  }
+  try {
+    const { data: blob, error } = await downloadDocument(item.documentId);
+    if (error) {
+      window.$message?.error('下载失败');
+      return;
+    }
+    if (!blob) return;
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    // 使用文档名称或默认名称
+    link.download = item.documentName || `document_${item.documentId}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch {
+    window.$message?.error('下载失败');
+  }
+}
 
 // 计算属性
 const showModal = computed({
@@ -162,9 +201,9 @@ function getScoreType(score: number): 'success' | 'warning' | 'error' {
 // 获取来源类型标签
 function getSourceTypeLabel(type: string): string {
   const map: Record<string, string> = {
-    CONTENT: '全文',
-    TITLE: '标题',
-    QUESTION: '问题'
+    CONTENT: '命中全文',
+    TITLE: '命中标题',
+    QUESTION: '命中问题'
   };
   return map[type] || type;
 }
@@ -214,7 +253,7 @@ function handleReset() {
   topK.value = 5;
   threshold.value = 0.5;
   mode.value = 'HYBRID';
-  enableRerank.value = false;
+  enableRerank.value = true;
   enableHighlight.value = true;
   results.value = [];
   searched.value = false;
@@ -384,12 +423,17 @@ function handleReset() {
                   <div class="min-w-0 flex-1">
                     <div class="items-between flex justify-between gap-2">
                       <!-- 标题展示 -->
-                      <div v-if="item.title" class="mb-2 text-sm text-gray-800 font-bold dark:text-gray-200">
-                        {{ item.title }}
+                      <!-- 标题展示 -->
+                      <div
+                        v-if="item.title"
+                        class="group mb-2 flex cursor-pointer items-center gap-2 text-sm text-gray-800 font-bold dark:text-gray-200 hover:text-primary"
+                        @click="handleViewDetail(item)"
+                      >
+                        <span>{{ item.title }}</span>
                       </div>
                       <div v-if="item.sourceTypes && item.sourceTypes.length > 0" class="flex gap-1">
                         <NTag
-                          v-for="type in item.sourceTypes"
+                          v-for="type in [...new Set(item.sourceTypes)]"
                           :key="type"
                           :type="getSourceTypeType(type)"
                           size="small"
@@ -404,17 +448,32 @@ function handleReset() {
                     <!-- eslint-disable vue/no-v-html -->
                     <div
                       v-if="item.highlight"
-                      class="retrieval-highlight line-clamp-4 text-sm text-gray-600 dark:text-gray-300"
+                      class="retrieval-highlight line-clamp-4 cursor-pointer text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                      @click="handleViewDetail(item)"
                       v-html="item.highlight"
                     ></div>
                     <!-- eslint-enable vue/no-v-html -->
-                    <NText v-else class="line-clamp-4 text-sm text-gray-600 dark:text-gray-300">
+                    <NText
+                      v-else
+                      class="line-clamp-4 cursor-pointer text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                      @click="handleViewDetail(item)"
+                    >
                       {{ item.content }}
                     </NText>
                     <div class="mb-1 mt-2 flex items-center justify-between">
-                      <div class="flex items-center gap-2">
+                      <div class="group flex items-center gap-2">
                         <SvgIcon local-icon="mdi-file-document-outline" class="text-gray-300" />
                         <NText class="text-xs font-medium">{{ item.documentName || '未知文档' }}</NText>
+                        <NTooltip trigger="hover">
+                          <template #trigger>
+                            <SvgIcon
+                              local-icon="mdi-download"
+                              class="text-md cursor-pointer pt-1 text-gray-400 opacity-0 transition-opacity hover:text-primary group-hover:opacity-100"
+                              @click.stop="handleDownload(item)"
+                            />
+                          </template>
+                          下载原文件
+                        </NTooltip>
                       </div>
 
                       <!-- 来源类型标签 -->
@@ -450,6 +509,32 @@ function handleReset() {
           </NScrollbar>
         </NSpin>
       </NCard>
+    </div>
+  </NModal>
+
+  <!-- 详情弹窗 -->
+  <NModal
+    v-model:show="showDetailModal"
+    class="w-600px"
+    preset="card"
+    :title="currentDetail?.documentName || '片段详情'"
+  >
+    <div v-if="currentDetail" class="max-h-60vh overflow-y-auto">
+      <div class="mb-4 flex flex-wrap gap-2">
+        <NTag v-if="currentDetail.score" type="success" size="small">
+          相似度: {{ formatScore(currentDetail.score) }}
+        </NTag>
+        <NTag v-if="currentDetail.rerankScore" type="info" size="small">
+          Rerank: {{ formatScore(currentDetail.rerankScore) }}
+        </NTag>
+        <NTag size="small" :bordered="false">ID: {{ currentDetail.chunkId }}</NTag>
+        <div v-if="currentDetail.title" class="mt-2 w-full text-base font-bold">
+          {{ currentDetail.title }}
+        </div>
+      </div>
+      <div class="rounded bg-gray-50 p-4 text-sm leading-relaxed dark:bg-gray-800">
+        <div class="whitespace-pre-wrap">{{ currentDetail.content }}</div>
+      </div>
     </div>
   </NModal>
 </template>

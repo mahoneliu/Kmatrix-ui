@@ -1,4 +1,4 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 import { toRaw } from 'vue';
 import { jsonClone } from '@sa/utils';
 import { useDict } from '@/hooks/business/dict';
@@ -92,4 +92,4 @@ async function search() {
   </NCard>
 </template>
 
-<style scoped></style> -->
+<style scoped></style>

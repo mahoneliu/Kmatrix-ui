@@ -155,7 +155,7 @@ function handleRemoveFile(fileId: string) {
           webkitdirectory
           directory
           multiple
-          style="display: none"
+          class="hidden"
           @change="handleFolderSelect"
         />
 

@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { NButton, NCollapse, NCollapseItem, NInput, NScrollbar, NSpin, NTooltip, useMessage } from 'naive-ui';
+import {
+  NButton,
+  NCollapse,
+  NCollapseItem,
+  NInput,
+  NModal,
+  NScrollbar,
+  NSpin,
+  NTag,
+  NTooltip,
+  useMessage
+} from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { type ChatMessage, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
+import { type ChatMessage, type Citation, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
 import { getNodeIconBackground } from '../utils/color';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
@@ -43,6 +54,14 @@ const emit = defineEmits<{
   sessionChange: [sessionId: string];
   /** 消息发送事件 */
   messageSent: [message: string];
+  /** 节点开始执行事件 */
+  nodeStart: [nodeId: string];
+  /** 节点执行完成事件 */
+  nodeEnd: [nodeId: string];
+  /** 会话信息更新事件 */
+  sessionUpdate: [data: any];
+  /** 执行详情可见性变更事件 */
+  executionVisibilityChange: [visible: boolean];
 }>();
 
 const message = useMessage();
@@ -56,6 +75,20 @@ const hasExecutionDetailPermission = computed(() => props.isAdmin || props.hasEx
 const showExecutionInfo = ref(
   props.mode === 'debug' || (props.enableExecutionDetail && hasExecutionDetailPermission.value)
 );
+
+watch(
+  () => [props.enableExecutionDetail, hasExecutionDetailPermission.value],
+  ([enable, hasPermission]) => {
+    // 只有在正式对话模式下才同步
+    if (props.mode === 'chat') {
+      showExecutionInfo.value = Boolean(enable && hasPermission);
+    }
+  }
+);
+
+watch(showExecutionInfo, val => {
+  emit('executionVisibilityChange', val);
+});
 
 // 滚动条引用
 const scrollbarRef = ref();
@@ -115,6 +148,15 @@ async function handleSend() {
       if (newSessionId && newSessionId !== props.sessionId) {
         emit('sessionChange', newSessionId);
       }
+    },
+    onNodeStart: nodeId => {
+      emit('nodeStart', nodeId);
+    },
+    onNodeEnd: nodeId => {
+      emit('nodeEnd', nodeId);
+    },
+    onSessionUpdate: data => {
+      emit('sessionUpdate', data);
     }
   });
 
@@ -183,6 +225,34 @@ function setMessages(msgs: ChatMessage[]) {
   scrollToBottom();
 }
 
+// 引用详情弹窗
+const showCitationModal = ref(false);
+const currentCitation = ref<Citation | null>(null);
+
+function handleCitationClick(citation: Citation) {
+  currentCitation.value = citation;
+  showCitationModal.value = true;
+}
+
+// 格式化Token数量
+function formatTokenCount(count: number): string {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M`;
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K`;
+  }
+  return count.toString();
+}
+
+// 格式化耗时
+function formatDuration(ms: number): string {
+  if (ms >= 1000) {
+    return `${(ms / 1000).toFixed(2)} s`;
+  }
+  return `${ms} ms`;
+}
+
 // 暴露方法供父组件调用
 defineExpose({
   clearMessages,
@@ -223,6 +293,13 @@ defineExpose({
 
             <!-- AI消息 -->
             <div v-else class="flex items-start justify-start gap-2">
+              <!-- 系统头像 -->
+              <div class="mt-1 flex-shrink-0">
+                <div class="h-8 w-8 flex items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/10">
+                  <SvgIcon local-icon="logo" class="text-xl text-primary" />
+                </div>
+              </div>
+
               <div class="max-w-[90%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
                 <!-- Thinking区域（可折叠） -->
                 <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
@@ -240,7 +317,7 @@ defineExpose({
                           class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
                         />
                       </template>
-                      <div class="max-h-200px overflow-y-auto text-xs text-gray-500 -mt-5 dark:text-gray-200">
+                      <div class="max-h-200px overflow-y-auto text-xs text-gray-500 italic -mt-5 dark:text-gray-200">
                         <MarkdownRenderer :content="msg.thinkingContent" />
                       </div>
                     </NCollapseItem>
@@ -248,7 +325,12 @@ defineExpose({
                 </div>
 
                 <!-- Markdown渲染的回复内容 -->
-                <MarkdownRenderer :content="msg.content" :streaming="msg.streaming" :citations="msg.citations" />
+                <MarkdownRenderer
+                  :content="msg.content"
+                  :streaming="msg.streaming"
+                  :citations="msg.citations"
+                  @click-citation="handleCitationClick"
+                />
 
                 <!-- 执行详情（调试模式或开启调试开关时显示） -->
                 <div
@@ -257,8 +339,10 @@ defineExpose({
                 >
                   <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
                     <SvgIcon local-icon="mdi-clock-outline" />
-                    <span v-if="msg.durationMs">耗时 {{ (msg.durationMs / 1000).toFixed(2) }}s</span>
-                    <span v-if="msg.tokens">· {{ msg.tokens.totalTokens }} tokens</span>
+                    <span v-if="msg.durationMs">耗时 {{ formatDuration(msg.durationMs) }}</span>
+                    <span v-if="msg.tokens && msg.tokens.totalTokens">
+                      · {{ formatTokenCount(msg.tokens.totalTokens) }} tokens
+                    </span>
                   </div>
 
                   <NCollapse>
@@ -286,9 +370,11 @@ defineExpose({
                                     <SvgIcon :local-icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
                                   </div>
                                   <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
-                                  <span v-if="exec.durationMs" class="text-gray-400">{{ exec.durationMs }}ms</span>
-                                  <span v-if="exec.tokenUsage" class="text-gray-400">
-                                    · {{ exec.tokenUsage.totalTokenCount }} tokens
+                                  <span v-if="exec.durationMs" class="text-gray-400">
+                                    {{ formatDuration(exec.durationMs) }}
+                                  </span>
+                                  <span v-if="exec.tokenUsage && exec.tokenUsage.totalTokenCount" class="text-gray-400">
+                                    · {{ formatTokenCount(exec.tokenUsage.totalTokenCount) }} tokens
                                   </span>
                                 </div>
                               </template>
@@ -405,6 +491,26 @@ defineExpose({
         </div>
       </div>
     </div>
+
+    <!-- 引用详情弹窗 -->
+    <NModal
+      v-model:show="showCitationModal"
+      class="w-600px"
+      preset="card"
+      :title="currentCitation?.documentName || '引用详情'"
+    >
+      <div v-if="currentCitation" class="max-h-60vh overflow-y-auto">
+        <div class="mb-4 flex gap-2">
+          <NTag v-if="currentCitation.score" type="success" size="small">
+            相似度: {{ (currentCitation.score * 100).toFixed(1) }}%
+          </NTag>
+          <NTag type="info" size="small">片段ID: {{ currentCitation.chunkId }}</NTag>
+        </div>
+        <div class="rounded bg-gray-50 p-4 text-sm leading-relaxed dark:bg-gray-800">
+          <div class="whitespace-pre-wrap">{{ currentCitation.content }}</div>
+        </div>
+      </div>
+    </NModal>
   </div>
 </template>
 

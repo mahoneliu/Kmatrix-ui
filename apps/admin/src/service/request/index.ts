@@ -64,6 +64,9 @@ export const request = createFlatRequest(
     isBackendSuccess(response) {
       // when the backend response code is "0000"(default), it means the request is success
       // to change this logic by yourself, you can modify the `VITE_SERVICE_SUCCESS_CODE` in `.env` file
+      if (response.data instanceof Blob || response.data instanceof ArrayBuffer) {
+        return true;
+      }
       if (import.meta.env.VITE_APP_ENCRYPT === 'Y' && response.headers[encryptHeader]) {
         const keyStr = response.headers[encryptHeader];
         const data = String(response.data);

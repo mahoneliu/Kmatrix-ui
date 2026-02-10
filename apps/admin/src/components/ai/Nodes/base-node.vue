@@ -427,7 +427,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
         @click="toggleCollapse"
       >
-        <SvgIcon :icon="collapsed ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="text-4 c-gray-5" />
+        <SvgIcon :local-icon="collapsed ? 'mdi-chevron-up' : 'mdi-chevron-down'" class="text-4 c-gray-5" />
       </span>
     </div>
 

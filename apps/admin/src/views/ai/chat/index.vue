@@ -22,6 +22,8 @@ const message = useMessage();
 // 应用信息
 const appId = ref<string>((route.query.appId as string) || '');
 const appInfo = ref<Api.AI.Admin.App | null>(null);
+// 当前是否显示执行详情（从ChatPanel同步状态，初始值从AppInfo获取）
+const currentExecutionVisible = ref(false);
 
 // 会话相关
 const sessionId = ref<string | undefined>();
@@ -77,6 +79,8 @@ async function getAppInfo() {
     const { data } = await fetchAppDetail(appId.value);
     if (data) {
       appInfo.value = data;
+      // 初始化执行详情可见性
+      currentExecutionVisible.value = data.enableExecutionDetail === '1';
     }
   } catch {
     message.error('加载应用信息失败');
@@ -112,16 +116,47 @@ async function loadHistory() {
   if (!sessionId.value) return;
 
   try {
-    const { data } = await fetchAdminChatHistory(sessionId.value);
+    const includeExecutions = currentExecutionVisible.value;
+    const { data } = await fetchAdminChatHistory(sessionId.value, includeExecutions);
     if (data) {
       // 转换消息格式
-      const msgs: ChatMessage[] = data.map((item: any, index: number) => ({
-        id: item.id || String(index),
-        role: item.role,
-        content: item.content,
-        timestamp: item.createTime,
-        streaming: false
-      }));
+      const msgs: ChatMessage[] = data.map((item: any, index: number) => {
+        let durationMs = item.durationMs;
+        let tokens = item.tokens;
+
+        // 如果没有直接返回统计信息，但有执行记录，则进行汇总计算
+        if ((!durationMs || !tokens) && item.executions?.length > 0) {
+          const stats = item.executions.reduce(
+            (acc: any, exec: any) => {
+              acc.durationMs += exec.durationMs || 0;
+              if (exec.tokenUsage) {
+                acc.tokens.inputTokens += exec.tokenUsage.inputTokenCount || 0;
+                acc.tokens.outputTokens += exec.tokenUsage.outputTokenCount || 0;
+                acc.tokens.totalTokens += exec.tokenUsage.totalTokenCount || 0;
+              }
+              return acc;
+            },
+            {
+              durationMs: 0,
+              tokens: { inputTokens: 0, outputTokens: 0, totalTokens: 0 }
+            }
+          );
+
+          if (!durationMs) durationMs = stats.durationMs;
+          if (!tokens && stats.tokens.totalTokens > 0) tokens = stats.tokens;
+        }
+
+        return {
+          id: item.id || String(index),
+          role: item.role,
+          content: item.content,
+          timestamp: item.createTime,
+          streaming: false,
+          executions: item.executions,
+          durationMs,
+          tokens
+        };
+      });
       chatPanelRef.value?.setMessages(msgs);
     }
   } catch {
@@ -166,6 +201,23 @@ function handleSessionChange(newSessionId: string) {
   sessionId.value = newSessionId;
   loadSessions();
   router.push({ name: 'ai_chat', query: { appId: appId.value, sessionId: newSessionId } });
+}
+
+// 处理会话更新 (from ChatPanel)
+function handleSessionUpdate(data: any) {
+  // data 是 KmChatSessionVo，包含 sessionId 和 title
+  const targetSession = sessions.value.find(s => String(s.sessionId) === String(data.sessionId));
+  if (targetSession) {
+    targetSession.title = data.title;
+  } else {
+    // 如果列表里没有（可能是新建的会话刚好不在列表里），刷新列表
+    loadSessions();
+  }
+}
+
+// 处理执行详情可见性变更 (from ChatPanel)
+function handleExecutionVisibilityChange(visible: boolean) {
+  currentExecutionVisible.value = visible;
 }
 
 // 新建对话
@@ -325,6 +377,8 @@ onMounted(async () => {
             :get-node-definition="nodeDefinitionStore.getNodeDefinition"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
+            @session-update="handleSessionUpdate"
+            @execution-visibility-change="handleExecutionVisibilityChange"
           />
         </div>
       </div>

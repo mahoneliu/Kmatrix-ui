@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, h, onMounted, ref, resolveComponent, watch } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
@@ -17,6 +17,7 @@ import {
   useDialog,
   useMessage
 } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
 import { useEcharts } from '@/hooks/common/echarts';
@@ -26,7 +27,7 @@ import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vu
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
 
-const SvgIcon = resolveComponent('SvgIcon');
+// const SvgIcon = resolveComponent('SvgIcon');
 
 const route = useRoute();
 const router = useRouter();
@@ -510,7 +511,7 @@ onMounted(async () => {
             </template>
 
             <!-- 调试按钮 -->
-            <NButton size="small" @click="handleDebug">
+            <NButton v-if="appInfo?.appType === '1'" size="small" @click="handleDebug">
               <template #icon>
                 <SvgIcon local-icon="mdi-bug-outline" />
               </template>
