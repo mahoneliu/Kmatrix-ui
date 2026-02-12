@@ -33,7 +33,8 @@
   }
 
   const baseUrl = scriptUrl.origin;
-  const chatUrl = `${baseUrl}/`; // 指向 Chat 应用主页
+  // Derive chatUrl from script location (e.g. .../chat/loader.js -> .../chat/)
+  const chatUrl = scriptUrl.href.split('?')[0].replace(/loader\.js$/, '');
 
   // 创建样式
   const style = document.createElement('style');

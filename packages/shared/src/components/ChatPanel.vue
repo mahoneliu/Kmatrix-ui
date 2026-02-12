@@ -15,6 +15,7 @@ import {
 import { SvgIcon } from '@sa/materials';
 import { type ChatMessage, type Citation, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
 import { getNodeIconBackground } from '../utils/color';
+import { copyToClipboard } from '../utils/clipboard';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
 interface Props {
@@ -164,10 +165,8 @@ async function handleSend() {
 }
 
 // 复制消息
-function handleCopyMessage(content: string) {
-  navigator.clipboard.writeText(content).then(() => {
-    message.success('已复制');
-  });
+async function handleCopyMessage(content: string) {
+  await copyToClipboard(content, '');
 }
 
 // 按Enter发送

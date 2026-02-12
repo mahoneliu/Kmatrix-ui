@@ -177,7 +177,7 @@ function initFormData() {
   formData.value.kbMode = 'VECTOR';
   formData.value.kbTopK = 5;
   formData.value.kbThreshold = 0.5;
-  formData.value.kbEnableRerank = false;
+  formData.value.kbEnableRerank = true;
   formData.value.kbEmptyResponse = '';
 
   // 尝试从 graphData 覆盖

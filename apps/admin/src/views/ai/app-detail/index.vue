@@ -18,6 +18,7 @@ import {
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
+import { copyToClipboard } from '@km/shared';
 import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
 import { useEcharts } from '@/hooks/common/echarts';
@@ -184,11 +185,9 @@ async function handleRefreshToken(tokenId: string) {
 }
 
 // 复制到剪贴板
-function copyToClipboard(text: string, label: string) {
-  navigator.clipboard.writeText(text).then(() => {
-    message.success(`${label}已复制`);
-  });
-}
+// 复制到剪贴板
+// 复制到剪贴板
+// 使用 shared 库中的 copyToClipboard，无需在此重复定义
 
 // 跳转去对话
 function handleGoToChat() {
@@ -340,7 +339,7 @@ const embedFullscreenCode = computed(() => {
   if (!tokenList.value.length) return '';
   const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || window.location.origin;
+  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   return `<iframe
   src="${chatAppUrl}/?appToken=${token.token}&appId=${appId.value}"
   style="width: 100%; height: 100%;"
@@ -354,7 +353,7 @@ const embedMobileCode = computed(() => {
   if (!tokenList.value.length) return '';
   const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || window.location.origin;
+  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   return `<iframe
   src="${chatAppUrl}/?appToken=${token.token}&appId=${appId.value}&mode=mobile"
   style="width: 100%; height: 100%;"
@@ -368,7 +367,7 @@ const embedFloatCode = computed(() => {
   if (!tokenList.value.length) return '';
   const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || window.location.origin;
+  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   const scriptEnd = '<' + '/script>'; // eslint-disable-line no-useless-concat
   return `<script
   async

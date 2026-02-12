@@ -23,3 +23,6 @@ export {
   anonymousAuth,
   type AnonymousAuthResponse
 } from './api/chat';
+
+// Utils
+export { copyToClipboard } from './utils/clipboard';

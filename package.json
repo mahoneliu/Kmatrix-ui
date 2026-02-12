@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "scripts": {
+    "build": "pnpm -r run build",
     "build:admin": "pnpm --filter @km/admin build",
     "build:chat": "pnpm --filter @km/chat build",
     "cleanup": "sa cleanup",
