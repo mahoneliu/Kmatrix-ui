@@ -63,6 +63,7 @@ export async function copyToClipboard(text: string, label: string = '内容'): P
     msg.error(errorMsg);
     return false;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Copy failed:', err);
     const errorMsg = label ? `${label}复制失败` : '复制失败';
     msg.error(errorMsg);

@@ -94,17 +94,15 @@ async function loadSessions() {
 
 // 应用信息
 const appTitle = ref('');
+const prologue = ref('');
+
 async function loadAppInfo() {
   if (!embedParams.appToken) return;
   try {
-    // 假设 fetchAppInfoByToken 返回包含 appName 的对象
-    // 需要确认 fetchAppInfoByToken 的返回类型，参考 Admin 代码它返回 Api.AI.Admin.App
-    // 但是这里是 shared 包，可能类型不同。不过 Admin 也是用的 api/ai/admin/app 里的 fetchAppInfoByToken 吗？
-    // 不，Admin 用的是 @/service/api/ai/chat/chat 里的 fetchAppInfoByToken。
-    // Shared 包 exported api/chat.ts 应该也有这个。
     const { data } = await fetchAppInfoByToken(embedParams.appToken);
     if (data) {
-      appTitle.value = data.appName; // 注意这里是用 appName
+      appTitle.value = data.appName;
+      prologue.value = data.prologue || '';
     }
   } catch {
     // ignore
@@ -298,6 +296,7 @@ onMounted(async () => {
             :app-id="embedParams.appId"
             :session-id="sessionId"
             :token="embedParams.appToken"
+            :prologue="prologue"
             :has-execution-detail-permission="true"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
