@@ -109,12 +109,14 @@ async function handleDeleteDataset(ds: Api.AI.KB.Dataset) {
     positiveText: '确定删除',
     negativeText: '取消',
     onPositiveClick: async () => {
-      await deleteDataset([ds.id!]);
-      message.success('删除成功');
-      if (selectedDatasetId.value === ds.id) {
-        selectedDatasetId.value = null;
+      const { error } = await deleteDataset([ds.id!]);
+      if (!error) {
+        message.success('删除成功');
+        if (selectedDatasetId.value === ds.id) {
+          selectedDatasetId.value = null;
+        }
+        loadDatasets();
       }
-      loadDatasets();
     }
   });
 }

@@ -60,12 +60,10 @@ function handleAdd(type: '1' | '2') {
 
 async function handleDelete(item: Api.AI.Admin.App) {
   if (!item.appId) return;
-  try {
-    await deleteApp([item.appId]);
+  const { error } = await deleteApp([item.appId]);
+  if (!error) {
     message.success('删除成功');
     getData();
-  } catch {
-    // error handled by request interceptor usually
   }
 }
 

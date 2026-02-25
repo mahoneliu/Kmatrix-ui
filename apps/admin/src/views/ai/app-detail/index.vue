@@ -412,16 +412,14 @@ async function handleRunSelect(key: string) {
   } else if (key === 'enableExecutionDetail') {
     if (!appInfo.value) return;
     const newValue = appInfo.value.enableExecutionDetail === '1' ? '0' : '1';
-    try {
-      await updateApp({
-        appId: appId.value,
-        appName: appInfo.value.appName,
-        enableExecutionDetail: newValue
-      });
+    const { error } = await updateApp({
+      appId: appId.value,
+      appName: appInfo.value.appName,
+      enableExecutionDetail: newValue
+    });
+    if (!error) {
       appInfo.value.enableExecutionDetail = newValue;
       message.success(newValue === '1' ? '已启用执行详情' : '已禁用执行详情');
-    } catch {
-      message.error('设置失败');
     }
   }
 }

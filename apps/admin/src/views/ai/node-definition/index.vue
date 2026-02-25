@@ -164,13 +164,13 @@ function handleCopy(row: Api.AI.Workflow.KmNodeDefinitionBo) {
 }
 
 async function handleDelete(id: number) {
-  await deleteNodeDefinitions([id]);
-  onDeleted();
+  const { error } = await deleteNodeDefinitions([id]);
+  if (!error) onDeleted();
 }
 
 async function handleBatchDelete() {
-  await deleteNodeDefinitions(checkedRowKeys.value);
-  onBatchDeleted();
+  const { error } = await deleteNodeDefinitions(checkedRowKeys.value);
+  if (!error) onBatchDeleted();
 }
 </script>
 

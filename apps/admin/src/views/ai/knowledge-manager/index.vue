@@ -92,13 +92,11 @@ async function handleDelete(item: Api.AI.KB.KnowledgeBase) {
     positiveText: '确定删除',
     negativeText: '取消',
     onPositiveClick: async () => {
-      try {
-        await deleteKnowledgeBase([item.id!]);
+      const { error } = await deleteKnowledgeBase([item.id!]);
+      if (!error) {
         message.success('删除成功');
         getData();
         loadStatistics();
-      } catch {
-        // error handled by interceptor
       }
     }
   });

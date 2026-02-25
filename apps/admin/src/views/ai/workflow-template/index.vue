@@ -227,29 +227,27 @@ async function handleSaveTemplate() {
     return;
   }
   templateFormSaving.value = true;
-  try {
-    if (templateModalMode.value === 'add') {
-      const res = await addTemplate(templateForm.value);
+  if (templateModalMode.value === 'add') {
+    const { error, data } = await addTemplate(templateForm.value);
+    if (!error) {
       message.success('创建成功，即将跳转到工作流编排页面');
       showTemplateModal.value = false;
-      // 跳转到模板编辑页
-      if (res.data) {
+      if (data) {
         router.push({
           name: 'ai_template-editor',
-          query: { templateId: res.data.toString() }
+          query: { templateId: data.toString() }
         });
       }
-    } else {
-      await updateTemplate(templateForm.value);
+    }
+  } else {
+    const { error } = await updateTemplate(templateForm.value);
+    if (!error) {
       message.success('保存成功');
       showTemplateModal.value = false;
       getData();
     }
-  } catch (e: any) {
-    message.error(e.message || '保存失败');
-  } finally {
-    templateFormSaving.value = false;
   }
+  templateFormSaving.value = false;
 }
 
 // 删除模板（带确认）
@@ -264,12 +262,10 @@ function handleDelete(item: WorkflowTemplate) {
     positiveText: '删除',
     negativeText: '取消',
     onPositiveClick: async () => {
-      try {
-        await deleteTemplate([item.templateId]);
+      const { error } = await deleteTemplate([item.templateId]);
+      if (!error) {
         message.success('删除成功');
         getData();
-      } catch (e: any) {
-        message.error(e.message || '删除失败');
       }
     }
   });

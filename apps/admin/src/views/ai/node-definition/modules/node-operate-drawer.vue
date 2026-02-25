@@ -99,22 +99,28 @@ function closeDrawer() {
 async function handleSubmit() {
   await validate();
 
+  let errorObj = null;
   if (props.operateType === 'add') {
-    await addNodeDefinition(model);
-    window.$message?.success($t('common.addSuccess'));
+    const { error } = await addNodeDefinition(model);
+    errorObj = error;
+    if (!error) window.$message?.success($t('common.addSuccess'));
   } else if (props.operateType === 'edit') {
-    await updateNodeDefinition(model);
-    window.$message?.success($t('common.updateSuccess'));
+    const { error } = await updateNodeDefinition(model);
+    errorObj = error;
+    if (!error) window.$message?.success($t('common.updateSuccess'));
   } else if (props.operateType === 'copy') {
     if (props.rowData && model.newNodeType) {
       const id = (props.rowData as any).nodeDefId || (props.rowData as any).id;
-      await copyNodeDefinition(id, model.newNodeType);
-      window.$message?.success($t('common.addSuccess'));
+      const { error } = await copyNodeDefinition(id, model.newNodeType);
+      errorObj = error;
+      if (!error) window.$message?.success($t('common.addSuccess'));
     }
   }
 
-  closeDrawer();
-  emit('submitted');
+  if (!errorObj) {
+    closeDrawer();
+    emit('submitted');
+  }
 }
 
 watch(visible, val => {

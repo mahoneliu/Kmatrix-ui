@@ -304,7 +304,7 @@ async function handleSave() {
       }
     }
 
-    await updateApp({
+    const { error } = await updateApp({
       appId: props.appId,
       appName: formData.value.appName,
       modelId: formData.value.modelId,
@@ -318,8 +318,10 @@ async function handleSave() {
       dslData: updatedDslData
     });
 
-    message.success('配置已保存');
-    emit('update');
+    if (!error) {
+      message.success('配置已保存');
+      emit('update');
+    }
   } catch {
     message.error('保存失败');
   } finally {
