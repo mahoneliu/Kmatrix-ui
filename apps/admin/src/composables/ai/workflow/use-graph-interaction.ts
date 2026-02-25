@@ -234,7 +234,9 @@ export function useGraphInteraction(
           currentEdges.splice(index, 1);
           workflowStore.setEdges(currentEdges);
           const targetNode = getTargetNode(event);
-          takeSnapshot(`[${sourceNode.data.nodeLabel}] 连接到 [${targetNode.data.nodeLabel}]`);
+          if (sourceNode && targetNode) {
+            takeSnapshot(`[${sourceNode.data.nodeLabel}] 连接到 [${targetNode.data.nodeLabel}]`);
+          }
         } // else VueFlow handles restoration usually, but we might have custom logic?
       }
 
@@ -300,7 +302,13 @@ export function useGraphInteraction(
         showConnectionError(sourceNode.data.nodeType, targetNode.data.nodeType);
       }
       return false;
-    } else if (!nodeEl && !handleEl) {
+    }
+
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const nodeEl = target?.closest('.vue-flow__node');
+    const handleEl = target?.closest('.vue-flow__handle');
+
+    if (!nodeEl && !handleEl) {
       // Blank space -> open panel
       handleSourceHandleClick(event, sourceNode.id, sourceHandle);
       return true;

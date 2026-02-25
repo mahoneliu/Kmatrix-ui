@@ -22,6 +22,169 @@ function formatVal(val: any): string {
   return str.length > 20 ? `${str.substring(0, 20)}...` : str;
 }
 
+function getConfigDiff(newNode: any, oldNode: any): string | null {
+  const nodeName = newNode.data?.nodeLabel || newNode.id;
+  const newConfig = newNode.data?.config || {};
+  const oldConfig = oldNode.data?.config || {};
+
+  // Check changed or added config
+  for (const [key, newVal] of Object.entries(newConfig)) {
+    const oldVal = oldConfig[key];
+    if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+      if (Array.isArray(newVal) && Array.isArray(oldVal)) {
+        if (newVal.length !== oldVal.length) {
+          return `[${nodeName}] 配置项 [${key}] 数量从 [${oldVal.length}] 改为 [${newVal.length}]`;
+        }
+        return `[${nodeName}] 配置项 [${key}] 内部数组项发生修改`;
+      }
+      return `[${nodeName}] 配置项 [${key}] 从 [${formatVal(oldVal)}] 改为 [${formatVal(newVal)}]`;
+    }
+  }
+
+  // Check removed config
+  for (const key of Object.keys(oldConfig)) {
+    if (!(key in newConfig)) {
+      return `[${nodeName}] 移除配置项[${key}]`;
+    }
+  }
+
+  return null;
+}
+
+interface ParamDiffOptions {
+  newDefs: any[];
+  oldDefs: any[];
+  typeName: string;
+  nodeName: string;
+}
+
+function getParamDiff(options: ParamDiffOptions): { label: string | null; autoPopulatedKey: string | null } {
+  const { newDefs, oldDefs, typeName, nodeName } = options;
+  if (newDefs.length > oldDefs.length) {
+    return { label: `[${nodeName}] 新增${typeName}`, autoPopulatedKey: null };
+  }
+  if (newDefs.length < oldDefs.length) {
+    return { label: `[${nodeName}] 移除${typeName}`, autoPopulatedKey: null };
+  }
+
+  let autoPopulatedKey: string | null = null;
+  for (let i = 0; i < newDefs.length; i += 1) {
+    const newDef = newDefs[i];
+    const oldDef = oldDefs[i];
+    if (newDef.key !== oldDef.key) {
+      if (!oldDef.key || oldDef.key.trim() === '') {
+        autoPopulatedKey = `[${nodeName}] 设置${typeName}键名[${newDef.key}]`;
+      } else {
+        return { label: `[${nodeName}] 修改${typeName}键名[${oldDef.key} -> ${newDef.key}]`, autoPopulatedKey: null };
+      }
+    } else if (JSON.stringify(newDef) !== JSON.stringify(oldDef)) {
+      return {
+        label: `[${nodeName}] 修改${typeName}[${newDef.label || newDef.key || '未命名'}]配置`,
+        autoPopulatedKey: null
+      };
+    }
+  }
+  return { label: null, autoPopulatedKey };
+}
+
+function formatBindingLabel(binding: any, newState: any, oldState: any): string {
+  if (!binding) return '空';
+  if (binding.sourceType === 'global') return `[全局.${binding.sourceKey}.${binding.sourceParam}]`;
+  if (binding.sourceType === 'node') {
+    const sourceNode =
+      newState.nodes.find((n: any) => n.id === binding.sourceKey) ||
+      oldState.nodes.find((n: any) => n.id === binding.sourceKey);
+    const label = sourceNode?.data?.nodeLabel || binding.sourceKey;
+    return `[${label}.${binding.sourceParam}]`;
+  }
+  return JSON.stringify(binding);
+}
+
+interface BindingDiffOptions {
+  newNode: any;
+  oldNode: any;
+  newState: any;
+  oldState: any;
+}
+
+function getBindingDiff(options: BindingDiffOptions): string | null {
+  const { newNode, oldNode, newState, oldState } = options;
+  const nodeName = newNode.data?.nodeLabel || newNode.id;
+  const newParams: any[] = newNode.data?.paramBindings || [];
+  const oldParams: any[] = oldNode.data?.paramBindings || [];
+
+  for (const newBinding of newParams) {
+    const paramKey = newBinding.paramKey;
+    const oldBinding = oldParams.find((p: any) => p.paramKey === paramKey);
+
+    if (JSON.stringify(newBinding) !== JSON.stringify(oldBinding)) {
+      let paramName = paramKey;
+      const paramDef = newNode.data?.customInputParams?.find((p: any) => p.key === paramKey);
+      if (paramDef?.label) {
+        paramName = paramDef.label;
+      }
+      return `[${nodeName}] 入参 [${paramName}] 从 ${formatBindingLabel(oldBinding, newState, oldState)} 改为 ${formatBindingLabel(newBinding, newState, oldState)}`;
+    }
+  }
+
+  for (const oldBinding of oldParams) {
+    const paramKey = oldBinding.paramKey;
+    if (!newParams.find((p: any) => p.paramKey === paramKey)) {
+      let paramName = paramKey;
+      const paramDef = oldNode.data?.customInputParams?.find((p: any) => p.key === paramKey);
+      if (paramDef?.label) {
+        paramName = paramDef.label;
+      }
+      return `[${nodeName}] 移除入参[${paramName}]`;
+    }
+  }
+
+  return null;
+}
+
+interface NodeDataDiffOptions {
+  newNode: any;
+  oldNode: any;
+  newState: any;
+  oldState: any;
+}
+
+function getNodeDataDiff(options: NodeDataDiffOptions): string | null {
+  const { newNode, oldNode, newState, oldState } = options;
+  const nodeName = newNode.data?.nodeLabel || newNode.id;
+
+  // 1. Config diff
+  const configDiff = getConfigDiff(newNode, oldNode);
+  if (configDiff) return configDiff;
+
+  // 2. Custom params diff
+  let autoPopulatedKeyInfo: string | null = null;
+
+  const inputDiff = getParamDiff({
+    newDefs: newNode.data?.customInputParams || [],
+    oldDefs: oldNode.data?.customInputParams || [],
+    typeName: '自定义入参',
+    nodeName
+  });
+  if (inputDiff.label) return inputDiff.label;
+  if (inputDiff.autoPopulatedKey) autoPopulatedKeyInfo = inputDiff.autoPopulatedKey;
+
+  const outputDiff = getParamDiff({
+    newDefs: newNode.data?.customOutputParams || [],
+    oldDefs: oldNode.data?.customOutputParams || [],
+    typeName: '自定义出参',
+    nodeName
+  });
+  if (outputDiff.label) return outputDiff.label;
+  if (outputDiff.autoPopulatedKey) autoPopulatedKeyInfo = outputDiff.autoPopulatedKey;
+
+  // 3. Binding diff
+  const bindingDiff = getBindingDiff({ newNode, oldNode, newState, oldState });
+  if (bindingDiff) return bindingDiff;
+
+  return autoPopulatedKeyInfo;
+}
+
 function getDetailedDiffLabel(oldState: any, newState: any): string | null {
   try {
     if (oldState.nodes.length !== newState.nodes.length) {
@@ -30,117 +193,9 @@ function getDetailedDiffLabel(oldState: any, newState: any): string | null {
 
     for (const newNode of newState.nodes) {
       const oldNode = oldState.nodes.find((n: any) => n.id === newNode.id);
-      if (!oldNode) continue;
-
-      const nodeName = newNode.data?.nodeLabel || newNode.id;
-
-      const newConfig = newNode.data?.config || {};
-      const oldConfig = oldNode.data?.config || {};
-      for (const key in newConfig) {
-        const newVal = newConfig[key];
-        const oldVal = oldConfig[key];
-        if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-          if (Array.isArray(newVal) && Array.isArray(oldVal)) {
-            if (newVal.length !== oldVal.length) {
-              return `[${nodeName}] 配置项 [${key}] 数量从 [${oldVal.length}] 改为 [${newVal.length}]`;
-            }
-            return `[${nodeName}] 配置项 [${key}] 内部数组项发生修改`;
-          }
-          return `[${nodeName}] 配置项 [${key}] 从 [${formatVal(oldVal)}] 改为 [${formatVal(newVal)}]`;
-        }
-      }
-      for (const key in oldConfig) {
-        if (!(key in newConfig)) {
-          return `[${nodeName}] 移除配置项[${key}]`;
-        }
-      }
-
-      let autoPopulatedKeyInfo: string | null = null;
-
-      const checkParamDefsChange = (newDefs: any[] | undefined, oldDefs: any[] | undefined, typeName: string) => {
-        const nDefs = newDefs || [];
-        const oDefs = oldDefs || [];
-        if (nDefs.length > oDefs.length) {
-          return `[${nodeName}] 新增${typeName}`;
-        }
-        if (nDefs.length < oDefs.length) {
-          return `[${nodeName}] 移除${typeName}`;
-        }
-        for (let i = 0; i < nDefs.length; i++) {
-          const newDef = nDefs[i];
-          const oldDef = oDefs[i];
-          if (newDef.key !== oldDef.key) {
-            if (!oldDef.key || oldDef.key.trim() === '') {
-              autoPopulatedKeyInfo = `[${nodeName}] 设置${typeName}键名[${newDef.key}]`;
-            } else {
-              return `[${nodeName}] 修改${typeName}键名[${oldDef.key} -> ${newDef.key}]`;
-            }
-          } else if (JSON.stringify(newDef) !== JSON.stringify(oldDef)) {
-            return `[${nodeName}] 修改${typeName}[${newDef.label || newDef.key || '未命名'}]配置`;
-          }
-        }
-        return null;
-      };
-
-      const customInputDiff = checkParamDefsChange(
-        newNode.data?.customInputParams,
-        oldNode.data?.customInputParams,
-        '自定义入参'
-      );
-      if (customInputDiff) return customInputDiff;
-
-      const customOutputDiff = checkParamDefsChange(
-        newNode.data?.customOutputParams,
-        oldNode.data?.customOutputParams,
-        '自定义出参'
-      );
-      if (customOutputDiff) return customOutputDiff;
-
-      const newParams: any[] = newNode.data?.paramBindings || [];
-      const oldParams: any[] = oldNode.data?.paramBindings || [];
-
-      const formatBinding = (b: any) => {
-        if (!b) return '空';
-        if (b.sourceType === 'global') return `[全局.${b.sourceKey}.${b.sourceParam}]`;
-        if (b.sourceType === 'node') {
-          // 查找节点名称 (优先在新状态找，如果被删了去旧状态找)
-          const sourceNode =
-            newState.nodes.find((n: any) => n.id === b.sourceKey) ||
-            oldState.nodes.find((n: any) => n.id === b.sourceKey);
-          const nodeName = sourceNode?.data?.nodeLabel || b.sourceKey;
-          return `[${nodeName}.${b.sourceParam}]`;
-        }
-        return JSON.stringify(b);
-      };
-
-      for (const newBinding of newParams) {
-        const paramKey = newBinding.paramKey;
-        const oldBinding = oldParams.find((p: any) => p.paramKey === paramKey);
-
-        let paramName = paramKey;
-        const paramDef = newNode.data?.customInputParams?.find((p: any) => p.key === paramKey);
-        if (paramDef && paramDef.label) {
-          paramName = paramDef.label;
-        }
-
-        if (JSON.stringify(newBinding) !== JSON.stringify(oldBinding)) {
-          return `[${nodeName}] 入参 [${paramName}] 从 ${formatBinding(oldBinding)} 改为 ${formatBinding(newBinding)}`;
-        }
-      }
-      for (const oldBinding of oldParams) {
-        const paramKey = oldBinding.paramKey;
-        if (!newParams.find((p: any) => p.paramKey === paramKey)) {
-          let paramName = paramKey;
-          const paramDef = oldNode.data?.customInputParams?.find((p: any) => p.key === paramKey);
-          if (paramDef && paramDef.label) {
-            paramName = paramDef.label;
-          }
-          return `[${nodeName}] 移除入参[${paramName}]`;
-        }
-      }
-
-      if (autoPopulatedKeyInfo) {
-        return autoPopulatedKeyInfo;
+      if (oldNode) {
+        const diff = getNodeDataDiff({ newNode, oldNode, newState, oldState });
+        if (diff) return diff;
       }
     }
 
@@ -150,15 +205,16 @@ function getDetailedDiffLabel(oldState: any, newState: any): string | null {
 
     for (const newEdge of newState.edges) {
       const oldEdge = oldState.edges.find((e: any) => e.id === newEdge.id);
-      if (!oldEdge) continue;
-
-      const newCond = newEdge.data?.condition;
-      const oldCond = oldEdge.data?.condition;
-      if (JSON.stringify(newCond) !== JSON.stringify(oldCond)) {
-        return `连线条件变更`;
+      if (oldEdge) {
+        const newCond = newEdge.data?.condition;
+        const oldCond = oldEdge.data?.condition;
+        if (JSON.stringify(newCond) !== JSON.stringify(oldCond)) {
+          return `连线条件变更`;
+        }
       }
     }
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('Failed to generate diff label:', e);
   }
   return null;
@@ -209,6 +265,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
   const takeSnapshot = (label: string = '未知操作') => {
     if (isInnerStateChange) return;
 
+    let finalLabel = label;
     const snapshot = getCleanSnapshot();
 
     // 如果与当前状态完全一致，则不记录
@@ -216,12 +273,12 @@ export const useWorkflowHistory = createSharedComposable(() => {
       return;
     }
 
-    if ((label === '更新配置' || label === '节点变更') && currentIndex.value >= 0) {
+    if ((finalLabel === '更新配置' || finalLabel === '节点变更') && currentIndex.value >= 0) {
       const oldState = JSON.parse(historyStack.value[currentIndex.value].snapshot);
       const newState = JSON.parse(snapshot);
       const diffLabel = getDetailedDiffLabel(oldState, newState);
       if (diffLabel) {
-        label = diffLabel;
+        finalLabel = diffLabel;
       }
     }
 
@@ -233,7 +290,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
     historyStack.value.push({
       snapshot,
       timestamp: Date.now(),
-      label
+      label: finalLabel
     });
 
     if (historyStack.value.length > maxHistory) {
