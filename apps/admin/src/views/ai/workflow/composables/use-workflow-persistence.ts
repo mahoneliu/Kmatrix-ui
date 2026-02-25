@@ -5,6 +5,7 @@ import { fetchAppDetail, publishApp, updateApp } from '@/service/api/ai/app';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useAutoSave } from '@/composables/ai/workflow/use-auto-save';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
 
@@ -16,6 +17,8 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
 
   // 自动保存
   const { enableAutoSave } = useAutoSave(handleAutoSave);
+  // 初始化历史管理
+  const { initHistory } = useWorkflowHistory();
 
   const loading = ref(false);
   const appName = ref('');
@@ -144,9 +147,10 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
       message.error('加载工作流失败');
     } finally {
       loading.value = false;
-      // 延迟启用自动保存
+      // 延迟启用自动保存和历史初始化
       setTimeout(() => {
         enableAutoSave();
+        initHistory();
       }, 2000);
     }
   }

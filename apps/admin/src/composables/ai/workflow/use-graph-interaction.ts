@@ -4,6 +4,7 @@ import { useMessage } from 'naive-ui';
 import type { Connection } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { generateEdgeCondition, isValidConnection as isValidConnectionRule } from '@/utils/ai/connection-rules'; // Rename to avoid naming conflict
 import { generateNodeLabel } from '@/utils/ai/node-naming';
 import CustomEdge from '@/components/ai/edges/custom-edge.vue';
@@ -19,13 +20,18 @@ export function useGraphInteraction(
   const updatingEdge = ref<any>(null);
   let connectionSucceeded = false;
 
+  // 初始化历史管理
+  const { takeSnapshot } = useWorkflowHistory();
+
   // 注册 Edge 类型
   const edgeTypes: any = {
     custom: markRaw(CustomEdge)
   };
 
   function handleDeleteNode(nodeId: string) {
+    const nodeLabel = workflowStore.nodes.find(n => n.id === nodeId)?.data.nodeLabel;
     workflowStore.removeNode(nodeId);
+    takeSnapshot(`删除节点[${nodeLabel}]`);
   }
 
   function handleDuplicateNode(nodeId: string) {
@@ -47,6 +53,7 @@ export function useGraphInteraction(
       }
     };
     workflowStore.addNode(newNode);
+    takeSnapshot(`复制节点[${originalNode.data.nodeLabel}] 到 [${newNode.data.nodeLabel}]`);
   }
 
   function showConnectionError(sourceType: string, targetType: string) {
@@ -85,6 +92,7 @@ export function useGraphInteraction(
 
     instance.onNodeDragStop(({ node }: any) => {
       workflowStore.updateNodePosition(node.id, node.position);
+      takeSnapshot(`移动节点[${workflowStore.nodes.find(n => n.id === node.id)?.data.nodeLabel}]`);
     });
 
     instance.onNodeClick(({ node }: any) => {
@@ -123,6 +131,7 @@ export function useGraphInteraction(
 
       if (!connectionSucceeded) {
         handleManualConnectEnd(event, connectingSourceNode, connectingSourceHandle);
+        takeSnapshot(`[${connectingSourceNode.data.nodeLabel}] 连接到 [${getTargetNode(event)?.data.nodeLabel}]`);
       }
 
       connectingSourceNode = null;
@@ -173,6 +182,7 @@ export function useGraphInteraction(
       connectionSucceeded = true;
       if (validateConnection(connection, updatingEdge.value?.id)) {
         const sourceNode = workflowStore.nodes.find(n => n.id === connection.source);
+        const targetNode = workflowStore.nodes.find(n => n.id === connection.target);
         const condition = generateEdgeCondition(sourceNode, connection.sourceHandle);
         const edgeId = `e-${connection.source}-${connection.sourceHandle || ''}-${connection.target}`;
 
@@ -192,6 +202,7 @@ export function useGraphInteraction(
         const currentEdges = workflowStore.edges.filter(e => e.id !== edge.id);
         currentEdges.push(newEdge);
         workflowStore.setEdges(currentEdges);
+        takeSnapshot(`[${sourceNode?.data?.nodeLabel}] 连接到 [${targetNode?.data?.nodeLabel}]`);
       } else {
         const sourceNode = workflowStore.nodes.find(n => n.id === connection.source);
         const targetNode = workflowStore.nodes.find(n => n.id === connection.target);
@@ -222,6 +233,8 @@ export function useGraphInteraction(
         if (actionTaken && index !== -1) {
           currentEdges.splice(index, 1);
           workflowStore.setEdges(currentEdges);
+          const targetNode = getTargetNode(event);
+          takeSnapshot(`[${sourceNode.data.nodeLabel}] 连接到 [${targetNode.data.nodeLabel}]`);
         } // else VueFlow handles restoration usually, but we might have custom logic?
       }
 
@@ -232,24 +245,38 @@ export function useGraphInteraction(
     });
   }
 
-  function handleManualConnectEnd(event: MouseEvent, sourceNode: any, sourceHandle: string | null): boolean {
-    if (!sourceNode) return false;
-
+  function getTargetNode(event: MouseEvent) {
     const target = document.elementFromPoint(event.clientX, event.clientY);
     const nodeEl = target?.closest('.vue-flow__node');
-    const handleEl = target?.closest('.vue-flow__handle');
-
     if (nodeEl) {
       const targetNodeId = nodeEl.getAttribute('data-id');
       const targetNode = workflowStore.nodes.find(n => n.id === targetNodeId);
+      return targetNode;
+    }
+    return null;
+  }
+
+  function getTargetHandle(event: MouseEvent) {
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const handleEl = target?.closest('.vue-flow__handle');
+    if (handleEl) {
+      const targetHandleId = handleEl.getAttribute('data-handleid');
+      return targetHandleId;
+    }
+    return null;
+  }
+
+  function handleManualConnectEnd(event: MouseEvent, sourceNode: any, sourceHandle: string | null): boolean {
+    if (!sourceNode) return false;
+
+    const targetNode = getTargetNode(event);
+    if (targetNode) {
       if (targetNode && targetNode.id !== sourceNode.id) {
-        // Simplify: assumes target handle is default or found
-        // Logic from original file to find handle or use default
         const connection = {
           source: sourceNode.id,
           target: targetNode.id,
           sourceHandle,
-          targetHandle: handleEl?.getAttribute('data-handleid') || null
+          targetHandle: getTargetHandle(event)
         } as Connection;
 
         if (validateConnection(connection)) {
@@ -267,6 +294,7 @@ export function useGraphInteraction(
             label: condition,
             data: { condition }
           });
+          // takeSnapshot(`[${sourceNode.data.nodeLabel}] 连接到 [${targetNode.data.nodeLabel}]`);
           return true;
         }
         showConnectionError(sourceNode.data.nodeType, targetNode.data.nodeType);
@@ -282,7 +310,6 @@ export function useGraphInteraction(
 
   return {
     onPaneReady,
-    validateConnection,
     handleDeleteNode,
     handleDuplicateNode,
     edgeTypes,

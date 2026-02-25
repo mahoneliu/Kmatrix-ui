@@ -10,7 +10,7 @@ import { onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
-import { useDataSource } from '@/composables/ai/workflow/use-data-source';
+import { useDataSource } from '@/composables/ai/data-source/use-data-source';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();

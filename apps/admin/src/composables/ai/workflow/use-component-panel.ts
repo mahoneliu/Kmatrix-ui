@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 import type { Ref } from 'vue';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { generateEdgeCondition } from '@/utils/ai/connection-rules';
 import { generateNodeLabel } from '@/utils/ai/node-naming';
 
@@ -13,6 +14,8 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
   const showHandlePanel = ref(false);
   const handlePanelPosition = ref({ x: 0, y: 0 });
   const sourceNodeByHandle = ref<{ node: any; handleId: string | null } | null>(null);
+  // 初始化历史管理
+  const { takeSnapshot } = useWorkflowHistory();
 
   // 面板关闭定时器
   let panelCloseTimer: number | null = null;
@@ -155,6 +158,7 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
               });
               sourceNodeByHandle.value = null;
             }
+            takeSnapshot(`拖拽添加并链接节点[${newNode.data.nodeLabel}]`);
           }
         }
       }
@@ -199,6 +203,7 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
           });
           sourceNodeByHandle.value = null;
         }
+        takeSnapshot(`添加并连接节点[${newNode.data.nodeLabel}]`);
       }
     }
   }
@@ -215,7 +220,10 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
     // 简单的位移策略，避免重叠
     const position = { x: 300, y: 200 + workflowStore.nodes.length * 50 };
     const newNode = createNodeData(nodeType, position);
-    if (newNode) workflowStore.addNode(newNode);
+    if (newNode) {
+      workflowStore.addNode(newNode);
+      takeSnapshot(`添加节点[${newNode.data.nodeLabel}]`);
+    }
   }
 
   return {

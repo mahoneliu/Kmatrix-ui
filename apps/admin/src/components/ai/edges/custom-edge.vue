@@ -3,6 +3,7 @@
 import { computed, ref } from 'vue';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core';
 import type { EdgeProps } from '@vue-flow/core';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 
 // 自定义 Edge Props 以支持 updatable 属性
@@ -14,6 +15,9 @@ interface CustomEdgeProps extends Omit<EdgeProps, 'updatable'> {
 const props = defineProps<CustomEdgeProps>();
 
 const workflowStore = useWorkflowStore();
+
+// 初始化历史管理
+const { takeSnapshot } = useWorkflowHistory();
 
 const path = computed(() => getBezierPath(props));
 // 调试日志
@@ -64,7 +68,10 @@ function onMouseLeave() {
 }
 
 function deleteEdge() {
+  const sourceNode = workflowStore.nodes.find(n => n.id === props.source);
+  const targetNode = workflowStore.nodes.find(n => n.id === props.target);
   workflowStore.removeEdge(props.id);
+  takeSnapshot(`删除[${sourceNode?.data?.nodeLabel}] 到 [${targetNode?.data?.nodeLabel}] 的连接`);
 }
 </script>
 
@@ -102,19 +109,23 @@ function deleteEdge() {
 .interaction-path {
   cursor: pointer;
 }
+
 .visible-path {
   stroke-width: 2;
   transition: all 0.2s;
 }
+
 /* When CustomEdge group is hovered, style the visible path */
 .custom-edge:hover .visible-path {
   stroke: #555;
   stroke-width: 3;
 }
+
 .custom-edge.highlighted .visible-path {
   stroke: var(--primary-color, #18a058) !important;
   stroke-width: 3 !important;
 }
+
 .edge-button-container {
   pointer-events: all;
   position: absolute;

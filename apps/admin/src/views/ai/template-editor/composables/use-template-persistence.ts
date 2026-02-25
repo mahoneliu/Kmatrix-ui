@@ -4,6 +4,7 @@ import { useMessage } from 'naive-ui';
 import { fetchTemplateDetail, updateTemplate } from '@/service/api/ai/workflow-template';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { useAutoSave } from '@/composables/ai/workflow/use-auto-save';
 import { graphToDsl } from '@/utils/ai/dsl-converter';
 
@@ -21,6 +22,8 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
 
   // 自动保存
   const { enableAutoSave } = useAutoSave(handleAutoSave);
+  // 初始化历史管理
+  const { initHistory } = useWorkflowHistory();
 
   const loading = ref(false);
   const templateName = ref('');
@@ -71,6 +74,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       // 延迟启用自动保存
       setTimeout(() => {
         enableAutoSave();
+        initHistory();
       }, 2000);
     }
   }

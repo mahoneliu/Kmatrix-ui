@@ -16,8 +16,8 @@ import ComponentLibraryModal from '@/components/ai/workflow/component-library-mo
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
 import WorkflowSaveStatus from '@/components/ai/workflow/workflow-save-status.vue';
 import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
-import { useGraphInteraction } from '../../../composables/ai/workflow/useGraphInteraction';
-import { useComponentPanel } from '../../../composables/ai/workflow/useComponentPanel';
+import { useGraphInteraction } from '../../../composables/ai/workflow/use-graph-interaction';
+import { useComponentPanel } from '../../../composables/ai/workflow/use-component-panel';
 import { useTemplatePersistence } from './composables/use-template-persistence';
 
 import '@vue-flow/core/dist/style.css';

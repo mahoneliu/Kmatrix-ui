@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { onKeyStroke, useMagicKeys, whenever } from '@vueuse/core';
 import { NButton, NPopover, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
@@ -11,6 +12,9 @@ import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowLayout } from '@/composables/ai/workflow/use-workflow-layout';
 import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
 import { useUnsavedChangesGuard } from '@/composables/ai/workflow/use-unsaved-changes-guard';
+import { useGraphInteraction } from '@/composables/ai/workflow/use-graph-interaction';
+import { useComponentPanel } from '@/composables/ai/workflow/use-component-panel';
+import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { hexToRgba } from '@/utils/color';
 import ConnectionLine from '@/components/ai/edges/connection-line.vue';
 import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
@@ -20,8 +24,6 @@ import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import PublishHistoryModal from '@/components/ai/workflow/publish-history-modal.vue';
 import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
-import { useGraphInteraction } from '../../../composables/ai/workflow/useGraphInteraction';
-import { useComponentPanel } from '../../../composables/ai/workflow/useComponentPanel';
 import { useWorkflowPersistence } from './composables/use-workflow-persistence';
 
 import '@vue-flow/core/dist/style.css';
@@ -71,6 +73,50 @@ const { handleAutoLayout, handleCollapseAll, handleExpandAll, handleCollapseAndL
   vueFlowInstance,
   getNodes,
   message
+});
+
+// 初始化历史管理
+const { undo, redo, canUndo, canRedo } = useWorkflowHistory();
+
+// 注册快捷键
+const { ctrl_z, ctrl_y, ctrl_shift_z, meta_z, meta_y, meta_shift_z } = useMagicKeys();
+
+// 撤销
+const handleUndo = () => {
+  if (canUndo.value) {
+    undo();
+  }
+};
+
+// 重做
+const handleRedo = () => {
+  if (canRedo.value) {
+    redo();
+  }
+};
+
+// 撤销: Ctrl+Z (Win) 或 Command+Z (Mac)
+whenever(
+  () => (ctrl_z.value || meta_z.value) && !meta_shift_z.value && !ctrl_shift_z.value,
+  () => {
+    handleUndo();
+  }
+);
+
+// 重做: Ctrl+Y / Ctrl+Shift+Z (Win) 或 Command+Y / Command+Shift+Z (Mac)
+whenever(
+  () => ctrl_y.value || meta_y.value || ctrl_shift_z.value || meta_shift_z.value,
+  () => {
+    handleRedo();
+  }
+);
+
+// 保存: Ctrl+S (Win) 或 Command+S (Mac)
+onKeyStroke(['s', 'S'], e => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    handleSave();
+  }
 });
 
 // 调试对话窗口
