@@ -46,7 +46,7 @@ const dialogStyle = computed(() => {
     right: '20px',
     bottom: '20px',
     width: '500px',
-    height: isMinimized.value ? '48px' : '800px'
+    height: isMinimized.value ? '48px' : 'min(800px, calc(100vh - 120px))'
   };
 });
 

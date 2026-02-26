@@ -61,9 +61,9 @@ export function updateModel(data: Partial<Api.AI.Admin.Model>) {
 /**
  * 删除模型
  */
-export function deleteModel(modelIds: CommonType.IdType[]) {
+export function deleteModel(modelId: CommonType.IdType) {
   return request({
-    url: `/ai/model/${modelIds.join(',')}`,
+    url: `/ai/model/${modelId}`,
     method: 'delete'
   });
 }
@@ -89,16 +89,6 @@ export function testModelConnection(data: any) {
     data
   });
 }
-
-// 兼容旧的函数名（已废弃，保留用于平滑迁移）
-/** @deprecated 请使用 fetchModelList */
-export const fetchModels = fetchModelList;
-
-/** @deprecated 请使用 deleteModel */
-export const deleteModels = deleteModel;
-
-/** @deprecated 请使用 createModel */
-export const addModel = createModel;
 
 /**
  * 复制模型

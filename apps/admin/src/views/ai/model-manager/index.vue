@@ -59,9 +59,7 @@ onMounted(() => {
 
     <!-- 右侧模型列表 -->
     <ModelList :provider-id="currentProviderId" :provider-type="currentProviderType" :providers="providers" />
+
+    <ProviderManageModal v-model:visible="providerModalVisible" @success="handleProviderManageSuccess" />
   </TableSiderLayout>
-
-  <ProviderManageModal v-model:visible="providerModalVisible" @success="handleProviderManageSuccess" />
 </template>
-
-<style scoped></style>

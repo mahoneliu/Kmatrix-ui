@@ -2,7 +2,7 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
 import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
-import { addModel, testModelConnection, updateModel } from '@/service/api/ai/model';
+import { createModel, testModelConnection, updateModel } from '@/service/api/ai/model';
 import TemperatureSlider from '@/components/ai/public/temperature-slider.vue';
 
 const emit = defineEmits<{
@@ -221,7 +221,7 @@ async function handleSubmit() {
 
   loading.value = true;
   try {
-    const api = type.value === 'add' ? addModel : updateModel;
+    const api = type.value === 'add' ? createModel : updateModel;
 
     const submitData = { ...modelForm };
 
