@@ -26,6 +26,7 @@
     "update-pkg": "sa update-pkg"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@soybeanjs/eslint-config": "1.7.4",
     "@types/node": "24.10.1",
     "@unocss/eslint-config": "66.5.10",
