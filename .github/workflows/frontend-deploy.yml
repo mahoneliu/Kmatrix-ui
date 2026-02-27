@@ -51,8 +51,10 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # 开启 FTPS 解决 503 Use AUTH first 问题
+        # 开启 FTPS 解决鉴权问题
         protocol: ftps
+        # 将默认的极其短暂的 1 分钟超时时间延长为 5 分钟 (300000 毫秒)，防止国内网络环境传几百个小文件时超时中断
+        timeout: 300000
         # 我们由于是 monorepo 会打包出两个独立的产物吗？如果只有一个总的请指向具体的 dist
         # 假设构建产物在 apps/admin/dist/ 目录下
         local-dir: ./apps/admin/dist/
