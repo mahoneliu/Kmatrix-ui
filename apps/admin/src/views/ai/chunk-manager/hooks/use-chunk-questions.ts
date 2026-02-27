@@ -109,7 +109,8 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     if (!selectedChunkId.value || !val) return;
 
     try {
-      await linkQuestion(selectedChunkId.value, val as string);
+      const { error } = await linkQuestion(selectedChunkId.value, val as string);
+      if (error) return;
       message.success('关联成功');
       newQuestionContent.value = null;
       await loadQuestions(selectedChunkId.value);
@@ -131,12 +132,14 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
       const existingQuestion = kbQuestions.value.find((q: Api.AI.KB.Question) => q.content === contentStr);
 
       if (existingQuestion) {
-        await linkQuestion(selectedChunkId.value, existingQuestion.id);
-        message.success('关联成功');
+        const { error } = await linkQuestion(selectedChunkId.value, existingQuestion.id);
+        if (!error) message.success('关联成功');
       } else {
-        await addQuestion(selectedChunkId.value, contentStr);
-        message.success('添加成功');
-        await loadKbQuestions(true);
+        const { error } = await addQuestion(selectedChunkId.value, contentStr);
+        if (!error) {
+          message.success('添加成功');
+          await loadKbQuestions(true);
+        }
       }
 
       newQuestionContent.value = null;
@@ -149,7 +152,8 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
   async function handleDeleteQuestion(questionId: string | number) {
     if (!selectedChunkId.value) return;
     try {
-      await unlinkQuestion(selectedChunkId.value, questionId);
+      const { error } = await unlinkQuestion(selectedChunkId.value, questionId);
+      if (error) return;
       message.success('已取消关联');
       await loadQuestions(selectedChunkId.value);
     } catch {
@@ -176,14 +180,14 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     generatingQuestions.value = true;
     const msg = message.loading('AI 正在生成问题,请稍候...', { duration: 0 });
     try {
-      await generateQuestions(selectedChunkId.value, {
+      const { error } = await generateQuestions(selectedChunkId.value, {
         modelId: params.modelId,
         prompt: params.prompt,
         temperature: params.temperature,
         maxTokens: params.maxTokens
       });
       msg.destroy();
-      message.success('生成成功');
+      if (!error) message.success('生成成功');
       await loadQuestions(selectedChunkId.value);
     } catch {
       msg.destroy();

@@ -330,19 +330,22 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
 
         try {
           loading.value = true;
+          // 首先执行全量保存（由于 validateApp 已通过，此处的图数据一定是合法的）
           const success = await handleSave(true);
-          if (!success) return false;
-
-          await publishApp(appId.value, remark);
-          message.success('发布成功');
-          return true;
-        } catch (error: any) {
-          const errorMsg = error?.response?.data?.msg || error?.message || '发布失败';
-          if (errorMsg.includes('无变更') || errorMsg.includes('没有差别')) {
-            message.warning(errorMsg);
-          } else {
-            message.error(errorMsg);
+          if (!success) {
+            message.error('保存应用配置失败，无法发布');
+            return false;
           }
+
+          // 保存成功后再执行发布指令
+          const { error } = await publishApp(appId.value, remark);
+          if (error) return false;
+
+          message.success('发布成功');
+          dialog.destroyAll();
+          return true;
+        } catch {
+          message.error('发布异常');
           return false;
         } finally {
           loading.value = false;

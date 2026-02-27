@@ -106,7 +106,9 @@ watch(
           sourceType: 'FILE_UPLOAD',
           minChunkSize: 100,
           maxChunkSize: 500,
-          chunkOverlap: 50
+          chunkOverlap: 50,
+          childChunkSize: 200,
+          childChunkOverlap: 20
         };
       }
     }
@@ -203,6 +205,26 @@ function handleCancel() {
               :min="0"
               :max="500"
               placeholder="重叠 Token 数"
+              class="w-full"
+            />
+          </NFormItem>
+          <NFormItem label="子块大小(可选)" path="childChunkSize">
+            <NInputNumber
+              v-model:value="formData.childChunkSize"
+              :min="50"
+              :max="1000"
+              placeholder="留空即使用系统默认大小"
+              clearable
+              class="w-full"
+            />
+          </NFormItem>
+          <NFormItem label="子块重叠(可选)" path="childChunkOverlap">
+            <NInputNumber
+              v-model:value="formData.childChunkOverlap"
+              :min="0"
+              :max="200"
+              placeholder="留空即使用系统默认大小"
+              clearable
               class="w-full"
             />
           </NFormItem>

@@ -95,7 +95,7 @@ declare namespace Api.AI.Admin {
     appName?: string;
     appType?: string;
     status?: string;
-    pageNo?: number;
+    pageNum?: number;
     pageSize?: number;
   }
 

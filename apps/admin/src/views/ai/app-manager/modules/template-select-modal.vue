@@ -112,6 +112,7 @@ async function handleCreate() {
   creating.value = true;
   try {
     const res = await createAppFromTemplate(selectedTemplate.value.templateId, appName.value.trim());
+    if (res.error) return;
     if (res.data) {
       message.success('创建成功');
       showNameModal.value = false;

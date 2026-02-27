@@ -194,7 +194,7 @@ watch(
 
 // 是否可以保存
 const canSave = computed(() => {
-  return formData.value.appName && formData.value.modelId;
+  return formData.value.appName && formData.value.modelId && formData.value.kbIds.length > 0;
 });
 
 async function loadOptions() {
@@ -284,7 +284,7 @@ function updateGraphDataWithFormData(graphData: Workflow.GraphData): Workflow.Gr
 async function handleSave() {
   if (!canSave.value) {
     message.warning('请填写应用名称、选择大模型和知识库');
-    return;
+    return false;
   }
 
   saving.value = true;
@@ -321,9 +321,12 @@ async function handleSave() {
     if (!error) {
       message.success('配置已保存');
       emit('update');
+      return true;
     }
+    return false;
   } catch {
     message.error('保存失败');
+    return false;
   } finally {
     saving.value = false;
   }
@@ -341,6 +344,11 @@ const temperatureMarks = {
 onMounted(() => {
   initFormData();
   loadOptions();
+});
+
+defineExpose({
+  handleSave,
+  canSave
 });
 </script>
 

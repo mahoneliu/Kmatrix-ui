@@ -9,6 +9,7 @@ export default defineConfig(configEnv => {
 
   const buildTime = getBuildTime();
 
+  const isBuild = configEnv.command === 'build';
   const enableProxy = configEnv.command === 'serve' && !configEnv.isPreview;
 
   return {
@@ -28,7 +29,7 @@ export default defineConfig(configEnv => {
         }
       }
     },
-    plugins: setupVitePlugins(viteEnv, buildTime),
+    plugins: setupVitePlugins(viteEnv, buildTime, isBuild),
     define: {
       BUILD_TIME: JSON.stringify(buildTime)
     },
@@ -50,6 +51,15 @@ export default defineConfig(configEnv => {
       rollupOptions: {
         input: {
           main: fileURLToPath(new URL('./index.html', import.meta.url))
+        },
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue', 'vue-router', 'pinia', '@vueuse/core'],
+            'naive-ui': ['naive-ui'],
+            'vue-flow': ['@vue-flow/core', '@vue-flow/background', '@vue-flow/controls', '@vue-flow/minimap'],
+            echarts: ['echarts'],
+            'markdown-it': ['markdown-it']
+          }
         }
       }
     }

@@ -604,7 +604,12 @@ async function handleUpload(options: { file: UploadFileInfo; onFinish: () => voi
 
   uploading.value = true;
   try {
-    await uploadDocument(props.datasetId, options.file.file);
+    const { error } = await uploadDocument(props.datasetId, options.file.file);
+    if (error) {
+      options.onError();
+      return;
+    }
+
     debouncedSuccessMessage();
     options.onFinish();
     // 上传成功后从列表中移除
@@ -614,7 +619,6 @@ async function handleUpload(options: { file: UploadFileInfo; onFinish: () => voi
     }
     await getData();
   } catch {
-    window.$message?.error('上传失败');
     options.onError();
   } finally {
     uploading.value = false;
@@ -683,7 +687,7 @@ defineExpose({
           <span>{{ getUploadAreaTitle() }}</span>
 
         </div>
-      </template> 
+      </template>
 -->
 
       <NUpload
@@ -833,6 +837,7 @@ defineExpose({
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

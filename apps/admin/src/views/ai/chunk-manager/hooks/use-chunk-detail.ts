@@ -53,11 +53,12 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
 
     savingChunk.value = true;
     try {
-      await updateChunk({
+      const { error } = await updateChunk({
         id: selectedChunk.value.id,
         title: editTitleValue.value.trim() || undefined,
         content: editContentValue.value.trim()
       });
+      if (error) return;
       message.success('保存成功');
       isEditing.value = false;
       await onChunkUpdated();
@@ -73,11 +74,11 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
 
     try {
       if (enabled) {
-        await enableChunk(selectedChunk.value.id);
-        message.success('已启用');
+        const { error } = await enableChunk(selectedChunk.value.id);
+        if (!error) message.success('已启用');
       } else {
-        await disableChunk(selectedChunk.value.id);
-        message.success('已禁用');
+        const { error } = await disableChunk(selectedChunk.value.id);
+        if (!error) message.success('已禁用');
       }
       await onChunkUpdated();
     } catch {
@@ -87,7 +88,8 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
 
   async function handleDeleteChunk(chunkId: string) {
     try {
-      await deleteChunk(chunkId);
+      const { error } = await deleteChunk(chunkId);
+      if (error) return;
       message.success('删除成功');
       if (selectedChunkId.value === chunkId) {
         selectedChunkId.value = null;

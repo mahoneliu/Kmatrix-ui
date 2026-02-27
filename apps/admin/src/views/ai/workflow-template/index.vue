@@ -12,6 +12,7 @@ import {
   NGridItem,
   NInput,
   NModal,
+  NPagination,
   NScrollbar,
   NSelect,
   NSpace,
@@ -50,6 +51,7 @@ const searchParams = ref({
 
 const templateList = ref<WorkflowTemplate[]>([]);
 const loading = ref(false);
+const total = ref(0);
 
 // 创建应用弹窗
 const showCreateModal = ref(false);
@@ -102,6 +104,7 @@ async function getData() {
     const res = await fetchTemplateList(searchParams.value);
     if (res.data?.rows) {
       templateList.value = res.data.rows;
+      total.value = res.data.total || 0;
     }
   } finally {
     loading.value = false;
@@ -444,6 +447,20 @@ onMounted(() => {
           <span>暂无模板</span>
         </div>
       </NScrollbar>
+
+      <!-- 分页 -->
+      <div v-if="templateList.length > 0" class="flex justify-end border-t border-gray-100 p-4 dark:border-gray-800">
+        <NPagination
+          v-model:page="searchParams.pageNum"
+          v-model:page-size="searchParams.pageSize"
+          :item-count="total"
+          :page-sizes="[10, 20, 50, 100]"
+          show-size-picker
+          show-quick-jumper
+          @update:page="getData"
+          @update:page-size="getData"
+        />
+      </div>
     </NCard>
 
     <!-- 创建应用弹窗 -->

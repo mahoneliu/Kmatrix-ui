@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode prod",
     "dev": "vite --port 9528 --mode dev",
     "lint": "eslint . --fix",
     "preview": "vite preview",

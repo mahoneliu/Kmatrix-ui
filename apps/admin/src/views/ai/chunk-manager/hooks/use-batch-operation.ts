@@ -67,22 +67,26 @@ export function useBatchOperation(options: UseBatchOperationOptions) {
 
     try {
       switch (key) {
-        case 'enable':
-          await batchEnableChunks(selectedChunkIds.value);
-          message.success('批量启用成功');
+        case 'enable': {
+          const { error } = await batchEnableChunks(selectedChunkIds.value);
+          if (!error) message.success('批量启用成功');
           break;
-        case 'disable':
-          await batchDisableChunks(selectedChunkIds.value);
-          message.success('批量禁用成功');
+        }
+        case 'disable': {
+          const { error } = await batchDisableChunks(selectedChunkIds.value);
+          if (!error) message.success('批量禁用成功');
           break;
-        case 'generate':
-          await batchGenerateQuestionsByChunks(selectedChunkIds.value);
-          message.success('批量生成问题成功');
+        }
+        case 'generate': {
+          const { error } = await batchGenerateQuestionsByChunks(selectedChunkIds.value);
+          if (!error) message.success('批量生成问题成功');
           break;
-        case 'delete':
-          await batchDeleteChunks(selectedChunkIds.value);
-          message.success('批量删除成功');
+        }
+        case 'delete': {
+          const { error } = await batchDeleteChunks(selectedChunkIds.value);
+          if (!error) message.success('批量删除成功');
           break;
+        }
         default:
           break;
       }

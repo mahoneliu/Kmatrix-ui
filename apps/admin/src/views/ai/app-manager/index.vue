@@ -11,9 +11,11 @@ import {
   NGrid,
   NGridItem,
   NInput,
+  NPagination,
   NScrollbar,
   NSpace,
   NTag,
+  useDialog,
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
@@ -23,12 +25,13 @@ import TemplateSelectModal from './modules/template-select-modal.vue';
 
 const router = useRouter();
 const message = useMessage();
+const dialog = useDialog();
 const modalVisible = ref(false);
 const templateModalVisible = ref(false);
 const appType = ref<'1' | '2'>('1');
 
 const searchParams = ref<Api.AI.Admin.AppSearchParams>({
-  pageNo: 1,
+  pageNum: 1,
   pageSize: 20,
   appName: '',
   status: undefined
@@ -36,6 +39,7 @@ const searchParams = ref<Api.AI.Admin.AppSearchParams>({
 
 const appList = ref<Api.AI.Admin.App[]>([]);
 const loading = ref(false);
+const total = ref(0);
 
 async function getData() {
   loading.value = true;
@@ -43,6 +47,7 @@ async function getData() {
     const { data } = await fetchAppList(searchParams.value);
     if (data && data.rows) {
       appList.value = data.rows;
+      total.value = data.total || 0;
     }
   } finally {
     loading.value = false;
@@ -60,11 +65,20 @@ function handleAdd(type: '1' | '2') {
 
 async function handleDelete(item: Api.AI.Admin.App) {
   if (!item.appId) return;
-  const { error } = await deleteApp([item.appId]);
-  if (!error) {
-    message.success('删除成功');
-    getData();
-  }
+  const appId = item.appId;
+  dialog.warning({
+    title: '确认删除',
+    content: `确定要删除应用「${item.appName}」吗？此操作不可恢复。`,
+    positiveText: '删除',
+    negativeText: '取消',
+    onPositiveClick: async () => {
+      const { error } = await deleteApp([appId]);
+      if (!error) {
+        message.success('删除成功');
+        getData();
+      }
+    }
+  });
 }
 
 function handleChat(item: Api.AI.Admin.App) {
@@ -272,6 +286,19 @@ onMounted(() => {
           </NGridItem>
         </NGrid>
       </NScrollbar>
+
+      <div v-if="appList.length > 0" class="flex justify-end border-t border-gray-100 p-4 dark:border-gray-800">
+        <NPagination
+          v-model:page="searchParams.pageNum"
+          v-model:page-size="searchParams.pageSize"
+          :item-count="total"
+          :page-sizes="[10, 20, 50, 100]"
+          show-size-picker
+          show-quick-jumper
+          @update:page="getData"
+          @update:page-size="getData"
+        />
+      </div>
     </NCard>
 
     <AppOperateModal v-model:visible="modalVisible" :app-type="appType" @success="id => onModalClose(id, appType)" />

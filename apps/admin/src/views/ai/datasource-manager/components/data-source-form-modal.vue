@@ -161,11 +161,11 @@ async function handleSubmit() {
     loading.value = true;
 
     if (formModel.dataSourceId) {
-      await updateDataSource(formModel);
-      message.success('编辑成功');
+      const { error } = await updateDataSource(formModel);
+      if (!error) message.success('编辑成功');
     } else {
-      await addDataSource(formModel);
-      message.success('新增成功');
+      const { error } = await addDataSource(formModel);
+      if (!error) message.success('新增成功');
     }
     emit('success');
   } catch (error: any) {

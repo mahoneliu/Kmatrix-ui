@@ -8,7 +8,7 @@ import { setupUnplugin } from './unplugin';
 import { setupHtmlPlugin } from './html';
 import { setupDevtoolsPlugin } from './devtools';
 
-export function setupVitePlugins(viteEnv: Env.ImportMeta, buildTime: string) {
+export function setupVitePlugins(viteEnv: Env.ImportMeta, buildTime: string, isBuild: boolean) {
   const plugins: PluginOption = [
     vue(),
     vueJsx(),
@@ -16,9 +16,12 @@ export function setupVitePlugins(viteEnv: Env.ImportMeta, buildTime: string) {
     setupElegantRouter(),
     setupUnocss(viteEnv),
     ...setupUnplugin(viteEnv),
-    progress(),
     setupHtmlPlugin(buildTime)
   ];
+
+  if (!isBuild) {
+    plugins.push(progress());
+  }
 
   return plugins;
 }

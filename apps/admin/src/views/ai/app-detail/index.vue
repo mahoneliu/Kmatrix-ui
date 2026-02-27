@@ -22,7 +22,7 @@ import { copyToClipboard } from '@km/shared';
 import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
 import { useEcharts } from '@/hooks/common/echarts';
-import { validateGraph } from '@/utils/ai/dsl-converter';
+import { graphToDsl, validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
 import AppOperateModal from '@/views/ai/app-manager/modules/app-operate-modal.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
@@ -56,7 +56,8 @@ const publicAccessEnabled = computed({
   set: async (val: boolean) => {
     if (!appInfo.value?.appId) return;
     try {
-      await updatePublicAccess(appInfo.value.appId, val ? '1' : '0');
+      const { error } = await updatePublicAccess(appInfo.value.appId, val ? '1' : '0');
+      if (error) return;
       appInfo.value.publicAccess = val ? '1' : '0';
       message.success(val ? '已开启公开访问' : '已关闭公开访问');
     } catch {
@@ -146,6 +147,9 @@ const publicAccessUrl = computed(() => {
   return `${window.location.origin}/chat/${token.token}`;
 });
 
+// 系统模版组件 Ref
+const systemTemplateConfigRef = ref<any>(null);
+
 // 获取应用信息
 async function loadAppInfo() {
   loading.value = true;
@@ -176,7 +180,8 @@ async function loadTokenList() {
 // 刷新Token
 async function handleRefreshToken(tokenId: string) {
   try {
-    await refreshAppToken(tokenId);
+    const { error } = await refreshAppToken(tokenId);
+    if (error) return;
     message.success('Token已刷新');
     await loadTokenList();
   } catch {
@@ -209,11 +214,11 @@ async function handlePublish() {
 
   // 系统模版应用：只校验配置面板参数，跳过工作流校验
   if (isSystemTemplateApp.value) {
-    // 校验大模型
-    if (!appInfo.value.modelId) {
-      message.warning('请先选择大模型');
+    if (systemTemplateConfigRef.value && !systemTemplateConfigRef.value.canSave) {
+      message.warning('请确保已填写应用名称，并选择大模型和知识库');
       return;
     }
+
     // 发布确认
     dialog.create({
       title: '发布应用',
@@ -222,12 +227,20 @@ async function handlePublish() {
       negativeText: '取消',
       onPositiveClick: async () => {
         try {
-          await publishApp(appId.value, '从APP详情页发布');
+          if (systemTemplateConfigRef.value) {
+            const success = await systemTemplateConfigRef.value.handleSave();
+            if (!success) {
+              message.error('保存应用配置失败，无法发布');
+              return;
+            }
+          }
+
+          const { error } = await publishApp(appId.value, '从APP详情页发布');
+          if (error) return;
           message.success('发布成功');
           await loadAppInfo();
-        } catch (error: any) {
-          const errorMsg = error?.response?.data?.msg || error?.message || '发布失败';
-          message.error(errorMsg);
+        } catch {
+          message.error('发布异常');
         }
       }
     });
@@ -314,12 +327,27 @@ async function handlePublish() {
     negativeText: '取消',
     onPositiveClick: async () => {
       try {
-        await publishApp(appId.value, '从APP详情页发布');
+        // 先调用保存操作避免“工作流配置无变更”
+        const dsl = graphToDsl(graphData, appInfo.value?.appName || '');
+        const { error: saveError } = await updateApp({
+          appId: appId.value,
+          modelId: appInfo.value?.modelId,
+          graphData: appInfo.value?.graphData,
+          dslData: JSON.stringify(dsl),
+          parameters: appInfo.value?.parameters,
+          appName: appInfo.value?.appName,
+          description: appInfo.value?.description,
+          icon: appInfo.value?.icon,
+          prologue: appInfo.value?.prologue
+        });
+        if (saveError) return;
+
+        const { error } = await publishApp(appId.value, '从APP详情页发布');
+        if (error) return;
         message.success('发布成功');
         await loadAppInfo();
-      } catch (error: any) {
-        const errorMsg = error?.response?.data?.msg || error?.message || '发布失败';
-        message.error(errorMsg);
+      } catch {
+        message.error('发布失败');
       }
     }
   });
@@ -543,6 +571,7 @@ onMounted(async () => {
         <NCollapseTransition :show="showConfigPanel">
           <SystemTemplateConfigPanel
             v-if="appInfo"
+            ref="systemTemplateConfigRef"
             :app-id="appId"
             :app-name="appInfo.appName"
             :model-id="appInfo.modelId"

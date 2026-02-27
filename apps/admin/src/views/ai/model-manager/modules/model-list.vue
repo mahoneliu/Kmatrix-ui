@@ -154,7 +154,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                   class="absolute bottom-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 >
                   <NDropdown
-                    trigger="click"
+                    trigger="hover"
                     :options="[
                       { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { localIcon: 'carbon-edit' }) },
                       { label: '复制', key: 'copy', icon: () => h(SvgIcon, { localIcon: 'carbon-copy' }) },

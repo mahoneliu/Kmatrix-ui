@@ -17,8 +17,8 @@ import {
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import {
+  batchCreateWebLinkDocument,
   createOnlineDocument,
-  createWebLinkDocument,
   deleteDataset,
   fetchDatasetsByKbId,
   fetchKnowledgeBaseDetail,
@@ -147,8 +147,7 @@ async function handleSubmitWebLink(data: { urls: string[] }) {
 
   try {
     // 批量添加网页链接
-    const promises = data.urls.map(url => createWebLinkDocument(selectedDatasetId.value!, url));
-    await Promise.all(promises);
+    await batchCreateWebLinkDocument(selectedDatasetId.value!, data.urls);
     message.success(`成功添加 ${data.urls.length} 个网页链接`);
     tableRef.value?.getData();
   } catch {

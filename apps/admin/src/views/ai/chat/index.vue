@@ -175,13 +175,15 @@ function handleSelectSession(newSessionId: string) {
 async function handleDeleteSession(deletedSessionId: string) {
   try {
     if (deletedSessionId === 'all') {
-      await clearAdminAppHistory(appId.value);
+      const { error } = await clearAdminAppHistory(appId.value);
+      if (error) return;
       message.success('已清空所有会话');
       sessionId.value = undefined;
       chatPanelRef.value?.clearMessages();
       router.push({ name: 'ai_chat', query: { appId: appId.value } });
     } else {
-      await clearAdminChatHistory(deletedSessionId);
+      const { error } = await clearAdminChatHistory(deletedSessionId);
+      if (error) return;
       message.success('已删除会话');
 
       if (deletedSessionId === sessionId.value) {

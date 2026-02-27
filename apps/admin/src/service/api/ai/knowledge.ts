@@ -340,7 +340,10 @@ export function createOnlineDocument(datasetId: CommonType.IdType, title: string
   return request<Api.AI.KB.Document>({
     url: '/ai/document/createOnlineDoc',
     method: 'post',
-    data: formData
+    data: formData,
+    headers: {
+      repeatSubmit: false
+    }
   });
 }
 
@@ -355,7 +358,21 @@ export function createWebLinkDocument(datasetId: CommonType.IdType, url: string)
   return request<Api.AI.KB.Document>({
     url: '/ai/document/createWebLink',
     method: 'post',
-    data: formData
+    data: formData,
+    headers: {
+      repeatSubmit: false
+    }
+  });
+}
+
+/**
+ * 批量创建网页链接文档
+ */
+export function batchCreateWebLinkDocument(datasetId: CommonType.IdType, urls: string[]) {
+  return request<Api.AI.KB.Document[]>({
+    url: '/ai/document/batchCreateWebLink',
+    method: 'post',
+    data: { datasetId, urls }
   });
 }
 

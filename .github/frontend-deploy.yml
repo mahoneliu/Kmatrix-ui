@@ -1,0 +1,58 @@
+name: Deploy Frontend to Windows
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 配置 Node 环境及 pnpm
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: 安装 pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
+    - name: 获取 pnpm 缓存目录配置
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: 启用 pnpm 缓存
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: 安装依赖并构建
+      run: |
+        pnpm install
+        pnpm run build
+
+    - name: 部署 dist 产物到 Windows Nginx (FTP)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        # 我们由于是 monorepo 会打包出两个独立的产物吗？如果只有一个总的请指向具体的 dist
+        # 假设构建产物在 apps/admin/dist/ 目录下
+        local-dir: ./apps/admin/dist/
+        # 根据 Nginx 根目录而在 ftp 服务端配的相对路径 (一般配根目录就在 "/")
+        server-dir: /kmatrix/

@@ -11,6 +11,7 @@ import {
   NGrid,
   NGridItem,
   NInput,
+  NPagination,
   NScrollbar,
   NSpace,
   NStatistic,
@@ -32,13 +33,14 @@ const editingKb = ref<Api.AI.KB.KnowledgeBase | null>(null);
 const sandboxVisible = ref(false);
 
 const searchParams = ref<Api.AI.KB.KnowledgeBaseSearchParams>({
-  pageNo: 1,
+  pageNum: 1,
   pageSize: 20,
   name: ''
 });
 
 const kbList = ref<Api.AI.KB.KnowledgeBase[]>([]);
 const loading = ref(false);
+const total = ref(0);
 
 // 统计信息
 const statistics = ref<Api.AI.KB.Statistics>({
@@ -64,9 +66,16 @@ async function loadStatistics() {
 async function getData() {
   loading.value = true;
   try {
-    const { data } = await fetchKnowledgeBaseList(searchParams.value);
+    const params = {
+      ...searchParams.value,
+      pageNo: undefined, // 兼容老的配置防止误传
+      pageNum: searchParams.value.pageNum || 1,
+      pageSize: searchParams.value.pageSize || 20
+    };
+    const { data } = await fetchKnowledgeBaseList(params);
     if (data && data.rows) {
       kbList.value = data.rows;
+      total.value = data.total || 0;
     }
   } finally {
     loading.value = false;
@@ -316,6 +325,19 @@ onMounted(() => {
           </NGridItem>
         </NGrid>
       </NScrollbar>
+
+      <div v-if="kbList.length > 0" class="flex justify-end border-t border-gray-100 p-4 dark:border-gray-800">
+        <NPagination
+          v-model:page="searchParams.pageNum"
+          v-model:page-size="searchParams.pageSize"
+          :item-count="total"
+          :page-sizes="[10, 20, 50, 100]"
+          show-size-picker
+          show-quick-jumper
+          @update:page="getData"
+          @update:page-size="getData"
+        />
+      </div>
 
       <NEmpty v-else description="暂无知识库，点击右上角新建" class="h-full flex-center" />
     </NCard>

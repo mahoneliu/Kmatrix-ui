@@ -25,7 +25,7 @@ declare namespace Api.AI.KB {
     name?: string;
     status?: string;
     permissionLevel?: string;
-    pageNo?: number;
+    pageNum?: number;
     pageSize?: number;
   }
 
@@ -54,6 +54,10 @@ declare namespace Api.AI.KB {
     chunkOverlap?: number;
     /** 支持的文件格式 (逗号分隔, *表示全部) */
     allowedFileTypes?: string;
+    /** 子块大小 (token) */
+    childChunkSize?: number;
+    /** 子块重叠大小 (token) */
+    childChunkOverlap?: number;
   }
 
   /** 数据集搜索参数 */
