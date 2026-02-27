@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "homepage": "https://github.com/dromara/KMatrix",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode prod",
+    "build": "vite build --mode prod",
     "dev": "vite --mode dev",
     "lint": "eslint . --fix",
     "preview": "vite preview",

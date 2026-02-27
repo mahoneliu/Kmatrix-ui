@@ -202,14 +202,13 @@ function handleCancelEdit() {
 
     <template #footer>
       <NSpace justify="center">
-        <template v-if="!isEditing">
-          <NButton @click="handleClose">关闭</NButton>
-          <NButton type="primary" @click="startEditing">编辑</NButton>
-        </template>
-        <template v-else>
-          <NButton @click="handleCancelEdit">取消</NButton>
-          <NButton type="primary" :loading="savingChunk" @click="handleSave">保存</NButton>
-        </template>
+        <!-- 浏览状态下的按钮 -->
+        <NButton v-show="!isEditing" @click="handleClose">关闭</NButton>
+        <NButton v-show="!isEditing" type="primary" @click="startEditing">编辑</NButton>
+
+        <!-- 编辑状态下的按钮 -->
+        <NButton v-show="isEditing" @click="handleCancelEdit">取消</NButton>
+        <NButton v-show="isEditing" type="primary" :loading="savingChunk" @click="handleSave">保存</NButton>
       </NSpace>
     </template>
   </NModal>
