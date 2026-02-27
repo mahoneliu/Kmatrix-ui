@@ -51,6 +51,8 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
+        # 开启 FTPS 解决 503 Use AUTH first 问题
+        protocol: ftps
         # 我们由于是 monorepo 会打包出两个独立的产物吗？如果只有一个总的请指向具体的 dist
         # 假设构建产物在 apps/admin/dist/ 目录下
         local-dir: ./apps/admin/dist/
