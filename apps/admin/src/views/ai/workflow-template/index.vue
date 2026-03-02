@@ -32,6 +32,7 @@ import {
   fetchTemplateList,
   updateTemplate
 } from '@/service/api/ai/workflow-template';
+import { $t } from '@/locales';
 
 const router = useRouter();
 const message = useMessage();
@@ -77,14 +78,14 @@ const templateForm = ref<Partial<WorkflowTemplate>>({
 
 // 图标选项
 const iconOptions = [
-  { label: '📄 文档', value: 'mdi-file-document-outline' },
-  { label: '🤖 机器人', value: 'mdi-robot' },
-  { label: '💬 对话', value: 'mdi-chat-processing' },
-  { label: '🔍 搜索', value: 'mdi-magnify' },
-  { label: '📊 数据', value: 'mdi-chart-bar' },
-  { label: '🧠 智能', value: 'mdi-brain' },
-  { label: '⚡ 自动化', value: 'mdi-lightning-bolt' },
-  { label: '📝 编辑', value: 'mdi-pencil' }
+  { label: $t('ai.workflow_template.icon_doc'), value: 'mdi-file-document-outline' },
+  { label: $t('ai.workflow_template.robot_icon'), value: 'mdi-robot' },
+  { label: $t('ai.workflow_template.icon_chat'), value: 'mdi-chat-processing' },
+  { label: $t('ai.workflow_template.search_icon'), value: 'mdi-magnify' },
+  { label: $t('ai.workflow_template.icon_data'), value: 'mdi-chart-bar' },
+  { label: $t('ai.workflow_template.intelligence_icon'), value: 'mdi-brain' },
+  { label: $t('ai.workflow_template.icon_auto'), value: 'mdi-lightning-bolt' },
+  { label: $t('ai.workflow_template.edit_icon'), value: 'mdi-pencil' }
 ];
 
 async function loadCategories() {
@@ -94,7 +95,7 @@ async function loadCategories() {
       categoryOptions.value = res.data;
     }
   } catch {
-    message.error('加载分类失败');
+    message.error($t('ai.workflow_template.load_category_failed'));
   }
 }
 
@@ -130,20 +131,20 @@ function handleReset() {
 // 显示创建应用弹窗
 function showCreateAppModal(item: WorkflowTemplate) {
   selectedTemplateId.value = item.templateId;
-  createAppName.value = `基于${item.templateName}`;
+  createAppName.value = `${$t('ai.workflow_template.create_app_name_prefix')}${item.templateName}`;
   showCreateModal.value = true;
 }
 
 // 通过模板创建应用
 async function handleCreateApp() {
   if (!selectedTemplateId.value || !createAppName.value.trim()) {
-    message.warning('请输入应用名称');
+    message.warning($t('ai.workflow_template.please_input_app_name'));
     return;
   }
   try {
     const res = await createAppFromTemplate(selectedTemplateId.value, createAppName.value.trim());
     if (res.data) {
-      message.success('创建成功');
+      message.success($t('ai.workflow_template.create_success'));
       showCreateModal.value = false;
       // 跳转到应用编辑页
       router.push({
@@ -152,14 +153,14 @@ async function handleCreateApp() {
       });
     }
   } catch (e: any) {
-    message.error(e.message || '创建失败');
+    message.error(e.message || $t('ai.workflow_template.create_failed'));
   }
 }
 
 // 显示复制模板弹窗
 function showCopyModalHandler(item: WorkflowTemplate) {
   copySourceTemplateId.value = item.templateId;
-  copyTemplateName.value = `${item.templateName}_副本`;
+  copyTemplateName.value = `${item.templateName}${$t('ai.workflow_template.copy_name_suffix')}`;
   showCopyModal.value = true;
 }
 
@@ -167,16 +168,16 @@ function showCopyModalHandler(item: WorkflowTemplate) {
 async function handleCopyTemplate() {
   if (!copySourceTemplateId.value) return;
   if (!copyTemplateName.value.trim()) {
-    message.warning('请输入新模板名称');
+    message.warning($t('ai.workflow_template.please_input_new_template_name'));
     return;
   }
   try {
     await copyTemplate(copySourceTemplateId.value, copyTemplateName.value.trim());
-    message.success('复制成功，已创建自定义模板');
+    message.success($t('ai.workflow_template.copy_success_created'));
     showCopyModal.value = false;
     getData();
   } catch (e: any) {
-    message.error(e.message || '复制失败');
+    message.error(e.message || $t('ai.workflow_template.copy_failed'));
   }
 }
 
@@ -204,7 +205,7 @@ function handleShowAddModal() {
 // 显示编辑模版弹窗
 function handleEdit(item: WorkflowTemplate) {
   if (item.scopeType === '0') {
-    message.warning('系统模板不允许编辑');
+    message.warning($t('ai.workflow_template.system_template_cannot_edit'));
     return;
   }
   templateModalMode.value = 'edit';
@@ -222,18 +223,18 @@ function handleEdit(item: WorkflowTemplate) {
 // 保存模版（新建或编辑）
 async function handleSaveTemplate() {
   if (!templateForm.value.templateName?.trim()) {
-    message.warning('请输入模板名称');
+    message.warning($t('ai.workflow_template.please_input_template_name'));
     return;
   }
   if (!templateForm.value.templateCode?.trim()) {
-    message.warning('请输入模板编码');
+    message.warning($t('ai.workflow_template.please_input_template_code'));
     return;
   }
   templateFormSaving.value = true;
   if (templateModalMode.value === 'add') {
     const { error, data } = await addTemplate(templateForm.value);
     if (!error) {
-      message.success('创建成功，即将跳转到工作流编排页面');
+      message.success($t('ai.workflow_template.create_success_jump'));
       showTemplateModal.value = false;
       if (data) {
         router.push({
@@ -245,7 +246,7 @@ async function handleSaveTemplate() {
   } else {
     const { error } = await updateTemplate(templateForm.value);
     if (!error) {
-      message.success('保存成功');
+      message.success($t('ai.workflow_template.save_success'));
       showTemplateModal.value = false;
       getData();
     }
@@ -256,18 +257,18 @@ async function handleSaveTemplate() {
 // 删除模板（带确认）
 function handleDelete(item: WorkflowTemplate) {
   if (item.scopeType === '0') {
-    message.warning('系统模板不允许删除');
+    message.warning($t('ai.workflow_template.system_template_cannot_delete'));
     return;
   }
   dialog.warning({
-    title: '确认删除',
-    content: `确定要删除模板「${item.templateName}」吗？此操作不可恢复。`,
-    positiveText: '删除',
-    negativeText: '取消',
+    title: $t('common.confirmDelete'),
+    content: `${$t('common.confirm')}删除模板「${item.templateName}」吗？此操作不可恢复。`,
+    positiveText: $t('common.delete'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await deleteTemplate([item.templateId]);
       if (!error) {
-        message.success('删除成功');
+        message.success($t('ai.workflow_template.delete_success'));
         getData();
       }
     }
@@ -276,7 +277,7 @@ function handleDelete(item: WorkflowTemplate) {
 
 // 获取分类标签
 function getCategoryLabel(category: string | undefined) {
-  if (!category) return '未分类';
+  if (!category) return $t('ai.workflow_template.uncategorized');
   const found = categoryOptions.value.find(c => c.value === category);
   return found ? found.label : category;
 }
@@ -298,11 +299,11 @@ onMounted(() => {
     <!-- 搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
-        <NCollapseItem title="搜索" name="search">
+        <NCollapseItem :title="$t('common.search')" name="search">
           <NSpace>
             <NInput
               v-model:value="searchParams.templateName"
-              placeholder="模板名称"
+              :placeholder="$t('ai.workflow_template.template_name')"
               clearable
               class="w-[200px]"
               @keyup.enter="handleSearch"
@@ -310,22 +311,22 @@ onMounted(() => {
             <NSelect
               v-model:value="searchParams.category"
               :options="categoryOptions"
-              placeholder="分类"
+              :placeholder="$t('ai.workflow_template.category')"
               clearable
               class="w-[150px]"
             />
             <NSelect
               v-model:value="searchParams.scopeType"
               :options="[
-                { label: '系统模板', value: '0' },
-                { label: '用户模板', value: '1' }
+                { label: $t('ai.workflow_template.system_template'), value: '0' },
+                { label: $t('ai.workflow_template.user_template'), value: '1' }
               ]"
-              placeholder="类型"
+              :placeholder="$t('common.type')"
               clearable
               class="w-[120px]"
             />
-            <NButton type="primary" @click="handleSearch">搜索</NButton>
-            <NButton @click="handleReset">重置</NButton>
+            <NButton type="primary" @click="handleSearch">{{ $t('common.search') }}</NButton>
+            <NButton @click="handleReset">{{ $t('common.reset') }}</NButton>
           </NSpace>
         </NCollapseItem>
       </NCollapse>
@@ -335,7 +336,7 @@ onMounted(() => {
     <NCard
       :bordered="false"
       size="small"
-      title="工作流模板"
+      :title="$t('ai.workflow_template.workflow_template')"
       class="flex-1 card-wrapper"
       content-class="flex flex-col h-full overflow-hidden"
     >
@@ -344,7 +345,7 @@ onMounted(() => {
           <template #icon>
             <SvgIcon local-icon="carbon-add" />
           </template>
-          新建模板
+          {{ $t('ai.workflow_template.new_template') }}
         </NButton>
       </template>
 
@@ -360,7 +361,9 @@ onMounted(() => {
               <!-- 右上角类型标签 -->
               <div class="absolute right-3 top-3 z-10">
                 <NTag :bordered="false" :type="item.scopeType === '0' ? 'success' : 'info'" size="small">
-                  {{ item.scopeType === '0' ? '系统' : '自建' }}
+                  {{
+                    item.scopeType === '0' ? $t('ai.workflow_template.system') : $t('ai.workflow_template.user_built')
+                  }}
                 </NTag>
               </div>
 
@@ -374,7 +377,7 @@ onMounted(() => {
 
               <!-- 描述 -->
               <div class="line-clamp-2 mb-5 min-h-16 text-sm text-gray-500">
-                {{ item.description || '暂无描述' }}
+                {{ item.description || $t('ai.workflow_template.no_desc') }}
               </div>
 
               <!-- 底部信息 -->
@@ -382,7 +385,7 @@ onMounted(() => {
                 <NTag :bordered="false" size="small" type="default">
                   {{ getCategoryLabel(item.category) }}
                 </NTag>
-                <span>使用 {{ item.useCount || 0 }} 次</span>
+                <span>{{ $t('ai.workflow_template.used_count_times', { count: item.useCount || 0 }) }}</span>
                 <span class="mx-1">|</span>
                 <span>{{ formatDate(item.createTime) }}</span>
               </div>
@@ -393,25 +396,33 @@ onMounted(() => {
               >
                 <NDropdown
                   :options="[
-                    { label: '使用此模板', key: 'use', icon: () => h(SvgIcon, { localIcon: 'carbon-add-filled' }) },
-                    { label: '复制至自定义', key: 'copy', icon: () => h(SvgIcon, { localIcon: 'carbon-copy' }) },
+                    {
+                      label: $t('ai.workflow_template.use_template'),
+                      key: 'use',
+                      icon: () => h(SvgIcon, { localIcon: 'carbon-add-filled' })
+                    },
+                    {
+                      label: $t('ai.workflow_template.copy_to_custom'),
+                      key: 'copy',
+                      icon: () => h(SvgIcon, { localIcon: 'carbon-copy' })
+                    },
                     ...(item.scopeType !== '0'
                       ? [
                           {
-                            label: '工作流配置',
+                            label: $t('ai.workflow_template.workflow_config'),
                             key: 'design',
                             icon: () => h(SvgIcon, { localIcon: 'carbon-settings' })
                           }
                         ]
                       : []),
                     {
-                      label: '编辑',
+                      label: $t('common.edit'),
                       key: 'edit',
                       icon: () => h(SvgIcon, { localIcon: 'carbon-edit' }),
                       disabled: item.scopeType === '0'
                     },
                     {
-                      label: '删除',
+                      label: $t('common.delete'),
                       key: 'delete',
                       icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can' }),
                       disabled: item.scopeType === '0'
@@ -444,7 +455,7 @@ onMounted(() => {
           class="flex flex-col items-center justify-center py-16 text-gray-400"
         >
           <SvgIcon local-icon="carbon-document-blank" class="mb-4 text-6xl" />
-          <span>暂无模板</span>
+          <span>{{ $t('ai.workflow_template.no_template') }}</span>
         </div>
       </NScrollbar>
 
@@ -467,49 +478,61 @@ onMounted(() => {
     <NModal
       v-model:show="showCreateModal"
       preset="dialog"
-      title="通过模板创建应用"
-      positive-text="创建"
-      negative-text="取消"
+      :title="$t('ai.workflow_template.create_app_from_template')"
+      :positive-text="$t('ai.workflow_template.create')"
+      :negative-text="$t('common.cancel')"
       @positive-click="handleCreateApp"
     >
-      <NInput v-model:value="createAppName" placeholder="请输入应用名称" />
+      <NInput v-model:value="createAppName" :placeholder="$t('ai.workflow_template.please_input_app_name')" />
     </NModal>
 
     <!-- 新建/编辑模版弹窗 -->
     <NModal
       v-model:show="showTemplateModal"
       preset="dialog"
-      :title="templateModalMode === 'add' ? '新建模板' : '编辑模板'"
-      :positive-text="templateFormSaving ? '保存中...' : '保存'"
-      negative-text="取消"
+      :title="
+        templateModalMode === 'add' ? $t('ai.workflow_template.new_template') : $t('ai.workflow_template.edit_template')
+      "
+      :positive-text="templateFormSaving ? $t('ai.workflow_template.saving') : $t('common.save')"
+      :negative-text="$t('common.cancel')"
       :positive-button-props="{ disabled: templateFormSaving }"
       class="w-520px"
       @positive-click="handleSaveTemplate"
     >
       <div class="flex flex-col gap-4 py-2">
-        <NFormItem label="模板名称" required :show-feedback="false">
-          <NInput v-model:value="templateForm.templateName" placeholder="请输入模板名称" />
+        <NFormItem :label="$t('ai.workflow_template.template_name')" required :show-feedback="false">
+          <NInput
+            v-model:value="templateForm.templateName"
+            :placeholder="$t('ai.workflow_template.please_input_template_name')"
+          />
         </NFormItem>
-        <NFormItem label="模板编码" required :show-feedback="false">
-          <NInput v-model:value="templateForm.templateCode" placeholder="唯一标识，如 knowledge_qa" />
+        <NFormItem :label="$t('ai.workflow_template.template_code')" required :show-feedback="false">
+          <NInput
+            v-model:value="templateForm.templateCode"
+            :placeholder="$t('ai.workflow_template.unique_identifier')"
+          />
         </NFormItem>
-        <NFormItem label="分类" :show-feedback="false">
-          <NSelect v-model:value="templateForm.category" :options="categoryOptions" placeholder="选择分类" />
+        <NFormItem :label="$t('ai.workflow_template.category')" :show-feedback="false">
+          <NSelect
+            v-model:value="templateForm.category"
+            :options="categoryOptions"
+            :placeholder="$t('ai.workflow_template.select_category')"
+          />
         </NFormItem>
-        <NFormItem label="图标" :show-feedback="false">
+        <NFormItem :label="$t('ai.workflow_template.icon_label')" :show-feedback="false">
           <NSelect
             v-model:value="templateForm.icon"
             :options="iconOptions"
-            placeholder="选择图标"
+            :placeholder="$t('ai.workflow_template.select_icon')"
             :render-label="(option: any) => option.label"
           />
         </NFormItem>
-        <NFormItem label="描述" :show-feedback="false">
+        <NFormItem :label="$t('common.description')" :show-feedback="false">
           <NInput
             v-model:value="templateForm.description"
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4 }"
-            placeholder="模板描述（可选）"
+            :placeholder="$t('ai.workflow_template.template_desc')"
           />
         </NFormItem>
       </div>
@@ -519,12 +542,15 @@ onMounted(() => {
     <NModal
       v-model:show="showCopyModal"
       preset="dialog"
-      title="复制至自定义模板"
-      positive-text="复制"
-      negative-text="取消"
+      :title="$t('ai.workflow_template.copy_to_custom_template')"
+      :positive-text="$t('common.copy')"
+      :negative-text="$t('common.cancel')"
       @positive-click="handleCopyTemplate"
     >
-      <NInput v-model:value="copyTemplateName" placeholder="请输入新模板名称" />
+      <NInput
+        v-model:value="copyTemplateName"
+        :placeholder="$t('ai.workflow_template.please_input_new_template_name')"
+      />
     </NModal>
   </div>
 </template>

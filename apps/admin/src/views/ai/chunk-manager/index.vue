@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NCard, NEmpty, useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { batchGenerateQuestionsByChunks, fetchDatasetDetail, fetchDocumentDetail } from '@/service/api/ai/knowledge';
 import { useBatchOperation, useChunkDetail, useChunkList, useChunkQuestions, useSearch } from './hooks';
 import ChunkListPanel from './modules/chunk-list-panel.vue';
@@ -14,6 +15,7 @@ defineOptions({
   name: 'AiChunkManager'
 });
 
+const { t } = useI18n();
 const route = useRoute();
 const message = useMessage();
 
@@ -103,7 +105,7 @@ async function handleBatchGenerateConfirm(data: {
 }) {
   if (selectedChunkIds.value.length === 0) return;
 
-  const msg = message.loading('批量生成问题中...', { duration: 0 });
+  const msg = message.loading(t('ai.chunk_manager.batch_generate_loading'), { duration: 0 });
   try {
     await batchGenerateQuestionsByChunks(selectedChunkIds.value, {
       modelId: data.modelId,
@@ -111,12 +113,12 @@ async function handleBatchGenerateConfirm(data: {
       temperature: data.temperature,
       maxTokens: data.maxTokens
     });
-    message.success('批量生成问题成功');
+    message.success(t('ai.chunk_manager.batch_generate_success'));
     exitBatchMode();
     resetPagination();
     await loadChunks();
   } catch {
-    message.error('批量生成问题失败');
+    message.error(t('ai.chunk_manager.batch_generate_error'));
   } finally {
     msg.destroy();
   }
@@ -160,7 +162,7 @@ async function handleAddChunkSuccess() {
 // 保存分块（编辑弹窗）
 async function handleSaveChunkFromModal(data: { title: string; content: string }) {
   if (!selectedChunk.value || !data.content) {
-    message.error('内容不能为空');
+    message.error(t('ai.chunk_manager.content_empty_error'));
     return;
   }
   editTitleValue.value = data.title;
@@ -221,7 +223,7 @@ const chunkIndex = computed(() => {
 
         <!-- 右侧:分块详情 -->
         <div class="flex flex-col flex-1 overflow-hidden">
-          <NEmpty v-if="!selectedChunk" description="请选择一个分块" class="mt-20" />
+          <NEmpty v-if="!selectedChunk" :description="t('ai.chunk_manager.select_chunk_prompt')" class="mt-20" />
 
           <div v-else class="min-h-0 flex flex-col flex-1 overflow-auto pr-2">
             <ChunkDetailCard

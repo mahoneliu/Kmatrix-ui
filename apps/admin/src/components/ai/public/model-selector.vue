@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue';
 import { NSelect, useMessage } from 'naive-ui';
 import { useAiModelStore } from '@/store/modules/ai/ai-model';
+import { $t } from '@/locales';
 
 interface Props {
   modelValue?: CommonType.IdType | null;
@@ -18,7 +19,7 @@ interface Emits {
 
 withDefaults(defineProps<Props>(), {
   modelValue: null,
-  placeholder: '请选择 LLM 模型',
+  placeholder: $t('ai.workflow_public.please_select_llm_model'),
   clearable: true,
   disabled: false,
 
@@ -37,7 +38,7 @@ async function loadModels() {
   try {
     await aiModelStore.loadModels();
   } catch {
-    message.error('加载模型列表失败');
+    message.error($t('ai.workflow_public.load_model_list_failed'));
   }
 }
 

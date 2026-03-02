@@ -20,6 +20,7 @@ import {
 import type { DataTableColumns } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { deleteDataSource, fetchDataSourceList } from '@/service/api/ai/datasource';
+import { $t } from '@/locales';
 import DataSourceFormModal from './components/data-source-form-modal.vue';
 import MetadataManagerModal from './components/metadata-manager-modal.vue';
 
@@ -43,42 +44,45 @@ const selectedDataSourceId = ref<number | null>(null);
 // 表格列定义
 const columns: DataTableColumns<any> = [
   {
-    title: '数据源名称',
+    title: () => $t('ai.datasource.name'),
     key: 'dataSourceName',
     width: 200
   },
   {
-    title: '类型',
+    title: () => $t('ai.datasource.type'),
     key: 'sourceType',
     width: 120,
     render: row => {
       const typeMap: Record<string, { label: string; type: 'success' | 'info' }> = {
-        DYNAMIC: { label: '动态数据源', type: 'success' },
-        MANUAL: { label: '手工配置', type: 'info' }
+        DYNAMIC: { label: $t('ai.datasource.type_dynamic'), type: 'success' },
+        MANUAL: { label: $t('ai.datasource.type_manual'), type: 'info' }
       };
       const config = typeMap[row.sourceType] || { label: row.sourceType, type: 'info' };
       return h(NTag, { type: config.type }, { default: () => config.label });
     }
   },
   {
-    title: '连接信息',
+    title: () => $t('ai.datasource.connection_info'),
     key: 'jdbcUrl',
     ellipsis: { tooltip: true }
   },
   {
-    title: '状态',
+    title: () => $t('ai.datasource.status'),
     key: 'isEnabled',
     width: 100,
     render: row => {
       return h(
         NTag,
         { type: row.isEnabled === '1' ? 'success' : 'default' },
-        { default: () => (row.isEnabled === '1' ? '启用' : '停用') }
+        {
+          default: () =>
+            row.isEnabled === '1' ? $t('ai.datasource.status_enabled') : $t('ai.datasource.status_disabled')
+        }
       );
     }
   },
   {
-    title: '操作',
+    title: () => $t('ai.datasource.operation'),
     key: 'actions',
     width: 280,
     render: row => {
@@ -93,7 +97,7 @@ const columns: DataTableColumns<any> = [
                 size: 'small',
                 onClick: () => handleEdit(row)
               },
-              { default: () => '编辑' }
+              { default: () => $t('ai.datasource.edit') }
             ),
             h(
               NButton,
@@ -101,7 +105,7 @@ const columns: DataTableColumns<any> = [
                 size: 'small',
                 onClick: () => handleManageMetadata(row)
               },
-              { default: () => '元数据管理' }
+              { default: () => $t('ai.datasource.metadata_manage') }
             ),
             h(
               NPopconfirm,
@@ -116,9 +120,9 @@ const columns: DataTableColumns<any> = [
                       size: 'small',
                       type: 'error'
                     },
-                    { default: () => '删除' }
+                    { default: () => $t('ai.datasource.delete') }
                   ),
-                default: () => '确认删除此数据源吗？'
+                default: () => $t('ai.datasource.delete_confirm')
               }
             )
           ]
@@ -141,7 +145,7 @@ async function loadDataSources() {
     }
     dataSourceList.value = data || [];
   } catch (error: any) {
-    message.error(`加载数据源失败: ${error.message || '未知错误'}`);
+    message.error($t('ai.datasource.load_fail', { error: error.message || $t('ai.datasource.unknown_error') }));
   } finally {
     loading.value = false;
   }
@@ -163,10 +167,10 @@ function handleEdit(row: any) {
 async function handleDelete(id: number) {
   try {
     await deleteDataSource([id]);
-    message.success('删除成功');
+    message.success($t('ai.datasource.delete_success'));
     await loadDataSources();
   } catch (error: any) {
-    message.error(`删除失败: ${error.message || '未知错误'}`);
+    message.error($t('ai.datasource.delete_fail', { error: error.message || $t('ai.datasource.unknown_error') }));
   }
 }
 
@@ -197,19 +201,19 @@ onMounted(() => {
     <!-- 搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
-        <NCollapseItem title="搜索" name="search">
+        <NCollapseItem :title="$t('ai.datasource.search')" name="search">
           <NSpace>
             <NInput
               v-model:value="searchParams.dataSourceName"
               clearable
-              placeholder="请输入数据源名称"
+              :placeholder="$t('ai.datasource.search_placeholder')"
               @keyup.enter="loadDataSources"
             />
             <NButton type="primary" @click="loadDataSources">
               <template #icon>
                 <SvgIcon local-icon="mdi-magnify" />
               </template>
-              搜索
+              {{ $t('ai.datasource.search') }}
             </NButton>
           </NSpace>
         </NCollapseItem>
@@ -218,7 +222,7 @@ onMounted(() => {
 
     <!-- 数据源列表 -->
     <NCard
-      title="数据源列表"
+      :title="$t('ai.datasource.list_title')"
       :bordered="false"
       size="small"
       class="flex-1 card-wrapper"
@@ -229,7 +233,7 @@ onMounted(() => {
           <template #icon>
             <SvgIcon local-icon="mdi-plus" />
           </template>
-          新增数据源
+          {{ $t('ai.datasource.add') }}
         </NButton>
       </template>
 

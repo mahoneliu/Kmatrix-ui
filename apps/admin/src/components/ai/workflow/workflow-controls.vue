@@ -2,6 +2,7 @@
 import { ControlButton, Controls } from '@vue-flow/controls';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
+import { $t } from '@/locales';
 
 interface Props {
   onZoomIn: () => void;
@@ -46,21 +47,21 @@ const handleJumpToHistory = (index: number) => {
     class="shadow-sm !rounded-5px !border-none !bg-[#fbfbfb] dark:!bg-dark-2"
   >
     <ControlButton
-      title="放大"
+      :title="$t('ai.workflow.zoom_in')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onZoomIn"
     >
       <SvgIcon local-icon="mdi-magnify-plus-outline" class="toolbar-icon" />
     </ControlButton>
     <ControlButton
-      title="缩小"
+      :title="$t('ai.workflow.zoom_out')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onZoomOut"
     >
       <SvgIcon local-icon="mdi-magnify-minus-outline" class="toolbar-icon" />
     </ControlButton>
     <ControlButton
-      title="适应视图"
+      :title="$t('ai.workflow.fit_view')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onFitView"
     >
@@ -70,14 +71,14 @@ const handleJumpToHistory = (index: number) => {
       class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
     />
     <ControlButton
-      title="折叠所有节点"
+      :title="$t('ai.workflow.collapse_all_nodes')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onCollapseAll"
     >
       <SvgIcon local-icon="mdi-unfold-less-horizontal" class="toolbar-icon" />
     </ControlButton>
     <ControlButton
-      title="展开所有节点"
+      :title="$t('ai.workflow.expand_all_nodes')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onExpandAll"
     >
@@ -87,14 +88,14 @@ const handleJumpToHistory = (index: number) => {
       class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
     />
     <ControlButton
-      title="优雅布局"
+      :title="$t('ai.workflow.elegant_layout')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onAutoLayout"
     >
       <SvgIcon local-icon="mdi-auto-fix" class="toolbar-icon" />
     </ControlButton>
     <ControlButton
-      title="折叠并优雅布局"
+      :title="$t('ai.workflow.collapse_and_layout')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="onCollapseAndLayout"
     >
@@ -107,7 +108,7 @@ const handleJumpToHistory = (index: number) => {
     />
     <!-- 撤销/重做 -->
     <ControlButton
-      title="撤销 (Ctrl+Z)"
+      :title="$t('ai.workflow.undo')"
       :disabled="!canUndo"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="handleUndo"
@@ -115,7 +116,7 @@ const handleJumpToHistory = (index: number) => {
       <SvgIcon local-icon="mdi-undo-variant" class="toolbar-icon" />
     </ControlButton>
     <ControlButton
-      title="重做 (Ctrl+Y)"
+      :title="$t('ai.workflow.redo')"
       :disabled="!canRedo"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
       @click="handleRedo"
@@ -129,7 +130,7 @@ const handleJumpToHistory = (index: number) => {
     <NPopover trigger="hover" placement="right-end" :show-arrow="false" class="!rounded-8px !p-0">
       <template #trigger>
         <ControlButton
-          title="操作历史"
+          :title="$t('ai.workflow.operation_history')"
           class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
         >
           <SvgIcon local-icon="mdi-history" class="toolbar-icon" />
@@ -141,8 +142,8 @@ const handleJumpToHistory = (index: number) => {
         <div
           class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-dark-2"
         >
-          <span class="text-sm font-bold">操作历史</span>
-          <span class="text-xs text-gray-400">共 {{ historyStack.length }} 条</span>
+          <span class="text-sm font-bold">{{ $t('ai.workflow.operation_history') }}</span>
+          <span class="text-xs text-gray-400">{{ $t('ai.workflow.total_items', { count: historyStack.length }) }}</span>
         </div>
         <div class="flex-1 overflow-y-auto py-1">
           <div
@@ -174,10 +175,10 @@ const handleJumpToHistory = (index: number) => {
             <div class="line-clamp-1 text-[10px] text-gray-400">
               {{
                 historyStack.length - 1 - index === currentIndex
-                  ? '当前状态'
+                  ? $t('ai.workflow.current_status')
                   : historyStack.length - 1 - index < currentIndex
-                    ? '已执行'
-                    : '可重做'
+                    ? $t('ai.workflow.executed')
+                    : $t('ai.workflow.can_redo')
               }}
             </div>
           </div>

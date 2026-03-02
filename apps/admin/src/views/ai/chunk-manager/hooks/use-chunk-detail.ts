@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { deleteChunk, disableChunk, enableChunk, updateChunk } from '@/service/api/ai/knowledge';
 
 interface UseChunkDetailOptions {
@@ -11,6 +12,7 @@ interface UseChunkDetailOptions {
 export function useChunkDetail(options: UseChunkDetailOptions) {
   const { chunks, onChunkUpdated } = options;
   const message = useMessage();
+  const { t } = useI18n();
 
   // 选中的分块
   const selectedChunkId = ref<string | null>(null);
@@ -47,7 +49,7 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
 
   async function handleSaveChunk() {
     if (!selectedChunk.value || !editContentValue.value.trim()) {
-      message.error('内容不能为空');
+      message.error(t('ai.chunk_manager.content_empty_error'));
       return;
     }
 
@@ -59,11 +61,11 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
         content: editContentValue.value.trim()
       });
       if (error) return;
-      message.success('保存成功');
+      message.success(t('ai.chunk_manager.save_success'));
       isEditing.value = false;
       await onChunkUpdated();
     } catch {
-      message.error('保存失败');
+      message.error(t('ai.chunk_manager.save_fail'));
     } finally {
       savingChunk.value = false;
     }
@@ -75,14 +77,14 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
     try {
       if (enabled) {
         const { error } = await enableChunk(selectedChunk.value.id);
-        if (!error) message.success('已启用');
+        if (!error) message.success(t('ai.chunk_manager.enabled_success'));
       } else {
         const { error } = await disableChunk(selectedChunk.value.id);
-        if (!error) message.success('已禁用');
+        if (!error) message.success(t('ai.chunk_manager.disabled_success'));
       }
       await onChunkUpdated();
     } catch {
-      message.error('操作失败');
+      message.error(t('ai.chunk_manager.op_fail'));
     }
   }
 
@@ -90,13 +92,13 @@ export function useChunkDetail(options: UseChunkDetailOptions) {
     try {
       const { error } = await deleteChunk(chunkId);
       if (error) return;
-      message.success('删除成功');
+      message.success(t('common.deleteSuccess'));
       if (selectedChunkId.value === chunkId) {
         selectedChunkId.value = null;
       }
       await onChunkUpdated();
     } catch {
-      message.error('删除失败');
+      message.error(t('common.deleteFail'));
     }
   }
 

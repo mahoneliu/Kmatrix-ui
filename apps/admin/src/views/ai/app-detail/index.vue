@@ -17,6 +17,7 @@ import {
   useDialog,
   useMessage
 } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { copyToClipboard } from '@km/shared';
 import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
@@ -30,6 +31,7 @@ import SystemTemplateConfigPanel from './modules/system-template-config-panel.vu
 
 // const SvgIcon = resolveComponent('SvgIcon');
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
@@ -59,9 +61,9 @@ const publicAccessEnabled = computed({
       const { error } = await updatePublicAccess(appInfo.value.appId, val ? '1' : '0');
       if (error) return;
       appInfo.value.publicAccess = val ? '1' : '0';
-      message.success(val ? '已开启公开访问' : '已关闭公开访问');
+      message.success(val ? t('ai.app_detail.public_access_opened') : t('ai.app_detail.public_access_closed'));
     } catch {
-      message.error('更新失败');
+      message.error(t('common.updateFailed'));
     }
   }
 });
@@ -69,9 +71,9 @@ const publicAccessEnabled = computed({
 // 监控统计时间范围
 const statsPeriod = ref('7d');
 const statsPeriodOptions = [
-  { label: '过去7天', value: '7d' },
-  { label: '过去30天', value: '30d' },
-  { label: '过去90天', value: '90d' }
+  { label: t('ai.app_detail.monitor.period_7d'), value: '7d' },
+  { label: t('ai.app_detail.monitor.period_30d'), value: '30d' },
+  { label: t('ai.app_detail.monitor.period_90d'), value: '90d' }
 ];
 
 // 统计数据
@@ -95,7 +97,9 @@ const { domRef: userDom, updateOptions: updateUserChart } = useEcharts(() => ({
   grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
   xAxis: { type: 'category', boundaryGap: false, data: [] as string[] },
   yAxis: { type: 'value' },
-  series: [{ name: '用户数', type: 'line', smooth: true, areaStyle: {}, data: [] as number[] }]
+  series: [
+    { name: t('ai.app_detail.monitor.user_count'), type: 'line', smooth: true, areaStyle: {}, data: [] as number[] }
+  ]
 }));
 
 const { domRef: questionDom, updateOptions: updateQuestionChart } = useEcharts(() => ({
@@ -103,7 +107,16 @@ const { domRef: questionDom, updateOptions: updateQuestionChart } = useEcharts((
   grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
   xAxis: { type: 'category', boundaryGap: false, data: [] as string[] },
   yAxis: { type: 'value' },
-  series: [{ name: '提问数', type: 'line', smooth: true, areaStyle: {}, color: '#f97316', data: [] as number[] }]
+  series: [
+    {
+      name: t('ai.app_detail.monitor.question_count'),
+      type: 'line',
+      smooth: true,
+      areaStyle: {},
+      color: '#f97316',
+      data: [] as number[]
+    }
+  ]
 }));
 
 // 加载统计数据
@@ -142,7 +155,7 @@ watch(statsPeriod, () => {
 // 计算公开访问链接
 const publicAccessUrl = computed(() => {
   if (!appInfo.value) return '';
-  const token = tokenList.value.find(t => t.status === '1');
+  const token = tokenList.value.find(item => item.status === '1');
   if (!token) return '';
   return `${window.location.origin}/chat/${token.token}`;
 });
@@ -159,7 +172,7 @@ async function loadAppInfo() {
       appInfo.value = data;
     }
   } catch {
-    message.error('加载应用信息失败');
+    message.error(t('common.loadFailed'));
   } finally {
     loading.value = false;
   }
@@ -182,10 +195,10 @@ async function handleRefreshToken(tokenId: string) {
   try {
     const { error } = await refreshAppToken(tokenId);
     if (error) return;
-    message.success('Token已刷新');
+    message.success(t('common.refreshSuccess'));
     await loadTokenList();
   } catch {
-    message.error('刷新Token失败');
+    message.error(t('common.refreshFailed'));
   }
 }
 
@@ -215,32 +228,32 @@ async function handlePublish() {
   // 系统模版应用：只校验配置面板参数，跳过工作流校验
   if (isSystemTemplateApp.value) {
     if (systemTemplateConfigRef.value && !systemTemplateConfigRef.value.canSave) {
-      message.warning('请确保已填写应用名称，并选择大模型和知识库');
+      message.warning(t('ai.workflow.please_fill_app_info'));
       return;
     }
 
     // 发布确认
     dialog.create({
-      title: '发布应用',
-      content: '确认发布该应用？发布后可通过对话入口访问。',
-      positiveText: '确认发布',
-      negativeText: '取消',
+      title: t('ai.app_detail.publish_btn'),
+      content: t('ai.app_detail.publish_confirm_content'),
+      positiveText: t('common.confirm'),
+      negativeText: t('common.cancel'),
       onPositiveClick: async () => {
         try {
           if (systemTemplateConfigRef.value) {
             const success = await systemTemplateConfigRef.value.handleSave();
             if (!success) {
-              message.error('保存应用配置失败，无法发布');
+              message.error(t('ai.app_detail.config.save_failed'));
               return;
             }
           }
 
-          const { error } = await publishApp(appId.value, '从APP详情页发布');
+          const { error } = await publishApp(appId.value, t('ai.app_detail.publish_from_detail'));
           if (error) return;
-          message.success('发布成功');
+          message.success(t('common.publishSuccess'));
           await loadAppInfo();
         } catch {
-          message.error('发布异常');
+          message.error(t('common.publishFailed'));
         }
       }
     });
@@ -261,10 +274,10 @@ async function handlePublish() {
   // 没有 graphData
   if (!graphData) {
     dialog.warning({
-      title: '工作流未完善',
-      content: '应用尚未配置工作流，是否现在配置？',
-      positiveText: '去配置',
-      negativeText: '取消',
+      title: t('ai.app_detail.workflow_incomplete'),
+      content: t('ai.app_detail.workflow_not_configured_yet_confirm'),
+      positiveText: t('ai.app_detail.go_config'),
+      negativeText: t('common.cancel'),
       onPositiveClick: () => handleSettings()
     });
     return;
@@ -284,10 +297,10 @@ async function handlePublish() {
   const graphValidation = validateGraph(graphData);
   if (!graphValidation.valid) {
     dialog.warning({
-      title: '工作流未完善',
-      content: `${graphValidation.errors.join(', ')}。是否现在配置工作流？`,
-      positiveText: '去配置',
-      negativeText: '取消',
+      title: t('ai.app_detail.workflow_incomplete'),
+      content: t('ai.app_detail.workflow_config_error_confirm', { error: graphValidation.errors.join(', ') }),
+      positiveText: t('ai.app_detail.go_config'),
+      negativeText: t('common.cancel'),
       onPositiveClick: () => handleSettings()
     });
     return;
@@ -298,10 +311,10 @@ async function handlePublish() {
   if (!paramValidation.valid) {
     const errorMessage = formatValidationErrors(paramValidation);
     dialog.warning({
-      title: '工作流未完善',
-      content: `${errorMessage}。是否现在配置工作流？`,
-      positiveText: '去配置',
-      negativeText: '取消',
+      title: t('ai.app_detail.workflow_incomplete'),
+      content: t('ai.app_detail.workflow_config_error_confirm', { error: errorMessage }),
+      positiveText: t('ai.app_detail.go_config'),
+      negativeText: t('common.cancel'),
       onPositiveClick: () => handleSettings()
     });
     return;
@@ -310,10 +323,10 @@ async function handlePublish() {
   // 5. 校验应用基础配置（modelId）
   if (!appInfo.value.modelId) {
     dialog.warning({
-      title: '工作流未完善',
-      content: '缺少必填配置: 推理模型。是否现在配置工作流？',
-      positiveText: '去配置',
-      negativeText: '取消',
+      title: t('ai.app_detail.workflow_incomplete'),
+      content: t('ai.app_detail.workflow_missing_model_confirm'),
+      positiveText: t('ai.app_detail.go_config'),
+      negativeText: t('common.cancel'),
       onPositiveClick: () => handleSettings()
     });
     return;
@@ -321,10 +334,10 @@ async function handlePublish() {
 
   // 6. 发布确认
   dialog.create({
-    title: '发布应用',
-    content: '确认发布该应用？发布后可通过对话入口访问。',
-    positiveText: '确认发布',
-    negativeText: '取消',
+    title: t('ai.app_detail.publish_btn'),
+    content: t('ai.app_detail.publish_confirm_content'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
     onPositiveClick: async () => {
       try {
         // 先调用保存操作避免“工作流配置无变更”
@@ -342,12 +355,12 @@ async function handlePublish() {
         });
         if (saveError) return;
 
-        const { error } = await publishApp(appId.value, '从APP详情页发布');
+        const { error } = await publishApp(appId.value, t('ai.app_detail.publish_from_detail'));
         if (error) return;
-        message.success('发布成功');
+        message.success(t('common.publishSuccess'));
         await loadAppInfo();
       } catch {
-        message.error('发布失败');
+        message.error(t('common.publishFailed'));
       }
     }
   });
@@ -365,7 +378,7 @@ const showEmbedModal = ref(false);
 // 嵌入代码 - 全屏模式
 const embedFullscreenCode = computed(() => {
   if (!tokenList.value.length) return '';
-  const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
+  const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
   const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   return `<iframe
@@ -379,7 +392,7 @@ const embedFullscreenCode = computed(() => {
 // 嵌入代码 - 移动端模式
 const embedMobileCode = computed(() => {
   if (!tokenList.value.length) return '';
-  const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
+  const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
   const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   return `<iframe
@@ -393,7 +406,7 @@ const embedMobileCode = computed(() => {
 // 嵌入代码 - 浮窗模式
 const embedFloatCode = computed(() => {
   if (!tokenList.value.length) return '';
-  const token = tokenList.value.find(t => t.status === '1') || tokenList.value[0];
+  const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
   if (!token?.token) return '';
   const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
   const scriptEnd = '<' + '/script>'; // eslint-disable-line no-useless-concat
@@ -408,12 +421,12 @@ ${scriptEnd}`;
 const runOptions = computed(() => {
   return [
     {
-      label: '去对话',
+      label: t('ai.app_manager.go_to_chat'),
       key: 'chat',
       icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
     },
     {
-      label: '嵌入第三方',
+      label: t('ai.app_detail.embed.title'),
       key: 'embed',
       icon: () => h(SvgIcon, { localIcon: 'mdi-code-tags' })
     },
@@ -422,7 +435,10 @@ const runOptions = computed(() => {
       key: 'd1'
     },
     {
-      label: appInfo.value?.enableExecutionDetail === '1' ? '禁用执行详情' : '启用执行详情',
+      label:
+        appInfo.value?.enableExecutionDetail === '1'
+          ? t('ai.app_detail.disable_execution_detail')
+          : t('ai.app_detail.enable_execution_detail'),
       key: 'enableExecutionDetail',
       icon: () =>
         appInfo.value?.enableExecutionDetail === '1'
@@ -447,7 +463,11 @@ async function handleRunSelect(key: string) {
     });
     if (!error) {
       appInfo.value.enableExecutionDetail = newValue;
-      message.success(newValue === '1' ? '已启用执行详情' : '已禁用执行详情');
+      message.success(
+        newValue === '1'
+          ? t('ai.app_detail.enable_execution_detail_success')
+          : t('ai.app_detail.disable_execution_detail_success')
+      );
     }
   }
 }
@@ -486,14 +506,16 @@ onMounted(async () => {
             </div>
             <div class="min-w-0 flex-1 truncate text-base font-bold">{{ appInfo?.appName }}</div>
             <div class="ml-auto">
-              <NTag :type="isPublished ? 'success' : 'error'">{{ isPublished ? '已发布' : '未发布' }}</NTag>
+              <NTag :type="isPublished ? 'success' : 'error'">
+                {{ isPublished ? $t('ai.app_manager.status_published') : $t('ai.app_manager.status_unpublished') }}
+              </NTag>
             </div>
           </div>
 
           <div v-if="isPublished && publicAccessEnabled" class="mt-2 flex items-center gap-2">
             <NInputGroup>
-              <NInput :value="publicAccessUrl" readonly size="small" placeholder="" class="w-80" />
-              <NButton size="small" @click="copyToClipboard(publicAccessUrl, '链接')">
+              <NInput :value="publicAccessUrl" readonly size="small" placeholder="" class="min-w-60 flex-1" />
+              <NButton size="small" @click="copyToClipboard(publicAccessUrl, $t('ai.app_detail.public_link'))">
                 <template #icon>
                   <SvgIcon local-icon="mdi-content-copy" />
                 </template>
@@ -501,26 +523,28 @@ onMounted(async () => {
             </NInputGroup>
             <NTooltip>
               <template #trigger>
-                <NButton type="primary" size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">刷新</NButton>
+                <NButton type="primary" size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">
+                  {{ $t('ai.app_detail.refresh') }}
+                </NButton>
               </template>
-              重新生成访问链接，会导致已经嵌入第三方的对话框无法使用，需要重新嵌入新的脚本。
+              {{ $t('ai.app_detail.refresh_token_tip') }}
             </NTooltip>
           </div>
           <!-- 操作按钮组 -->
-          <div class="mt-4 flex gap-2">
+          <div class="mt-4 flex flex-wrap items-center gap-2">
             <!-- 系统模版应用配置按钮（放在最左边） -->
             <NButton v-if="isSystemTemplateApp" size="small" @click="showConfigPanel = !showConfigPanel">
               <template #icon>
                 <SvgIcon :icon="showConfigPanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
               </template>
-              应用配置
+              {{ $t('ai.app_detail.app_config') }}
             </NButton>
 
             <NButton v-else size="small" @click="handleSettings">
               <template #icon>
                 <SvgIcon local-icon="mdi-settings" />
               </template>
-              流程设置
+              {{ $t('ai.app_detail.workflow_settings') }}
             </NButton>
 
             <!-- 已发布时显示运行下拉菜单 -->
@@ -530,7 +554,7 @@ onMounted(async () => {
                   <template #icon>
                     <SvgIcon local-icon="mdi-play" />
                   </template>
-                  运行
+                  {{ $t('ai.app_detail.run') }}
                 </NButton>
               </NDropdown>
             </template>
@@ -540,7 +564,7 @@ onMounted(async () => {
               <template #icon>
                 <SvgIcon local-icon="mdi-bug-outline" />
               </template>
-              调试
+              {{ $t('ai.app_detail.debug') }}
             </NButton>
 
             <!-- 显示发布按钮 -->
@@ -548,18 +572,13 @@ onMounted(async () => {
               <template #icon>
                 <SvgIcon local-icon="mdi-rocket-launch" />
               </template>
-              发布应用
+              {{ $t('ai.app_detail.publish_btn') }}
             </NButton>
 
             <div v-if="isPublished">
-              <NSwitch
-                v-model:value="publicAccessEnabled"
-                class="rounded-none pt-1"
-                title="开启公开访问则无需鉴权即可匿名访问，否则需要鉴权"
-                size="large"
-              >
-                <template #checked>公开访问</template>
-                <template #unchecked>公开访问</template>
+              <NSwitch v-model:value="publicAccessEnabled" class="rounded-none pt-1" size="large">
+                <template #checked>{{ $t('ai.app_detail.public_access') }}</template>
+                <template #unchecked>{{ $t('ai.app_detail.public_access') }}</template>
               </NSwitch>
             </div>
           </div>
@@ -590,7 +609,7 @@ onMounted(async () => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-1">
             <div class="h-1 w-1 rounded-full bg-primary" />
-            <span class="text-sm font-medium">监控统计</span>
+            <span class="text-sm font-medium">{{ $t('ai.app_detail.monitor.title') }}</span>
           </div>
           <NSelect v-model:value="statsPeriod" :options="statsPeriodOptions" size="small" class="w-28" />
         </div>
@@ -604,7 +623,7 @@ onMounted(async () => {
               <SvgIcon local-icon="mdi-account-group" class="text-xl" />
             </div>
             <div>
-              <div class="text-xs text-gray-500">用户总数</div>
+              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.user_count') }}</div>
               <div class="flex items-baseline gap-1">
                 <span class="text-xl font-bold">{{ statsData.userCount }}</span>
                 <span v-if="statsData.userCountDelta > 0" class="text-xs text-success">
@@ -620,7 +639,7 @@ onMounted(async () => {
               <SvgIcon local-icon="mdi-message-text" class="text-xl" />
             </div>
             <div>
-              <div class="text-xs text-gray-500">提问次数</div>
+              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.question_count') }}</div>
               <span class="text-xl font-bold">{{ statsData.questionCount }}</span>
             </div>
           </div>
@@ -631,7 +650,7 @@ onMounted(async () => {
               <SvgIcon local-icon="mdi-key-variant" class="text-xl" />
             </div>
             <div>
-              <div class="text-xs text-gray-500">Tokens 总数</div>
+              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.tokens_total') }}</div>
               <span class="text-xl font-bold">{{ statsData.tokensTotal }}</span>
             </div>
           </div>
@@ -642,7 +661,7 @@ onMounted(async () => {
               <SvgIcon local-icon="mdi-emoticon-happy" class="text-xl" />
             </div>
             <div>
-              <div class="text-xs text-gray-500">用户满意度</div>
+              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.satisfaction') }}</div>
               <div class="flex items-center gap-2">
                 <span class="text-success">👍 {{ statsData.satisfaction.like }}</span>
                 <span class="text-error">👎 {{ statsData.satisfaction.dislike }}</span>
@@ -656,13 +675,13 @@ onMounted(async () => {
       <NGrid :cols="2" :x-gap="16">
         <NGridItem>
           <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-            <div class="mb-2 text-sm font-medium">用户总数</div>
+            <div class="mb-2 text-sm font-medium">{{ $t('ai.app_detail.monitor.user_count') }}</div>
             <div ref="userChartRef" class="h-48 w-full"></div>
           </div>
         </NGridItem>
         <NGridItem>
           <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-            <div class="mb-2 text-sm font-medium">提问次数</div>
+            <div class="mb-2 text-sm font-medium">{{ $t('ai.app_detail.monitor.question_count') }}</div>
             <div ref="questionChartRef" class="h-48 w-full"></div>
           </div>
         </NGridItem>
@@ -672,11 +691,17 @@ onMounted(async () => {
     <DebugChatDialog v-model:visible="showDebugDialog" :app-id="appId" :app-name="appInfo?.appName || ''" />
 
     <!-- 嵌入第三方弹窗 -->
-    <NModal v-model:show="showEmbedModal" preset="card" title="嵌入第三方" class="w-240" :bordered="false">
+    <NModal
+      v-model:show="showEmbedModal"
+      preset="card"
+      :title="$t('ai.app_detail.embed.title')"
+      class="w-240"
+      :bordered="false"
+    >
       <div class="grid grid-cols-3 gap-4">
         <!-- 全屏模式 -->
         <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">全屏模式</div>
+          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.fullscreen') }}</div>
           <div
             class="mb-4 h-24 flex items-center justify-center rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b dark:from-blue-900 dark:to-blue-800"
           >
@@ -689,8 +714,12 @@ onMounted(async () => {
             </div>
           </div>
           <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
-            <NButton text size="tiny" @click="copyToClipboard(embedFullscreenCode, '全屏模式代码')">
+            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
+            <NButton
+              text
+              size="tiny"
+              @click="copyToClipboard(embedFullscreenCode, $t('ai.app_detail.fullscreen_code'))"
+            >
               <template #icon>
                 <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>
@@ -703,7 +732,7 @@ onMounted(async () => {
 
         <!-- 移动端模式 -->
         <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">移动端模式</div>
+          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.mobile') }}</div>
           <div
             class="mb-4 h-24 flex items-center justify-center rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b dark:from-blue-900 dark:to-blue-800"
           >
@@ -716,8 +745,8 @@ onMounted(async () => {
             </div>
           </div>
           <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
-            <NButton text size="tiny" @click="copyToClipboard(embedMobileCode, '移动端模式代码')">
+            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
+            <NButton text size="tiny" @click="copyToClipboard(embedMobileCode, $t('ai.app_detail.mobile_code'))">
               <template #icon>
                 <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>
@@ -730,7 +759,7 @@ onMounted(async () => {
 
         <!-- 浮窗模式 -->
         <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">浮窗模式</div>
+          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.float') }}</div>
           <div
             class="mb-4 h-24 flex items-end justify-end rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b p-2 dark:from-blue-900 dark:to-blue-800"
           >
@@ -743,8 +772,8 @@ onMounted(async () => {
             </div>
           </div>
           <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">复制以下代码进行嵌入</span>
-            <NButton text size="tiny" @click="copyToClipboard(embedFloatCode, '浮窗模式代码')">
+            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
+            <NButton text size="tiny" @click="copyToClipboard(embedFloatCode, $t('ai.app_detail.float_code'))">
               <template #icon>
                 <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
               </template>

@@ -3,6 +3,7 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { NCollapse, NCollapseItem, NInputNumber, NSwitch, NTooltip } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 import VariableMention from './add-in/variable-mention.vue';
 
@@ -88,17 +89,17 @@ function handleConfigChange() {
         </template>
 
         <!-- 对话配置 -->
-        <NCollapseItem title="对话配置" name="history">
+        <NCollapseItem :title="$t('ai.workflow_node.dialog_config')" name="history">
           <div class="workflow-config-section">
             <!-- 用户提示词 -->
             <div class="workflow-config-item">
               <div class="flex items-center gap-1">
-                <span class="workflow-label">用户提示词</span>
+                <span class="workflow-label">{{ $t('ai.workflow_node.user_prompt') }}</span>
                 <NTooltip>
                   <template #trigger>
                     <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
                   </template>
-                  用户向大模型提出的具体问题或指令,输入 / 选择变量
+                  {{ $t('ai.workflow_node.user_prompt_desc') }}
                 </NTooltip>
               </div>
             </div>
@@ -117,12 +118,12 @@ function handleConfigChange() {
             <div class="workflow-config-item">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <label class="workflow-label">启用历史对话</label>
+                  <label class="workflow-label">{{ $t('ai.workflow_node.enable_history_dialog') }}</label>
                   <NTooltip>
                     <template #trigger>
                       <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
                     </template>
-                    开启后,AI 将能够理解对话上下文,保持对话连贯性
+                    {{ $t('ai.workflow_node.enable_context_memory') }}
                   </NTooltip>
                 </div>
                 <NSwitch v-model:value="formModel.historyEnabled" size="small" />
@@ -131,12 +132,12 @@ function handleConfigChange() {
 
             <div v-if="formModel.historyEnabled" class="workflow-config-item">
               <div class="flex items-center gap-2">
-                <span class="workflow-label">历史消息条数</span>
+                <span class="workflow-label">{{ $t('ai.workflow_node.history_messages_count') }}</span>
                 <NTooltip>
                   <template #trigger>
                     <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-gray-400" />
                   </template>
-                  保留最近N条对话消息,用于上下文记忆,建议设置为 5-20 条
+                  {{ $t('ai.workflow_node.keep_n_messages') }}
                 </NTooltip>
                 <NInputNumber
                   v-model:value="formModel.historyLimit"
@@ -145,7 +146,7 @@ function handleConfigChange() {
                   :step="1"
                   size="small"
                   class="flex-1 workflow-input"
-                  placeholder="最近N条消息"
+                  :placeholder="$t('ai.workflow_node.latest_n_messages')"
                 />
               </div>
             </div>

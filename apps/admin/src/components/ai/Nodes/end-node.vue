@@ -3,6 +3,7 @@ import { onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import VariableMention from '@/components/ai/Nodes/add-in/variable-mention.vue';
 import BaseNode from './base-node.vue';
 
@@ -69,20 +70,20 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="基础配置" name="config">
+        <NCollapseItem :title="$t('ai.workflow_template.base_config')" name="config">
           <div class="workflow-config-section">
             <div class="workflow-config-item flex-1">
               <div class="mb-1 flex items-center gap-1">
-                <span class="mb-0 workflow-label">指定回复内容</span>
+                <span class="mb-0 workflow-label">{{ $t('ai.workflow_node.specify_reply_content') }}</span>
                 <NTooltip trigger="hover">
                   <template #trigger>
                     <span class="inline-flex items-center">
                       <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
-                  如果指定回复内容，就是最终工作流的输出。
+                  {{ $t('ai.workflow_node.if_specify_reply_content_it_is_final_output') }}
                   <br />
-                  这里的内容会覆盖当前节点的输出参数：finalResponse。
+                  {{ $t('ai.workflow_node.override_final_response') }}
                 </NTooltip>
               </div>
 
@@ -90,7 +91,7 @@ onMounted(() => {
                 v-model:model-value="formModel.customResponse"
                 :node-id="id"
                 :rows="2"
-                placeholder="输入结束节点的指定内容作为最终输出 (输入 / 选择变量)"
+                :placeholder="$t('ai.workflow_node.input_end_node_content')"
               />
             </div>
           </div>

@@ -59,7 +59,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
     },
     {
       key: 'content',
-      title: '问题内容',
+      title: () => $t('ai.knowledge_detail.questionTable.content'),
       align: 'left',
       minWidth: 250,
       ellipsis: {
@@ -88,7 +88,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
             <span
               class="flex-1 cursor-pointer hover:text-primary"
               onClick={() => handleRowClick(row)}
-              title="点击查看详情"
+              title={$t('ai.knowledge_detail.questionTable.clickToDetail')}
             >
               {row.content}
             </span>
@@ -104,7 +104,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
     },
     {
       key: 'chunkCount',
-      title: '关联分段',
+      title: () => $t('ai.knowledge_detail.questionTable.chunkCount'),
       align: 'center',
       width: 100,
       render(row) {
@@ -118,15 +118,18 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
     },
     {
       key: 'sourceType',
-      title: '来源',
+      title: () => $t('ai.knowledge_detail.questionTable.sourceType'),
       align: 'center',
       width: 100,
       render(row) {
         const typeMap: Record<string, { label: string; type: string }> = {
-          MANUAL: { label: '手动添加', type: 'success' },
-          LLM: { label: 'AI生成', type: 'info' }
+          MANUAL: { label: $t('ai.knowledge_detail.questionTable.sourceMap.MANUAL'), type: 'success' },
+          LLM: { label: $t('ai.knowledge_detail.questionTable.sourceMap.LLM'), type: 'info' }
         };
-        const info = typeMap[row.sourceType || ''] || { label: '未知', type: 'default' };
+        const info = typeMap[row.sourceType || ''] || {
+          label: $t('ai.knowledge_detail.questionTable.sourceMap.UNKNOWN'),
+          type: 'default'
+        };
         return (
           <NTag size="small" type={info.type as any} bordered={false}>
             {info.label}
@@ -136,7 +139,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
     },
     {
       key: 'createTime',
-      title: '创建时间',
+      title: () => $t('ai.knowledge_detail.questionTable.createTime'),
       align: 'center',
       width: 160,
       render(row) {
@@ -145,7 +148,7 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
     },
     {
       key: 'updateTime',
-      title: '更新时间',
+      title: () => $t('ai.knowledge_detail.questionTable.updateTime'),
       align: 'center',
       width: 160,
       render(row) {
@@ -164,14 +167,14 @@ const { columns, data, loading, mobilePagination, getData, getDataByPage, scroll
               text
               type="primary"
               local-icon="mdi-link-variant-plus"
-              tooltipContent="关联分段"
+              tooltipContent={$t('ai.knowledge_detail.questionTable.actionLink')}
               onClick={() => handleLink(row)}
             />
             <ButtonIcon
               text
               type="error"
               local-icon="mdi-delete"
-              tooltipContent="删除"
+              tooltipContent={$t('ai.knowledge_detail.questionTable.actionDelete')}
               onClick={() => handleDelete(row.id)}
             />
           </div>
@@ -210,25 +213,25 @@ async function saveEdit(row: Api.AI.KB.Question) {
 
   try {
     await updateQuestion(editingId.value, editingContent.value.trim());
-    window.$message?.success('修改成功');
+    window.$message?.success($t('ai.knowledge_detail.questionTable.editSuccess'));
     cancelEdit();
     await getData();
   } catch {
-    window.$message?.error('修改失败');
+    window.$message?.error($t('ai.knowledge_detail.questionTable.editFail'));
   }
 }
 
 // 删除
 async function handleDelete(id: CommonType.IdType) {
   window.$dialog?.warning({
-    title: '确认删除',
-    content: '确定要删除该问题吗？',
-    positiveText: '确定',
-    negativeText: '取消',
+    title: $t('ai.knowledge_detail.questionTable.deleteConfirmTitle'),
+    content: $t('ai.knowledge_detail.questionTable.deleteConfirmContent'),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     async onPositiveClick() {
       const { error } = await deleteQuestion(id);
       if (!error) {
-        window.$message?.success('删除成功');
+        window.$message?.success($t('ai.knowledge_detail.questionTable.deleteSuccess'));
         onDeleted();
       }
     }
@@ -239,7 +242,7 @@ async function handleDelete(id: CommonType.IdType) {
 async function handleBatchDelete() {
   const { error } = await batchDeleteQuestions(checkedRowKeys.value);
   if (!error) {
-    window.$message?.success('删除成功');
+    window.$message?.success($t('ai.knowledge_detail.questionTable.deleteSuccess'));
     onBatchDeleted();
   }
   // window.$dialog?.warning({
@@ -341,7 +344,7 @@ defineExpose({
     <TableRowCheckAlert v-if="checkedRowKeys.length > 0" v-model:checked-row-keys="checkedRowKeys" />
     <!-- Debug Info -->
     <NCard
-      title="问题列表"
+      :title="$t('ai.knowledge_detail.questionTable.listTitle')"
       :bordered="false"
       size="small"
       class="h-full flex-col card-wrapper sm:flex-1-hidden"
@@ -363,7 +366,7 @@ defineExpose({
                 <template #icon>
                   <SvgIcon local-icon="mdi-plus" />
                 </template>
-                添加问题
+                {{ $t('ai.knowledge_detail.questionTable.addQuestion') }}
               </NButton>
             </NSpace>
           </template>
@@ -387,14 +390,14 @@ defineExpose({
           onClick: (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             if (
-              target.closest('.n-checkbox') || 
-              target.closest('.n-button') || 
+              target.closest('.n-checkbox') ||
+              target.closest('.n-button') ||
               target.closest('.prevent-row-click') ||
               target.tagName === 'INPUT'
             ) {
               return;
             }
-            
+
             const index = checkedRowKeys.findIndex(id => id === row.id);
             if (index > -1) {
               const newKeys = [...checkedRowKeys];

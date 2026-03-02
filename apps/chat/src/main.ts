@@ -5,6 +5,7 @@ import App from './App.vue';
 import 'virtual:svg-icons-register';
 import 'virtual:uno.css';
 import './styles/global.css';
+import { setupI18n } from './locales';
 import { useChatAuth } from './composables/use-chat-auth';
 
 setupIconifyOffline();
@@ -41,6 +42,7 @@ async function initApp() {
   // 注入嵌入参数
   app.provide('embedParams', embedParams);
 
+  setupI18n(app);
   app.use(pinia);
   app.mount('#app');
 }

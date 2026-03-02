@@ -8,6 +8,7 @@ import { useAutoSave } from '@/composables/ai/workflow/use-auto-save';
 import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { dslToGraph, graphToDsl, validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
+import { $t } from '@/locales';
 
 export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
   const workflowStore = useWorkflowStore();
@@ -36,7 +37,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
         data: {
           id: 'app-info',
           nodeType: 'APP_INFO' as Workflow.NodeType,
-          nodeLabel: appInfoNodeDef?.nodeLabel || '基础信息',
+          nodeLabel: appInfoNodeDef?.nodeLabel || $t('ai.workflow_template.base_info'),
           nodeColor: appInfoNodeDef?.nodeColor,
           nodeIcon: appInfoNodeDef?.nodeIcon || 'mdi:information',
           description: appInfoNodeDef?.description,
@@ -61,7 +62,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
   // 加载工作流
   async function loadWorkflow() {
     if (!appId.value) {
-      message.error('缺少应用 ID');
+      message.error($t('ai.workflow.missing_app_id'));
       return;
     }
 
@@ -111,7 +112,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
             data: {
               id: 'start',
               nodeType: 'START' as Workflow.NodeType,
-              nodeLabel: '开始',
+              nodeLabel: $t('ai.workflow_node.start'),
               nodeColor: startNodeDef?.nodeColor || '#10b981',
               nodeIcon: startNodeDef?.nodeIcon,
               description: startNodeDef?.description,
@@ -128,7 +129,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
             data: {
               id: 'end',
               nodeType: 'END' as Workflow.NodeType,
-              nodeLabel: '结束',
+              nodeLabel: $t('ai.workflow_node.end'),
               nodeColor: endNodeDef?.nodeColor || '#ef4444',
               nodeIcon: endNodeDef?.nodeIcon,
               description: endNodeDef?.description,
@@ -141,10 +142,10 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
         // 确保基础信息节点存在
         createAppInfoNode(res.data);
       } else {
-        message.error('工作流数据不存在');
+        message.error($t('ai.workflow.workflow_data_not_exist'));
       }
     } catch {
-      message.error('加载工作流失败');
+      message.error($t('ai.workflow.load_workflow_failed'));
     } finally {
       loading.value = false;
       // 延迟启用自动保存和历史初始化
@@ -161,7 +162,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
     const isAutoSave = typeof trigger === 'boolean' ? trigger : false;
 
     if (!appId.value) {
-      message.error('缺少应用 ID');
+      message.error($t('ai.workflow.missing_app_id'));
       return false;
     }
 
@@ -221,12 +222,12 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
       });
 
       if (error) {
-        if (!isAutoSave) message.error('保存失败');
+        if (!isAutoSave) message.error($t('ai.workflow.save_failed'));
         workflowStore.markSaved(false);
         return false;
       }
 
-      if (!isAutoSave) message.success('保存成功');
+      if (!isAutoSave) message.success($t('ai.workflow.save_success'));
       workflowStore.markSaved(true);
 
       if (appInfoConfig?.appName) {
@@ -235,7 +236,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
       }
       return true;
     } catch {
-      if (!isAutoSave) message.error('保存失败');
+      if (!isAutoSave) message.error($t('ai.workflow.save_failed'));
       workflowStore.markSaved(false);
       return false;
     }
@@ -245,7 +246,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
   function validateApp(graphData: any, workflowNodes: any[], appInfoConfig: any) {
     const validation = validateGraph(graphData);
     if (!validation.valid) {
-      message.error(`发布失败: ${validation.errors.join(', ')}`);
+      message.error(`${$t('ai.workflow.publish_failed')}: ${validation.errors.join(', ')}`);
       return false;
     }
 
@@ -258,11 +259,11 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
 
     if (appInfoConfig) {
       const appInfoErrors: string[] = [];
-      if (!appInfoConfig?.appName) appInfoErrors.push('缺少必填配置: 应用名称');
-      if (!appInfoConfig?.modelId) appInfoErrors.push('缺少必填配置: 推理模型');
+      if (!appInfoConfig?.appName) appInfoErrors.push($t('ai.workflow_template.missing_app_name'));
+      if (!appInfoConfig?.modelId) appInfoErrors.push($t('ai.workflow_template.missing_reasoning_model'));
 
       if (appInfoErrors.length > 0) {
-        const errorMessage = `发布失败，存在未配置项:\n\n【基础信息】\n${appInfoErrors.map(e => `  • ${e}`).join('\n')}`;
+        const errorMessage = `${$t('ai.workflow.publish_failed_config')}:\n\n【${$t('ai.workflow_template.base_info')}】\n${appInfoErrors.map(e => `  • ${e}`).join('\n')}`;
         message.error(errorMessage, { duration: 5000, closable: true });
         return false;
       }
@@ -303,28 +304,28 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
     }
 
     dialog.create({
-      title: '发布应用',
+      title: $t('ai.workflow.publish_app'),
       content: () => {
         // 使用 h 函数简略实现，实际可能需要更复杂的交互组件
         return h('div', { class: 'flex flex-col gap-3' }, [
-          h('div', { class: 'text-sm text-gray-600' }, '请输入本次发布的摘要说明:'),
+          h('div', { class: 'text-sm text-gray-600' }, $t('ai.workflow.publish_remark_placeholder')),
           h('input', {
             id: 'publish-remark-input', // 给个ID方便查找
             type: 'text',
-            placeholder: '例如: 新增意图识别节点,优化LLM配置',
+            placeholder: $t('ai.workflow_node.eg_add_intent_node'),
             class:
               'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
           })
         ]);
       },
-      positiveText: '确认发布',
-      negativeText: '取消',
+      positiveText: $t('ai.workflow.confirm_publish'),
+      negativeText: $t('common.cancel'),
       onPositiveClick: async () => {
         const inputEl = document.getElementById('publish-remark-input') as HTMLInputElement;
         const remark = inputEl?.value?.trim() || '';
 
         if (!remark) {
-          message.warning('请输入发布摘要');
+          message.warning($t('ai.workflow_template.please_input_publish_summary'));
           return false;
         }
 
@@ -333,7 +334,7 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
           // 首先执行全量保存（由于 validateApp 已通过，此处的图数据一定是合法的）
           const success = await handleSave(true);
           if (!success) {
-            message.error('保存应用配置失败，无法发布');
+            message.error($t('ai.workflow_template.save_app_config_failed'));
             return false;
           }
 
@@ -341,11 +342,11 @@ export function useWorkflowPersistence(appId: Ref<CommonType.IdType>) {
           const { error } = await publishApp(appId.value, remark);
           if (error) return false;
 
-          message.success('发布成功');
+          message.success($t('ai.workflow.publish_success'));
           dialog.destroyAll();
           return true;
         } catch {
-          message.error('发布异常');
+          message.error($t('ai.workflow_template.publish_error'));
           return false;
         } finally {
           loading.value = false;

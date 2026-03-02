@@ -24,6 +24,7 @@ import {
   fetchKnowledgeBaseDetail,
   fetchKnowledgeBaseDetailStatistics
 } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 import RetrievalSandbox from '../knowledge-manager/modules/retrieval-sandbox.vue';
 import DatasetModal from './modules/dataset-modal.vue';
 import OnlineDocModal from './modules/online-doc-modal.vue';
@@ -62,7 +63,7 @@ async function loadKnowledgeBase() {
     const { data } = await fetchKnowledgeBaseDetail(kbId.value);
     kb.value = data;
   } catch {
-    message.error('加载知识库失败');
+    message.error($t('ai.knowledge_detail.index.loadKBFail'));
   }
 }
 
@@ -104,14 +105,14 @@ function handleEditDataset(ds: Api.AI.KB.Dataset) {
 async function handleDeleteDataset(ds: Api.AI.KB.Dataset) {
   if (!ds.id) return;
   dialog.warning({
-    title: '确认删除',
-    content: `确定要删除数据集"${ds.name}"吗？所有关联的文档都将被删除！`,
-    positiveText: '确定删除',
-    negativeText: '取消',
+    title: $t('ai.knowledge_detail.index.confirmDelete'),
+    content: $t('ai.knowledge_detail.index.deleteDatasetConfirm').replace('{name}', ds.name),
+    positiveText: $t('ai.knowledge_detail.index.confirmDelete'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await deleteDataset([ds.id!]);
       if (!error) {
-        message.success('删除成功');
+        message.success($t('ai.knowledge_detail.index.deleteSuccess'));
         if (selectedDatasetId.value === ds.id) {
           selectedDatasetId.value = null;
         }
@@ -134,10 +135,10 @@ async function handleSaveOnlineDoc(data: { title: string; content: string }) {
 
   try {
     await createOnlineDocument(selectedDatasetId.value, data.title, data.content);
-    message.success('在线文档保存成功');
+    message.success($t('ai.knowledge_detail.index.onlineDocSaveSuccess'));
     tableRef.value?.getData();
   } catch {
-    message.error('保存失败');
+    message.error($t('ai.knowledge_detail.index.saveFail'));
   }
 }
 
@@ -148,10 +149,10 @@ async function handleSubmitWebLink(data: { urls: string[] }) {
   try {
     // 批量添加网页链接
     await batchCreateWebLinkDocument(selectedDatasetId.value!, data.urls);
-    message.success(`成功添加 ${data.urls.length} 个网页链接`);
+    message.success($t('ai.knowledge_detail.index.addWebLinkSuccess').replace('{count}', data.urls.length.toString()));
     tableRef.value?.getData();
   } catch {
-    message.error('添加失败');
+    message.error($t('ai.knowledge_detail.index.addFail'));
   }
 }
 
@@ -177,15 +178,15 @@ function getDatasetIcon(type?: string) {
 function getProcessTypeLabel(type?: string) {
   switch (type) {
     case 'QA_PAIR':
-      return '问答对';
+      return $t('ai.knowledge_detail.index.processType.QA_PAIR');
     case 'ONLINE_DOC':
-      return '在线文档';
+      return $t('ai.knowledge_detail.index.processType.ONLINE_DOC');
     case 'WEB_LINK':
-      return '网页链接';
+      return $t('ai.knowledge_detail.index.processType.WEB_LINK');
     case 'GENERIC_FILE':
-      return '通用文件';
+      return $t('ai.knowledge_detail.index.processType.GENERIC_FILE');
     default:
-      return type || '未知';
+      return type || $t('ai.knowledge_detail.index.processType.UNKNOWN');
   }
 }
 
@@ -213,35 +214,35 @@ onMounted(() => {
 
         <div class="flex items-center justify-between gap-12 pr-4 text-gray-500">
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">问题</span>
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.question') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon local-icon="mdi-frequently-asked-questions" class="text-purple-500" />
               <span>{{ stats?.questionCount || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">切片</span>
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.chunk') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon local-icon="mdi-vector-square" class="text-orange-500" />
               <span>{{ stats?.totalChunks || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">文档</span>
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.document') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon local-icon="mdi-file-document-outline" class="text-green-500" />
               <span>{{ stats?.totalDocuments || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">处理中</span>
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.processing') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon local-icon="mdi-clock-outline" class="text-blue-500" />
               <span>{{ stats?.processingDocs || 0 }}</span>
             </div>
           </div>
           <div class="flex flex-col items-center">
-            <span class="text-xs text-gray-400">失败</span>
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.failed') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
               <SvgIcon local-icon="mdi-alert-circle-outline" class="text-red-500" />
               <span>{{ stats?.errorDocs || 0 }}</span>
@@ -251,7 +252,7 @@ onMounted(() => {
             <template #icon>
               <SvgIcon local-icon="mdi-flask" />
             </template>
-            检索测试
+            {{ $t('ai.knowledge_detail.index.retrievalTest') }}
           </NButton>
         </div>
       </div>
@@ -266,22 +267,26 @@ onMounted(() => {
         class="h-full min-h-0 flex flex-col flex-1"
         pane-class="flex-1 overflow-hidden h-full"
       >
-        <NTabPane name="documents" tab="文档列表" class="h-full min-h-0 flex flex-col flex-1">
+        <NTabPane
+          name="documents"
+          :tab="$t('ai.knowledge_detail.index.tabs.documents')"
+          class="h-full min-h-0 flex flex-col flex-1"
+        >
           <div class="h-full min-h-0 flex flex-1 gap-4 overflow-hidden">
             <!-- 左侧数据集列表 -->
             <NCard :bordered="false" size="small" class="w-55 shrink-0 card-wrapper">
               <template #header>
                 <div class="flex items-center gap-1">
-                  <span>数据集</span>
-                  <NPopover trigger="hover" title="数据集说明" placement="right">
+                  <span>{{ $t('ai.knowledge_detail.index.dataset.title') }}</span>
+                  <NPopover trigger="hover" :title="$t('ai.knowledge_detail.index.dataset.title')" placement="right">
                     <template #trigger>
                       <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
                         <SvgIcon local-icon="mdi-help-circle-outline" class="text-base" />
                       </div>
                     </template>
                     <div class="w-64">
-                      <p>数据集用于归类管理知识库文档</p>
-                      <p class="mt-1">不同的数据集，对应不同的收录方式和处理规则</p>
+                      <p>{{ $t('ai.knowledge_detail.index.dataset.desc1') }}</p>
+                      <p class="mt-1">{{ $t('ai.knowledge_detail.index.dataset.desc2') }}</p>
                     </div>
                   </NPopover>
                 </div>
@@ -291,7 +296,7 @@ onMounted(() => {
                   ghost
                   class="hover:(bg-primary bg-opacity-20)"
                   size="tiny"
-                  title="添加数据集"
+                  :title="$t('ai.knowledge_detail.index.dataset.add')"
                   @click="handleAddDataset"
                 >
                   <template #icon>
@@ -323,8 +328,8 @@ onMounted(() => {
                       </div>
                       <NDropdown
                         :options="[
-                          { label: '编辑', key: 'edit' },
-                          { label: '删除', key: 'delete' }
+                          { label: $t('ai.knowledge_detail.index.dataset.edit'), key: 'edit' },
+                          { label: $t('ai.knowledge_detail.index.dataset.delete'), key: 'delete' }
                         ]"
                         trigger="hover"
                         @select="
@@ -346,14 +351,27 @@ onMounted(() => {
                     </div>
 
                     <div class="flex items-center gap-1">
-                      <NTag v-if="ds.isSystem" size="tiny" type="success" :bordered="false" round>系统</NTag>
+                      <NTag v-if="ds.isSystem" size="tiny" type="success" :bordered="false" round>
+                        {{ $t('ai.knowledge_detail.index.dataset.system') }}
+                      </NTag>
                       <NTag size="tiny" :bordered="false" round>{{ getProcessTypeLabel(ds.processType) }}</NTag>
-                      <span class="text-xs text-gray-400">{{ ds.documentCount || 0 }} 文档</span>
+                      <!--
+ <span class="text-xs text-gray-400">
+                        {{
+                          $t('ai.knowledge_detail.index.dataset.docCount', { count: ds.documentCount })
+                        }}
+                      </span> 
+-->
+                    </div>
+                    <div class="flex items-center gap-1 pl-2 pt-2">
+                      <span class="text-xs text-gray-400">
+                        {{ $t('ai.knowledge_detail.index.dataset.docCount', { count: ds.documentCount }) }}
+                      </span>
                     </div>
                   </div>
                 </NListItem>
               </NList>
-              <NEmpty v-else description="暂无数据集" />
+              <NEmpty v-else :description="$t('ai.knowledge_detail.index.dataset.empty')" />
             </NCard>
 
             <!-- 右侧内容区域 -->
@@ -368,11 +386,11 @@ onMounted(() => {
               />
             </div>
             <NCard v-else :bordered="false" size="small" class="flex-1 card-wrapper">
-              <NEmpty description="请先选择或创建数据集" class="h-full flex-center" />
+              <NEmpty :description="$t('ai.knowledge_detail.index.dataset.pleaseSelect')" class="h-full flex-center" />
             </NCard>
           </div>
         </NTabPane>
-        <NTabPane name="questions" tab="问题列表" class="h-full">
+        <NTabPane name="questions" :tab="$t('ai.knowledge_detail.index.tabs.questions')" class="h-full">
           <QuestionTable ref="questionTableRef" :kb-id="kbId" />
         </NTabPane>
       </NTabs>

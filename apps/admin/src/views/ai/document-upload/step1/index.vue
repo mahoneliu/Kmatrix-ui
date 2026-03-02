@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { NButton, NCard, NH5, NUpload, NUploadDragger, type UploadFileInfo, useMessage } from 'naive-ui';
+import { NAlert, NButton, NCard, NH5, NUpload, NUploadDragger, type UploadFileInfo, useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { uploadTempFiles } from '@/service/api/ai/knowledge';
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
@@ -23,7 +25,7 @@ const folderInputRef = ref<HTMLInputElement>();
 // 自定义上传处理
 async function handleUpload() {
   if (fileList.value.length === 0) {
-    message.warning('请先选择文件');
+    message.warning(t('ai.document_upload.step1.select_file_warning'));
     return;
   }
 
@@ -35,7 +37,7 @@ async function handleUpload() {
       .filter((file): file is File => file !== null && file !== undefined);
 
     if (files.length === 0) {
-      message.error('没有有效的文件');
+      message.error(t('ai.document_upload.step1.no_valid_files'));
       return;
     }
 
@@ -43,7 +45,7 @@ async function handleUpload() {
     const { data } = await uploadTempFiles(datasetId.value, files);
 
     if (!data || data.length === 0) {
-      message.error('上传失败,未返回临时文件信息');
+      message.error(t('ai.document_upload.step1.upload_failed_no_data'));
       return;
     }
 
@@ -57,7 +59,7 @@ async function handleUpload() {
       }
     });
   } catch (error: any) {
-    message.error(`文件上传失败: ${error.message || '未知错误'}`);
+    message.error(t('ai.document_upload.step1.upload_error', { error: error.message || '未知错误' }));
   } finally {
     uploading.value = false;
   }
@@ -97,7 +99,7 @@ function handleFolderSelect(event: Event) {
   // 清空input以允许重复选择同一文件夹
   target.value = '';
 
-  message.success(`已选择 ${files.length} 个文件`);
+  message.success(t('ai.document_upload.step1.files_selected_success', { count: files.length }));
 }
 
 // 格式化文件大小
@@ -120,13 +122,13 @@ function handleRemoveFile(fileId: string) {
       <template #header>
         <div class="flex items-center gap-2">
           <SvgIcon local-icon="carbon-document-add" class="text-2xl" />
-          <NH5 class="m-0">上传文件 - 选择文件</NH5>
+          <NH5 class="m-0">{{ $t('ai.document_upload.step1.title') }}</NH5>
         </div>
       </template>
       <NAlert type="info" class="mb-3" closable>
-        1、文件上传前，建议规范文件的分段标识
+        1、{{ $t('ai.document_upload.step1.tip1') }}
         <br />
-        2、每次最多上传 50 个文件, 每个文件不超过 100 MB
+        2、{{ $t('ai.document_upload.step1.tip2') }}
       </NAlert>
       <div class="space-y-6">
         <!-- 文件上传区域 -->
@@ -135,15 +137,15 @@ function handleRemoveFile(fileId: string) {
             <div class="flex flex-col items-center gap-2">
               <SvgIcon local-icon="mdi-cloud-upload-outline" class="text-4xl text-primary" />
               <div class="flex items-center gap-2">
-                <p class="text-normal font-normal">点击或拖拽文件到此处上传或</p>
+                <p class="text-normal font-normal">{{ $t('ai.document_upload.step1.upload_dragger_text') }}</p>
                 <NButton text type="primary" @click="handleFolderUploadClick">
                   <template #icon>
                     <SvgIcon local-icon="carbon-folder-add" />
                   </template>
-                  点击上传文件夹
+                  {{ $t('ai.document_upload.step1.upload_folder_btn') }}
                 </NButton>
               </div>
-              <p class="text-sm text-gray-500">支持 TXT, PDF, DOCX, MD 等常见格式</p>
+              <p class="text-sm text-gray-500">{{ $t('ai.document_upload.step1.upload_limit_tip') }}</p>
             </div>
           </NUploadDragger>
         </NUpload>
@@ -161,7 +163,9 @@ function handleRemoveFile(fileId: string) {
 
         <!-- 已选文件列表 -->
         <div v-if="fileList.length > 0" class="mt-4">
-          <div class="mb-2 text-sm font-medium">已选文件 ({{ fileList.length }})</div>
+          <div class="mb-2 text-sm font-medium">
+            {{ $t('ai.document_upload.step1.selected_files_count', { count: fileList.length }) }}
+          </div>
           <div class="max-h-60 overflow-y-auto space-y-2">
             <div
               v-for="file in fileList"
@@ -188,14 +192,14 @@ function handleRemoveFile(fileId: string) {
             <template #icon>
               <SvgIcon local-icon="carbon-arrow-left" />
             </template>
-            返回
+            {{ $t('common.back') }}
           </NButton>
 
           <NButton type="primary" :loading="uploading" :disabled="fileList.length === 0" @click="handleUpload">
             <template #icon>
               <SvgIcon local-icon="carbon-arrow-right" />
             </template>
-            下一步：预览分块
+            {{ $t('ai.document_upload.step1.next_step') }}
           </NButton>
         </div>
       </div>

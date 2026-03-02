@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 
 // 配置 markdown-it
 const md: MarkdownIt = new MarkdownIt({
@@ -32,7 +34,7 @@ const md: MarkdownIt = new MarkdownIt({
     if (lang && hljs.getLanguage(lang)) {
       try {
         const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-        return `<pre class="hljs-code-block"><div class="code-block-header"><span class="language-label">${lang}</span><button class="copy-btn" data-code="${encodeURIComponent(str)}">复制</button></div><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+        return `<pre class="hljs-code-block"><div class="code-block-header"><span class="language-label">${lang}</span><button class="copy-btn" data-code="${encodeURIComponent(str)}">${t('common.copy')}</button></div><code class="hljs language-${lang}">${highlighted}</code></pre>`;
       } catch {
         // failed to highlight
       }
@@ -70,7 +72,7 @@ function processCitationMarkers(html: string): string {
       const citation = props.citations?.find(c => c.index === index);
 
       if (citation) {
-        const docName = citation.documentName || '未知文档';
+        const docName = citation.documentName || t('ai.chat.unknown_document');
         const contentPreview = citation.content
           ? citation.content.substring(0, 100) + (citation.content.length > 100 ? '...' : '')
           : '';
@@ -121,9 +123,9 @@ function handleClick(event: MouseEvent) {
   if (target.classList.contains('copy-btn')) {
     const code = decodeURIComponent(target.getAttribute('data-code') || '');
     navigator.clipboard.writeText(code).then(() => {
-      target.textContent = '已复制';
+      target.textContent = t('common.copied');
       setTimeout(() => {
-        target.textContent = '复制';
+        target.textContent = t('common.copy');
       }, 2000);
     });
     return;

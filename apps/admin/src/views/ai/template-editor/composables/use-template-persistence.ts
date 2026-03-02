@@ -7,6 +7,7 @@ import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { useAutoSave } from '@/composables/ai/workflow/use-auto-save';
 import { graphToDsl } from '@/utils/ai/dsl-converter';
+import { $t } from '@/locales';
 
 /**
  * 模板工作流持久化 composable
@@ -31,7 +32,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
   // 加载模板工作流
   async function loadWorkflow() {
     if (!templateId.value) {
-      message.error('缺少模板 ID');
+      message.error($t('ai.workflow_template.missing_template_id'));
       return;
     }
 
@@ -40,7 +41,10 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       const res = await fetchTemplateDetail(templateId.value);
       if (res.data) {
         templateName.value = res.data.templateName || '';
-        workflowStore.setWorkflowInfo(res.data.templateName || '未命名模板', String(templateId.value));
+        workflowStore.setWorkflowInfo(
+          res.data.templateName || $t('ai.workflow_template.unnamed_template'),
+          String(templateId.value)
+        );
 
         // 设置初始最后保存时间
         const lastTime = res.data.updateTime || res.data.createTime;
@@ -65,10 +69,10 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
           initDefaultNodes();
         }
       } else {
-        message.error('模板数据不存在');
+        message.error($t('ai.workflow_template.template_not_exist'));
       }
     } catch {
-      message.error('加载模板失败');
+      message.error($t('ai.workflow_template.load_template_failed'));
     } finally {
       loading.value = false;
       // 延迟启用自动保存
@@ -89,7 +93,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       data: {
         id: 'start',
         nodeType: 'START' as Workflow.NodeType,
-        nodeLabel: '开始',
+        nodeLabel: $t('ai.workflow_node.start'),
         nodeColor: startNodeDef?.nodeColor || '#10b981',
         nodeIcon: startNodeDef?.nodeIcon,
         description: startNodeDef?.description,
@@ -106,7 +110,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       data: {
         id: 'end',
         nodeType: 'END' as Workflow.NodeType,
-        nodeLabel: '结束',
+        nodeLabel: $t('ai.workflow_node.end'),
         nodeColor: endNodeDef?.nodeColor || '#ef4444',
         nodeIcon: endNodeDef?.nodeIcon,
         description: endNodeDef?.description,
@@ -119,7 +123,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
   // 保存模板工作流（不做参数校验）
   async function handleSave(isAutoSave = false) {
     if (!templateId.value) {
-      message.error('缺少模板 ID');
+      message.error($t('ai.workflow_template.missing_template_id'));
       return false;
     }
 
@@ -151,7 +155,7 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
     };
 
     // 生成 DSL 数据
-    const dslData = graphToDsl(graphData, templateName.value || '未命名模板');
+    const dslData = graphToDsl(graphData, templateName.value || $t('ai.workflow_template.unnamed_template'));
 
     try {
       const { error } = await updateTemplate({
@@ -161,16 +165,16 @@ export function useTemplatePersistence(templateId: Ref<CommonType.IdType>) {
       });
 
       if (error) {
-        if (!isAutoSave) message.error('保存失败');
+        if (!isAutoSave) message.error($t('ai.workflow_template.save_failed'));
         workflowStore.markSaved(false);
         return false;
       }
 
-      if (!isAutoSave) message.success('保存成功');
+      if (!isAutoSave) message.success($t('ai.workflow_template.save_success'));
       workflowStore.markSaved(true);
       return true;
     } catch {
-      if (!isAutoSave) message.error('保存失败');
+      if (!isAutoSave) message.error($t('ai.workflow_template.save_failed'));
       workflowStore.markSaved(false);
       return false;
     }

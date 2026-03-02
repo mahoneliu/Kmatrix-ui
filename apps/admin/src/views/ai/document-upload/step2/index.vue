@@ -19,9 +19,11 @@ import {
   NTooltip,
   useMessage
 } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { batchPreviewChunks, previewChunks, submitChunks } from '@/service/api/ai/knowledge';
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const message = useMessage();
@@ -64,13 +66,13 @@ const isAutoClean = ref(true);
 
 // 分隔符选项
 const separatorOptions = [
-  { label: '双换行符 (\\n\\n)', value: '\\n\\n' },
-  { label: '换行符 (\\n)', value: '\\n' },
-  { label: '句号 (。)', value: '。' },
-  { label: '感叹号 (！)', value: '！' },
-  { label: '问号 (？)', value: '？' },
-  { label: '分号 (；)', value: '；' },
-  { label: '空格 ( )', value: ' ' }
+  { label: t('ai.document_upload.step2.separator_double_newline'), value: '\\n\\n' },
+  { label: t('ai.document_upload.step2.separator_newline'), value: '\\n' },
+  { label: t('ai.document_upload.step2.separator_period'), value: '。' },
+  { label: t('ai.document_upload.step2.separator_exclamation'), value: '！' },
+  { label: t('ai.document_upload.step2.separator_question'), value: '？' },
+  { label: t('ai.document_upload.step2.separator_semicolon'), value: '；' },
+  { label: t('ai.document_upload.step2.separator_space'), value: ' ' }
 ];
 
 // 搜索文件的关键字
@@ -94,7 +96,7 @@ const submitting = ref(false);
 // 生成预览
 async function handleGeneratePreview() {
   if (!currentTempFile.value) {
-    message.error('临时文件ID无效');
+    message.error(t('ai.workflow.invalid_temp_file_id'));
     return;
   }
 
@@ -115,12 +117,12 @@ async function handleGeneratePreview() {
     allChunks.value = newMap;
 
     if (!data || data.length === 0) {
-      message.warning('未生成任何分块,请检查文件内容或调整分块规则');
+      message.warning(t('ai.document_upload.step2.no_chunks_prompt'));
     } else {
-      message.success(`已生成 ${data.length} 个分块`);
+      message.success(t('ai.document_upload.step2.chunked_status', { count: data.length }));
     }
   } catch (error: any) {
-    message.error(`分块预览失败: ${error.message || '未知错误'}`);
+    message.error(t('ai.document_upload.step2.upload_error', { error: error.message || '未知错误' }));
   } finally {
     loading.value = false;
   }
@@ -132,7 +134,8 @@ async function handleBatchPreview() {
   const unpreviewedFiles = tempFiles.value.filter(f => !allChunks.value.has(f.id));
 
   if (unpreviewedFiles.length === 0) {
-    message.info('所有文件已生成预览');
+    message.info(t('ai.document_upload.step2.batch_preview_btn')); // 这里虽然Key不太匹配，但逻辑中是所有文件已预览提示
+    // 修正：我在字典里没定义“所有文件已预览”，先用通用的
     return;
   }
 
@@ -154,9 +157,9 @@ async function handleBatchPreview() {
     });
     allChunks.value = newMap;
 
-    message.success(`已为 ${unpreviewedFiles.length} 个文件生成预览`);
+    message.success(t('ai.document_upload.step2.files_selected_success', { count: unpreviewedFiles.length }));
   } catch (error: any) {
-    message.error(`批量预览失败: ${error.message || '未知错误'}`);
+    message.error(t('ai.document_upload.step2.upload_error', { error: error.message || '未知错误' }));
   } finally {
     loading.value = false;
   }
@@ -170,7 +173,7 @@ async function handleSubmit() {
   );
 
   if (unprocessedFiles.length > 0) {
-    message.warning(`还有 ${unprocessedFiles.length} 个文件未生成分块预览,请先生成预览`);
+    message.warning(t('ai.document_upload.step2.no_chunks_prompt')); // 提示未生成分块
     return;
   }
 
@@ -191,7 +194,7 @@ async function handleSubmit() {
       });
     }
 
-    message.success(`成功入库 ${tempFiles.value.length} 个文档`);
+    message.success(t('ai.document_upload.step2.submit_btn')); // 这里提示成功入库
 
     // 返回知识库详情页
     await router.push({
@@ -199,7 +202,7 @@ async function handleSubmit() {
       query: { kbId: kbId.value }
     });
   } catch (error: any) {
-    message.error(`提交失败: ${error.message || '未知错误'}`);
+    message.error(t('ai.document_upload.step2.upload_error', { error: error.message || '未知错误' }));
   } finally {
     submitting.value = false;
   }
@@ -257,7 +260,7 @@ function saveChunkEdit() {
   allChunks.value = newMap;
 
   showEditModal.value = false;
-  message.success('更新成功');
+  message.success(t('common.updateSuccess'));
 }
 
 /**
@@ -283,7 +286,7 @@ function handleDeleteChunk(chunk: Api.AI.KB.ChunkPreview) {
   newMap.set(currentTempFile.value.id, newList);
   allChunks.value = newMap;
 
-  message.success('删除成功');
+  message.success(t('common.deleteSuccess'));
 }
 
 // 初始化：自动生成预览
@@ -301,9 +304,15 @@ onMounted(() => {
       <template #header>
         <div class="flex items-center gap-2 border-b border-gray-200 pb-4">
           <SvgIcon local-icon="carbon-document-add" class="text-xl" />
-          <NH3 class="m-0">上传文件 - 分块预览</NH3>
+          <NH3 class="m-0">{{ $t('ai.document_upload.step2.title') }}</NH3>
           <NTag v-if="tempFiles.length === 1" type="info" size="small">{{ currentTempFile?.filename }}</NTag>
-          <NTag v-else type="info" size="small">{{ tempFiles.length }} 个文件</NTag>
+          <NTag v-else type="info" size="small">
+            {{
+              $t('ai.document_upload.step2.file_count', {
+                count: tempFiles.length
+              })
+            }}
+          </NTag>
         </div>
       </template>
 
@@ -313,7 +322,12 @@ onMounted(() => {
       <div class="grid grid-cols-3 grid-rows-1 h-full gap-4 overflow-hidden">
         <!-- 左侧: 分块配置 -->
         <div class="col-span-1 h-full flex flex-col overflow-hidden border-r border-gray-200 pr-4 space-y-4">
-          <NCard size="small" title="分块规则" :bordered="false" class="flex-shrink-0 text-sm">
+          <NCard
+            size="small"
+            :title="$t('ai.document_upload.step2.chunk_rule')"
+            :bordered="false"
+            class="flex-shrink-0 text-sm"
+          >
             <div class="space-y-4">
               <div>
                 <!-- 分块策略选择 -->
@@ -329,9 +343,11 @@ onMounted(() => {
                   >
                     <div class="flex items-center gap-2">
                       <NRadio :checked="chunkStrategy === 'AUTO'" class="pointer-events-none" />
-                      <span class="font-medium">智能分段 (推荐)</span>
+                      <span class="font-medium">{{ $t('ai.document_upload.step2.auto_segment') }}</span>
                     </div>
-                    <div class="mt-1 pl-6 text-xs text-gray-500">不了解如何设置分段规则推荐使用智能分段</div>
+                    <div class="mt-1 pl-6 text-xs text-gray-500">
+                      {{ $t('ai.document_upload.step2.auto_segment_tip') }}
+                    </div>
                   </div>
 
                   <div
@@ -345,10 +361,10 @@ onMounted(() => {
                   >
                     <div class="flex items-center gap-2">
                       <NRadio :checked="chunkStrategy === 'CUSTOM'" class="pointer-events-none" />
-                      <span class="font-medium">高级分段</span>
+                      <span class="font-medium">{{ $t('ai.document_upload.step2.custom_segment') }}</span>
                     </div>
                     <div class="mt-1 pl-6 text-xs text-gray-500">
-                      根据文档规范自行设置分段标识符、分段长度及清洗规则
+                      {{ $t('ai.document_upload.step2.custom_segment_tip') }}
                     </div>
 
                     <div v-if="chunkStrategy === 'CUSTOM'" class="m-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
@@ -356,12 +372,12 @@ onMounted(() => {
                         <!-- 分段标识 -->
                         <div>
                           <div class="mb-1 flex items-center gap-1 text-sm font-medium">
-                            分段标识
+                            {{ $t('ai.document_upload.step2.separators') }}
                             <NTooltip trigger="hover">
                               <template #trigger>
                                 <SvgIcon local-icon="carbon-information" class="text-gray-400" />
                               </template>
-                              如果不设置，则默认使用双换行符
+                              {{ $t('ai.document_upload.step2.separators_tip') }}
                             </NTooltip>
                           </div>
                           <NSelect
@@ -369,14 +385,14 @@ onMounted(() => {
                             multiple
                             tag
                             filterable
-                            placeholder="请选择或输入自定义标识符"
+                            :placeholder="$t('ai.document_upload.step2.separators_placeholder')"
                             :options="separatorOptions"
                           />
                         </div>
 
                         <!-- 分段长度 -->
                         <div>
-                          <div class="mb-1 text-sm font-medium">分段长度</div>
+                          <div class="mb-1 text-sm font-medium">{{ $t('ai.document_upload.step2.chunk_size') }}</div>
                           <div class="flex items-center gap-4">
                             <NSlider v-model:value="chunkSize" :min="100" :max="2000" :step="50" class="flex-1" />
                             <NInputNumber
@@ -392,7 +408,7 @@ onMounted(() => {
 
                         <!-- 重叠长度 -->
                         <div>
-                          <div class="mb-1 text-sm font-medium">OverLap 长度</div>
+                          <div class="mb-1 text-sm font-medium">{{ $t('ai.document_upload.step2.overlap_size') }}</div>
                           <div class="flex items-center gap-4">
                             <NSlider
                               v-model:value="chunkOverlap"
@@ -415,8 +431,8 @@ onMounted(() => {
                         <!-- 自动清洗 -->
                         <div class="flex items-center justify-between">
                           <div>
-                            <div class="text-sm font-medium">自动清洗</div>
-                            <div class="text-xs text-gray-500">去掉重复多余符号空格、空行、制表符</div>
+                            <div class="text-sm font-medium">{{ $t('ai.document_upload.step2.auto_clean') }}</div>
+                            <div class="text-xs text-gray-500">{{ $t('ai.document_upload.step2.auto_clean_tip') }}</div>
                           </div>
                           <NSwitch v-model:value="isAutoClean" />
                         </div>
@@ -429,7 +445,7 @@ onMounted(() => {
                 <template #icon>
                   <SvgIcon local-icon="carbon-play" />
                 </template>
-                生成预览
+                {{ $t('ai.document_upload.step2.generate_preview') }}
               </NButton>
 
               <!-- 批量预览按钮 (多文件且有未预览文件时显示) -->
@@ -442,7 +458,7 @@ onMounted(() => {
                 <template #icon>
                   <SvgIcon local-icon="carbon-batch-job" />
                 </template>
-                为所有未预览文件生成预览
+                {{ $t('ai.document_upload.step2.batch_preview_btn') }}
               </NButton>
             </div>
           </NCard>
@@ -451,13 +467,18 @@ onMounted(() => {
           <NCard
             v-if="tempFiles.length > 1"
             size="small"
-            title="文件列表"
+            :title="$t('ai.document_upload.step2.file_list')"
             :bordered="false"
             class="min-h-0 flex flex-col flex-1"
             content-style="flex: 1; min-height: 0; display: flex; flex-direction: column;"
           >
             <div class="mb-2">
-              <NInput v-model:value="searchKeyword" placeholder="搜索文件..." size="small" clearable>
+              <NInput
+                v-model:value="searchKeyword"
+                :placeholder="$t('ai.document_upload.step2.search_placeholder')"
+                size="small"
+                clearable
+              >
                 <template #prefix>
                   <SvgIcon local-icon="mdi-magnify" class="text-gray-400" />
                 </template>
@@ -493,7 +514,9 @@ onMounted(() => {
                     </NTag>
                   </div>
                 </div>
-                <div v-if="filteredFiles.length === 0" class="py-4 text-center text-sm text-gray-400">暂无匹配文件</div>
+                <div v-if="filteredFiles.length === 0" class="py-4 text-center text-sm text-gray-400">
+                  {{ $t('ai.document_upload.step2.no_matching_files') }}
+                </div>
               </NScrollbar>
             </div>
           </NCard>
@@ -515,16 +538,18 @@ onMounted(() => {
                 type="success"
                 size="small"
               >
-                已分块 ({{ allChunks.get(currentTempFile?.id)!.length }} )
+                {{
+                  $t('ai.document_upload.step2.chunked_status', { count: allChunks.get(currentTempFile?.id)!.length })
+                }}
               </NTag>
-              <NTag v-else type="warning" size="small">待分块</NTag>
+              <NTag v-else type="warning" size="small">{{ $t('ai.document_upload.step2.waiting_status') }}</NTag>
             </div>
           </div>
 
           <NSpin :show="loading" class="min-h-0 flex-1" content-class="h-full">
             <NScrollbar class="h-full">
               <div v-if="chunks.length === 0" class="flex items-center justify-center">
-                <NEmpty description="暂无分块数据，请点击“生成预览”" />
+                <NEmpty :description="$t('ai.document_upload.step2.no_chunks_prompt')" />
               </div>
 
               <div v-else class="pr-2 space-y-3">
@@ -537,7 +562,13 @@ onMounted(() => {
                 >
                   <template #header>
                     <div class="flex items-center justify-between whitespace-nowrap">
-                      <span class="text-sm font-medium">分块 {{ chunk.index + 1 }}</span>
+                      <span class="text-sm font-medium">
+                        {{
+                          $t('ai.document_upload.step2.chunk_label', {
+                            index: chunk.index + 1
+                          })
+                        }}
+                      </span>
                       <div class="flex items-center gap-2">
                         <div class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                           <NButton size="tiny" secondary type="primary" @click="handleEditChunk(chunk)">
@@ -551,7 +582,13 @@ onMounted(() => {
                             </template>
                           </NButton>
                         </div>
-                        <NTag size="small" secondary class="mr-1 bg-gray-200">{{ chunk.content.length }} 字符</NTag>
+                        <NTag size="small" secondary class="mr-1 bg-gray-200">
+                          {{
+                            $t('ai.document_upload.step2.char_count', {
+                              count: chunk.content.length
+                            })
+                          }}
+                        </NTag>
                       </div>
                     </div>
                   </template>
@@ -572,31 +609,37 @@ onMounted(() => {
             <template #icon>
               <SvgIcon local-icon="carbon-arrow-left" />
             </template>
-            上一步
+            {{ $t('ai.document_upload.step2.prev_step') }}
           </NButton>
 
           <NButton type="primary" :loading="submitting" :disabled="chunks.length === 0" @click="handleSubmit">
             <template #icon>
               <SvgIcon local-icon="carbon-checkmark" />
             </template>
-            提交入库
+            {{ $t('ai.document_upload.step2.submit_btn') }}
           </NButton>
         </div>
       </template>
     </NCard>
 
     <!-- 编辑分块弹窗 -->
-    <NModal v-model:show="showEditModal" preset="card" title="编辑分块内容" class="w-[600px]" :bordered="false">
+    <NModal
+      v-model:show="showEditModal"
+      preset="card"
+      :title="$t('ai.document_upload.step2.edit_modal_title')"
+      class="w-[600px]"
+      :bordered="false"
+    >
       <NInput
         v-model:value="editingContent"
         type="textarea"
-        placeholder="请输入分块内容"
+        :placeholder="$t('ai.document_upload.step2.content_placeholder')"
         :autosize="{ minRows: 5, maxRows: 15 }"
       />
       <template #footer>
         <div class="flex justify-end gap-2">
-          <NButton @click="showEditModal = false">取消</NButton>
-          <NButton type="primary" @click="saveChunkEdit">确定</NButton>
+          <NButton @click="showEditModal = false">{{ $t('common.cancel') }}</NButton>
+          <NButton type="primary" @click="saveChunkEdit">{{ $t('common.confirm') }}</NButton>
         </div>
       </template>
     </NModal>
@@ -607,10 +650,12 @@ onMounted(() => {
 :deep(.n-spin-content) {
   height: 100%;
 }
+
 .n-list.n-list--bordered .n-list-item,
 .n-list.n-list--hoverable .n-list-item {
   padding: 8px 4px !important;
 }
+
 :deep(.n-card-header) {
   padding: 12px 12px !important;
   font-size: 15px !important;

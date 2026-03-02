@@ -27,6 +27,7 @@ import {
   fetchDatasetsByKbId,
   searchKnowledge
 } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 
 interface Props {
   visible: boolean;
@@ -69,7 +70,7 @@ function handleViewDetail(item: Api.AI.KB.RetrievalResult) {
 // 下载文档
 async function handleDownload(item: Api.AI.KB.RetrievalResult) {
   if (!item.documentId) {
-    window.$message?.warning('无法下载：缺少文档ID');
+    window.$message?.warning($t('ai.knowledge_manager.sandbox.noDocIdError'));
     return;
   }
   try {
@@ -90,7 +91,7 @@ async function handleDownload(item: Api.AI.KB.RetrievalResult) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch {
-    window.$message?.error('下载失败');
+    window.$message?.error($t('ai.knowledge_manager.sandbox.downloadError'));
   }
 }
 
@@ -115,9 +116,9 @@ const datasetOptions = computed(() =>
 );
 
 const modeOptions = [
-  { label: '向量', value: 'VECTOR' },
-  { label: '关键词', value: 'KEYWORD' },
-  { label: '混合', value: 'HYBRID' }
+  { label: $t('ai.knowledge_manager.sandbox.modeVector'), value: 'VECTOR' },
+  { label: $t('ai.knowledge_manager.sandbox.modeKeyword'), value: 'KEYWORD' },
+  { label: $t('ai.knowledge_manager.sandbox.modeHybrid'), value: 'HYBRID' }
 ];
 
 // 加载知识库列表
@@ -201,9 +202,9 @@ function getScoreType(score: number): 'success' | 'warning' | 'error' {
 // 获取来源类型标签
 function getSourceTypeLabel(type: string): string {
   const map: Record<string, string> = {
-    CONTENT: '命中全文',
-    TITLE: '命中标题',
-    QUESTION: '命中问题'
+    CONTENT: $t('ai.knowledge_manager.sandbox.hitContent'),
+    TITLE: $t('ai.knowledge_manager.sandbox.hitTitle'),
+    QUESTION: $t('ai.knowledge_manager.sandbox.hitQuestion')
   };
   return map[type] || type;
 }
@@ -261,13 +262,19 @@ function handleReset() {
 </script>
 
 <template>
-  <NModal v-model:show="showModal" :mask-closable="false" preset="card" title="检索测试沙箱" class="w-220">
+  <NModal
+    v-model:show="showModal"
+    :mask-closable="false"
+    preset="card"
+    :title="$t('ai.knowledge_manager.sandbox.title')"
+    class="w-220"
+  >
     <template #header-extra>
       <NButton tertiary size="small" @click="handleReset">
         <template #icon>
           <SvgIcon local-icon="mdi-refresh" />
         </template>
-        重置
+        {{ $t('ai.knowledge_manager.sandbox.reset') }}
       </NButton>
     </template>
 
@@ -276,7 +283,7 @@ function handleReset() {
       <div class="flex items-center gap-3">
         <NInput
           v-model:value="query"
-          placeholder="输入测试问题..."
+          :placeholder="$t('ai.knowledge_manager.sandbox.searchPlaceholder')"
           clearable
           class="flex-1"
           @keyup.enter="handleSearch"
@@ -289,7 +296,7 @@ function handleReset() {
           <template #icon>
             <SvgIcon local-icon="mdi-send" />
           </template>
-          检索
+          {{ $t('ai.knowledge_manager.sandbox.search') }}
         </NButton>
       </div>
 
@@ -298,37 +305,37 @@ function handleReset() {
         <template #arrow>
           <SvgIcon local-icon="mdi-chevron-right" />
         </template>
-        <NCollapseItem title="检索配置" name="config">
+        <NCollapseItem :title="$t('ai.knowledge_manager.sandbox.config')" name="config">
           <div class="grid grid-cols-2 gap-4">
             <!-- 知识库选择 -->
             <div>
-              <div class="mb-1 text-sm text-gray-500">知识库</div>
+              <div class="mb-1 text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.knowledgeBase') }}</div>
               <NSelect
                 v-model:value="selectedKbIds"
                 :options="kbOptions"
                 multiple
                 clearable
-                placeholder="选择知识库 (可多选)"
+                :placeholder="$t('ai.knowledge_manager.sandbox.kbPlaceholder')"
                 :disabled="fixedKb"
               />
             </div>
 
             <!-- 数据集选择 -->
             <div>
-              <div class="mb-1 text-sm text-gray-500">数据集</div>
+              <div class="mb-1 text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.dataset') }}</div>
               <NSelect
                 v-model:value="selectedDatasetIds"
                 :options="datasetOptions"
                 multiple
                 clearable
-                placeholder="选择数据集 (可多选)"
+                :placeholder="$t('ai.knowledge_manager.sandbox.datasetPlaceholder')"
                 :disabled="datasets.length === 0"
               />
             </div>
 
             <!-- TopK -->
             <div>
-              <div class="mb-1 text-sm text-gray-500">返回数量 (TopK)</div>
+              <div class="mb-1 text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.topK') }}</div>
               <div class="flex items-center gap-2">
                 <NSlider v-model:value="topK" :min="1" :max="20" :step="1" class="flex-1" />
                 <NInputNumber v-model:value="topK" :min="1" :max="20" size="small" class="w-20" />
@@ -337,7 +344,7 @@ function handleReset() {
 
             <!-- 阈值 -->
             <div>
-              <div class="mb-1 text-sm text-gray-500">相似度阈值</div>
+              <div class="mb-1 text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.threshold') }}</div>
               <div class="flex items-center gap-2">
                 <NSlider v-model:value="threshold" :min="0" :max="1" :step="0.05" class="flex-1" />
                 <NInputNumber v-model:value="threshold" :min="0" :max="1" :step="0.05" size="small" class="w-20" />
@@ -346,7 +353,7 @@ function handleReset() {
 
             <!-- 检索模式 -->
             <div>
-              <div class="mb-1 text-sm text-gray-500">检索模式</div>
+              <div class="mb-1 text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.mode') }}</div>
               <NRadioGroup v-model:value="mode" size="small">
                 <NRadioButton v-for="opt in modeOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
@@ -357,12 +364,12 @@ function handleReset() {
             <!-- Rerank -->
             <div>
               <div class="text-sm text-gray-500">
-                启用 Rerank
+                {{ $t('ai.knowledge_manager.sandbox.enableRerank') }}
                 <NTooltip>
                   <template #trigger>
                     <SvgIcon local-icon="mdi-help-circle-outline" class="cursor-help text-gray-400" />
                   </template>
-                  使用重排序模型对结果进行二次排序，提高准确性
+                  {{ $t('ai.knowledge_manager.sandbox.rerankTooltip') }}
                 </NTooltip>
               </div>
               <NSwitch v-model:value="enableRerank" />
@@ -370,13 +377,13 @@ function handleReset() {
 
             <!-- Highlight (only for KEYWORD mode) -->
             <div v-if="mode === 'KEYWORD'" class="flex items-center gap-2">
-              <div class="text-sm text-gray-500">启用高亮</div>
+              <div class="text-sm text-gray-500">{{ $t('ai.knowledge_manager.sandbox.enableHighlight') }}</div>
               <NSwitch v-model:value="enableHighlight" />
               <NTooltip>
                 <template #trigger>
                   <SvgIcon local-icon="mdi-help-circle-outline" class="cursor-help text-gray-400" />
                 </template>
-                在检索结果中高亮显示匹配的关键词
+                {{ $t('ai.knowledge_manager.sandbox.highlightTooltip') }}
               </NTooltip>
             </div>
           </div>
@@ -388,8 +395,10 @@ function handleReset() {
         <template #header>
           <div class="flex items-center gap-2">
             <SvgIcon local-icon="mdi-format-list-bulleted" />
-            <span>检索结果</span>
-            <NTag v-if="searched" size="small" :bordered="false">{{ results.length }} 条</NTag>
+            <span>{{ $t('ai.knowledge_manager.sandbox.resultTitle') }}</span>
+            <NTag v-if="searched" size="small" :bordered="false">
+              {{ $t('ai.knowledge_manager.sandbox.items').replace('{count}', results.length.toString()) }}
+            </NTag>
           </div>
         </template>
 
@@ -463,7 +472,9 @@ function handleReset() {
                     <div class="mb-1 mt-2 flex items-center justify-between">
                       <div class="group flex items-center gap-2">
                         <SvgIcon local-icon="mdi-file-document-outline" class="text-gray-300" />
-                        <NText class="text-xs font-medium">{{ item.documentName || '未知文档' }}</NText>
+                        <NText class="text-xs font-medium">
+                          {{ item.documentName || $t('ai.knowledge_manager.sandbox.unknownDoc') }}
+                        </NText>
                         <NTooltip trigger="hover">
                           <template #trigger>
                             <SvgIcon
@@ -472,7 +483,7 @@ function handleReset() {
                               @click.stop="handleDownload(item)"
                             />
                           </template>
-                          下载原文件
+                          {{ $t('ai.knowledge_manager.sandbox.downloadFile') }}
                         </NTooltip>
                       </div>
 
@@ -486,7 +497,7 @@ function handleReset() {
                     >
                       <div class="mb-1 flex items-center gap-1 text-xs text-gray-500">
                         <SvgIcon local-icon="mdi-help-circle-outline" class="text-primary" />
-                        <span>匹配关联问题:</span>
+                        <span>{{ $t('ai.knowledge_manager.sandbox.matchedQuestions') }}</span>
                       </div>
                       <div class="flex flex-col gap-1">
                         <div
@@ -504,8 +515,8 @@ function handleReset() {
               </NCard>
             </div>
 
-            <NEmpty v-else-if="searched && !loading" description="未找到匹配结果，请调整查询或参数" />
-            <NEmpty v-else description="输入问题并点击检索" />
+            <NEmpty v-else-if="searched && !loading" :description="$t('ai.knowledge_manager.sandbox.noResult')" />
+            <NEmpty v-else :description="$t('ai.knowledge_manager.sandbox.emptyInput')" />
           </NScrollbar>
         </NSpin>
       </NCard>
@@ -517,12 +528,12 @@ function handleReset() {
     v-model:show="showDetailModal"
     class="w-600px"
     preset="card"
-    :title="currentDetail?.documentName || '片段详情'"
+    :title="currentDetail?.documentName || $t('ai.knowledge_manager.sandbox.detailTitle')"
   >
     <div v-if="currentDetail" class="max-h-60vh overflow-y-auto">
       <div class="mb-4 flex flex-wrap gap-2">
         <NTag v-if="currentDetail.score" type="success" size="small">
-          相似度: {{ formatScore(currentDetail.score) }}
+          {{ $t('ai.knowledge_manager.sandbox.similarity').replace('{score}', formatScore(currentDetail.score)) }}
         </NTag>
         <NTag v-if="currentDetail.rerankScore" type="info" size="small">
           Rerank: {{ formatScore(currentDetail.rerankScore) }}

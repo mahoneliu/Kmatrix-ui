@@ -18,11 +18,13 @@ import {
   useDialog,
   useMessage
 } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { deleteApp, fetchAppList } from '@/service/api/ai/app';
 import AppOperateModal from './modules/app-operate-modal.vue';
 import TemplateSelectModal from './modules/template-select-modal.vue';
 
+const { t } = useI18n();
 const router = useRouter();
 const message = useMessage();
 const dialog = useDialog();
@@ -67,14 +69,14 @@ async function handleDelete(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   const appId = item.appId;
   dialog.warning({
-    title: '确认删除',
-    content: `确定要删除应用「${item.appName}」吗？此操作不可恢复。`,
-    positiveText: '删除',
-    negativeText: '取消',
+    title: t('ai.app_manager.confirm_delete_title'),
+    content: t('ai.app_manager.confirm_delete_content', { name: item.appName }),
+    positiveText: t('common.delete'),
+    negativeText: t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await deleteApp([appId]);
       if (!error) {
-        message.success('删除成功');
+        message.success(t('common.deleteSuccess'));
         getData();
       }
     }
@@ -136,17 +138,25 @@ function getDropdownOptions(item: Api.AI.Admin.App) {
   const options: DropdownOption[] = [];
 
   if (item.appType === '2' || (item.sourceTemplateId && item.sourceTemplateScope !== '0')) {
-    options.push({ label: '工作流配置', key: 'settings', icon: () => h(SvgIcon, { localIcon: 'carbon-settings' }) });
+    options.push({
+      label: t('ai.app_manager.workflow_config'),
+      key: 'settings',
+      icon: () => h(SvgIcon, { localIcon: 'carbon-settings' })
+    });
   }
 
   if (item.status === '1') {
-    options.push({ label: '去对话', key: 'chat', icon: () => h(SvgIcon, { localIcon: 'carbon-chat' }) });
+    options.push({
+      label: t('ai.app_manager.go_to_chat'),
+      key: 'chat',
+      icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
+    });
   }
 
   options.push(
     { type: 'divider', key: 'd1' },
     {
-      label: '删除',
+      label: t('common.delete'),
       key: 'delete',
       icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can', class: 'text-error' }),
       labelProps: { class: 'text-error' }
@@ -166,19 +176,19 @@ onMounted(() => {
     <!-- 可折叠的搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
-        <NCollapseItem title="搜索" name="search">
+        <NCollapseItem :title="$t('common.search')" name="search">
           <NSpace>
             <NInput
               v-model:value="searchParams.appName"
               clearable
-              placeholder="请输入应用名称"
+              :placeholder="$t('ai.app_manager.search_placeholder')"
               @keyup.enter="getData"
             />
             <NButton type="primary" @click="getData">
               <template #icon>
                 <icon-ic-round-search />
               </template>
-              搜索
+              {{ $t('common.search') }}
             </NButton>
           </NSpace>
         </NCollapseItem>
@@ -189,16 +199,24 @@ onMounted(() => {
     <NCard
       :bordered="false"
       size="small"
-      title="应用列表"
+      :title="$t('ai.app_manager.title')"
       class="flex-1 card-wrapper"
       content-class="flex flex-col h-full overflow-hidden"
     >
       <template #header-extra>
         <NDropdown
           :options="[
-            { label: '自定义工作流', key: '2', icon: () => h(SvgIcon, { localIcon: 'carbon-flow' }) },
+            {
+              label: $t('ai.app_manager.custom_workflow'),
+              key: '2',
+              icon: () => h(SvgIcon, { localIcon: 'carbon-flow' })
+            },
             { type: 'divider', key: 'd1' },
-            { label: '从模板创建', key: '1', icon: () => h(SvgIcon, { localIcon: 'carbon-chat' }) }
+            {
+              label: $t('ai.app_manager.create_from_template'),
+              key: '1',
+              icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
+            }
           ]"
           trigger="click"
           @select="key => handleAdd(key as '1' | '2')"
@@ -207,7 +225,7 @@ onMounted(() => {
             <template #icon>
               <SvgIcon local-icon="carbon-add" />
             </template>
-            新建应用
+            {{ $t('ai.app_manager.create_app') }}
           </NButton>
         </NDropdown>
       </template>
@@ -225,7 +243,9 @@ onMounted(() => {
               <!-- 右上角应用类型标签 -->
               <div class="absolute right-3 top-3 z-10">
                 <NTag :bordered="false" :type="item.appType === '2' ? 'success' : 'info'" size="small">
-                  {{ item.appType === '2' ? '自定义工作流' : '固定模板' }}
+                  {{
+                    item.appType === '2' ? $t('ai.app_manager.custom_workflow') : $t('ai.app_manager.fixed_template')
+                  }}
                 </NTag>
               </div>
 
@@ -237,13 +257,13 @@ onMounted(() => {
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="truncate text-base font-bold">{{ item.appName }}</div>
-                    <div class="text-xs text-gray-400">创建者: {{ item.createByName }}</div>
+                    <div class="text-xs text-gray-400">{{ $t('ai.app_manager.creator') }}: {{ item.createByName }}</div>
                   </div>
                 </div>
               </template>
 
               <div class="line-clamp-2 mb-8 min-h-14 text-sm text-gray-500">
-                {{ item.description || '暂无描述' }}
+                {{ item.description || $t('ai.app_manager.no_description') }}
               </div>
 
               <!-- 左下角状态和时间 -->
@@ -254,7 +274,11 @@ onMounted(() => {
                     :class="item.status === '1' ? 'text-success' : ''"
                   />
                   <span :class="item.status === '1' ? 'text-success' : 'text-warning'">
-                    {{ item.status === '1' ? '已发布' : '未发布' }}
+                    {{
+                      item.status === '1'
+                        ? $t('ai.app_manager.status_published')
+                        : $t('ai.app_manager.status_unpublished')
+                    }}
                   </span>
                 </div>
                 <span class="text-gray-400">|</span>

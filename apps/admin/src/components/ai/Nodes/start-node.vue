@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import ParamTag from './add-in/param-tag.vue';
 import BaseNode from './base-node.vue';
 
@@ -20,10 +21,10 @@ const globalParams = ref<Workflow.ParamDefinition[]>();
 
 onMounted(() => {
   globalParams.value = [
-    { key: 'userId', label: '用户ID', type: 'string', required: true },
-    { key: 'userName', label: '用户名称', type: 'string', required: true },
-    { key: 'sessionId', label: '会话ID', type: 'string', required: true },
-    { key: 'historyContext', label: '历史上下文', type: 'array', required: true }
+    { key: 'userId', label: $t('ai.workflow_node.user_id'), type: 'string', required: true },
+    { key: 'userName', label: $t('ai.workflow_node.user_name'), type: 'string', required: true },
+    { key: 'sessionId', label: $t('ai.workflow_node.session_id'), type: 'string', required: true },
+    { key: 'historyContext', label: $t('ai.workflow_node.history_context'), type: 'array', required: true }
     // ,
     // ...(appInfoConfig.value?.globalParams || [])
   ];
@@ -50,7 +51,7 @@ const hasAnyParams = computed(
   <BaseNode v-bind="props" :data="data">
     <div class="w-60">
       <NCollapse :default-expanded-names="['globalParams']">
-        <NCollapseItem title="全局参数" name="globalParams">
+        <NCollapseItem :title="$t('ai.workflow_node.global_params')" name="globalParams">
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="text-4 c-gray-5" />
           </template>
@@ -67,14 +68,14 @@ const hasAnyParams = computed(
           </div>
         </NCollapseItem>
 
-        <NCollapseItem v-if="hasAnyParams" title="自定义参数" name="params">
+        <NCollapseItem v-if="hasAnyParams" :title="$t('ai.workflow_node.custom_parameters')" name="params">
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="text-4 c-gray-5" />
           </template>
           <div class="flex flex-col gap-3">
             <!-- 应用参数 -->
             <div v-if="appParams.length > 0" class="workflow-config-item-section">
-              <div class="text-11px c-gray-5 font-600">应用参数</div>
+              <div class="text-11px c-gray-5 font-600">{{ $t('ai.workflow_node.app_params') }}</div>
               <div class="min-w-full w-0 flex flex-wrap gap-1.5">
                 <ParamTag v-for="param in appParams" :key="param.key" :param="param" source-type="app" />
               </div>
@@ -82,7 +83,7 @@ const hasAnyParams = computed(
 
             <!-- 接口参数 -->
             <div v-if="interfaceParams.length > 0" class="workflow-config-item-section">
-              <div class="text-11px c-gray-5 font-600">接口参数</div>
+              <div class="text-11px c-gray-5 font-600">{{ $t('ai.workflow_node.interface_params') }}</div>
               <div class="flex flex-wrap gap-1.5">
                 <ParamTag v-for="param in interfaceParams" :key="param.key" :param="param" source-type="interface" />
               </div>
@@ -90,7 +91,7 @@ const hasAnyParams = computed(
 
             <!-- 会话参数 -->
             <div v-if="sessionParams.length > 0" class="workflow-config-item-section">
-              <div class="text-11px c-gray-5 font-600">会话参数</div>
+              <div class="text-11px c-gray-5 font-600">{{ $t('ai.workflow_node.session_params') }}</div>
               <div class="flex flex-wrap gap-1.5">
                 <ParamTag v-for="param in sessionParams" :key="param.key" :param="param" source-type="session" />
               </div>

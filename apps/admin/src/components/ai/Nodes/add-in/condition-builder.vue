@@ -9,6 +9,7 @@
 import { defineAsyncComponent } from 'vue';
 import { NButton, NInput, NSelect } from 'naive-ui';
 import { COMPARISON_OPERATOR_OPTIONS, LOGICAL_OPERATOR_OPTIONS, UNARY_OPERATORS } from '@/constants/workflow';
+import { $t } from '@/locales';
 
 const ParamSelector = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/param-selector.vue'));
 
@@ -120,7 +121,7 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
       </NButton>
       <NButton size="tiny" secondary @click="addNestedGroup">
         <template #icon><SvgIcon local-icon="mdi-folder-plus" /></template>
-        条件组
+        {{ $t('ai.workflow_node.condition_group') }}
       </NButton>
       <NButton v-if="!isRoot" size="tiny" type="error" text @click="$emit('delete')">
         <template #icon><SvgIcon local-icon="mdi-delete" /></template>
@@ -150,7 +151,7 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
                 :node-id="nodeId"
                 :variable-value="getRule(condition).variable"
                 :filter-by-type="false"
-                placeholder="选择变量"
+                :placeholder="$t('ai.workflow_node.select_variable')"
                 @update:variable-value="val => handleVariableUpdate(index, getRule(condition), val)"
               />
             </div>
@@ -172,7 +173,7 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
             <template v-if="!isUnaryOperator(getRule(condition).operator)">
               <NInput
                 :value="String(getRule(condition).compareValue ?? '')"
-                placeholder="比较值"
+                :placeholder="$t('ai.workflow_node.compare_value')"
                 size="small"
                 class="w-32"
                 @update:value="
@@ -196,7 +197,9 @@ const getGroup = (c: any) => c as Workflow.ConditionGroup;
       </div>
 
       <!-- 空状态提示 -->
-      <div v-if="modelValue.conditions.length === 0" class="py-2 text-xs c-gray-4">点击上方按钮添加条件</div>
+      <div v-if="modelValue.conditions.length === 0" class="py-2 text-xs c-gray-4">
+        {{ $t('ai.workflow_node.click_above_to_add_condition') }}
+      </div>
     </div>
   </div>
 </template>

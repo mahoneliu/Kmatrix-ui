@@ -90,7 +90,7 @@ watch(
     >
       <div class="flex items-center text-slate-800 font-600 dark:text-white">
         <SvgIcon local-icon="mdi-bug-outline" class="mr-2 text-18px text-primary" />
-        <span class="text-14px tracking-tight">{{ appName }} - 调试</span>
+        <span class="text-14px tracking-tight">{{ appName }} - {{ $t('ai.chat.debug') }}</span>
       </div>
       <div class="flex gap-4px">
         <NButton quaternary circle size="small" @click="toggleMinimize">
@@ -115,9 +115,9 @@ watch(
     <div v-show="!isMinimized" class="flex flex-col flex-1 overflow-hidden bg-white p-0 dark:bg-dark-1">
       <div class="p-2">
         <NAlert type="info" size="medium" :bordered="false" closable>
-          调试使用最新未发布版本，临时对话，数据不入库。
+          {{ $t('ai.chat.debug_tip1') }}
           <br />
-          修改工作流保存即生效，无需重新打开窗口。
+          {{ $t('ai.chat.debug_tip2') }}
         </NAlert>
       </div>
       <ChatPanel

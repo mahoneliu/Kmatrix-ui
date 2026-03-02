@@ -10,6 +10,7 @@ import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/ai/node-params';
 import { getNodeTypeInfo } from '@/utils/ai/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
+import { $t } from '@/locales';
 
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/param-binding-panel.vue'));
 const AiConfigPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/ai-config-panel.vue'));
@@ -260,7 +261,7 @@ const menuOptions: DropdownOption[] = [
     icon: () => h(SvgIcon, { localIcon: 'mdi-content-copy', class: 'text-18px' })
   },
   {
-    label: '删除节点',
+    label: $t('ai.workflow_node.delete_node'),
     key: 'delete',
     icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline', class: 'text-18px' })
   }
@@ -468,7 +469,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           <!-- 统一的参数绑定面板 -->
           <NCollapseItem
             v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
-            title="节点参数"
+            :title="$t('ai.workflow_node.node_param')"
             name="params"
           >
             <ParamBindingPanel
@@ -514,15 +515,20 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
       <NModal
         v-model:show="showRenameModal"
         preset="dialog"
-        title="重命名节点"
+        :title="$t('ai.workflow_node.rename_node')"
         positive-text="确认"
-        negative-text="取消"
+        :negative-text="$t('common.cancel')"
         @positive-click="confirmRename"
         @negative-click="showRenameModal = false"
         @click.stop
       >
         <div class="py-4" @click.stop>
-          <NInput v-model:value="newLabel" placeholder="请输入节点名称" autofocus @keyup.enter="confirmRename" />
+          <NInput
+            v-model:value="newLabel"
+            :placeholder="$t('ai.workflow_template.please_input_node_name')"
+            autofocus
+            @keyup.enter="confirmRename"
+          />
         </div>
       </NModal>
     </div>

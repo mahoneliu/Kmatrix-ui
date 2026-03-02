@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'NodeParamEditor'
@@ -14,7 +15,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
-  title: '参数'
+  title: $t('ai.node_definition.parameters')
 });
 
 interface Emits {
@@ -30,11 +31,11 @@ const params = computed({
 
 // 参数类型选项
 const paramTypeOptions = [
-  { label: '字符串', value: 'string' },
-  { label: '数字', value: 'number' },
-  { label: '布尔值', value: 'boolean' },
-  { label: '对象', value: 'object' },
-  { label: '数组', value: 'array' }
+  { label: $t('ai.node_definition.type_string'), value: 'string' },
+  { label: $t('ai.node_definition.type_number'), value: 'number' },
+  { label: $t('ai.node_definition.type_boolean'), value: 'boolean' },
+  { label: $t('ai.node_definition.type_object'), value: 'object' },
+  { label: $t('ai.node_definition.type_array'), value: 'array' }
 ];
 
 // 添加新参数
@@ -80,19 +81,25 @@ function moveDown(index: number) {
         <template #icon>
           <icon-ic-round-plus class="text-icon" />
         </template>
-        添加参数
+        {{ $t('ai.node_definition.add_parameter') }}
       </NButton>
     </div>
 
-    <div v-if="params.length === 0" class="py-4 text-center text-gray-400">暂无参数,点击上方按钮添加</div>
+    <div v-if="params.length === 0" class="py-4 text-center text-gray-400">
+      {{ $t('ai.node_definition.no_parameter_click_add') }}
+    </div>
 
     <NCollapse v-else :default-expanded-names="[0]" class="space-y-2">
       <NCollapseItem v-for="(param, index) in params" :key="index" :name="index">
         <template #header>
           <div class="flex items-center gap-2">
-            <span class="text-sm font-medium">参数 {{ index + 1 }}</span>
+            <span class="text-sm font-medium">
+              {{ $t('ai.node_definition.parameter_index', { index: index + 1 }) }}
+            </span>
             <span v-if="param.key" class="text-xs text-gray-500">{{ param.key }}</span>
-            <NTag v-if="param.required" size="small" type="error" :bordered="false">必填</NTag>
+            <NTag v-if="param.required" size="small" type="error" :bordered="false">
+              {{ $t('ai.node_definition.required') }}
+            </NTag>
           </div>
         </template>
         <template #header-extra>
@@ -118,39 +125,53 @@ function moveDown(index: number) {
         <NSpace vertical :size="12" class="pt-2">
           <NGrid :cols="2" :x-gap="12">
             <NGridItem>
-              <div class="mb-1 text-xs text-gray-500">参数键名 *</div>
-              <NInput v-model:value="param.key" size="small" placeholder="例如: userInput" />
+              <div class="mb-1 text-xs text-gray-500">{{ $t('ai.node_definition.param_key_name') }}</div>
+              <NInput
+                v-model:value="param.key"
+                size="small"
+                :placeholder="$t('ai.node_definition.param_key_placeholder')"
+              />
             </NGridItem>
             <NGridItem>
-              <div class="mb-1 text-xs text-gray-500">参数标签 *</div>
-              <NInput v-model:value="param.label" size="small" placeholder="例如: 用户输入" />
+              <div class="mb-1 text-xs text-gray-500">{{ $t('ai.node_definition.param_label') }}</div>
+              <NInput
+                v-model:value="param.label"
+                size="small"
+                :placeholder="$t('ai.node_definition.param_label_placeholder')"
+              />
             </NGridItem>
           </NGrid>
 
           <NGrid :cols="2" :x-gap="12">
             <NGridItem>
-              <div class="mb-1 text-xs text-gray-500">参数类型</div>
+              <div class="mb-1 text-xs text-gray-500">{{ $t('ai.node_definition.param_type') }}</div>
               <NSelect v-model:value="param.type" size="small" :options="paramTypeOptions" />
             </NGridItem>
             <NGridItem>
-              <div class="mb-1 text-xs text-gray-500">默认值</div>
-              <NInput v-model:value="param.defaultValue" size="small" placeholder="可选" />
+              <div class="mb-1 text-xs text-gray-500">{{ $t('ai.node_definition.default_value') }}</div>
+              <NInput
+                v-model:value="param.defaultValue"
+                size="small"
+                :placeholder="$t('ai.node_definition.optional')"
+              />
             </NGridItem>
           </NGrid>
 
           <div>
-            <div class="mb-1 text-xs text-gray-500">描述</div>
+            <div class="mb-1 text-xs text-gray-500">{{ $t('common.description') }}</div>
             <NInput
               v-model:value="param.description"
               size="small"
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 3 }"
-              placeholder="参数说明"
+              :placeholder="$t('ai.node_definition.param_desc_placeholder')"
             />
           </div>
 
           <div>
-            <NCheckbox v-model:checked="param.required" size="small">必填参数</NCheckbox>
+            <NCheckbox v-model:checked="param.required" size="small">
+              {{ $t('ai.node_definition.required_parameter') }}
+            </NCheckbox>
           </div>
         </NSpace>
       </NCollapseItem>

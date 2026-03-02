@@ -11,6 +11,7 @@ import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowLayout } from '@/composables/ai/workflow/use-workflow-layout';
 import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
 import { useUnsavedChangesGuard } from '@/composables/ai/workflow/use-unsaved-changes-guard';
+import { $t } from '@/locales';
 import ConnectionLine from '@/components/ai/edges/connection-line.vue';
 import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
@@ -80,7 +81,7 @@ onMounted(async () => {
     workflowStore.clearWorkflow();
     await loadWorkflow();
   } catch {
-    message.error('初始化失败,请刷新页面重试');
+    message.error($t('ai.workflow_template.init_failed'));
   }
 });
 </script>
@@ -147,8 +148,12 @@ onMounted(async () => {
     <!-- 左上角标题 -->
     <div class="absolute left-4 top-4 z-1000">
       <div class="flex items-center gap-2">
-        <span class="pointer-events-none font-bold drop-shadow-md">{{ templateName || '模板编辑' }}</span>
-        <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">模板</span>
+        <span class="pointer-events-none font-bold drop-shadow-md">
+          {{ templateName || $t('ai.workflow_template.template_edit') }}
+        </span>
+        <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+          {{ $t('ai.workflow_template.template') }}
+        </span>
       </div>
     </div>
 
@@ -162,7 +167,7 @@ onMounted(async () => {
               <template #icon>
                 <SvgIcon local-icon="carbon-add" />
               </template>
-              组件
+              {{ $t('ai.workflow_template.components') }}
             </NButton>
           </template>
         </ComponentLibraryModal>
@@ -174,11 +179,11 @@ onMounted(async () => {
           <template #icon>
             <SvgIcon local-icon="mdi-content-save-outline" />
           </template>
-          保存
+          {{ $t('common.save') }}
         </NButton>
         <div class="flex items-center gap-2 rounded bg-white/90 px-3 py-1.5 shadow-md dark:bg-dark-2 dark:text-white">
           <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-gray-500 dark:text-white" />
-          <span class="text-sm">自动保存</span>
+          <span class="text-sm">{{ $t('ai.workflow_template.auto_save') }}</span>
           <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
         </div>
       </NSpace>

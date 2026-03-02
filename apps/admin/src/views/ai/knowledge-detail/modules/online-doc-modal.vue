@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { NButton, NCard, NForm, NFormItem, NInput, NModal, NSpace } from 'naive-ui';
+import { $t } from '@/locales';
 
 interface Props {
   visible?: boolean;
@@ -54,16 +55,16 @@ const handleSave = () => {
   });
 };
 
-const rules = {
-  title: [{ required: true, message: '请输入文档标题', trigger: 'blur' }],
-  content: [{ required: true, message: '请输入文档内容', trigger: 'blur' }]
-};
+const rules = computed(() => ({
+  title: [{ required: true, message: $t('ai.knowledge_detail.onlineDocModal.titleRequired'), trigger: 'blur' }],
+  content: [{ required: true, message: $t('ai.knowledge_detail.onlineDocModal.contentRequired'), trigger: 'blur' }]
+}));
 </script>
 
 <template>
   <NModal :show="visible" @update:show="emit('update:visible', $event)">
     <NCard
-      :title="document ? '编辑在线文档' : '新建在线文档'"
+      :title="document ? $t('ai.knowledge_detail.onlineDocModal.edit') : $t('ai.knowledge_detail.onlineDocModal.add')"
       :bordered="false"
       size="huge"
       role="dialog"
@@ -79,15 +80,18 @@ const rules = {
       </template>
 
       <NForm ref="formRef" :model="formData" :rules="rules" label-placement="left" label-width="80">
-        <NFormItem label="标题" path="title">
-          <NInput v-model:value="formData.title" placeholder="请输入文档标题" />
+        <NFormItem :label="$t('ai.knowledge_detail.onlineDocModal.title')" path="title">
+          <NInput
+            v-model:value="formData.title"
+            :placeholder="$t('ai.knowledge_detail.onlineDocModal.titlePlaceholder')"
+          />
         </NFormItem>
 
-        <NFormItem label="内容" path="content">
+        <NFormItem :label="$t('ai.knowledge_detail.onlineDocModal.content')" path="content">
           <NInput
             v-model:value="formData.content"
             type="textarea"
-            placeholder="请输入文档内容 (支持富文本)"
+            :placeholder="$t('ai.knowledge_detail.onlineDocModal.contentPlaceholder')"
             :rows="15"
           />
         </NFormItem>
@@ -95,8 +99,8 @@ const rules = {
 
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="handleClose">取消</NButton>
-          <NButton type="primary" @click="handleSave">保存</NButton>
+          <NButton @click="handleClose">{{ $t('common.cancel') }}</NButton>
+          <NButton type="primary" @click="handleSave">{{ $t('common.save') }}</NButton>
         </NSpace>
       </template>
     </NCard>

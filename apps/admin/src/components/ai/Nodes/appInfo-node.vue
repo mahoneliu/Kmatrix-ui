@@ -4,6 +4,7 @@ import { NButton, NCollapse, NCollapseItem, NForm, NFormItem, NInput, NModal, NS
 import type { NodeProps } from '@vue-flow/core';
 import { PARAM_TYPE_MAP, PARAM_TYPE_OPTIONS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import ModelSelector from '@/components/ai/public/model-selector.vue';
 import BaseNode from './base-node.vue';
 
@@ -40,9 +41,9 @@ const editingParam = reactive<Workflow.ParamDefinition>({
 
 // 参数类型名称映射
 const paramTypeNameMap: Record<string, string> = {
-  app: '应用参数',
-  interface: '接口参数',
-  session: '会话参数'
+  app: $t('ai.workflow_node.app_params'),
+  interface: $t('ai.workflow_node.interface_params'),
+  session: $t('ai.workflow_node.session_params')
 };
 
 // 弹窗标题
@@ -241,30 +242,34 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="基础配置" name="basic">
+        <NCollapseItem :title="$t('ai.workflow_template.base_config')" name="basic">
           <div class="workflow-config-section">
             <div class="workflow-config-item">
               <label class="workflow-label">
-                应用名称
+                {{ $t('ai.workflow_template.app_name') }}
                 <span class="workflow-label-required">*</span>
               </label>
-              <NInput v-model:value="formModel.appName" class="workflow-input" placeholder="请输入应用名称" />
+              <NInput
+                v-model:value="formModel.appName"
+                class="workflow-input"
+                :placeholder="$t('ai.workflow_template.please_input_app_name')"
+              />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">应用描述</label>
+              <label class="workflow-label">{{ $t('ai.workflow_template.app_desc') }}</label>
               <NInput
                 v-model:value="formModel.description"
                 class="workflow-textarea"
                 type="textarea"
                 :rows="2"
-                placeholder="请输入应用描述"
+                :placeholder="$t('ai.workflow_template.please_input_app_desc')"
               />
             </div>
 
             <div class="workflow-config-item">
               <label class="workflow-label">
-                选择模型
+                {{ $t('ai.workflow_public.select_model') }}
                 <span class="workflow-label-required">*</span>
               </label>
               <ModelSelector v-model:model-value="formModel.modelId" class="workflow-input" />
@@ -277,18 +282,20 @@ onMounted(() => {
                 class="workflow-textarea"
                 type="textarea"
                 :rows="2"
-                placeholder="请输入开场白"
+                :placeholder="$t('ai.workflow_template.please_input_greeting')"
               />
             </div>
           </div>
         </NCollapseItem>
 
         <!-- 参数 -->
-        <NCollapseItem title="自定义参数" name="params">
+        <NCollapseItem :title="$t('ai.workflow_node.custom_parameters')" name="params">
           <div class="flex flex-col gap-2">
             <div class="flex flex-col gap-1">
               <div class="flex items-center justify-between">
-                <div class="flex items-center justify-between text-12px c-gray-5 font-600">应用参数</div>
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">
+                  {{ $t('ai.workflow_node.app_params') }}
+                </div>
                 <NButton secondary size="tiny" @click="addAppParam">
                   <template #icon>
                     <SvgIcon local-icon="mdi-plus" />
@@ -325,13 +332,15 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
-              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">暂无全局参数</div> -->
+              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">{{ $t('ai.workflow_node.no_global_params') }}</div> -->
             </div>
 
             <!-- 接口参数 -->
             <div class="flex flex-col gap-1">
               <div class="flex items-center justify-between">
-                <div class="flex items-center justify-between text-12px c-gray-5 font-600">接口参数</div>
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">
+                  {{ $t('ai.workflow_node.interface_params') }}
+                </div>
                 <NButton secondary size="tiny" @click="addInterfaceParam">
                   <template #icon>
                     <SvgIcon local-icon="mdi-plus" />
@@ -373,7 +382,9 @@ onMounted(() => {
             <!-- 会话参数 -->
             <div class="flex flex-col gap-2">
               <div class="flex items-center justify-between">
-                <div class="flex items-center justify-between text-12px c-gray-5 font-600">会话参数</div>
+                <div class="flex items-center justify-between text-12px c-gray-5 font-600">
+                  {{ $t('ai.workflow_node.session_params') }}
+                </div>
                 <NButton secondary size="tiny" @click="addSessionParam">
                   <template #icon>
                     <SvgIcon local-icon="mdi-plus" />
@@ -410,7 +421,7 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
-              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">暂无会话参数</div> -->
+              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">{{ $t('ai.workflow_node.no_session_params') }}</div> -->
             </div>
           </div>
         </NCollapseItem>
@@ -420,32 +431,40 @@ onMounted(() => {
     <!-- 参数编辑弹窗 -->
     <NModal v-model:show="showParamModal" preset="card" :title="paramModalTitle" class="w-120">
       <NForm :model="editingParam" label-placement="left" label-width="80" size="medium">
-        <NFormItem label="参数键" required>
-          <NInput v-model:value="editingParam.key" placeholder="例如: userName" />
+        <NFormItem :label="$t('ai.workflow_node.parameter_key')" required>
+          <NInput v-model:value="editingParam.key" :placeholder="$t('ai.workflow_node.eg_username')" />
         </NFormItem>
-        <NFormItem label="参数名称" required>
-          <NInput v-model:value="editingParam.label" placeholder="例如: 用户名称" />
+        <NFormItem :label="$t('ai.workflow_node.param_name')" required>
+          <NInput v-model:value="editingParam.label" :placeholder="$t('ai.workflow_node.eg_user_name')" />
         </NFormItem>
-        <NFormItem label="数据类型" required>
+        <NFormItem :label="$t('ai.workflow_node.data_type')" required>
           <NSelect v-model:value="editingParam.type" :options="PARAM_TYPE_OPTIONS" />
         </NFormItem>
-        <NFormItem label="是否必填">
+        <NFormItem :label="$t('ai.workflow_node.is_required')">
           <NSwitch v-model:value="editingParam.required">
-            <template #checked>必填</template>
-            <template #unchecked>可选</template>
+            <template #checked>{{ $t('common.confirm') }}</template>
+            <template #unchecked>{{ $t('common.cancel') }}</template>
           </NSwitch>
         </NFormItem>
-        <NFormItem label="默认值">
-          <NInput v-model:value="editingParam.defaultValue" placeholder="参数默认值" />
+        <NFormItem :label="$t('ai.workflow_node.default_value')">
+          <NInput
+            v-model:value="editingParam.defaultValue"
+            :placeholder="$t('ai.workflow_node.parameter_default_value')"
+          />
         </NFormItem>
-        <NFormItem label="参数描述">
-          <NInput v-model:value="editingParam.description" type="textarea" :rows="3" placeholder="描述参数的用途" />
+        <NFormItem :label="$t('ai.workflow_node.param_desc')">
+          <NInput
+            v-model:value="editingParam.description"
+            type="textarea"
+            :rows="3"
+            :placeholder="$t('ai.workflow_node.description_purpose')"
+          />
         </NFormItem>
       </NForm>
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <NButton @click="showParamModal = false">取消</NButton>
+          <NButton @click="showParamModal = false">{{ $t('common.cancel') }}</NButton>
           <NButton type="primary" @click="saveParam">保存</NButton>
         </div>
       </template>

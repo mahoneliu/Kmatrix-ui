@@ -11,6 +11,7 @@ import { NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NSlider, NSwit
 import type { NodeProps } from '@vue-flow/core';
 import { fetchAllKnowledgeBases } from '@/service/api/ai/knowledge';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
@@ -22,9 +23,9 @@ const kbLoading = ref(false);
 
 // 检索模式选项
 const modeOptions = [
-  { label: '向量检索', value: 'VECTOR' },
-  { label: '关键词检索', value: 'KEYWORD' },
-  { label: '混合检索', value: 'HYBRID' }
+  { label: $t('ai.workflow_node.vector_retrieval'), value: 'VECTOR' },
+  { label: $t('ai.workflow_node.keyword_search'), value: 'KEYWORD' },
+  { label: $t('ai.workflow_node.hybrid_retrieval'), value: 'HYBRID' }
 ];
 
 // 局部表单数据
@@ -131,10 +132,10 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="检索配置" name="config">
+        <NCollapseItem :title="$t('ai.workflow_node.retrieval_config')" name="config">
           <div class="workflow-config-section">
             <div class="workflow-config-item">
-              <label class="workflow-label">知识库</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.knowledge_base') }}</label>
               <NSelect
                 v-model:value="formModel.kbIds"
                 :options="kbOptions"
@@ -142,38 +143,45 @@ onMounted(() => {
                 multiple
                 clearable
                 size="small"
-                placeholder="选择知识库 (留空则搜索全部)"
+                :placeholder="$t('ai.workflow_node.select_knowledge_base')"
               />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">检索模式</label>
-              <NSelect v-model:value="formModel.mode" :options="modeOptions" placeholder="选择检索模式" size="small" />
+              <label class="workflow-label">{{ $t('ai.workflow_node.retrieval_mode') }}</label>
+              <NSelect
+                v-model:value="formModel.mode"
+                :options="modeOptions"
+                :placeholder="$t('ai.workflow_node.select_search_mode')"
+                size="small"
+              />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">返回数量 (Top K)</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.return_count') }}</label>
               <NInputNumber v-model:value="formModel.topK" :min="1" :max="20" placeholder="5" size="small" />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">相似度阈值: {{ formModel.threshold }}</label>
+              <label class="workflow-label">
+                {{ $t('ai.workflow_node.similarity_threshold') }} {{ formModel.threshold }}
+              </label>
               <NSlider v-model:value="formModel.threshold" :min="0" :max="1" :step="0.05" />
             </div>
 
             <div class="workflow-config-item flex-row">
-              <label class="workflow-label">启用重排序 (Rerank)</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.enable_rerank') }}</label>
               <NSwitch v-model:value="formModel.enableRerank" size="small" class="ml-auto" />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">空结果回复</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.empty_result_reply') }}</label>
               <NInput
                 v-model:value="formModel.emptyResponse"
                 type="textarea"
                 :rows="2"
                 size="small"
-                placeholder="未找到结果时的回复 (可选)"
+                :placeholder="$t('ai.workflow_node.reply_when_no_result')"
               />
             </div>
           </div>

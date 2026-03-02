@@ -20,6 +20,7 @@ import {
   useMessage
 } from 'naive-ui';
 import { addDataSource, fetchDynamicDataSourceKeys, updateDataSource } from '@/service/api/ai/datasource';
+import { $t } from '@/locales';
 
 interface Props {
   show: boolean;
@@ -55,13 +56,13 @@ const formModel = reactive({
 
 // 表单验证规则
 const rules: FormRules = {
-  dataSourceName: [{ required: true, message: '请输入数据源名称', trigger: 'blur' }],
-  sourceType: [{ required: true, message: '请选择数据源类型', trigger: 'change' }],
+  dataSourceName: [{ required: true, message: () => $t('ai.datasource.form.name_required'), trigger: 'blur' }],
+  sourceType: [{ required: true, message: () => $t('ai.datasource.form.source_type_required'), trigger: 'change' }],
   dsKey: [
     {
       validator: (_rule, value) => {
         if (formModel.sourceType === 'DYNAMIC' && !value) {
-          return new Error('请选择动态数据源');
+          return new Error($t('ai.datasource.form.dynamic_ds_required'));
         }
         return true;
       },
@@ -72,7 +73,7 @@ const rules: FormRules = {
     {
       validator: (_rule, value) => {
         if (formModel.sourceType === 'MANUAL' && !value) {
-          return new Error('请输入驱动类名');
+          return new Error($t('ai.datasource.form.driver_required'));
         }
         return true;
       },
@@ -83,7 +84,7 @@ const rules: FormRules = {
     {
       validator: (_rule, value) => {
         if (formModel.sourceType === 'MANUAL' && !value) {
-          return new Error('请输入 JDBC URL');
+          return new Error($t('ai.datasource.form.jdbc_url_required'));
         }
         return true;
       },
@@ -94,7 +95,7 @@ const rules: FormRules = {
     {
       validator: (_rule, value) => {
         if (formModel.sourceType === 'MANUAL' && !value) {
-          return new Error('请输入用户名');
+          return new Error($t('ai.datasource.form.username_required'));
         }
         return true;
       },
@@ -162,15 +163,15 @@ async function handleSubmit() {
 
     if (formModel.dataSourceId) {
       const { error } = await updateDataSource(formModel);
-      if (!error) message.success('编辑成功');
+      if (!error) message.success($t('ai.datasource.form.edit_success'));
     } else {
       const { error } = await addDataSource(formModel);
-      if (!error) message.success('新增成功');
+      if (!error) message.success($t('ai.datasource.form.add_success'));
     }
     emit('success');
   } catch (error: any) {
     if (error.message) {
-      message.error(`操作失败: ${error.message}`);
+      message.error($t('ai.datasource.form.submit_fail', { error: error.message }));
     }
   } finally {
     loading.value = false;
@@ -187,36 +188,40 @@ function handleClose() {
   <NModal
     :show="show"
     preset="card"
-    :title="dataSource ? '编辑数据源' : '新增数据源'"
+    :title="dataSource ? $t('ai.datasource.form.edit_title') : $t('ai.datasource.form.add_title')"
     class="w-180"
     @update:show="handleClose"
   >
     <NForm ref="formRef" :model="formModel" :rules="rules" label-placement="left" label-width="120">
-      <NFormItem label="数据源名称" path="dataSourceName">
-        <NInput v-model:value="formModel.dataSourceName" placeholder="请输入数据源名称" />
+      <NFormItem :label="$t('ai.datasource.form.name_label')" path="dataSourceName">
+        <NInput v-model:value="formModel.dataSourceName" :placeholder="$t('ai.datasource.form.name_placeholder')" />
       </NFormItem>
 
-      <NFormItem label="数据源类型" path="sourceType">
+      <NFormItem :label="$t('ai.datasource.form.source_type_label')" path="sourceType">
         <NRadioGroup v-model:value="formModel.sourceType">
-          <NRadioButton value="MANUAL">手工配置</NRadioButton>
-          <NRadioButton value="DYNAMIC">动态数据源</NRadioButton>
+          <NRadioButton value="MANUAL">{{ $t('ai.datasource.form.type_manual_label') }}</NRadioButton>
+          <NRadioButton value="DYNAMIC">{{ $t('ai.datasource.form.type_dynamic_label') }}</NRadioButton>
         </NRadioGroup>
       </NFormItem>
 
       <!-- DYNAMIC 类型配置 -->
       <template v-if="formModel.sourceType === 'DYNAMIC'">
-        <NFormItem label="数据源标识" path="dsKey">
-          <NSelect v-model:value="formModel.dsKey" :options="dynamicDsOptions" placeholder="选择动态数据源" />
+        <NFormItem :label="$t('ai.datasource.form.ds_key_label')" path="dsKey">
+          <NSelect
+            v-model:value="formModel.dsKey"
+            :options="dynamicDsOptions"
+            :placeholder="$t('ai.datasource.form.dynamic_select')"
+          />
         </NFormItem>
       </template>
 
       <!-- MANUAL 类型配置 -->
       <template v-else>
-        <NFormItem label="驱动类名" path="driverClassName">
+        <NFormItem :label="$t('ai.datasource.form.driver_label')" path="driverClassName">
           <NInput v-model:value="formModel.driverClassName" placeholder="com.mysql.cj.jdbc.Driver" />
         </NFormItem>
 
-        <NFormItem label="JDBC URL" path="jdbcUrl">
+        <NFormItem :label="$t('ai.datasource.form.jdbc_url_label')" path="jdbcUrl">
           <NInput
             v-model:value="formModel.jdbcUrl"
             type="textarea"
@@ -225,20 +230,20 @@ function handleClose() {
           />
         </NFormItem>
 
-        <NFormItem label="用户名" path="username">
-          <NInput v-model:value="formModel.username" placeholder="请输入用户名" />
+        <NFormItem :label="$t('ai.datasource.form.username_label')" path="username">
+          <NInput v-model:value="formModel.username" :placeholder="$t('ai.datasource.form.username_required')" />
         </NFormItem>
 
-        <NFormItem label="密码" path="password">
+        <NFormItem :label="$t('ai.datasource.form.password_label')" path="password">
           <NInput
             v-model:value="formModel.password"
             type="password"
-            placeholder="请输入密码"
+            :placeholder="$t('ai.datasource.form.password_placeholder')"
             show-password-on="click"
           />
         </NFormItem>
 
-        <NFormItem label="数据库类型" path="dbType">
+        <NFormItem :label="$t('ai.datasource.form.db_type_label')" path="dbType">
           <NSelect
             v-model:value="formModel.dbType"
             :options="[
@@ -250,15 +255,17 @@ function handleClose() {
         </NFormItem>
       </template>
 
-      <NFormItem label="是否启用" path="isEnabled">
+      <NFormItem :label="$t('ai.datasource.form.is_enabled_label')" path="isEnabled">
         <NSwitch v-model:value="formModel.isEnabled" checked-value="1" unchecked-value="0" />
       </NFormItem>
     </NForm>
 
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton @click="handleClose">取消</NButton>
-        <NButton type="primary" :loading="loading" @click="handleSubmit">确定</NButton>
+        <NButton @click="handleClose">{{ $t('ai.datasource.form.cancel') }}</NButton>
+        <NButton type="primary" :loading="loading" @click="handleSubmit">
+          {{ $t('ai.datasource.form.confirm') }}
+        </NButton>
       </div>
     </template>
   </NModal>

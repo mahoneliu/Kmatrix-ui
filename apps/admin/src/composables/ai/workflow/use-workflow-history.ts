@@ -6,6 +6,7 @@
 
 import { computed, ref, watch } from 'vue';
 import { createSharedComposable, useDebounceFn } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 
 export interface HistoryItem {
@@ -221,6 +222,7 @@ function getDetailedDiffLabel(oldState: any, newState: any): string | null {
 }
 
 export const useWorkflowHistory = createSharedComposable(() => {
+  const { t } = useI18n();
   const workflowStore = useWorkflowStore();
   const historyStack = ref<HistoryItem[]>([]);
   const currentIndex = ref(-1);
@@ -262,7 +264,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
   /**
    * 记录当前状态到历史栈
    */
-  const takeSnapshot = (label: string = '未知操作') => {
+  const takeSnapshot = (label: string = t('page.ai.workflow.unknown_status')) => {
     if (isInnerStateChange) return;
 
     let finalLabel = label;
@@ -355,7 +357,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
       {
         snapshot: getCleanSnapshot(),
         timestamp: Date.now(),
-        label: '初始化'
+        label: t('page.ai.workflow.init_history')
       }
     ];
     currentIndex.value = 0;

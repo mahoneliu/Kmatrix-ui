@@ -36,8 +36,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/home',
     component: 'layout.base$view.home',
     meta: {
-      title: 'home',
-      i18nKey: 'route.home',
+      title: 'route.home',
       localIcon: 'mdi-monitor-dashboard',
       order: -1
     }
@@ -47,8 +46,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/403',
     component: 'layout.blank$view.403',
     meta: {
-      title: '403',
-      i18nKey: 'route.403',
+      title: 'route.403',
       constant: true,
       hideInMenu: true
     }
@@ -58,8 +56,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/404',
     component: 'layout.blank$view.404',
     meta: {
-      title: '404',
-      i18nKey: 'route.404',
+      title: 'route.404',
       constant: true,
       hideInMenu: true
     }
@@ -69,8 +66,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/500',
     component: 'layout.blank$view.500',
     meta: {
-      title: '500',
-      i18nKey: 'route.500',
+      title: 'route.500',
       constant: true,
       hideInMenu: true
     }
@@ -81,8 +77,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     component: 'layout.blank$view.login',
     props: true,
     meta: {
-      title: 'login',
-      i18nKey: 'route.login',
+      title: 'route.login',
       constant: true,
       hideInMenu: true
     }
@@ -93,8 +88,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     component: 'layout.base$view.iframe-page',
     props: true,
     meta: {
-      title: 'iframe-page',
-      i18nKey: 'route.iframe-page',
+      title: 'route.iframe-page',
       constant: true,
       hideInMenu: true,
       keepAlive: true,
@@ -106,8 +100,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/social-callback',
     component: 'layout.blank$view.social-callback',
     meta: {
-      title: 'social-callback',
-      i18nKey: 'route.social-callback',
+      title: 'route.social-callback',
       constant: true,
       hideInMenu: true,
       localIcon: 'simple-icons-authy'
@@ -118,8 +111,7 @@ const dynamicConstantRoutes: ElegantRoute[] = [
     path: '/user-center',
     component: 'layout.base$view.user-center',
     meta: {
-      title: 'user-center',
-      i18nKey: 'route.user-center',
+      title: 'route.user-center',
       localIcon: 'material-symbols-account-circle-full',
       hideInMenu: true
     }

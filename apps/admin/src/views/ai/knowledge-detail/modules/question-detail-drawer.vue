@@ -8,6 +8,7 @@ import {
   updateChunk,
   updateQuestion
 } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import ChunkEditModal from '../../chunk-manager/modules/chunk-edit-modal.vue';
 import ModelSelectModal from '../../chunk-manager/modules/model-select-modal.vue';
@@ -142,11 +143,11 @@ async function saveEdit() {
 
   try {
     await updateQuestion(currentQuestion.value.id, editContent.value.trim());
-    window.$message?.success('修改成功');
+    window.$message?.success($t('ai.knowledge_detail.questionDetailDrawer.editSuccess'));
     cancelEdit();
     emit('refresh');
   } catch {
-    window.$message?.error('修改失败');
+    window.$message?.error($t('ai.knowledge_detail.questionDetailDrawer.editFail'));
   }
 }
 
@@ -161,7 +162,7 @@ async function loadLinkedChunks() {
       linkedChunks.value = data;
     }
   } catch {
-    window.$message?.error('加载关联分段失败');
+    window.$message?.error($t('ai.knowledge_detail.questionDetailDrawer.loadLinkFail'));
   } finally {
     loadingChunks.value = false;
   }
@@ -173,14 +174,14 @@ async function handleUnlink(chunkId: CommonType.IdType) {
   if (!props.questionId) return;
 
   window.$dialog?.warning({
-    title: '确认取消关联',
-    content: '确定要取消该问题与此知识分段的关联吗?',
-    positiveText: '确定',
-    negativeText: '取消',
+    title: $t('ai.knowledge_detail.questionDetailDrawer.unlinkConfirmTitle'),
+    content: $t('ai.knowledge_detail.questionDetailDrawer.unlinkConfirmContent'),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     async onPositiveClick() {
       const { error } = await unlinkQuestionFromChunk(props.questionId!, chunkId);
       if (!error) {
-        window.$message?.success('取消关联成功');
+        window.$message?.success($t('ai.knowledge_detail.questionDetailDrawer.unlinkSuccess'));
         // 重新加载关联分段
         await loadLinkedChunks();
         await loadLinkedChunks();
@@ -217,7 +218,7 @@ async function handleSaveChunk(data: { title: string; content: string }) {
   if (!editingChunk.value) return;
 
   if (!data.content) {
-    window.$message?.error('内容不能为空');
+    window.$message?.error($t('ai.knowledge_detail.questionDetailDrawer.contentEmpty'));
     return;
   }
 
@@ -228,7 +229,7 @@ async function handleSaveChunk(data: { title: string; content: string }) {
       title: data.title,
       content: data.content
     });
-    window.$message?.success('保存成功');
+    window.$message?.success($t('ai.knowledge_detail.questionDetailDrawer.saveSuccess'));
     // 更新列表中的数据
     if (editingChunk.value) {
       editingChunk.value.title = data.title;
@@ -241,7 +242,7 @@ async function handleSaveChunk(data: { title: string; content: string }) {
     }
     showEditModal.value = false;
   } catch {
-    window.$message?.error('保存失败');
+    window.$message?.error($t('ai.knowledge_detail.questionDetailDrawer.saveFail'));
   } finally {
     savingChunk.value = false;
   }
@@ -289,21 +290,21 @@ watch(
   <NDrawer :show="visible" :width="600" placement="right" @update:show="handleClose">
     <template #header>
       <div class="flex items-center justify-between">
-        <span>问题详情</span>
+        <span>{{ $t('ai.knowledge_detail.questionDetailDrawer.title') }}</span>
         <ButtonIcon local-icon="mdi-close" type="default" text @click="handleClose" />
       </div>
     </template>
 
     <div v-if="currentQuestion" class="flex-col-stretch gap-16px">
       <!-- 问题内容区域 -->
-      <NCard title="问题" :bordered="false" size="small">
+      <NCard :title="$t('ai.knowledge_detail.questionDetailDrawer.question')" :bordered="false" size="small">
         <template #header-extra>
           <ButtonIcon
             v-if="!isEditing"
             local-icon="mdi-pencil"
             type="primary"
             text
-            tooltip-content="编辑"
+            :tooltip-content="$t('ai.knowledge_detail.questionDetailDrawer.edit')"
             @click="startEdit"
           />
         </template>
@@ -316,33 +317,50 @@ watch(
             ref="editInputRef"
             v-model:value="editContent"
             type="text"
-            placeholder="请输入问题内容"
+            :placeholder="$t('ai.knowledge_detail.questionDetailDrawer.questionPlaceholder')"
             class="flex-1"
           />
-          <NButton size="small" @click="cancelEdit">取消</NButton>
-          <NButton size="small" type="primary" @click="saveEdit">保存</NButton>
+          <NButton size="small" @click="cancelEdit">{{ $t('common.cancel') }}</NButton>
+          <NButton size="small" type="primary" @click="saveEdit">{{ $t('common.save') }}</NButton>
         </div>
 
         <!-- 问题元信息 -->
         <div class="mt-16px flex items-center gap-12px text-12px text-gray-500">
-          <span>来源: {{ currentQuestion.sourceType === 'MANUAL' ? '手动添加' : 'AI生成' }}</span>
-          <span>创建时间: {{ currentQuestion.createTime }}</span>
+          <span>
+            {{ $t('ai.knowledge_detail.questionDetailDrawer.sourcePrefix')
+            }}{{
+              currentQuestion.sourceType === 'MANUAL'
+                ? $t('ai.knowledge_detail.questionDetailDrawer.sourceMap.MANUAL')
+                : $t('ai.knowledge_detail.questionDetailDrawer.sourceMap.LLM')
+            }}
+          </span>
+          <span>
+            {{ $t('ai.knowledge_detail.questionDetailDrawer.createTimePrefix') }}{{ currentQuestion.createTime }}
+          </span>
         </div>
       </NCard>
 
       <!-- 关联分段区域 -->
-      <NCard :title="`关联分段 (${linkedChunks.length}个)`" :bordered="false" size="small">
+      <NCard
+        :title="$t('ai.knowledge_detail.questionDetailDrawer.linkedChunksTitle', { count: linkedChunks.length })"
+        :bordered="false"
+        size="small"
+      >
         <template #header-extra>
           <div class="flex items-center gap-4px">
             <NButton type="primary" size="small" secondary @click="showLinkModal = true">
               <SvgIcon local-icon="mdi-plus" />
-              添加关联
+              {{ $t('ai.knowledge_detail.questionDetailDrawer.addLink') }}
             </NButton>
           </div>
         </template>
 
-        <div v-if="loadingChunks" class="py-32px text-center text-gray-400">加载中...</div>
-        <div v-else-if="linkedChunks.length === 0" class="py-32px text-center text-gray-400">暂无关联分段</div>
+        <div v-if="loadingChunks" class="py-32px text-center text-gray-400">
+          {{ $t('ai.knowledge_detail.questionDetailDrawer.loading') }}
+        </div>
+        <div v-else-if="linkedChunks.length === 0" class="py-32px text-center text-gray-400">
+          {{ $t('ai.knowledge_detail.questionDetailDrawer.noLinkedChunks') }}
+        </div>
         <div v-else class="flex-col-stretch gap-12px">
           <NCard
             v-for="chunk in linkedChunks"
@@ -354,12 +372,14 @@ watch(
           >
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="text-14px font-semibold">{{ chunk.title || '无标题' }}</span>
+                <span class="text-14px font-semibold">
+                  {{ chunk.title || $t('ai.knowledge_detail.questionDetailDrawer.noTitle') }}
+                </span>
                 <ButtonIcon
                   local-icon="mdi-link-variant-off"
                   type="warning"
                   text
-                  tooltip-content="取消关联"
+                  :tooltip-content="$t('ai.knowledge_detail.questionDetailDrawer.unlink')"
                   @click="handleUnlink(chunk.id)"
                 />
               </div>
@@ -370,7 +390,13 @@ watch(
             </div>
 
             <div class="mt-8px text-12px text-gray-400">
-              <span v-if="chunk.documentTitle">文档: {{ chunk.documentTitle }}</span>
+              <span v-if="chunk.documentTitle">
+                {{
+                  $t('ai.knowledge_detail.questionDetailDrawer.documentLabel', {
+                    title: chunk.documentTitle
+                  })
+                }}
+              </span>
             </div>
           </NCard>
         </div>
@@ -385,10 +411,10 @@ watch(
               <template #icon>
                 <SvgIcon local-icon="mdi-chevron-left" />
               </template>
-              上一条
+              {{ $t('ai.knowledge_detail.questionDetailDrawer.prev') }}
             </NButton>
             <NButton :disabled="!canNext" @click="handleNext">
-              下一条
+              {{ $t('ai.knowledge_detail.questionDetailDrawer.next') }}
               <template #icon>
                 <SvgIcon local-icon="mdi-chevron-right" />
               </template>

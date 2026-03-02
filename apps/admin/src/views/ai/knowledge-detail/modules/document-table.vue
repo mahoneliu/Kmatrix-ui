@@ -95,7 +95,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'originalFilename',
-        title: '文档名称',
+        title: $t('ai.knowledge_detail.document.documentName'),
         align: 'left',
         minWidth: 200,
         resizable: true,
@@ -142,7 +142,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'fileSize',
-        title: '文件大小',
+        title: $t('ai.knowledge_detail.document.fileSize'),
         align: 'center',
         width: 100,
         sorter: 'default',
@@ -153,15 +153,15 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'enabled',
-        title: '启用',
+        title: $t('ai.knowledge_detail.document.enabled'),
         align: 'center',
-        width: 80,
+        width: 120,
         render(row) {
           return (
             <NSwitch size="small" value={row.enabled === 1} onUpdateValue={(val: boolean) => handleEnable(row, val)}>
               {{
-                checked: () => '启用',
-                unchecked: () => '禁用'
+                checked: () => $t('ai.knowledge_detail.document.enabled'),
+                unchecked: () => $t('ai.knowledge_detail.document.disabled')
               }}
             </NSwitch>
           );
@@ -169,15 +169,15 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'embeddingStatus',
-        title: '向量化',
+        title: $t('ai.knowledge_detail.document.embeddingStatus'),
         align: 'center',
-        width: 90,
+        width: 100,
         render(row) {
           const statusMap: Record<number, { type: string; label: string }> = {
-            0: { type: 'default', label: '未生成' },
-            1: { type: 'info', label: '生成中' },
-            2: { type: 'success', label: '已生成' },
-            3: { type: 'error', label: '失败' }
+            0: { type: 'default', label: $t('ai.knowledge_detail.document.statusUnembedded') },
+            1: { type: 'info', label: $t('ai.knowledge_detail.document.statusEmbedding') },
+            2: { type: 'success', label: $t('ai.knowledge_detail.document.statusEmbedded') },
+            3: { type: 'error', label: $t('ai.knowledge_detail.document.statusFailed') }
           };
           const status = statusMap[row.embeddingStatus ?? 0] || { type: 'default', label: '-' };
           return (
@@ -189,15 +189,15 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'questionStatus',
-        title: '问题生成',
+        title: $t('ai.knowledge_detail.document.questionStatus'),
         align: 'center',
-        width: 90,
+        width: 120,
         render(row) {
           const statusMap: Record<number, { type: string; label: string }> = {
-            0: { type: 'default', label: '未生成' },
-            1: { type: 'info', label: '生成中' },
-            2: { type: 'success', label: '已生成' },
-            3: { type: 'error', label: '失败' }
+            0: { type: 'default', label: $t('ai.knowledge_detail.document.statusUnembedded') },
+            1: { type: 'info', label: $t('ai.knowledge_detail.document.statusEmbedding') },
+            2: { type: 'success', label: $t('ai.knowledge_detail.document.statusEmbedded') },
+            3: { type: 'error', label: $t('ai.knowledge_detail.document.statusFailed') }
           };
           const status = statusMap[row.questionStatus ?? 0] || { type: 'default', label: '-' };
           return (
@@ -209,15 +209,15 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'chunkCount',
-        title: '切片数',
+        title: $t('ai.knowledge_detail.document.chunkCount'),
         align: 'center',
-        width: 80,
+        width: 90,
         sorter: 'default',
         sortOrder: currentSortKey.value === 'chunkCount' ? currentSortOrder.value : false
       },
       {
         key: 'tokenCount',
-        title: 'Token数',
+        title: $t('ai.knowledge_detail.document.tokenCount'),
         align: 'center',
         width: 100,
         sorter: 'default',
@@ -225,7 +225,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: $t('ai.knowledge_detail.document.createTime'),
         align: 'center',
         width: 180,
         sorter: 'default',
@@ -246,7 +246,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 local-icon="mdi-puzzle-edit"
-                tooltipContent="切片管理"
+                tooltipContent={$t('ai.knowledge_detail.document.actionChunkManage')}
                 onClick={() => router.push({ name: 'ai_chunk-manager', query: { documentId: row.id } })}
               />
             );
@@ -258,7 +258,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="info"
                 local-icon="mdi-vector-square"
-                tooltipContent="向量化"
+                tooltipContent={$t('ai.knowledge_detail.document.actionEmbedding')}
                 onClick={() => handleEmbedding(row)}
               />
             );
@@ -266,17 +266,17 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
 
           const moreOptions = [
             {
-              label: 'AI生成问题',
+              label: $t('ai.knowledge_detail.document.actionGenerateQuestion'),
               key: 'generateQuestion',
               icon: () => <SvgIcon local-icon="mdi-chat-question" class="text-primary" />
             },
             {
-              label: '状态记录',
+              label: $t('ai.knowledge_detail.document.actionStatusRecord'),
               key: 'status',
               icon: () => <SvgIcon local-icon="carbon-time" class="text-info" />
             },
             {
-              label: '删除',
+              label: $t('ai.knowledge_detail.document.actionDelete'),
               key: 'delete',
               icon: () => <SvgIcon local-icon="mdi-delete" class="text-error" />
             }
@@ -312,7 +312,9 @@ async function handleEnable(row: Api.AI.KB.Document, value: boolean) {
   try {
     const { error } = value ? await enableDocument(row.id!) : await disableDocument(row.id!);
     if (error) return;
-    window.$message?.success(value ? '启用成功' : '禁用成功');
+    window.$message?.success(
+      value ? $t('ai.knowledge_detail.document.enableSuccess') : $t('ai.knowledge_detail.document.disableSuccess')
+    );
     await getData();
   } catch {
     // ignore
@@ -337,10 +339,10 @@ function handleDropdownSelect(key: string | number, row: Api.AI.KB.Document) {
     handleViewStatus(row);
   } else if (key === 'delete') {
     window.$dialog?.warning({
-      title: '确认删除',
-      content: '确定要删除该文档吗？',
-      positiveText: '确定',
-      negativeText: '取消',
+      title: $t('common.delete'),
+      content: $t('ai.knowledge_detail.document.confirmDeleteDoc'),
+      positiveText: $t('common.confirm'),
+      negativeText: $t('common.cancel'),
       onPositiveClick: () => handleDelete(row.id!)
     });
   }
@@ -397,11 +399,11 @@ async function saveEdit(row: Api.AI.KB.Document) {
 
   try {
     await updateDocument(editingId.value, { originalFilename: editingName.value.trim() });
-    window.$message?.success('修改成功');
+    window.$message?.success($t('ai.knowledge_detail.document.editSuccess'));
     cancelEdit();
     await getData();
   } catch {
-    window.$message?.error('修改失败');
+    window.$message?.error($t('ai.knowledge_detail.document.editFail'));
   }
 }
 
@@ -420,14 +422,14 @@ async function handleBatchDelete() {
 async function handleBatchEnable() {
   const { error } = await batchEnableDocuments(checkedRowKeys.value);
   if (error) return;
-  window.$message?.success('启用成功');
+  window.$message?.success($t('ai.knowledge_detail.document.enableSuccess'));
   await getData();
 }
 
 async function handleBatchDisable() {
   const { error } = await batchDisableDocuments(checkedRowKeys.value);
   if (error) return;
-  window.$message?.success('禁用成功');
+  window.$message?.success($t('ai.knowledge_detail.document.disableSuccess'));
   await getData();
 }
 
@@ -446,31 +448,28 @@ async function handleConfirmEmbedding(option: 'UNEMBEDDED_ONLY' | 'ALL') {
       const { error } = await batchEmbedding(checkedRowKeys.value, option);
       if (error) return;
     }
-    window.$message?.success('向量化任务已开始，请稍候');
+    window.$message?.success($t('ai.knowledge_detail.document.startEmbeddingSuccess'));
     await getData();
   } catch {
-    window.$message?.error('操作失败');
+    window.$message?.error($t('ai.knowledge_detail.document.operateFail'));
   }
 }
 
 // 文档问题生成的默认提示词
-const documentPrompt = `请根据以下参考文本，识别 3-5 个潜在的用户问题。
-仅输出问题，每行一个。不要对它们进行编号。
-参考文本：
-{data}`;
+const documentPrompt = $t('ai.knowledge_detail.document.documentPromptText');
 
 // 提示信息内容
 const documentAlertContent = computed(() => {
+  const promptTip = $t('ai.knowledge_detail.document.documentPromptTip');
+  const splits = promptTip.split('\n');
   return `
     <div class="mb-2">
-      提示词中的
-      <code class="rounded bg-gray-100 px-1">{data}</code>
-      为分段内容的占位符,执行时替换为分段内容发送给 AI 模型;
+      ${splits[0] || ''}
     </div>
     <div class="mb-2">
-      AI 模型根据分段内容生成相关问题,每行一个问题返回;
+      ${splits[1] || ''}
     </div>
-    <div>生成效果依赖于所选模型和提示词,用户可自行调整至最佳效果。</div>
+    <div>${splits[2] || ''}</div>
   `;
 });
 
@@ -493,7 +492,7 @@ async function handleConfirmGenerateQuestions(params: {
     maxTokens: params.maxTokens
   });
   if (error) return;
-  window.$message?.success('问题生成任务已开始');
+  window.$message?.success($t('ai.knowledge_detail.document.startGenerateQuestionSuccess'));
   await getData();
 }
 
@@ -596,7 +595,7 @@ const showFileUpload = computed(() => {
 });
 
 const debouncedSuccessMessage = debounce(() => {
-  window.$message?.success('上传成功，正在处理中...');
+  window.$message?.success($t('ai.knowledge_detail.document.uploadSuccess'));
 }, 500);
 
 async function handleUpload(options: { file: UploadFileInfo; onFinish: () => void; onError: () => void }) {
@@ -651,12 +650,12 @@ function handleCustomChunk() {
 // 获取按钮文本
 function getAddButtonText() {
   const textMap: Record<string, string> = {
-    GENERIC_FILE: '上传文件',
-    QA_PAIR: '上传QA对',
-    ONLINE_DOC: '添加在线文档',
-    WEB_LINK: '添加网页链接'
+    GENERIC_FILE: $t('ai.knowledge_detail.document.uploadFile'),
+    QA_PAIR: $t('ai.knowledge_detail.document.uploadQA'),
+    ONLINE_DOC: $t('ai.knowledge_detail.document.addOnlineDoc'),
+    WEB_LINK: $t('ai.knowledge_detail.document.addWebLink')
   };
-  return textMap[props.processType] || '添加文档';
+  return textMap[props.processType] || $t('ai.knowledge_detail.document.addDoc');
 }
 
 // 获取按钮图标
@@ -700,12 +699,12 @@ defineExpose({
         <NUploadDragger class="upload-dragger">
           <div class="flex flex-col items-center gap-2">
             <SvgIcon local-icon="mdi-cloud-upload-outline" class="text-4xl text-primary" />
-            <p class="text-base font-medium">点击或拖拽文件到此处上传</p>
+            <p class="text-base font-medium">{{ $t('ai.knowledge_detail.document.dragUpload') }}</p>
             <p class="text-sm text-gray-500">
               <template v-if="props.processType === 'QA_PAIR'">
-                QA对支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案
+                {{ $t('ai.knowledge_detail.document.qaFormatTip') }}
               </template>
-              <template v-else>支持 PDF、Word、TXT、Markdown 等常见文件格式</template>
+              <template v-else>{{ $t('ai.knowledge_detail.document.fileFormatTip') }}</template>
             </p>
           </div>
         </NUploadDragger>
@@ -725,14 +724,14 @@ defineExpose({
           <template #icon>
             <SvgIcon local-icon="mdi-puzzle-edit" />
           </template>
-          我要自定义分块
+          {{ $t('ai.knowledge_detail.document.customChunk') }}
         </NButton>
       </div>
     </NCard>
 
     <TableRowCheckAlert v-if="checkedRowKeys.length > 0" v-model:checked-row-keys="checkedRowKeys" />
     <NCard
-      title="文档"
+      :title="$t('ai.knowledge_detail.index.stats.document')"
       :bordered="false"
       size="small"
       class="min-h-0 flex-1 card-wrapper sm:flex-1-hidden"
@@ -764,19 +763,19 @@ defineExpose({
                 <template #icon>
                   <SvgIcon local-icon="mdi-check-circle" class="text-icon" />
                 </template>
-                启用
+                {{ $t('ai.knowledge_detail.document.batchEnable') }}
               </NButton>
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchDisable">
                 <template #icon>
                   <SvgIcon local-icon="mdi-cancel" class="text-icon" />
                 </template>
-                禁用
+                {{ $t('ai.knowledge_detail.document.batchDisable') }}
               </NButton>
               <NButton v-if="checkedRowKeys.length > 0" ghost size="small" type="info" @click="handleBatchEmbedding">
                 <template #icon>
                   <SvgIcon local-icon="mdi-vector-square" class="text-icon" />
                 </template>
-                向量化
+                {{ $t('ai.knowledge_detail.document.batchEmbedding') }}
               </NButton>
               <NButton
                 v-if="checkedRowKeys.length > 0"
@@ -788,7 +787,7 @@ defineExpose({
                 <template #icon>
                   <SvgIcon local-icon="mdi-chat-question" class="text-icon" />
                 </template>
-                生成问题
+                {{ $t('ai.knowledge_detail.document.batchGenerateQuestion') }}
               </NButton>
             </NSpace>
           </template>
@@ -813,7 +812,7 @@ defineExpose({
     <!-- 模型选择器 -->
     <ModelSelectorBasic
       v-model:show="modelSelectorVisible"
-      title="批量生成问题"
+      :title="$t('ai.knowledge_detail.document.batchGenerateQuestion')"
       :default-prompt="documentPrompt"
       :default-temperature="0.7"
       :default-max-tokens="2048"

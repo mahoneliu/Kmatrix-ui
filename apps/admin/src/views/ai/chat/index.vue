@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NCard, NTooltip, useMessage } from 'naive-ui';
 import { type ChatMessage, ChatPanel, SessionList } from '@km/shared';
+import { useI18n } from 'vue-i18n';
 import {
   clearAdminAppHistory,
   clearAdminChatHistory,
@@ -14,6 +15,8 @@ import {
 import { fetchAppDetail } from '@/service/api/ai/app';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { localStg } from '@/utils/storage';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const router = useRouter();
@@ -83,7 +86,7 @@ async function getAppInfo() {
       currentExecutionVisible.value = data.enableExecutionDetail === '1';
     }
   } catch {
-    message.error('加载应用信息失败');
+    message.error(t('chat.load_app_info_fail'));
   }
 }
 
@@ -160,7 +163,7 @@ async function loadHistory() {
       chatPanelRef.value?.setMessages(msgs);
     }
   } catch {
-    message.error('加载历史消息失败');
+    message.error(t('chat.load_history_fail'));
   }
 }
 
@@ -177,14 +180,14 @@ async function handleDeleteSession(deletedSessionId: string) {
     if (deletedSessionId === 'all') {
       const { error } = await clearAdminAppHistory(appId.value);
       if (error) return;
-      message.success('已清空所有会话');
+      message.success(t('chat.clear_history_success'));
       sessionId.value = undefined;
       chatPanelRef.value?.clearMessages();
       router.push({ name: 'ai_chat', query: { appId: appId.value } });
     } else {
       const { error } = await clearAdminChatHistory(deletedSessionId);
       if (error) return;
-      message.success('已删除会话');
+      message.success(t('chat.delete_session_success'));
 
       if (deletedSessionId === sessionId.value) {
         sessionId.value = undefined;
@@ -194,7 +197,7 @@ async function handleDeleteSession(deletedSessionId: string) {
 
     await loadSessions();
   } catch {
-    message.error('操作失败');
+    message.error(t('chat.op_fail'));
   }
 }
 
@@ -307,7 +310,7 @@ onMounted(async () => {
                     </template>
                   </NButton>
                 </template>
-                展开侧边栏
+                {{ t('chat.expand_sidebar') }}
               </NTooltip>
             </div>
           </div>
@@ -336,7 +339,7 @@ onMounted(async () => {
                   </template>
                 </NButton>
               </template>
-              新建对话
+              {{ t('chat.new_chat') }}
             </NTooltip>
           </div>
         </div>
@@ -349,7 +352,7 @@ onMounted(async () => {
             class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 border-solid px-4 py-2 dark:border-gray-700"
           >
             <div class="flex items-center gap-2">
-              <span class="text-base font-medium">{{ appInfo?.appName || '对话' }}</span>
+              <span class="text-base font-medium">{{ appInfo?.appName || t('chat.chat_title') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <NTooltip>
@@ -360,7 +363,7 @@ onMounted(async () => {
                     </template>
                   </NButton>
                 </template>
-                新建对话
+                {{ t('chat.new_chat') }}
               </NTooltip>
             </div>
           </div>

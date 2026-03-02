@@ -1,4 +1,5 @@
 import { ref, triggerRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 // import { localStg } from '@/utils/storage';
 
 export interface ChatMessage {
@@ -77,6 +78,7 @@ interface UseStreamChatOptions {
 
 export function useStreamChat(options: UseStreamChatOptions) {
   const { apiEndpoint, onError } = options;
+  const { t } = useI18n();
 
   const messages = ref<ChatMessage[]>([]);
   const isStreaming = ref(false);
@@ -328,7 +330,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
       }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('无法读取响应流');
+      if (!reader) throw new Error(t('ai.chat.read_stream_error'));
 
       await handleSSEEvents({
         reader,
@@ -417,9 +419,10 @@ export function useStreamChat(options: UseStreamChatOptions) {
         }
       });
     } catch (error: any) {
-      aiMsg.content = `错误: ${error.message || '未知错误'}`;
+      const errorMsg = error.message || t('common.errorDetail.unknown');
+      aiMsg.content = `${t('ai.chat.chat_failed')}: ${errorMsg}`;
       if (onError) {
-        onError(error.message || '未知错误');
+        onError(errorMsg);
       }
     } finally {
       isStreaming.value = false;

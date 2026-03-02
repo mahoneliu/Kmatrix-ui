@@ -3,10 +3,13 @@ import { computed, h, ref } from 'vue';
 import { useIntersectionObserver } from '@vueuse/core';
 import { NButton, NCheckbox, NDropdown, NEmpty, NInput, NInputGroup, NSpin, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({
   name: 'ChunkListPanel'
 });
+
+const { t } = useI18n();
 
 interface Props {
   documentName: string;
@@ -64,9 +67,9 @@ function handleChunkDblClick() {
 
 const displayLevelOptions = computed(() => {
   return [
-    { label: '精简', key: 'concise' },
-    { label: '中等', key: 'medium' },
-    { label: '详细', key: 'detailed' }
+    { label: t('ai.chunk_manager.display_concise'), key: 'concise' },
+    { label: t('ai.chunk_manager.display_medium'), key: 'medium' },
+    { label: t('ai.chunk_manager.display_detailed'), key: 'detailed' }
   ].map(item => ({
     ...item,
     icon:
@@ -94,15 +97,14 @@ useIntersectionObserver(
     :class="displayLevel === 'detailed' ? 'w-1000px' : 'w-800px'"
   >
     <!-- 文档名称 -->
-    <div
-      v-if="documentName"
-      class="text-md mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 font-bold font-medium"
-    >
+    <div v-if="documentName" class="text-md mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 font-medium">
       <div class="h-6 w-6 flex items-center justify-center rounded-sm bg-primary/10 text-xl text-primary">
         <SvgIcon local-icon="mdi-book-open-page-variant" />
       </div>
       {{ documentName }}
-      <span class="whitespace-nowrap text-xs text-gray-400">{{ total }}分块</span>
+      <span class="whitespace-nowrap text-xs text-gray-400">
+        {{ t('ai.chunk_manager.chunk_count', { count: total }) }}
+      </span>
     </div>
 
     <!-- 工具栏 -->
@@ -111,8 +113,8 @@ useIntersectionObserver(
       <NInputGroup class="max-w-300px flex-1">
         <NDropdown
           :options="[
-            { label: '标题', key: 'title' },
-            { label: '内容', key: 'content' }
+            { label: t('ai.chunk_manager.chunk_title'), key: 'title' },
+            { label: t('ai.chunk_manager.chunk_content'), key: 'content' }
           ]"
           @select="
             (key: 'title' | 'content') => {
@@ -121,7 +123,7 @@ useIntersectionObserver(
           "
         >
           <NButton size="small">
-            {{ searchField === 'title' ? '标题' : '内容' }}
+            {{ searchField === 'title' ? t('ai.chunk_manager.chunk_title') : t('ai.chunk_manager.chunk_content') }}
             <template #icon>
               <SvgIcon local-icon="mdi-chevron-down" />
             </template>
@@ -130,7 +132,7 @@ useIntersectionObserver(
 
         <NInput
           :value="searchKeyword"
-          placeholder="搜索"
+          :placeholder="t('common.search')"
           size="small"
           clearable
           @update:value="(v: string) => emit('update:search-keyword', v)"
@@ -154,7 +156,7 @@ useIntersectionObserver(
         "
       >
         <NButton size="small">
-          显示
+          {{ t('ai.chunk_manager.displayLevel') }}
           <template #icon>
             <SvgIcon local-icon="mdi-chevron-down" />
           </template>
@@ -165,27 +167,35 @@ useIntersectionObserver(
       <div class="ml-auto flex items-center gap-2">
         <!-- 批量模式 -->
         <template v-if="isBatchMode">
-          <span class="whitespace-nowrap text-xs text-gray-500">已选 {{ selectedChunkIds.length }} 项</span>
+          <span class="whitespace-nowrap text-xs text-gray-500">
+            {{
+              t('ai.chunk_manager.selected_items', {
+                count: selectedChunkIds.length
+              })
+            }}
+          </span>
           <NDropdown
             :options="batchActionOptions"
             :disabled="selectedChunkIds.length === 0 || batchOperating"
             @select="(key: string) => emit('batchAction', key)"
           >
             <NButton size="small" :loading="batchOperating" :disabled="selectedChunkIds.length === 0">
-              操作
+              {{ t('common.action') }}
               <template #icon>
                 <SvgIcon local-icon="mdi-chevron-down" />
               </template>
             </NButton>
           </NDropdown>
-          <NButton size="small" @click="emit('exitBatch')">取消选择</NButton>
+          <NButton size="small" @click="emit('exitBatch')">{{ t('ai.chunk_manager.exit_batch') }}</NButton>
         </template>
         <template v-else>
-          <NButton size="small" title="批量选择" @click="emit('enterBatch')">批量选择</NButton>
+          <NButton size="small" :title="t('ai.chunk_manager.batch_selection')" @click="emit('enterBatch')">
+            {{ t('ai.chunk_manager.batch_selection') }}
+          </NButton>
         </template>
 
         <!-- 新增按钮 -->
-        <NButton size="small" ghost title="新增分块" @click="emit('openAddModal')">
+        <NButton size="small" ghost :title="t('ai.chunk_manager.add_chunk')" @click="emit('openAddModal')">
           <template #icon>
             <icon-material-symbols-add />
           </template>
@@ -193,14 +203,14 @@ useIntersectionObserver(
       </div>
     </div>
 
-    <!-- 分块列表 -->
-    <div v-if="loading" class="h-600px flex-center">
+    <!-- 加载状态 -->
+    <div v-if="loading && chunks.length === 0" class="h-600px flex-center">
       <NSpin size="small" />
     </div>
 
-    <NEmpty v-else-if="chunks.length === 0" description="暂无分块" class="mt-10" />
+    <NEmpty v-else-if="chunks.length === 0" :description="t('ai.chunk_manager.no_chunks')" class="mt-10" />
 
-    <div v-else class="chunk-list-container" @scroll="(e: Event) => emit('scroll', e)">
+    <div v-else class="chunk-list-container flex-1" @scroll="(e: Event) => emit('scroll', e)">
       <div
         v-for="(chunk, index) in chunks"
         :key="String(chunk.id)"
@@ -224,7 +234,7 @@ useIntersectionObserver(
           />
           <NTag size="small" :bordered="false">{{ index + 1 }}</NTag>
           <span class="flex-1 truncate text-sm font-medium">
-            {{ chunk.title || `分块 ${index + 1}` }}
+            {{ chunk.title || t('ai.chunk_manager.chunk_index', { index: index + 1 }) }}
           </span>
         </div>
 
@@ -240,9 +250,11 @@ useIntersectionObserver(
       <!-- 加载更多提示 -->
       <div v-if="loadingMore" class="py-3 text-center text-sm text-gray-400">
         <NSpin size="small" />
-        <span class="ml-2">加载中...</span>
+        <span class="ml-2">{{ t('ai.chunk_manager.loading') }}</span>
       </div>
-      <div v-else-if="!hasMore && chunks.length > 0" class="py-3 text-center text-sm text-gray-400">已加载全部分块</div>
+      <div v-else-if="!hasMore && chunks.length > 0" class="py-3 text-center text-sm text-gray-400">
+        {{ t('ai.chunk_manager.all_chunks_loaded') }}
+      </div>
 
       <!-- 滚动监听哨兵 -->
       <div v-if="hasMore && !loadingMore" ref="sentinelRef" class="h-1px w-full" />

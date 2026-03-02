@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { NCollapseItem, NInputNumber, NSwitch, NTooltip } from 'naive-ui';
+import { $t } from '@/locales';
 import ModelSelector from '@/components/ai/public/model-selector.vue';
 import TemperatureSlider from '@/components/ai/public/temperature-slider.vue';
 import VariableMention from '@/components/ai/Nodes/add-in/variable-mention.vue';
@@ -53,13 +54,13 @@ function handleConfigChange() {
 </script>
 
 <template>
-  <NCollapseItem title="AI模型配置" name="ai-config">
+  <NCollapseItem :title="$t('ai.workflow_public.ai_model_config')" name="ai-config">
     <template #header-extra>
       <NTooltip>
         <template #trigger>
           <SvgIcon local-icon="mdi-robot" class="text-14px text-primary" />
         </template>
-        配置大语言模型的行为参数
+        {{ $t('ai.workflow_node.config_llm_behavior') }}
       </NTooltip>
     </template>
 
@@ -67,7 +68,7 @@ function handleConfigChange() {
       <!-- 模型选择 -->
       <div class="workflow-config-item">
         <label class="workflow-label">
-          模型
+          {{ $t('ai.workflow_public.model') }}
           <span class="workflow-label-required">*</span>
         </label>
         <ModelSelector v-model:model-value="modelId" @update:model-value="handleConfigChange" />
@@ -80,7 +81,7 @@ function handleConfigChange() {
             <template #trigger>
               <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
             </template>
-            定义AI助手的角色和行为规范,输入 / 选择变量
+            {{ $t('ai.workflow_node.define_ai_role') }}
           </NTooltip>
         </div>
       </div>
@@ -106,7 +107,7 @@ function handleConfigChange() {
             <template #trigger>
               <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-gray-400" />
             </template>
-            模型生成的最大token数,留空则使用模型默认值
+            {{ $t('ai.workflow_node.max_tokens_desc') }}
           </NTooltip>
           <NInputNumber
             v-model:value="maxTokens"
@@ -124,16 +125,16 @@ function handleConfigChange() {
       <!-- 流式输出开关 -->
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <label class="workflow-label">流式输出</label>
+          <label class="workflow-label">{{ $t('ai.workflow_node.stream_output') }}</label>
           <NTooltip>
             <template #trigger>
               <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-gray-400" />
             </template>
-            开启后,模型将实时输出结果,而不是等待生成完成后一次性返回
+            {{ $t('ai.workflow_node.enable_stream_output') }}
           </NTooltip>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-400">{{ streamOutput ? '开启' : '关闭' }}</span>
+          <span class="text-xs text-gray-400">{{ streamOutput ? '开启' : $t('ai.workflow_template.close') }}</span>
           <NSwitch v-model:value="streamOutput" size="small" @update:value="handleConfigChange" />
         </div>
       </div>

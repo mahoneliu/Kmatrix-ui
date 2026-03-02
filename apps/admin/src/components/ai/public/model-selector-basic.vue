@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { NAlert, NButton, NForm, NFormItem, NInput, NInputNumber, NModal } from 'naive-ui';
 import { useAiModelStore } from '@/store/modules/ai/ai-model';
+import { $t } from '@/locales';
 import ModelSelector from '@/components/ai/public/model-selector.vue';
 import TemperatureSlider from '@/components/ai/public/temperature-slider.vue';
 
@@ -25,7 +26,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: '模型选择',
+  title: $t('ai.workflow_public.model_selector'),
   defaultPrompt: '',
   defaultTemperature: 0.7,
   defaultMaxTokens: 2048,
@@ -131,37 +132,46 @@ watch(
       </NAlert>
 
       <!-- AI 模型 -->
-      <NFormItem label="AI 模型" path="modelId" required>
+      <NFormItem :label="$t('ai.workflow_public.ai_model')" path="modelId" required>
         <div class="w-full flex items-center gap-2">
-          <ModelSelector v-model="formData.modelId" class="flex-1" placeholder="请选择 AI 模型" />
+          <ModelSelector
+            v-model="formData.modelId"
+            class="flex-1"
+            :placeholder="$t('ai.workflow_public.please_select_ai_model')"
+          />
           <NButton text type="primary" @click="showAdvanced = !showAdvanced">
             <template #icon>
               <SvgIcon :local-icon="showAdvanced ? 'mdi-chevron-up' : 'mdi-chevron-down'" size="16" />
             </template>
-            参数设置
+            {{ $t('ai.workflow_public.param_settings') }}
           </NButton>
         </div>
       </NFormItem>
 
       <!-- 高级参数 -->
       <div v-if="showAdvanced">
-        <div class="mb-4 text-sm font-medium">高级参数</div>
+        <div class="mb-4 text-sm font-medium">{{ $t('ai.workflow_public.advanced_params') }}</div>
 
-        <NFormItem label="温度 (Temperature)" path="temperature">
+        <NFormItem :label="$t('ai.workflow_public.temperature')" path="temperature">
           <TemperatureSlider v-model:model-value="formData.temperature" :show-label="false" />
         </NFormItem>
 
-        <NFormItem label="最大 Token (Max Tokens)" path="maxTokens">
-          <NInputNumber v-model:value="formData.maxTokens" :min="1" class="w-full" placeholder="默认使用模型上限" />
+        <NFormItem :label="$t('ai.workflow_public.max_tokens')" path="maxTokens">
+          <NInputNumber
+            v-model:value="formData.maxTokens"
+            :min="1"
+            class="w-full"
+            :placeholder="$t('ai.workflow_node.default_use_model_limit')"
+          />
         </NFormItem>
       </div>
 
       <!-- 提示词 -->
-      <NFormItem label="提示词" path="prompt" required>
+      <NFormItem :label="$t('ai.workflow_public.prompt')" path="prompt" required>
         <NInput
           v-model:value="formData.prompt"
           type="textarea"
-          placeholder="请输入提示词"
+          :placeholder="$t('ai.workflow_template.please_input_prompt')"
           :rows="10"
           :autosize="{ minRows: 10, maxRows: 15 }"
         />
@@ -170,8 +180,10 @@ watch(
 
     <template #action>
       <div class="w-full flex justify-end gap-2">
-        <NButton @click="handleCancel">取消</NButton>
-        <NButton type="primary" :disabled="!formData.modelId" @click="handleConfirm">确定</NButton>
+        <NButton @click="handleCancel">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" :disabled="!formData.modelId" @click="handleConfirm">
+          {{ $t('common.confirm') }}
+        </NButton>
       </div>
     </template>
   </NModal>

@@ -61,11 +61,18 @@ export function getTabIdByRoute(route: App.Global.TabRoute) {
  */
 export function getTabByRoute(route: App.Global.TabRoute) {
   const { name, path, fullPath = path, meta } = route;
-
-  const { title, i18nKey, fixedIndexInTab } = meta;
+  let { title, i18nKey, fixedIndexInTab } = meta;
 
   // Get icon and localIcon from getRouteIcons function
   const { icon, localIcon } = getRouteIcons(route);
+
+  if (!i18nKey) {
+    if (title && (title.startsWith('route.') || title.startsWith('menu.'))) {
+      i18nKey = title as App.I18n.I18nKey;
+    } else {
+      i18nKey = `route.${name as string}` as App.I18n.I18nKey;
+    }
+  }
 
   const label = i18nKey ? $t(i18nKey) : title;
 
@@ -115,14 +122,16 @@ export function getRouteIcons(route: App.Global.TabRoute) {
  */
 export function getDefaultHomeTab(router: Router, homeRouteName: LastLevelRouteKey) {
   const homeRoutePath = getRoutePath(homeRouteName);
-  const i18nLabel = $t(`route.${homeRouteName}`);
+  const i18nKey = `route.${homeRouteName}` as App.I18n.I18nKey;
+  const label = $t(i18nKey);
 
   let homeTab: App.Global.Tab = {
     id: getRoutePath(homeRouteName),
-    label: i18nLabel || homeRouteName,
+    label: label || homeRouteName,
     routeKey: homeRouteName,
     routePath: homeRoutePath,
-    fullPath: homeRoutePath
+    fullPath: homeRoutePath,
+    i18nKey
   };
 
   const routes = router.getRoutes();

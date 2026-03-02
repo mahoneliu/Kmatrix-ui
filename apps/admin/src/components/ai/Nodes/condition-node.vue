@@ -12,6 +12,7 @@ import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { getAvailableParamsForNode } from '@/utils/ai/param-resolver';
+import { $t } from '@/locales';
 import ConditionBuilder from './add-in/condition-builder.vue';
 import BaseNode from './base-node.vue';
 
@@ -108,12 +109,12 @@ const opMap: Record<string, string> = {
   lt: '<',
   gte: '≥',
   lte: '≤',
-  contains: '包含',
-  notContains: '不包含',
+  contains: $t('ai.workflow_node.contain'),
+  notContains: $t('ai.workflow_node.not_contain'),
   startsWith: '开头',
-  endsWith: '结尾',
+  endsWith: $t('ai.workflow_node.end_suffix'),
   isEmpty: '为空',
-  isNotEmpty: '不为空'
+  isNotEmpty: $t('ai.workflow_node.not_empty')
 };
 
 // 获取友好的参数名称
@@ -138,11 +139,11 @@ function getParamLabel(variable: any): string {
 // 生成条件摘要 (增强兼容性)
 function getConditionSummary(condition: Workflow.ConditionGroup): string {
   if (!condition || !condition.conditions) return '获取中...';
-  if (condition.conditions.length === 0) return '未设置条件';
+  if (condition.conditions.length === 0) return $t('ai.workflow_node.condition_not_set');
 
   try {
     const first = condition.conditions[0] as any;
-    if (!first) return '未设置条件';
+    if (!first) return $t('ai.workflow_node.condition_not_set');
 
     let summary = '';
     // 兼容多种属性路径 (Workflow.ConditionRule)
@@ -154,7 +155,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     } else if (first.conditions || first.type === 'group') {
       summary = '嵌套分组';
     } else {
-      summary = '配置条件';
+      summary = $t('ai.workflow_node.config_condition');
     }
 
     if (condition.conditions.length > 1) {
@@ -180,7 +181,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
       <!-- 条件分支列表 -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
-          <label class="flex-1 pl-1">条件分支 (IF / ELSE IF)</label>
+          <label class="flex-1 pl-1">{{ $t('ai.workflow_node.condition_branch_if_else') }}</label>
           <div class="mr-2 flex flex-shrink-0 items-center">
             <NButton secondary size="tiny" @click="addBranch">
               <template #icon>
@@ -228,9 +229,13 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
                 class="max-h-300 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
               >
                 <div class="mb-3 flex items-center justify-between">
-                  <div class="text-sm c-gray-8 font-bold dark:c-gray-1">配置分支条件</div>
+                  <div class="text-sm c-gray-8 font-bold dark:c-gray-1">
+                    {{ $t('ai.workflow_node.config_branch_condition') }}
+                  </div>
                   <NButton text type="error" size="tiny" @click="removeBranch(index)">
-                    <template #icon><SvgIcon local-icon="mdi-delete" /></template>
+                    <template #icon>
+                      <SvgIcon local-icon="mdi-delete" />
+                    </template>
                     删除
                   </NButton>
                 </div>

@@ -2,10 +2,13 @@
 import { h } from 'vue';
 import { NButton, NCard, NDropdown, NSwitch } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({
   name: 'ChunkDetailCard'
 });
+
+const { t } = useI18n();
 
 interface Props {
   chunk: Api.AI.KB.DocumentChunk;
@@ -22,19 +25,6 @@ interface Emits {
 defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const dropdownOptions = [
-  {
-    label: 'AI 生成问题',
-    key: 'generate',
-    icon: () => h(SvgIcon, { localIcon: 'mdi-magic-staff' })
-  },
-  {
-    label: '删除分块',
-    key: 'delete',
-    icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline' })
-  }
-];
-
 function handleDropdownSelect(key: string) {
   if (key === 'generate') {
     emit('generateQuestions');
@@ -45,16 +35,16 @@ function handleDropdownSelect(key: string) {
 </script>
 
 <template>
-  <NCard
-    size="small"
-    class="chunk-detail-card flex flex-col flex-1 cursor-pointer transition-shadow hover:shadow-md"
-    content-style="display: flex; flex-direction: column; flex: 1; min-height: 0;"
-    @click="emit('edit')"
-  >
+  <NCard :bordered="false" size="small" class="h-full flex-col shadow-sm">
     <template #header>
       <div class="flex items-center justify-between">
         <span class="text-base font-medium">
-          {{ chunk.title || `分块 ${chunkIndex + 1}` }}
+          {{
+            chunk?.title ||
+            t('ai.chunk_manager.chunk_index', {
+              index: chunkIndex + 1
+            })
+          }}
         </span>
 
         <!-- 悬浮操作栏 -->
@@ -62,21 +52,37 @@ function handleDropdownSelect(key: string) {
           <!-- 启用/禁用开关 -->
           <NSwitch :value="chunk.enabled === 1" size="small" @update:value="enabled => emit('toggleStatus', enabled)" />
 
-          <!-- 编辑按钮 -->
-          <NButton size="small" text @click="emit('edit')">
-            <template #icon>
-              <icon-material-symbols-drive-file-rename-outline-outline />
-            </template>
-          </NButton>
-
-          <!-- 更多菜单 -->
-          <NDropdown :options="dropdownOptions" @select="handleDropdownSelect">
-            <NButton size="small" text>
+          <div v-if="chunk" class="flex items-center gap-2">
+            <NButton quaternary size="tiny" @click="emit('edit')">
               <template #icon>
-                <icon-material-symbols-more-vert />
+                <icon-meilisearch:edit class="text-base" />
               </template>
+              {{ t('common.edit') }}
             </NButton>
-          </NDropdown>
+            <NDropdown
+              trigger="click"
+              :options="[
+                {
+                  label: t('ai.chunk_manager.ai_generate_question'),
+                  key: 'generate',
+                  icon: () => h(SvgIcon, { localIcon: 'mdi-magic-staff' })
+                },
+                {
+                  label: t('ai.chunk_manager.batch_delete'),
+                  key: 'delete',
+                  icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline' }),
+                  props: { class: 'text-error' }
+                }
+              ]"
+              @select="handleDropdownSelect"
+            >
+              <NButton size="small" text>
+                <template #icon>
+                  <icon-material-symbols-more-vert />
+                </template>
+              </NButton>
+            </NDropdown>
+          </div>
         </div>
       </div>
     </template>

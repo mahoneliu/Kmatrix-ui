@@ -4,6 +4,7 @@ import { NButton, NInput } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
@@ -90,7 +91,7 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
       <!-- 意图列表 -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
-          <label>定义意图分支</label>
+          <label>{{ $t('ai.workflow_node.define_intent_branch') }}</label>
           <NButton secondary size="tiny" class="mr-2" @click="addIntent">
             <template #icon>
               <SvgIcon local-icon="mdi-plus" />
@@ -103,7 +104,12 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           class="relative flex items-center justify-between gap-2"
         >
           <!-- 意图名称输入 -->
-          <NInput v-model:value="localConfig.intents[index]" placeholder="意图名称" size="small" class="mr-2 flex-1" />
+          <NInput
+            v-model:value="localConfig.intents[index]"
+            :placeholder="$t('ai.workflow_node.intent_name')"
+            size="small"
+            class="mr-2 flex-1"
+          />
 
           <!-- 删除按钮 -->
           <NButton class="workflow-btn-remove mr-3" secondary size="tiny" @click="removeIntent(index)">

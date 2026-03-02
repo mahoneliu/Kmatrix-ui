@@ -51,6 +51,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     const constantRoutesMap = new Map<string, ElegantConstRoute>([]);
 
     routes.forEach(route => {
+      parseRouter(route);
       constantRoutesMap.set(route.name, route);
     });
 
@@ -126,8 +127,9 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     } else if (!isNotNull(route.meta.icon)) {
       route.meta.icon = defaultIcon;
     }
-    // @ts-expect-error no hidden field
-    route.meta.hideInMenu = route.hidden;
+    if ((route as any).hidden !== undefined) {
+      route.meta.hideInMenu = (route as any).hidden;
+    }
     // @ts-expect-error route.meta.activeMenu is activeMenu type
     route.meta.activeMenu = route.meta?.activeMenu?.substring(1);
     if (route.meta.hideInMenu && parent && !route.meta.activeMenu) {

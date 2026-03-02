@@ -14,6 +14,7 @@ import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { filterParamSourcesByType, getAvailableParamsForNode } from '@/utils/ai/param-resolver';
 import { getNodeIconBackground } from '@/utils/color';
 import { type CompatibilityLevel, getTypeCompatibilityInfo } from '@/utils/ai/type-compatibility';
+import { $t } from '@/locales';
 
 interface Props {
   /** 当前节点ID */
@@ -35,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
   binding: undefined,
   variableValue: undefined,
   filterByType: false, // 默认不进行类型过滤
-  placeholder: '选择变量'
+  placeholder: $t('ai.workflow_node.select_variable')
 });
 
 const emit = defineEmits<{

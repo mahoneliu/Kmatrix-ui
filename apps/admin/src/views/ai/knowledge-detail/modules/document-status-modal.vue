@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { NEmpty, NModal, NTimeline, NTimelineItem } from 'naive-ui';
 import dayjs from 'dayjs';
+import { $t } from '@/locales';
 
 interface Props {
   visible: boolean;
@@ -37,26 +38,29 @@ const timelineItems = computed(() => {
   }> = [];
 
   const taskNameMap: Record<string, string> = {
-    '1': '向量化任务',
-    '2': '问题生成任务'
+    '1': $t('ai.documentStatusModal.embeddingTask'),
+    '2': $t('ai.documentStatusModal.generateQuestionTask')
   };
 
   const statusMap: Record<string, { label: string; type: 'default' | 'success' | 'info' | 'warning' | 'error' }> = {
-    '0': { label: '排队中 (Pending)', type: 'default' },
-    '1': { label: '执行中 (Started)', type: 'info' },
-    '2': { label: '已完成 (Success)', type: 'success' },
-    '3': { label: '失败 (Failed)', type: 'error' }
+    '0': { label: $t('ai.documentStatusModal.pending'), type: 'default' },
+    '1': { label: $t('ai.documentStatusModal.started'), type: 'info' },
+    '2': { label: $t('ai.documentStatusModal.success'), type: 'success' },
+    '3': { label: $t('ai.documentStatusModal.failed'), type: 'error' }
   };
 
   const stateTime = props.meta.state_time;
 
   Object.keys(stateTime).forEach(taskType => {
     const taskStates = stateTime[taskType];
-    const taskName = taskNameMap[taskType] || `未知任务(${taskType})`;
+    const taskName = taskNameMap[taskType] || `${$t('ai.documentStatusModal.unknownTask')}(${taskType})`;
 
     Object.keys(taskStates).forEach(status => {
       const timeStr = taskStates[status];
-      const statusInfo = statusMap[status] || { label: `未知状态(${status})`, type: 'default' };
+      const statusInfo = statusMap[status] || {
+        label: `${$t('ai.documentStatusModal.unknownStatus')}(${status})`,
+        type: 'default'
+      };
 
       items.push({
         type: statusInfo.type,
@@ -73,7 +77,7 @@ const timelineItems = computed(() => {
 </script>
 
 <template>
-  <NModal v-model:show="show" preset="card" title="状态变更记录" class="w-600px">
+  <NModal v-model:show="show" preset="card" :title="$t('ai.documentStatusModal.statusChangeRecord')" class="w-600px">
     <div v-if="timelineItems.length > 0" class="p-4">
       <NTimeline>
         <NTimelineItem
@@ -86,7 +90,7 @@ const timelineItems = computed(() => {
       </NTimeline>
     </div>
     <div v-else class="p-8">
-      <NEmpty description="暂无状态记录" />
+      <NEmpty :description="$t('ai.documentStatusModal.noStatusRecord')" />
     </div>
   </NModal>
 </template>

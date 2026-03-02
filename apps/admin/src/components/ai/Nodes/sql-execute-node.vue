@@ -11,6 +11,7 @@ import { NCollapse, NCollapseItem, NInputNumber, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
+import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
@@ -75,23 +76,23 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="基础配置" name="config">
+        <NCollapseItem :title="$t('ai.workflow_template.base_config')" name="config">
           <div class="workflow-config-section">
             <div class="workflow-config-item">
               <label class="workflow-label">
-                数据源
+                {{ $t('ai.workflow_node.data_source') }}
                 <span class="workflow-label-required">*</span>
               </label>
               <NSelect
                 v-model:value="formModel.dataSourceId"
                 :options="dataSourceOptions"
-                placeholder="选择数据源"
+                :placeholder="$t('ai.workflow_node.select_datasource')"
                 size="small"
               />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">最大返回行数</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.max_return_rows') }}</label>
               <NInputNumber v-model:value="formModel.maxRows" :min="1" :max="10000" placeholder="100" size="small" />
             </div>
           </div>

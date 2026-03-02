@@ -4,6 +4,7 @@ import { useDialog, useMessage } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { aiModelTypeRecord, aiProviderTypeRecord } from '@/constants/business';
 import { copyModel, deleteModel, fetchModelList } from '@/service/api/ai/model';
+import { $t } from '@/locales';
 import ModelModal from './model-modal.vue';
 
 interface Props {
@@ -23,8 +24,8 @@ const searchText = ref('');
 const searchType = ref<'name' | 'modelKey'>('name');
 
 const searchOptions = [
-  { label: '模型名称', value: 'name' },
-  { label: '基础模型', value: 'modelKey' }
+  { label: $t('ai.model_manager.model_name'), value: 'name' },
+  { label: $t('ai.model_manager.base_model'), value: 'modelKey' }
 ];
 
 const filteredModels = computed(() => {
@@ -88,14 +89,14 @@ function handleEdit(item: Api.AI.Admin.Model) {
 
 function handleDelete(item: Api.AI.Admin.Model) {
   dialog.warning({
-    title: '确认删除',
+    title: $t('ai.model_manager.confirm_delete'),
     content: `确定要删除模型 "${item.modelName}" 吗？`,
-    positiveText: '确定',
-    negativeText: '取消',
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await deleteModel(item.modelId);
       if (!error) {
-        message.success('删除成功');
+        message.success($t('ai.model_manager.delete_success'));
         loadModels();
       }
     }
@@ -105,7 +106,7 @@ function handleDelete(item: Api.AI.Admin.Model) {
 async function handleCopy(item: Api.AI.Admin.Model) {
   const { error } = await copyModel(item.modelId);
   if (!error) {
-    message.success('复制成功');
+    message.success($t('ai.model_manager.copy_success'));
     loadModels();
   }
 }
@@ -116,7 +117,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
     <NCard
       :bordered="false"
       size="small"
-      title="模型"
+      :title="$t('ai.model_manager.model')"
       class="h-full card-wrapper"
       content-class="flex flex-col h-full overflow-hidden"
     >
@@ -124,7 +125,13 @@ async function handleCopy(item: Api.AI.Admin.Model) {
         <div class="flex items-center gap-3">
           <NInputGroup class="w-80">
             <NSelect v-model:value="searchType" :options="searchOptions" class="w-[35%]" size="small" />
-            <NInput v-model:value="searchText" placeholder="请输入关键词" clearable size="small" class="w-[65%]">
+            <NInput
+              v-model:value="searchText"
+              :placeholder="$t('ai.model_manager.search_placeholder')"
+              clearable
+              size="small"
+              class="w-[65%]"
+            >
               <template #prefix>
                 <div class="i-carbon-search"></div>
               </template>
@@ -135,14 +142,18 @@ async function handleCopy(item: Api.AI.Admin.Model) {
             <template #icon>
               <SvgIcon local-icon="carbon-add" />
             </template>
-            新增模型
+            {{ $t('ai.model_manager.add_model') }}
           </NButton>
         </div>
       </template>
 
       <NSpin :show="loading" class="min-h-0 flex-1">
         <NScrollbar class="h-full" content-class="p-4">
-          <NEmpty v-if="filteredModels.length === 0" description="暂无模型数据" class="mt-20" />
+          <NEmpty
+            v-if="filteredModels.length === 0"
+            :description="$t('ai.model_manager.no_model_data')"
+            class="mt-20"
+          />
           <NGrid v-else cols="1 s:1 m:2 l:3" x-gap="16" y-gap="16" responsive="screen">
             <NGi v-for="item in filteredModels" :key="item.modelId">
               <NCard
@@ -156,10 +167,18 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                   <NDropdown
                     trigger="hover"
                     :options="[
-                      { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { localIcon: 'carbon-edit' }) },
-                      { label: '复制', key: 'copy', icon: () => h(SvgIcon, { localIcon: 'carbon-copy' }) },
                       {
-                        label: '删除',
+                        label: $t('common.edit'),
+                        key: 'edit',
+                        icon: () => h(SvgIcon, { localIcon: 'carbon-edit' })
+                      },
+                      {
+                        label: $t('ai.model_manager.copy'),
+                        key: 'copy',
+                        icon: () => h(SvgIcon, { localIcon: 'carbon-copy' })
+                      },
+                      {
+                        label: $t('common.delete'),
                         key: 'delete',
                         icon: () => h(SvgIcon, { localIcon: 'carbon-trash-can', class: 'text-error' }),
                         labelProps: { class: 'text-error' }
@@ -214,7 +233,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                       {{ item.apiBase }}
                     </div>
                     <div class="flex items-center justify-start gap-4">
-                      <span class="flex-shrink-0 text-gray-400">基础模型</span>
+                      <span class="flex-shrink-0 text-gray-400">{{ $t('ai.model_manager.base_model') }}</span>
                       <span :title="item.modelKey" class="truncate text-xs text-gray-600 font-mono dark:text-gray-300">
                         {{ item.modelKey }}
                       </span>
@@ -227,7 +246,7 @@ async function handleCopy(item: Api.AI.Admin.Model) {
                           class="h-1.5 w-1.5 rounded-full"
                         ></div>
                         <span :class="item.status === '0' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'">
-                          {{ item.status === '0' ? '启用' : '禁用' }}
+                          {{ item.status === '0' ? $t('common.enable') : $t('common.disable') }}
                         </span>
                       </div>
                     </div>

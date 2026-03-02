@@ -6,6 +6,7 @@
 
 import { defineStore } from 'pinia';
 import type { Edge, Node } from '@vue-flow/core';
+import { $t } from '@/locales';
 
 interface WorkflowState {
   /** 节点列表 */
@@ -47,7 +48,7 @@ export const useWorkflowStore = defineStore('workflow', {
     updatingEdgeId: null,
     selectedNodeId: null,
     executionStatus: {},
-    workflowName: '新工作流',
+    workflowName: $t('ai.workflow_template.new_workflow'),
     workflowId: null,
     collapseAllNodes: null,
     isDirty: false,
@@ -191,7 +192,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.edges = [];
       this.selectedNodeId = null;
       this.executionStatus = {};
-      this.workflowName = '新工作流';
+      this.workflowName = $t('ai.workflow_template.new_workflow');
       this.workflowId = null;
     },
 

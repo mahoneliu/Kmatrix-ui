@@ -2,6 +2,7 @@
 import { defineAsyncComponent } from 'vue';
 import { NButton, NInput, NPopover, useMessage } from 'naive-ui';
 import { getTagBackground } from '@/utils/color';
+import { $t } from '@/locales';
 
 const ParamSelector = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/param-selector.vue'));
 
@@ -64,13 +65,13 @@ function handleAddParam(type: 'input' | 'output') {
   const hasEmptyKey = existingParams.some(p => !p.key || p.key.trim() === '');
 
   if (hasEmptyKey) {
-    message.warning('请先完成现有参数的配置');
+    message.warning($t('ai.workflow.please_finish_current_param_config'));
     return;
   }
 
   const newParam: Workflow.ParamDefinition = {
     key: '', // 初始键名为空,等待用户输入或自动填充
-    label: '未命名参数',
+    label: $t('ai.workflow.unnamed_param'),
     type: 'string',
     required: false
   };
@@ -124,7 +125,7 @@ async function copyParamKey(e: Event, key: string) {
     await navigator.clipboard.writeText(ref);
     message.success(`复制成功: ${ref}`);
   } catch {
-    message.error('复制失败,请手动复制');
+    message.error($t('ai.workflow_template.copy_failed'));
   }
 }
 
@@ -216,12 +217,12 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
         <div class="flex items-center gap-4">
           <!-- 左侧: 变量名 -->
           <div class="w-100px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
-            <span class="text-12px font-500">参数名</span>
+            <span class="text-12px font-500">{{ $t('ai.workflow_node.param_name') }}</span>
           </div>
 
           <!-- 右侧: 参数选择器 -->
           <div class="w-240px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
-            <span class="text-12px font-500">变量选择</span>
+            <span class="text-12px font-500">{{ $t('ai.workflow_node.variable_selection') }}</span>
           </div>
         </div>
       </div>
@@ -275,7 +276,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
               class="text-12px"
               :value="param.key"
               size="small"
-              placeholder="键名"
+              :placeholder="$t('ai.workflow_node.key_name')"
               @update:value="val => updateCustomParamKey(param.key, val, 'input')"
             />
           </div>
@@ -333,7 +334,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
         <div v-for="(param, index) in customOutputParams" :key="index" class="flex flex-col gap-1">
           <!--
  <div class="flex items-center justify-between text-11px c-gray-5 font-600">
-            <span>自定义输出</span>
+            <span>{{ $t('ai.workflow_node.custom_output') }}</span>
             <NButton v-if="allowCustomOutput" size="tiny" secondary @click="handleAddParam('output')">
               <template #icon>
                 <SvgIcon local-icon="mdi-plus" />
@@ -350,7 +351,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
                 class="text-12px"
                 :value="param.key"
                 size="small"
-                placeholder="键名"
+                :placeholder="$t('ai.workflow_node.key_name')"
                 @update:value="val => updateCustomParamKey(param.key, val, 'output')"
               />
             </div>

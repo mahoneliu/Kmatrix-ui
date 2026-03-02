@@ -1,6 +1,19 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { NButton, NFormItem, NInput, NInputNumber, NSelect, NSlider, NSpin, useMessage } from 'naive-ui';
+import {
+  NButton,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NSelect,
+  NSlider,
+  NSpin,
+  NSwitch,
+  NTabPane,
+  NTabs,
+  useMessage
+} from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { fetchModelList } from '@/service/api/ai/model';
 import { fetchAllKnowledgeBases } from '@/service/api/ai/knowledge';
@@ -28,6 +41,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+const { t } = useI18n();
 const message = useMessage();
 const loading = ref(false);
 const saving = ref(false);
@@ -218,7 +232,7 @@ async function loadOptions() {
       }));
     }
   } catch {
-    message.error('加载配置选项失败');
+    message.error(t('ai.app_detail.config.load_options_failed'));
   } finally {
     loading.value = false;
   }
@@ -283,7 +297,7 @@ function updateGraphDataWithFormData(graphData: Workflow.GraphData): Workflow.Gr
 
 async function handleSave() {
   if (!canSave.value) {
-    message.warning('请填写应用名称、选择大模型和知识库');
+    message.warning(t('ai.app_detail.config.save_warning'));
     return false;
   }
 
@@ -319,13 +333,13 @@ async function handleSave() {
     });
 
     if (!error) {
-      message.success('配置已保存');
+      message.success(t('ai.app_detail.config.save_success'));
       emit('update');
       return true;
     }
     return false;
   } catch {
-    message.error('保存失败');
+    message.error(t('ai.app_detail.config.save_failed'));
     return false;
   } finally {
     saving.value = false;
@@ -334,12 +348,18 @@ async function handleSave() {
 
 // 温度提示
 const temperatureMarks = {
-  0: '精确',
-  0.5: '平衡',
-  1: '创意',
-  1.5: '随机',
-  2: '极随机'
+  0: t('ai.app_detail.config.temp_precise'),
+  0.5: t('ai.app_detail.config.temp_balanced'),
+  1: t('ai.app_detail.config.temp_creative'),
+  1.5: t('ai.app_detail.config.temp_random'),
+  2: t('ai.app_detail.config.temp_very_random')
 };
+
+const kbModeOptions = [
+  { label: t('ai.app_detail.config.kb_mode_vector'), value: 'VECTOR' },
+  { label: t('ai.app_detail.config.kb_mode_keyword'), value: 'KEYWORD' },
+  { label: t('ai.app_detail.config.kb_mode_hybrid'), value: 'HYBRID' }
+];
 
 onMounted(() => {
   initFormData();
@@ -358,23 +378,29 @@ defineExpose({
       <div class="flex flex-col gap-3 px-3">
         <!-- 应用名称 (总是可见) -->
         <NFormItem
-          label="应用名称"
+          :label="t('ai.app_manager.app_name')"
           label-placement="left"
-          label-width="90"
+          label-width="140"
           :show-feedback="false"
           class="compact-form-item"
         >
-          <template #label><span class="whitespace-nowrap font-bold">应用名称</span></template>
-          <NInput v-model:value="formData.appName" placeholder="请输入应用名称" class="w-full" />
+          <template #label>
+            <span class="font-bold">{{ t('ai.app_manager.app_name') }}</span>
+          </template>
+          <NInput
+            v-model:value="formData.appName"
+            :placeholder="t('ai.app_manager.app_name_placeholder')"
+            class="w-full"
+          />
         </NFormItem>
 
         <NTabs type="line" animated>
           <!-- AI 模型配置页 -->
-          <NTabPane name="ai" tab="AI 模型配置">
+          <NTabPane name="ai" :tab="t('ai.app_detail.config.ai_model_tab')">
             <template #tab>
               <div class="flex items-center gap-2">
                 <SvgIcon local-icon="mdi-robot" />
-                <span>AI 模型配置</span>
+                <span>{{ t('ai.app_detail.config.ai_model_tab') }}</span>
               </div>
             </template>
             <div
@@ -382,22 +408,22 @@ defineExpose({
             >
               <!-- 选择模型 -->
               <NFormItem
-                label="推理模型"
+                :label="t('ai.app_detail.config.inference_model')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item"
               >
                 <template #label>
-                  <span class="whitespace-nowrap">
-                    推理模型
+                  <span>
+                    {{ t('ai.app_detail.config.inference_model') }}
                     <span class="text-red-500">*</span>
                   </span>
                 </template>
                 <NSelect
                   v-model:value="formData.modelId"
                   :options="modelOptions"
-                  placeholder="请选择推理模型"
+                  :placeholder="t('common.pleaseSelect') + t('ai.app_detail.config.inference_model')"
                   filterable
                   class="w-full"
                 />
@@ -405,49 +431,55 @@ defineExpose({
 
               <!-- 系统提示词 -->
               <NFormItem
-                label="系统提示词"
+                :label="t('ai.app_detail.config.system_prompt')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item"
               >
-                <template #label><span class="whitespace-nowrap">系统提示词</span></template>
+                <template #label>
+                  <span>{{ t('ai.app_detail.config.system_prompt') }}</span>
+                </template>
                 <NInput
                   v-model:value="formData.systemPrompt"
                   type="textarea"
                   :autosize="{ minRows: 3, maxRows: 6 }"
-                  placeholder="定义 AI 助手的角色和行为规范"
+                  :placeholder="t('ai.app_detail.config.system_prompt_placeholder')"
                   class="w-full"
                 />
               </NFormItem>
 
               <!-- 用户提示词 -->
               <NFormItem
-                label="用户提示词"
+                :label="t('ai.app_detail.config.user_prompt')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item"
               >
-                <template #label><span class="whitespace-nowrap">用户提示词</span></template>
+                <template #label>
+                  <span>{{ t('ai.app_detail.config.user_prompt') }}</span>
+                </template>
                 <NInput
                   v-model:value="formData.userPrompt"
                   type="textarea"
                   :autosize="{ minRows: 2, maxRows: 4 }"
-                  placeholder="用户向大模型提出的具体问题或指令 (可选)"
+                  :placeholder="t('ai.app_detail.config.user_prompt_placeholder')"
                   class="w-full"
                 />
               </NFormItem>
 
               <!-- 温度 -->
               <NFormItem
-                label="温度"
+                :label="t('ai.app_detail.config.temperature')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item pb-2 pt-2"
               >
-                <template #label><span class="whitespace-nowrap">温度</span></template>
+                <template #label>
+                  <span>{{ t('ai.app_detail.config.temperature') }}</span>
+                </template>
                 <div class="w-full flex items-center gap-4 px-2">
                   <NSlider
                     v-model:value="formData.temperature"
@@ -468,11 +500,11 @@ defineExpose({
                 <NFormItem
                   label="Top P"
                   label-placement="left"
-                  label-width="80"
+                  label-width="140"
                   :show-feedback="false"
                   class="compact-form-item flex-1"
                 >
-                  <template #label><span class="whitespace-nowrap">Top P</span></template>
+                  <template #label><span>Top P</span></template>
                   <div class="w-full flex items-center gap-4 px-2">
                     <NSlider v-model:value="formData.topP" :min="0" :max="1" :step="0.1" class="flex-1" />
                     <span class="w-8 text-center text-xs text-gray-400">{{ formData.topP }}</span>
@@ -481,13 +513,15 @@ defineExpose({
 
                 <!-- 最大 Token -->
                 <NFormItem
-                  label="Max Token"
+                  :label="t('ai.app_detail.config.max_tokens')"
                   label-placement="left"
-                  label-width="80"
+                  label-width="140"
                   :show-feedback="false"
                   class="compact-form-item flex-1"
                 >
-                  <template #label><span class="whitespace-nowrap">Max Token</span></template>
+                  <template #label>
+                    <span>{{ t('ai.app_detail.config.max_tokens') }}</span>
+                  </template>
                   <NInputNumber
                     v-model:value="formData.maxTokens"
                     :min="1"
@@ -502,13 +536,15 @@ defineExpose({
               <div class="flex gap-8">
                 <!-- 启用历史会话 -->
                 <NFormItem
-                  label="携带历史"
+                  :label="t('ai.app_detail.config.enable_history')"
                   label-placement="left"
-                  label-width="80"
+                  label-width="140"
                   :show-feedback="false"
                   class="compact-form-item flex-none"
                 >
-                  <template #label><span class="whitespace-nowrap">携带历史</span></template>
+                  <template #label>
+                    <span>{{ t('ai.app_detail.config.enable_history') }}</span>
+                  </template>
                   <NSwitch v-model:value="formData.enableHistory" size="small" />
                 </NFormItem>
 
@@ -516,13 +552,15 @@ defineExpose({
                 <NFormItem
                   v-if="formData.enableHistory"
                   key="historyCount"
-                  label="历史条数"
+                  :label="t('ai.app_detail.config.history_count')"
                   label-placement="left"
-                  label-width="80"
+                  label-width="140"
                   :show-feedback="false"
                   class="compact-form-item flex-1"
                 >
-                  <template #label><span class="whitespace-nowrap">历史条数</span></template>
+                  <template #label>
+                    <span>{{ t('ai.app_detail.config.history_count') }}</span>
+                  </template>
                   <NInputNumber v-model:value="formData.historyCount" :min="1" :max="50" size="small" class="w-24" />
                 </NFormItem>
               </div>
@@ -530,13 +568,15 @@ defineExpose({
               <div class="flex gap-8">
                 <!-- 流式输出 -->
                 <NFormItem
-                  label="流式输出"
+                  :label="t('ai.app_detail.config.stream_output')"
                   label-placement="left"
-                  label-width="80"
+                  label-width="140"
                   :show-feedback="false"
                   class="compact-form-item flex-none"
                 >
-                  <template #label><span class="whitespace-nowrap">流式输出</span></template>
+                  <template #label>
+                    <span>{{ t('ai.app_detail.config.stream_output') }}</span>
+                  </template>
                   <NSwitch v-model:value="formData.streamOutput" size="small" />
                 </NFormItem>
               </div>
@@ -544,11 +584,11 @@ defineExpose({
           </NTabPane>
 
           <!-- 知识检索配置页 -->
-          <NTabPane name="kb" tab="知识检索配置">
+          <NTabPane name="kb" :tab="t('ai.app_detail.config.kb_retrieval_tab')">
             <template #tab>
               <div class="flex items-center gap-2">
                 <SvgIcon local-icon="mdi-database-search" />
-                <span>知识检索配置</span>
+                <span>{{ t('ai.app_detail.config.kb_retrieval_tab') }}</span>
               </div>
             </template>
             <div
@@ -556,20 +596,20 @@ defineExpose({
             >
               <!-- 选择知识库 -->
               <NFormItem
-                label="知识库"
+                :label="t('ai.app_detail.config.knowledgeBase')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item"
               >
                 <template #label>
-                  <span class="whitespace-nowrap">知识库</span>
+                  <span>{{ t('ai.app_detail.config.knowledgeBase') }}</span>
                   <span class="text-red-500">*</span>
                 </template>
                 <NSelect
                   v-model:value="formData.kbIds"
                   :options="kbOptions"
-                  placeholder="请选择知识库"
+                  :placeholder="t('ai.app_detail.config.pleaseSelect') + t('ai.app_detail.config.knowledgeBase')"
                   multiple
                   filterable
                   class="w-full"
@@ -578,35 +618,26 @@ defineExpose({
 
               <!-- 检索模式 -->
               <NFormItem
-                label="检索模式"
+                :label="t('ai.app_detail.config.retrieval_mode')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item flex-1"
               >
                 <template #label>
-                  <span class="whitespace-nowrap">
-                    检索模式
+                  <span>
+                    {{ t('ai.app_detail.config.retrieval_mode') }}
                     <span class="text-red-500">*</span>
                   </span>
                 </template>
-                <NSelect
-                  v-model:value="formData.kbMode"
-                  :options="[
-                    { label: '向量检索', value: 'VECTOR' },
-                    { label: '关键词检索', value: 'KEYWORD' },
-                    { label: '混合检索', value: 'HYBRID' }
-                  ]"
-                  size="small"
-                  class="w-full"
-                />
+                <NSelect v-model:value="formData.kbMode" :options="kbModeOptions" size="small" class="w-full" />
               </NFormItem>
 
               <!-- 返回数量 (Top K) -->
               <NFormItem
                 label="Top K"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item flex-1"
               >
@@ -616,13 +647,15 @@ defineExpose({
 
               <!-- 相似度阈值 -->
               <NFormItem
-                label="相似度阈值"
+                :label="t('ai.app_detail.config.threshold')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item flex-1"
               >
-                <template #label><span class="whitespace-nowrap">分值阈值</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">{{ t('ai.app_detail.config.threshold') }}</span>
+                </template>
                 <div class="flex flex-1 items-center gap-2">
                   <NSlider v-model:value="formData.kbThreshold" :min="0" :max="1" :step="0.05" class="flex-1" />
                   <span class="w-8 text-center text-xs text-gray-400">{{ formData.kbThreshold }}</span>
@@ -631,30 +664,34 @@ defineExpose({
 
               <!-- 启用重排序 (Rerank) -->
               <NFormItem
-                label="重排序"
+                :label="t('ai.app_detail.config.rerank')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item flex-none"
               >
-                <template #label><span class="whitespace-nowrap">重排序</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">{{ t('ai.app_detail.config.rerank') }}</span>
+                </template>
                 <NSwitch v-model:value="formData.kbEnableRerank" size="small" />
               </NFormItem>
 
               <!-- 空结果回复 -->
               <NFormItem
-                label="空结果回复"
+                :label="t('ai.app_detail.config.empty_response')"
                 label-placement="left"
-                label-width="80"
+                label-width="140"
                 :show-feedback="false"
                 class="compact-form-item"
               >
-                <template #label><span class="whitespace-nowrap">空结果回复</span></template>
+                <template #label>
+                  <span class="whitespace-nowrap">{{ t('ai.app_detail.config.empty_response') }}</span>
+                </template>
                 <NInput
                   v-model:value="formData.kbEmptyResponse"
                   type="textarea"
                   :autosize="{ minRows: 3, maxRows: 5 }"
-                  placeholder="未找到相关知识时的默认回复 (可选)"
+                  :placeholder="t('ai.app_detail.config.empty_response_placeholder')"
                   class="w-full"
                 />
               </NFormItem>
@@ -668,7 +705,7 @@ defineExpose({
             <template #icon>
               <SvgIcon local-icon="mdi-content-save" />
             </template>
-            保存配置
+            {{ t('ai.app_detail.config.save_btn') }}
           </NButton>
         </div>
       </div>

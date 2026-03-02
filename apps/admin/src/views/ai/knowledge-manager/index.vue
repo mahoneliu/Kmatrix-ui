@@ -21,6 +21,7 @@ import {
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { deleteKnowledgeBase, fetchKnowledgeBaseList, fetchKnowledgeBaseStatistics } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 import KnowledgeBaseModal from './modules/kb-modal.vue';
 import RetrievalSandbox from './modules/retrieval-sandbox.vue';
 
@@ -96,14 +97,14 @@ async function handleDelete(item: Api.AI.KB.KnowledgeBase) {
   if (!item.id) return;
 
   dialog.warning({
-    title: '确认删除',
-    content: `确定要删除知识库"${item.name}"吗？所有关联的数据集和文档都将被删除！`,
-    positiveText: '确定删除',
-    negativeText: '取消',
+    title: $t('ai.knowledge_manager.deleteConfirmTitle'),
+    content: $t('ai.knowledge_manager.deleteConfirmContent').replace('{name}', item.name),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await deleteKnowledgeBase([item.id!]);
       if (!error) {
-        message.success('删除成功');
+        message.success($t('ai.knowledge_manager.deleteSuccess'));
         getData();
         loadStatistics();
       }
@@ -149,42 +150,42 @@ onMounted(() => {
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NGrid :cols="6" responsive="screen" x-gap="16" y-gap="16">
         <NGridItem>
-          <NStatistic label="知识库" :value="statistics.totalKbs">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.knowledgeBase')" :value="statistics.totalKbs">
             <template #prefix>
               <SvgIcon local-icon="mdi-book-open-page-variant" class="text-primary" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic label="数据集" :value="statistics.totalDatasets">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.dataset')" :value="statistics.totalDatasets">
             <template #prefix>
               <SvgIcon local-icon="mdi-folder" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic label="文档" :value="statistics.totalDocuments">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.document')" :value="statistics.totalDocuments">
             <template #prefix>
               <SvgIcon local-icon="mdi-file-document" class="text-success" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic label="切片" :value="statistics.totalChunks">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.chunk')" :value="statistics.totalChunks">
             <template #prefix>
               <SvgIcon local-icon="mdi-puzzle" class="text-warning" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic label="处理中" :value="statistics.processingDocs">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.processing')" :value="statistics.processingDocs">
             <template #prefix>
               <SvgIcon local-icon="mdi-progress-clock" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic label="失败" :value="statistics.errorDocs">
+          <NStatistic :label="$t('ai.knowledge_manager.stats.failed')" :value="statistics.errorDocs">
             <template #prefix>
               <SvgIcon local-icon="mdi-alert-circle" class="text-error" />
             </template>
@@ -196,14 +197,19 @@ onMounted(() => {
     <!-- 搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
-        <NCollapseItem title="搜索" name="search">
+        <NCollapseItem :title="$t('common.search')" name="search">
           <NSpace>
-            <NInput v-model:value="searchParams.name" clearable placeholder="请输入知识库名称" @keyup.enter="getData" />
+            <NInput
+              v-model:value="searchParams.name"
+              clearable
+              :placeholder="$t('ai.knowledge_manager.searchPlaceholder')"
+              @keyup.enter="getData"
+            />
             <NButton type="primary" @click="getData">
               <template #icon>
                 <SvgIcon local-icon="mdi-magnify" />
               </template>
-              搜索
+              {{ $t('common.search') }}
             </NButton>
           </NSpace>
         </NCollapseItem>
@@ -214,7 +220,7 @@ onMounted(() => {
     <NCard
       :bordered="false"
       size="small"
-      title="知识库列表"
+      :title="$t('ai.knowledge_manager.listTitle')"
       class="flex-1 card-wrapper"
       content-class="flex flex-col h-full overflow-hidden"
     >
@@ -224,13 +230,13 @@ onMounted(() => {
             <template #icon>
               <SvgIcon local-icon="mdi-flask" />
             </template>
-            检索测试
+            {{ $t('ai.knowledge_manager.retrievalTest') }}
           </NButton>
           <NButton type="primary" ghost size="small" @click="handleAdd">
             <template #icon>
               <SvgIcon local-icon="mdi-plus" />
             </template>
-            新建知识库
+            {{ $t('ai.knowledge_manager.createKnowledgeBase') }}
           </NButton>
         </NSpace>
       </template>
@@ -248,7 +254,11 @@ onMounted(() => {
               <!-- 状态标签 -->
               <div class="absolute right-3 top-3 z-10">
                 <NTag :bordered="false" :type="getStatusColor(item.status)" size="small">
-                  {{ item.status === 'ACTIVE' ? '活跃' : '已归档' }}
+                  {{
+                    item.status === 'ACTIVE'
+                      ? $t('ai.knowledge_manager.status.active')
+                      : $t('ai.knowledge_manager.status.archived')
+                  }}
                 </NTag>
               </div>
 
@@ -269,18 +279,26 @@ onMounted(() => {
               </template>
 
               <div class="line-clamp-2 mb-4 min-h-10 text-sm text-gray-500">
-                {{ item.description || '暂无描述' }}
+                {{ item.description || $t('ai.knowledge_manager.noDescription') }}
               </div>
 
               <!-- 统计信息 -->
               <div class="flex items-center gap-4 text-xs text-gray-400">
                 <div class="flex items-center gap-1">
                   <SvgIcon local-icon="mdi-folder-outline" />
-                  <span>{{ item.datasetCount || 0 }} 数据集</span>
+                  <span>
+                    {{
+                      $t('ai.knowledge_manager.datasetCount').replace('{count}', (item.datasetCount || 0).toString())
+                    }}
+                  </span>
                 </div>
                 <div class="flex items-center gap-1">
                   <SvgIcon local-icon="mdi-file-document-outline" />
-                  <span>{{ item.documentCount || 0 }} 文档</span>
+                  <span>
+                    {{
+                      $t('ai.knowledge_manager.documentCount').replace('{count}', (item.documentCount || 0).toString())
+                    }}
+                  </span>
                 </div>
               </div>
 
@@ -295,11 +313,15 @@ onMounted(() => {
               >
                 <NDropdown
                   :options="[
-                    { label: '管理', key: 'manage', icon: () => h(SvgIcon, { localIcon: 'mdi-cog' }) },
-                    { label: '编辑', key: 'edit', icon: () => h(SvgIcon, { localIcon: 'mdi-pencil' }) },
+                    {
+                      label: $t('ai.knowledge_manager.manage'),
+                      key: 'manage',
+                      icon: () => h(SvgIcon, { localIcon: 'mdi-cog' })
+                    },
+                    { label: $t('common.edit'), key: 'edit', icon: () => h(SvgIcon, { localIcon: 'mdi-pencil' }) },
                     { type: 'divider' },
                     {
-                      label: '删除',
+                      label: $t('common.delete'),
                       key: 'delete',
                       icon: () => h(SvgIcon, { localIcon: 'mdi-delete', class: 'text-error' }),
                       labelProps: { class: 'text-error' }
@@ -339,7 +361,7 @@ onMounted(() => {
         />
       </div>
 
-      <NEmpty v-else description="暂无知识库，点击右上角新建" class="h-full flex-center" />
+      <NEmpty v-else :description="$t('ai.knowledge_manager.emptyDescription')" class="h-full flex-center" />
     </NCard>
 
     <KnowledgeBaseModal

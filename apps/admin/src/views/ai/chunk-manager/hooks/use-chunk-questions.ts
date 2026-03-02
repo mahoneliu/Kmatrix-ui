@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 import type { Ref } from 'vue';
 import { useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import {
   addQuestion,
   fetchQuestionPage,
@@ -19,6 +20,7 @@ interface UseChunkQuestionsOptions {
 export function useChunkQuestions(options: UseChunkQuestionsOptions) {
   const { selectedChunkId, kbId } = options;
   const message = useMessage();
+  const { t } = useI18n();
 
   const questions = ref<Api.AI.KB.Question[]>([]);
   const loadingQuestions = ref(false);
@@ -111,11 +113,11 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     try {
       const { error } = await linkQuestion(selectedChunkId.value, val as string);
       if (error) return;
-      message.success('关联成功');
+      message.success(t('ai.chunk_manager.link_success'));
       newQuestionContent.value = null;
       await loadQuestions(selectedChunkId.value);
     } catch {
-      message.error('操作失败');
+      message.error(t('ai.chunk_manager.op_fail'));
     }
   }
 
@@ -133,11 +135,11 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
 
       if (existingQuestion) {
         const { error } = await linkQuestion(selectedChunkId.value, existingQuestion.id);
-        if (!error) message.success('关联成功');
+        if (!error) message.success(t('ai.chunk_manager.link_success'));
       } else {
         const { error } = await addQuestion(selectedChunkId.value, contentStr);
         if (!error) {
-          message.success('添加成功');
+          message.success(t('common.addSuccess'));
           await loadKbQuestions(true);
         }
       }
@@ -145,7 +147,7 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
       newQuestionContent.value = null;
       await loadQuestions(selectedChunkId.value);
     } catch {
-      message.error('操作失败');
+      message.error(t('ai.chunk_manager.op_fail'));
     }
   }
 
@@ -154,10 +156,10 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
     try {
       const { error } = await unlinkQuestion(selectedChunkId.value, questionId);
       if (error) return;
-      message.success('已取消关联');
+      message.success(t('ai.chunk_manager.unlink_success'));
       await loadQuestions(selectedChunkId.value);
     } catch {
-      message.error('操作失败');
+      message.error(t('ai.chunk_manager.op_fail'));
     }
   }
 
@@ -178,7 +180,7 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
   }) {
     if (!selectedChunkId.value) return;
     generatingQuestions.value = true;
-    const msg = message.loading('AI 正在生成问题,请稍候...', { duration: 0 });
+    const msg = message.loading(t('ai.chunk_manager.generating'), { duration: 0 });
     try {
       const { error } = await generateQuestions(selectedChunkId.value, {
         modelId: params.modelId,
@@ -187,11 +189,11 @@ export function useChunkQuestions(options: UseChunkQuestionsOptions) {
         maxTokens: params.maxTokens
       });
       msg.destroy();
-      if (!error) message.success('生成成功');
+      if (!error) message.success(t('common.generateSuccess'));
       await loadQuestions(selectedChunkId.value);
     } catch {
       msg.destroy();
-      message.error('生成失败');
+      message.error(t('common.generateFail'));
     } finally {
       generatingQuestions.value = false;
     }

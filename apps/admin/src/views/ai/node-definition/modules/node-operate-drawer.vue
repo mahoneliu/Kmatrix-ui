@@ -144,90 +144,95 @@ watch(visible, val => {
         :label-width="100"
       >
         <template v-if="operateType === 'copy'">
-          <NFormItem label="源节点" path="nodeType">
+          <NFormItem :label="$t('ai.node_definition.source_node')" path="nodeType">
             <NInput v-model:value="model.nodeType" disabled />
           </NFormItem>
-          <NFormItem label="新节点类型" path="newNodeType">
-            <NInput v-model:value="model.newNodeType" placeholder="输入新的唯一节点类型" />
+          <NFormItem :label="$t('ai.node_definition.new_node_type')" path="newNodeType">
+            <NInput v-model:value="model.newNodeType" :placeholder="$t('ai.node_definition.input_new_node_type')" />
           </NFormItem>
         </template>
         <template v-else>
-          <NFormItem label="节点类型" path="nodeType">
+          <NFormItem :label="$t('ai.node_definition.node_type')" path="nodeType">
             <NInput
               v-model:value="model.nodeType"
               :disabled="operateType === 'edit'"
-              placeholder="唯一标识符 (例如: LLM_CHAT)"
+              :placeholder="$t('ai.node_definition.unique_id_placeholder')"
             />
           </NFormItem>
         </template>
 
-        <NFormItem label="节点名称" path="nodeLabel">
-          <NInput v-model:value="model.nodeLabel" placeholder="显示名称" />
+        <NFormItem :label="$t('ai.node_definition.node_name')" path="nodeLabel">
+          <NInput v-model:value="model.nodeLabel" :placeholder="$t('ai.node_definition.display_name')" />
         </NFormItem>
 
-        <NFormItem label="分类" path="category">
+        <NFormItem :label="$t('ai.node_definition.category_label')" path="category">
           <NSelect v-model:value="model.category" :options="categoryOptions" />
         </NFormItem>
 
-        <NFormItem label="图标" path="nodeIcon">
-          <NInput v-model:value="model.nodeIcon" placeholder="例如: mdi:robot">
+        <NFormItem :label="$t('ai.node_definition.icon')" path="nodeIcon">
+          <NInput v-model:value="model.nodeIcon" :placeholder="$t('ai.node_definition.icon_placeholder')">
             <template #prefix>
               <SvgIcon :local-icon="model.nodeIcon" class="text-lg" />
             </template>
           </NInput>
         </NFormItem>
 
-        <NFormItem label="颜色" path="nodeColor">
+        <NFormItem :label="$t('ai.node_definition.color')" path="nodeColor">
           <NColorPicker v-model:value="model.nodeColor" />
         </NFormItem>
 
-        <NFormItem label="状态" path="isEnabled">
+        <NFormItem :label="$t('common.status')" path="isEnabled">
           <NRadioGroup v-model:value="model.isEnabled">
-            <NRadio value="1">启用</NRadio>
-            <NRadio value="0">禁用</NRadio>
+            <NRadio value="1">{{ $t('common.enable') }}</NRadio>
+            <NRadio value="0">{{ $t('common.disable') }}</NRadio>
           </NRadioGroup>
         </NFormItem>
 
-        <NFormItem label="描述" path="description">
-          <NInput v-model:value="model.description" type="textarea" :autosize="{ minRows: 2 }" placeholder="节点描述" />
+        <NFormItem :label="$t('common.description')" path="description">
+          <NInput
+            v-model:value="model.description"
+            type="textarea"
+            :autosize="{ minRows: 2 }"
+            :placeholder="$t('ai.node_definition.node_desc_placeholder')"
+          />
         </NFormItem>
 
-        <NFormItem label="自定义入参" path="allowCustomInputParams">
+        <NFormItem :label="$t('ai.node_definition.custom_input_params')" path="allowCustomInputParams">
           <NRadioGroup v-model:value="model.allowCustomInputParams">
-            <NRadio value="1">允许</NRadio>
-            <NRadio value="0">禁止</NRadio>
+            <NRadio value="1">{{ $t('ai.node_definition.allow') }}</NRadio>
+            <NRadio value="0">{{ $t('ai.node_definition.forbid') }}</NRadio>
           </NRadioGroup>
         </NFormItem>
 
-        <NFormItem label="自定义出参" path="allowCustomOutputParams">
+        <NFormItem :label="$t('ai.node_definition.custom_output_params')" path="allowCustomOutputParams">
           <NRadioGroup v-model:value="model.allowCustomOutputParams">
-            <NRadio value="1">允许</NRadio>
-            <NRadio value="0">禁止</NRadio>
+            <NRadio value="1">{{ $t('ai.node_definition.allow') }}</NRadio>
+            <NRadio value="0">{{ $t('ai.node_definition.forbid') }}</NRadio>
           </NRadioGroup>
         </NFormItem>
 
-        <NDivider class="!my-12px">参数配置</NDivider>
+        <NDivider class="!my-12px">{{ $t('ai.node_definition.parameter_config') }}</NDivider>
 
         <NAlert type="warning" closable>
           <template #icon>
             <icon-ic-round-info class="text-icon" />
           </template>
           <template #header>
-            <span class="text-sm font-medium">提示</span>
+            <span class="text-sm font-medium">{{ $t('ai.node_definition.prompt') }}</span>
           </template>
           <template #default>
             <span class="text-sm">
-              参数配置与开发密切相关，除非你清楚自己在干什么，否则不要随意修改
+              {{ $t('ai.node_definition.param_config_warning1') }}
               <br />
             </span>
-            <span class="text-sm">参数键名在工作流中用于引用该参数的值,请确保键名唯一且数据类型正确</span>
+            <span class="text-sm">{{ $t('ai.node_definition.param_config_warning2') }}</span>
           </template>
         </NAlert>
 
-        <NodeParamEditor v-model="model.inputParams" title="输入参数" />
+        <NodeParamEditor v-model="model.inputParams" :title="$t('ai.node_definition.input_params')" />
 
         <div class="mt-4">
-          <NodeParamEditor v-model="model.outputParams" title="输出参数" />
+          <NodeParamEditor v-model="model.outputParams" :title="$t('ai.node_definition.output_params')" />
         </div>
       </NForm>
       <template #footer>

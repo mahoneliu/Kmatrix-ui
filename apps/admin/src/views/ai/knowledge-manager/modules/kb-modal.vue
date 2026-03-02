@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { NButton, NForm, NFormItem, NInput, NModal, NSpace, useMessage } from 'naive-ui';
 import type { FormInst, FormRules } from 'naive-ui';
 import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 
 interface Props {
   visible?: boolean;
@@ -34,8 +35,8 @@ const formData = ref<Partial<Api.AI.KB.KnowledgeBase>>({
 
 const rules: FormRules = {
   name: [
-    { required: true, message: '请输入知识库名称', trigger: 'blur' },
-    { max: 50, message: '名称不能超过50个字符', trigger: 'blur' }
+    { required: true, message: $t('ai.knowledge_manager.modal.nameRequired'), trigger: 'blur' },
+    { max: 50, message: $t('ai.knowledge_manager.modal.nameMaxLength'), trigger: 'blur' }
   ]
 };
 
@@ -72,10 +73,10 @@ async function handleSubmit() {
   try {
     if (isEdit.value) {
       await updateKnowledgeBase(formData.value);
-      message.success('更新成功');
+      message.success($t('ai.knowledge_manager.modal.updateSuccess'));
     } else {
       await addKnowledgeBase(formData.value);
-      message.success('创建成功');
+      message.success($t('ai.knowledge_manager.modal.addSuccess'));
     }
     emit('success');
     emit('update:visible', false);
@@ -94,20 +95,24 @@ function handleCancel() {
   <NModal
     :show="visible"
     preset="card"
-    :title="isEdit ? '编辑知识库' : '新建知识库'"
+    :title="isEdit ? $t('ai.knowledge_manager.modal.edit') : $t('ai.knowledge_manager.createKnowledgeBase')"
     class="w-500px"
     :mask-closable="false"
     @update:show="val => emit('update:visible', val)"
   >
     <NForm ref="formRef" :model="formData" :rules="rules" label-placement="left" label-width="80">
-      <NFormItem label="名称" path="name">
-        <NInput v-model:value="formData.name" placeholder="请输入知识库名称" maxlength="50" />
+      <NFormItem :label="$t('ai.knowledge_manager.modal.name')" path="name">
+        <NInput
+          v-model:value="formData.name"
+          :placeholder="$t('ai.knowledge_manager.modal.namePlaceholder')"
+          maxlength="50"
+        />
       </NFormItem>
-      <NFormItem label="描述" path="description">
+      <NFormItem :label="$t('ai.knowledge_manager.modal.description')" path="description">
         <NInput
           v-model:value="formData.description"
           type="textarea"
-          placeholder="请输入知识库描述"
+          :placeholder="$t('ai.knowledge_manager.modal.descPlaceholder')"
           :rows="3"
           maxlength="200"
         />
@@ -121,9 +126,9 @@ function handleCancel() {
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="handleCancel">取消</NButton>
+        <NButton @click="handleCancel">{{ $t('ai.knowledge_manager.modal.cancel') }}</NButton>
         <NButton type="primary" :loading="submitting" @click="handleSubmit">
-          {{ isEdit ? '保存' : '创建' }}
+          {{ isEdit ? $t('ai.knowledge_manager.modal.save') : $t('ai.knowledge_manager.modal.create') }}
         </NButton>
       </NSpace>
     </template>

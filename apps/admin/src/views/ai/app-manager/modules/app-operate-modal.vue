@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { NForm, NFormItem, NInput, NModal } from 'naive-ui';
+import { NButton, NForm, NFormItem, NInput, NModal } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { addApp } from '@/service/api/ai/app';
 
 interface Props {
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
+const { t } = useI18n();
 const formRef = ref<(HTMLElement & { validate: () => Promise<void> }) | null>(null);
 
 const formModel = ref<AppFormModel>({
@@ -35,7 +37,7 @@ const formModel = ref<AppFormModel>({
 });
 
 const rules = {
-  appName: { required: true, message: '请输入应用名称', trigger: 'blur' }
+  appName: { required: true, message: t('ai.app_manager.app_name_placeholder'), trigger: 'blur' }
 };
 
 async function handleSubmit() {
@@ -65,7 +67,7 @@ watch(
 <template>
   <NModal
     :show="visible"
-    title="新建应用"
+    :title="$t('ai.app_manager.create_app')"
     class="w-800px"
     preset="card"
     @update:show="val => emit('update:visible', val)"
@@ -75,20 +77,24 @@ watch(
       :model="formModel"
       :rules="rules"
       label-placement="left"
-      label-width="100"
+      label-width="120"
       require-mark-placement="right-hanging"
     >
-      <NFormItem label="应用名称" path="appName">
-        <NInput v-model:value="formModel.appName" placeholder="请输入应用名称" />
+      <NFormItem :label="$t('ai.app_manager.app_name')" path="appName">
+        <NInput v-model:value="formModel.appName" :placeholder="$t('ai.app_manager.app_name_placeholder')" />
       </NFormItem>
-      <NFormItem label="应用描述" path="description">
-        <NInput v-model:value="formModel.description" placeholder="请输入应用描述" type="textarea" />
+      <NFormItem :label="$t('ai.app_manager.app_desc')" path="description">
+        <NInput
+          v-model:value="formModel.description"
+          :placeholder="$t('ai.app_manager.app_desc_placeholder')"
+          type="textarea"
+        />
       </NFormItem>
     </NForm>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <NButton @click="emit('update:visible', false)">取消</NButton>
-        <NButton type="primary" @click="handleSubmit">确定</NButton>
+        <NButton @click="emit('update:visible', false)">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
       </div>
     </template>
   </NModal>

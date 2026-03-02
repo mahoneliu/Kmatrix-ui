@@ -1,34 +1,35 @@
 import { transformRecordToOption } from '@/utils/common';
+import { $t } from '@/locales';
 
 /** enable status */
 export const enableStatusRecord: Record<Api.Common.EnableStatus, string> = {
-  '0': '正常',
-  '1': '停用'
+  '0': $t('dict.sys_normal_disable.normal'),
+  '1': $t('dict.sys_normal_disable.disable')
 };
 
 export const enableStatusOptions = transformRecordToOption(enableStatusRecord);
 
 /** yes or no status */
 export const yesOrNoStatusRecord: Record<Api.Common.YesOrNoStatus, string> = {
-  Y: '是',
-  N: '否'
+  Y: $t('dict.sys_yes_no.yes'),
+  N: $t('dict.sys_yes_no.no')
 };
 
 export const yesOrNoStatusOptions = transformRecordToOption(yesOrNoStatusRecord);
 
 /** menu type */
 export const menuTypeRecord: Record<Api.System.MenuType, string> = {
-  M: '目录',
-  C: '菜单',
-  F: '按钮'
+  M: $t('page.system.menu.directory'),
+  C: $t('page.system.menu.menu'),
+  F: $t('page.system.menu.button')
 };
 
 export const menuTypeOptions = transformRecordToOption(menuTypeRecord);
 
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {
-  '0': '是',
-  '1': '否',
+  '0': $t('dict.sys_yes_no.yes'),
+  '1': $t('dict.sys_yes_no.no'),
   '2': 'iframe'
 };
 
@@ -37,7 +38,7 @@ export const menuIsFrameOptions = transformRecordToOption(menuIsFrameRecord);
 /** menu icon type */
 export const menuIconTypeRecord: Record<Api.System.IconType, string> = {
   '1': 'iconify',
-  '2': '本地图标'
+  '2': $t('page.system.menu.placeholder.localIconPlaceholder')
 };
 
 export const menuIconTypeOptions = transformRecordToOption(menuIconTypeRecord);
@@ -118,59 +119,59 @@ export const ossConfigIsHttpsOptions = transformRecordToOption(ossConfigIsHttpsR
 
 /** oss access policy */
 export const ossAccessPolicyRecord: Record<Api.System.OssAccessPolicy, string> = {
-  '0': '私有',
-  '1': '公有',
-  '2': '自定义'
+  '0': $t('datatable.oss.access_policy.private'),
+  '1': $t('datatable.oss.access_policy.public'),
+  '2': $t('datatable.oss.access_policy.custom')
 };
 
 export const ossAccessPolicyOptions = transformRecordToOption(ossAccessPolicyRecord);
 
 /** data scope */
 export const dataScopeRecord: Record<Api.System.DataScope, string> = {
-  '1': '全部数据权限',
-  '2': '自定数据权限',
-  '3': '本部门数据权限',
-  '4': '本部门及以下数据权限',
-  '5': '仅本人数据权限',
-  '6': '部门及以下或本人数据权限'
+  '1': $t('datatable.system.data_scope.all'),
+  '2': $t('datatable.system.data_scope.custom'),
+  '3': $t('datatable.system.data_scope.dept'),
+  '4': $t('datatable.system.data_scope.dept_and_below'),
+  '5': $t('datatable.system.data_scope.self'),
+  '6': $t('datatable.system.data_scope.dept_and_below_or_self')
 };
 
 export const dataScopeOptions = transformRecordToOption(dataScopeRecord);
 
 /** ai provider type */
 export const aiProviderTypeRecord: Record<string, string> = {
-  '1': '公有',
-  '2': '本地'
+  '1': $t('ai.common.provider_type.public'),
+  '2': $t('ai.common.provider_type.local')
 };
 
 export const aiProviderTypeOptions = transformRecordToOption(aiProviderTypeRecord);
 
 /** ai model type */
 export const aiModelTypeRecord: Record<string, string> = {
-  '1': '语言模型',
-  '2': '向量模型',
-  '3': '多路召回',
-  '4': '语音模型',
-  '5': '图像模型',
-  '6': '视频模型'
+  '1': $t('ai.common.model_type.llm'),
+  '2': $t('ai.common.model_type.vector'),
+  '3': $t('ai.common.model_type.rerank'),
+  '4': $t('ai.common.model_type.speech'),
+  '5': $t('ai.common.model_type.image'),
+  '6': $t('ai.common.model_type.video')
 };
 
 export const aiModelTypeOptions = transformRecordToOption(aiModelTypeRecord);
 
 /** ai app type */
 export const aiAppTypeRecord: Record<string, string> = {
-  '1': '固定模板',
-  '2': '自定义模板',
-  '3': '智能体'
+  '1': $t('ai.common.app_type.fixed_template'),
+  '2': $t('ai.common.app_type.custom_template'),
+  '3': $t('ai.common.app_type.agent')
 };
 
 export const aiAppTypeOptions = transformRecordToOption(aiAppTypeRecord);
 
 /** ai document status */
 export const aiDocumentStatusRecord: Record<string, string> = {
-  '0': '解析中',
-  '1': '完成',
-  '2': '失败'
+  '0': $t('ai.common.document_status.parsing'),
+  '1': $t('ai.common.document_status.success'),
+  '2': $t('ai.common.document_status.fail')
 };
 
 export const aiDocumentStatusOptions = transformRecordToOption(aiDocumentStatusRecord);

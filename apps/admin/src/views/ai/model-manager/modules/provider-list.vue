@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { aiProviderTypeRecord } from '@/constants/business';
+import { $t } from '@/locales';
 
 interface Props {
   list: Api.AI.Admin.ModelProvider[];
@@ -70,11 +71,11 @@ watch(
 <template>
   <div class="h-full flex flex-col gap-2">
     <NTabs v-model:value="activeTab" class="w-full" type="segment" @update:value="handleTabChange">
-      <NTab name="0" tab="全部">
+      <NTab name="0" :tab="$t('ai.model_manager.all')">
         <template #default>
           <div class="flex items-center gap-2">
             <SvgIcon local-icon="carbon-grid" class="text-xs" />
-            <span>全部</span>
+            <span>{{ $t('ai.model_manager.all') }}</span>
           </div>
         </template>
       </NTab>
@@ -98,7 +99,7 @@ watch(
 
     <NSpin :show="loading" class="flex-1 overflow-hidden py-1" content-class="h-full">
       <NScrollbar class="h-full">
-        <NEmpty v-if="filteredProviders.length === 0" description="暂无供应商" class="mt-20" />
+        <NEmpty v-if="filteredProviders.length === 0" :description="$t('ai.model_manager.no_provider')" class="mt-20" />
         <div v-else class="flex flex-col">
           <div
             v-for="item in filteredProviders"

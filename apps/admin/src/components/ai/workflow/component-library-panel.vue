@@ -5,6 +5,7 @@ import { NODE_CATEGORY_LIST } from '@/constants/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { isValidConnection } from '@/utils/ai/connection-rules';
 import { getNodeIconBackground } from '@/utils/color';
+import { $t } from '@/locales';
 
 interface Emits {
   (e: 'select', nodeType: Workflow.NodeType): void;
@@ -46,7 +47,7 @@ const categories = NODE_CATEGORY_LIST;
 
 // 按分类组织节点类型
 const nodeTypesByCategory = computed(() =>
-  categories
+  categories.value
     .map(category => ({
       ...category,
       nodes: availableNodeTypes.value.filter(n => n.category === category.key)
@@ -153,7 +154,7 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
     </div>
     <div v-if="nodeTypesByCategory.length < 1" class="text-ms c-gray-5">
       <SvgIcon local-icon="carbon-close-filled" class="mr-2 inline-block text-5 text-red-4" />
-      没有节点可添加
+      {{ $t('ai.workflow.no_nodes_to_add') }}
     </div>
   </div>
 </template>

@@ -9,6 +9,7 @@ import {
   linkQuestion,
   unlinkQuestionFromChunk
 } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'ChunkLinkModal'
@@ -64,9 +65,9 @@ const filteredDocuments = computed(() => {
 // 显示层级选项
 const displayLevelOptions = computed(() => {
   return [
-    { label: '精简', key: 'concise' },
-    { label: '中等', key: 'medium' },
-    { label: '详细', key: 'detailed' }
+    { label: $t('ai.knowledge_detail.chunkLinkModal.levelConcise'), key: 'concise' },
+    { label: $t('ai.knowledge_detail.chunkLinkModal.levelMedium'), key: 'medium' },
+    { label: $t('ai.knowledge_detail.chunkLinkModal.levelDetailed'), key: 'detailed' }
   ].map(item => ({
     ...item,
     icon:
@@ -137,7 +138,7 @@ async function loadDocuments() {
       await loadChunks(selectedDocumentId.value);
     }
   } catch {
-    window.$message?.error('加载文档列表失败');
+    window.$message?.error($t('ai.knowledge_detail.chunkLinkModal.loadDocFail'));
   } finally {
     loadingDocuments.value = false;
   }
@@ -154,7 +155,7 @@ async function loadLinkedChunks() {
       linkedChunkIds.value = new Set(data.map(chunk => chunk.id!));
     }
   } catch {
-    window.$message?.error('加载已关联分段失败');
+    window.$message?.error($t('ai.knowledge_detail.chunkLinkModal.loadLinkedFail'));
   }
 }
 
@@ -168,7 +169,7 @@ async function loadChunks(documentId: CommonType.IdType) {
     const otherChunks = chunks.value.filter(c => c.documentId !== documentId);
     chunks.value = [...otherChunks, ...(data || [])];
   } catch {
-    window.$message?.error('加载分段列表失败');
+    window.$message?.error($t('ai.knowledge_detail.chunkLinkModal.loadChunkFail'));
   } finally {
     loadingChunks.value = false;
   }
@@ -203,7 +204,7 @@ async function toggleChunkSelection(chunkId: CommonType.IdType) {
       // 更新已关联分片列表（用于更新角标）
       linkedChunks.value = linkedChunks.value.filter(c => c.id !== chunkId);
 
-      window.$message?.success('已取消关联');
+      window.$message?.success($t('ai.knowledge_detail.chunkLinkModal.unlinkSuccess'));
     } else {
       // 关联
       await linkQuestion(chunkId, props.questionId);
@@ -214,7 +215,7 @@ async function toggleChunkSelection(chunkId: CommonType.IdType) {
         linkedChunks.value.push(chunk);
       }
 
-      window.$message?.success('关联成功');
+      window.$message?.success($t('ai.knowledge_detail.chunkLinkModal.linkSuccess'));
     }
 
     // 触发响应式更新
@@ -223,7 +224,9 @@ async function toggleChunkSelection(chunkId: CommonType.IdType) {
     // 通知父组件刷新
     emit('success');
   } catch {
-    window.$message?.error(isLinked ? '取消关联失败' : '关联失败');
+    window.$message?.error(
+      isLinked ? $t('ai.knowledge_detail.chunkLinkModal.unlinkFail') : $t('ai.knowledge_detail.chunkLinkModal.linkFail')
+    );
   }
 }
 
@@ -284,7 +287,7 @@ watch(
     :mask-closable="false"
     :show="visible"
     preset="card"
-    title="关联分段"
+    :title="$t('ai.knowledge_detail.chunkLinkModal.title')"
     class="w-1000px"
     @update:show="handleClose"
   >
@@ -294,19 +297,34 @@ watch(
     <div class="h-700px flex gap-6px">
       <!-- 左侧文档列表 -->
       <div class="w-280px flex flex-col gap-12px border-r border-gray-200 pr-6px">
-        <NCard title="选择文档" :bordered="false" size="small">
+        <NCard :title="$t('ai.knowledge_detail.chunkLinkModal.selectDoc')" :bordered="false" size="small">
           <template #header-extra>
-            <NTag size="small" :bordered="false">{{ documents.length }} 个</NTag>
+            <NTag size="small" :bordered="false">
+              {{
+                $t('ai.knowledge_detail.chunkLinkModal.docCount', {
+                  count: documents.length
+                })
+              }}
+            </NTag>
           </template>
 
-          <NInput v-model:value="documentSearchKeyword" placeholder="搜索文档..." clearable class="mb-12px">
+          <NInput
+            v-model:value="documentSearchKeyword"
+            :placeholder="$t('ai.knowledge_detail.chunkLinkModal.searchDoc')"
+            clearable
+            class="mb-12px"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-magnify" />
             </template>
           </NInput>
 
-          <div v-if="loadingDocuments" class="py-32px text-center text-gray-400">加载中...</div>
-          <div v-else-if="filteredDocuments.length === 0" class="py-32px text-center text-gray-400">暂无文档</div>
+          <div v-if="loadingDocuments" class="py-32px text-center text-gray-400">
+            {{ $t('ai.knowledge_detail.chunkLinkModal.loading') }}
+          </div>
+          <div v-else-if="filteredDocuments.length === 0" class="py-32px text-center text-gray-400">
+            {{ $t('ai.knowledge_detail.chunkLinkModal.noDoc') }}
+          </div>
           <NList v-else hoverable clickable class="max-h-550px overflow-x-hidden overflow-y-auto">
             <NListItem
               v-for="doc in filteredDocuments"
@@ -332,12 +350,22 @@ watch(
 
       <!-- 右侧分段列表 -->
       <div class="flex flex-col flex-1 gap-12px pl-6px">
-        <NCard title="选择分段" :bordered="false" size="small">
+        <NCard :title="$t('ai.knowledge_detail.chunkLinkModal.selectChunk')" :bordered="false" size="small">
           <template #header-extra>
             <NSpace :size="8">
-              <NTag size="small" type="info" :bordered="false">已关联 {{ linkedChunkIds.size }} 个</NTag>
+              <NTag size="small" type="info" :bordered="false">
+                {{
+                  $t('ai.knowledge_detail.chunkLinkModal.linkedCount', {
+                    count: linkedChunkIds.size
+                  })
+                }}
+              </NTag>
               <NTag size="small" :bordered="false">
-                当前文档 {{ chunks.filter(c => c.documentId === selectedDocumentId).length }} 个
+                {{
+                  $t('ai.knowledge_detail.chunkLinkModal.currentDocCount', {
+                    count: chunks.filter(c => c.documentId === selectedDocumentId).length
+                  })
+                }}
               </NTag>
               <NDropdown
                 :options="displayLevelOptions"
@@ -348,7 +376,7 @@ watch(
                 "
               >
                 <NButton size="tiny" class="mt-1px">
-                  显示
+                  {{ $t('ai.knowledge_detail.chunkLinkModal.displayLevel') }}
                   <template #icon>
                     <SvgIcon local-icon="mdi-chevron-down" />
                   </template>
@@ -357,15 +385,26 @@ watch(
             </NSpace>
           </template>
 
-          <NInput v-model:value="chunkSearchKeyword" placeholder="搜索分段标题或内容..." clearable class="mb-12px">
+          <NInput
+            v-model:value="chunkSearchKeyword"
+            :placeholder="$t('ai.knowledge_detail.chunkLinkModal.searchChunk')"
+            clearable
+            class="mb-12px"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-magnify" />
             </template>
           </NInput>
 
-          <div v-if="!selectedDocumentId" class="py-64px text-center text-gray-400">请先选择左侧文档</div>
-          <div v-else-if="loadingChunks" class="py-32px text-center text-gray-400">加载中...</div>
-          <div v-else-if="filteredChunks.length === 0" class="py-32px text-center text-gray-400">暂无分段</div>
+          <div v-if="!selectedDocumentId" class="py-64px text-center text-gray-400">
+            {{ $t('ai.knowledge_detail.chunkLinkModal.requireSelectDoc') }}
+          </div>
+          <div v-else-if="loadingChunks" class="py-32px text-center text-gray-400">
+            {{ $t('ai.knowledge_detail.chunkLinkModal.loading') }}
+          </div>
+          <div v-else-if="filteredChunks.length === 0" class="py-32px text-center text-gray-400">
+            {{ $t('ai.knowledge_detail.chunkLinkModal.noChunk') }}
+          </div>
           <div v-else class="max-h-550px flex-col-stretch gap-5px overflow-y-auto" @scroll="handleScroll">
             <NCard
               v-for="chunk in filteredChunks"
@@ -385,9 +424,13 @@ watch(
                 <div class="flex items-center justify-between gap-8px">
                   <div class="flex flex-1 items-center gap-8px">
                     <NCheckbox :checked="linkedChunkIds.has(chunk.id!)" />
-                    <span class="text-14px font-semibold">{{ chunk.title || '无标题' }}</span>
+                    <span class="text-14px font-semibold">
+                      {{ chunk.title || $t('ai.knowledge_detail.chunkLinkModal.noTitle') }}
+                    </span>
                   </div>
-                  <NTag v-if="linkedChunkIds.has(chunk.id!)" size="small" type="success" :bordered="false">已关联</NTag>
+                  <NTag v-if="linkedChunkIds.has(chunk.id!)" size="small" type="success" :bordered="false">
+                    {{ $t('ai.knowledge_detail.chunkLinkModal.linked') }}
+                  </NTag>
                 </div>
               </template>
 
@@ -403,7 +446,7 @@ watch(
             <!-- 加载更多提示 -->
             <div v-if="loadingMore" class="py-3 text-center text-sm text-gray-400">
               <NSpin size="small" />
-              <span class="ml-2">加载中...</span>
+              <span class="ml-2">{{ $t('ai.knowledge_detail.chunkLinkModal.loading') }}</span>
             </div>
             <div
               v-else-if="
@@ -412,13 +455,13 @@ watch(
               "
               class="py-3 text-center text-sm text-gray-400"
             >
-              向下滚动加载更多
+              {{ $t('ai.knowledge_detail.chunkLinkModal.loadMore') }}
             </div>
             <div
               v-else-if="selectedDocumentId && filteredChunks.length > 0"
               class="py-3 text-center text-sm text-gray-400"
             >
-              已加载全部分片
+              {{ $t('ai.knowledge_detail.chunkLinkModal.loadAll') }}
             </div>
           </div>
         </NCard>

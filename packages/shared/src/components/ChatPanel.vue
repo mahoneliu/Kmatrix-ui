@@ -12,6 +12,7 @@ import {
   NTooltip,
   useMessage
 } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { type ChatMessage, type Citation, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
 import { getNodeIconBackground } from '../utils/color';
@@ -66,6 +67,7 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
+const { t } = useI18n();
 // const nodeDefinitionStore = useNodeDefinitionStore();
 // const { hasAuth } = useAuth();
 
@@ -166,7 +168,7 @@ async function handleSend() {
 
 // 复制消息
 async function handleCopyMessage(content: string) {
-  await copyToClipboard(content, '');
+  await copyToClipboard(content, { t });
 }
 
 // 按Enter发送
@@ -286,7 +288,7 @@ defineExpose({
                     </template>
                   </NButton>
                 </template>
-                复制
+                {{ t('common.copy') }}
               </NTooltip>
             </div>
 
@@ -308,7 +310,9 @@ defineExpose({
                   >
                     <NCollapseItem name="thinking">
                       <template #header>
-                        <span class="text-xs text-gray-500 dark:text-gray-200">思考过程</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-200">
+                          {{ t('ai.chat.thinking_process') }}
+                        </span>
                       </template>
                       <template #arrow>
                         <SvgIcon
@@ -338,7 +342,7 @@ defineExpose({
                 >
                   <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
                     <SvgIcon local-icon="mdi-clock-outline" />
-                    <span v-if="msg.durationMs">耗时 {{ formatDuration(msg.durationMs) }}</span>
+                    <span v-if="msg.durationMs">{{ t('ai.chat.time_cost') }} {{ formatDuration(msg.durationMs) }}</span>
                     <span v-if="msg.tokens && msg.tokens.totalTokens">
                       · {{ formatTokenCount(msg.tokens.totalTokens) }} tokens
                     </span>
@@ -347,7 +351,11 @@ defineExpose({
                   <NCollapse>
                     <NCollapseItem name="execution-details">
                       <template #header>
-                        <span class="text-xs text-gray-400">执行详情 ({{ msg.executions.length }}个节点)</span>
+                        <span class="text-xs text-gray-400">
+                          {{ t('ai.chat.execution_details') }} ({{
+                            t('ai.chat.node_count', { count: msg.executions.length })
+                          }})
+                        </span>
                       </template>
                       <template #arrow>
                         <SvgIcon local-icon="mdi-play" class="text-gray-400 workflow-collapse-icon" />
@@ -387,14 +395,14 @@ defineExpose({
                                 class="ml-7 mt-0.5 text-gray-500 -mt-2 space-y-0.5"
                               >
                                 <details v-if="exec.inputs" class="cursor-pointer" open>
-                                  <summary class="text-xs font-300">输入</summary>
+                                  <summary class="text-xs font-300">{{ t('common.input') }}</summary>
                                   <pre
                                     class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
                                     >{{ JSON.stringify(exec.inputs, null, 2) }}</pre
                                   >
                                 </details>
                                 <details v-if="exec.outputs" class="cursor-pointer" open>
-                                  <summary class="text-xs font-300">输出</summary>
+                                  <summary class="text-xs font-300">{{ t('common.output') }}</summary>
                                   <pre
                                     class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
                                     >{{ JSON.stringify(exec.outputs, null, 2) }}</pre
@@ -424,7 +432,7 @@ defineExpose({
                     </template>
                   </NButton>
                 </template>
-                复制
+                {{ t('common.copy') }}
               </NTooltip>
             </div>
           </div>
@@ -433,7 +441,7 @@ defineExpose({
           <div v-if="isStreaming" class="flex justify-start">
             <div class="rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
               <NSpin size="small" />
-              <span class="ml-2 text-gray-500">AI正在思考...</span>
+              <span class="ml-2 text-gray-500">{{ t('ai.chat.ai_thinking') }}</span>
             </div>
           </div>
         </div>
@@ -450,7 +458,7 @@ defineExpose({
           :autosize="{ minRows: 2, maxRows: 6 }"
           :bordered="false"
           :disabled="isStreaming"
-          :placeholder="isStreaming ? 'AI正在回复...' : '请输入问题... (Enter发送)'"
+          :placeholder="isStreaming ? t('ai.chat.ai_responding') : t('ai.chat.input_placeholder')"
           class="flex-1"
           type="textarea"
           @keydown="handleKeyDown"
@@ -471,7 +479,7 @@ defineExpose({
                   </template>
                 </NButton>
               </template>
-              {{ showExecutionInfo ? '关闭执行详情' : '开启执行详情' }}
+              {{ showExecutionInfo ? t('ai.chat.close_execution_details') : t('ai.chat.open_execution_details') }}
             </NTooltip>
           </div>
           <NButton
@@ -496,14 +504,14 @@ defineExpose({
       v-model:show="showCitationModal"
       class="w-600px"
       preset="card"
-      :title="currentCitation?.documentName || '引用详情'"
+      :title="currentCitation?.documentName || t('ai.chat.citation_details')"
     >
       <div v-if="currentCitation" class="max-h-60vh overflow-y-auto">
         <div class="mb-4 flex gap-2">
           <NTag v-if="currentCitation.score" type="success" size="small">
-            相似度: {{ (currentCitation.score * 100).toFixed(1) }}%
+            {{ t('ai.chat.similarity') }}: {{ (currentCitation.score * 100).toFixed(1) }}%
           </NTag>
-          <NTag type="info" size="small">片段ID: {{ currentCitation.chunkId }}</NTag>
+          <NTag type="info" size="small">{{ t('ai.chat.chunk_id') }}: {{ currentCitation.chunkId }}</NTag>
         </div>
         <div class="rounded bg-gray-50 p-4 text-sm leading-relaxed dark:bg-gray-800">
           <div class="whitespace-pre-wrap">{{ currentCitation.content }}</div>

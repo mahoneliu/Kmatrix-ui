@@ -2,10 +2,13 @@
 import { ref, watch } from 'vue';
 import { NButton, NEmpty, NInput, NModal, NSelect, NSpace, NSpin } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({
   name: 'ChunkEditModal'
 });
+
+const { t } = useI18n();
 
 interface Props {
   show: boolean;
@@ -97,20 +100,25 @@ function handleCancelEdit() {
           <!-- Title Section -->
           <div class="mb-4 flex-shrink-0">
             <template v-if="!isEditing">
-              <div class="mb-2 text-sm text-gray-600 font-medium">分块标题</div>
+              <div class="mb-2 text-sm text-gray-600 font-medium">{{ t('ai.chunk_manager.chunk_title') }}</div>
               <div class="select-text px-1 text-base text-gray-800 font-bold">
-                {{ chunk?.title || '无标题' }}
+                {{ chunk?.title || t('ai.chunk_manager.no_title') }}
               </div>
             </template>
             <template v-else>
-              <div class="mb-2 text-sm text-gray-600 font-medium">分块标题</div>
-              <NInput v-model:value="editTitleValue" placeholder="请输入标题" :maxlength="256" show-count />
+              <div class="mb-2 text-sm text-gray-600 font-medium">{{ t('ai.chunk_manager.chunk_title') }}</div>
+              <NInput
+                v-model:value="editTitleValue"
+                :placeholder="t('ai.chunk_manager.title_placeholder')"
+                :maxlength="256"
+                show-count
+              />
             </template>
           </div>
 
           <!-- Content Section -->
           <div class="min-h-0 flex flex-col flex-1">
-            <div class="mb-2 text-sm text-gray-600 font-medium">分块内容</div>
+            <div class="mb-2 text-sm text-gray-600 font-medium">{{ t('ai.chunk_manager.chunk_content') }}</div>
 
             <template v-if="!isEditing">
               <div
@@ -123,7 +131,7 @@ function handleCancelEdit() {
               <NInput
                 v-model:value="editContentValue"
                 type="textarea"
-                placeholder="请输入分块内容"
+                :placeholder="t('ai.chunk_manager.content_placeholder')"
                 :maxlength="1000"
                 show-count
                 class="flex-1"
@@ -136,12 +144,12 @@ function handleCancelEdit() {
         <!-- Right: Questions -->
         <div class="w-500px flex flex-col border-l border-gray-100 pl-4">
           <div class="mb-3 flex items-center justify-between">
-            <span class="text-sm font-medium">关联问题</span>
+            <span class="text-sm font-medium">{{ t('ai.chunk_manager.associated_questions') }}</span>
             <NButton size="small" :loading="generatingQuestions" @click="emit('generateQuestions')">
               <template #icon>
                 <SvgIcon local-icon="mdi-magic-staff" />
               </template>
-              AI生成问题
+              {{ t('ai.chunk_manager.ai_generate_question') }}
             </NButton>
           </div>
 
@@ -153,7 +161,7 @@ function handleCancelEdit() {
               remote
               clearable
               tag
-              placeholder="新增：输入->回车，或者选择已有问题"
+              :placeholder="t('ai.chunk_manager.add_question_placeholder')"
               :options="kbQuestionOptions"
               :loading="loadingMoreQuestions"
               virtual-scroll
@@ -194,7 +202,12 @@ function handleCancelEdit() {
               </div>
             </div>
 
-            <NEmpty v-else description="暂无关联问题" size="small" class="mt-8" />
+            <NEmpty
+              v-else-if="!loadingQuestions"
+              :description="t('ai.chunk_manager.no_associated_questions')"
+              size="small"
+              class="mt-8"
+            />
           </div>
         </div>
       </div>
@@ -203,12 +216,14 @@ function handleCancelEdit() {
     <template #footer>
       <NSpace justify="center">
         <!-- 浏览状态下的按钮 -->
-        <NButton v-show="!isEditing" @click="handleClose">关闭</NButton>
-        <NButton v-show="!isEditing" type="primary" @click="startEditing">编辑</NButton>
+        <NButton v-show="!isEditing" @click="handleClose">{{ t('common.close') }}</NButton>
+        <NButton v-show="!isEditing" type="primary" @click="startEditing">{{ t('common.edit') }}</NButton>
 
         <!-- 编辑状态下的按钮 -->
-        <NButton v-show="isEditing" @click="handleCancelEdit">取消</NButton>
-        <NButton v-show="isEditing" type="primary" :loading="savingChunk" @click="handleSave">保存</NButton>
+        <NButton v-show="isEditing" @click="handleCancelEdit">{{ t('common.cancel') }}</NButton>
+        <NButton v-show="isEditing" type="primary" :loading="savingChunk" @click="handleSave">
+          {{ t('common.save') }}
+        </NButton>
       </NSpace>
     </template>
   </NModal>

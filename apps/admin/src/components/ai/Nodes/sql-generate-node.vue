@@ -11,6 +11,7 @@ import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
+import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
@@ -86,17 +87,17 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="基础配置" name="config">
+        <NCollapseItem :title="$t('ai.workflow_template.base_config')" name="config">
           <div class="workflow-config-section">
             <div class="workflow-config-item">
               <label class="workflow-label">
-                数据源
+                {{ $t('ai.workflow_node.data_source') }}
                 <span class="workflow-label-required">*</span>
               </label>
               <NSelect
                 v-model:value="formModel.dataSourceId"
                 :options="dataSourceOptions"
-                placeholder="选择数据源"
+                :placeholder="$t('ai.workflow_node.select_datasource')"
                 size="small"
               />
             </div>
@@ -104,16 +105,24 @@ onMounted(() => {
         </NCollapseItem>
 
         <!-- 高级配置 -->
-        <NCollapseItem title="高级配置" name="advanced">
+        <NCollapseItem :title="$t('ai.workflow_template.advanced_config')" name="advanced">
           <div class="workflow-config-section">
             <div class="workflow-config-item">
-              <label class="workflow-label">表白名单</label>
-              <NInput v-model:value="formModel.tableWhitelist" placeholder="允许查询的表,逗号分隔" size="small" />
+              <label class="workflow-label">{{ $t('ai.workflow_node.table_whitelist') }}</label>
+              <NInput
+                v-model:value="formModel.tableWhitelist"
+                :placeholder="$t('ai.workflow_node.allowed_query_tables')"
+                size="small"
+              />
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">表黑名单</label>
-              <NInput v-model:value="formModel.tableBlacklist" placeholder="禁止查询的表,逗号分隔" size="small" />
+              <label class="workflow-label">{{ $t('ai.workflow_node.table_blacklist') }}</label>
+              <NInput
+                v-model:value="formModel.tableBlacklist"
+                :placeholder="$t('ai.workflow_node.forbidden_query_tables')"
+                size="small"
+              />
             </div>
           </div>
         </NCollapseItem>

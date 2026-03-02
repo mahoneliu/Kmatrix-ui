@@ -38,26 +38,26 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'nodeIcon',
-      title: '图标',
+      title: $t('ai.node_definition.icon'),
       align: 'center',
       width: 40,
       render: row => h(SvgIcon, { localIcon: row.nodeIcon, style: { fontSize: '24px', color: row.nodeColor } })
     },
     {
       key: 'nodeType',
-      title: '节点类型',
+      title: $t('ai.node_definition.node_type'),
       align: 'left',
       width: 150
     },
     {
       key: 'nodeLabel',
-      title: '名称',
+      title: $t('common.name'),
       align: 'center',
       width: 150
     },
     {
       key: 'category',
-      title: '功能',
+      title: $t('ai.node_definition.category'),
       align: 'center',
       width: 100,
       render: row => {
@@ -72,7 +72,7 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'isSystem',
-      title: '系统保留',
+      title: $t('ai.node_definition.system_reserved'),
       align: 'center',
       width: 80,
       render: row =>
@@ -84,7 +84,7 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'operate',
-      title: '操作',
+      title: $t('ai.node_definition.operation'),
       align: 'center',
       width: 220,
       render: (row: Api.AI.Workflow.KmNodeDefinitionBo) =>
@@ -179,20 +179,20 @@ async function handleBatchDelete() {
     <!-- 可折叠的搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
       <NCollapse default-expanded-names="search">
-        <NCollapseItem title="搜索" name="search">
+        <NCollapseItem :title="$t('ai.node_definition.search_title')" name="search">
           <NSpace>
             <NForm :model="searchParams" inline label-placement="left" :label-width="80">
-              <NFormItem label="分类" path="category">
+              <NFormItem :label="$t('ai.node_definition.category_label')" path="category">
                 <NSelect
                   v-model:value="searchParams.category"
                   :options="NODE_CATEGORY_OPTIONS"
-                  placeholder="请选择分类"
+                  :placeholder="$t('ai.node_definition.select_category')"
                   clearable
                   class="w-180px"
                 />
               </NFormItem>
-              <NFormItem label="名称" path="nodeLabel">
-                <NInput v-model:value="searchParams.nodeLabel" placeholder="名称" />
+              <NFormItem :label="$t('common.name')" path="nodeLabel">
+                <NInput v-model:value="searchParams.nodeLabel" :placeholder="$t('common.name')" />
               </NFormItem>
               <NFormItem>
                 <NSpace>
@@ -212,7 +212,12 @@ async function handleBatchDelete() {
       </NCollapse>
     </NCard>
 
-    <NCard title="节点定义" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('ai.node_definition.node_definition_title')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <NSpace>
           <NButton type="primary" @click="handleAdd">

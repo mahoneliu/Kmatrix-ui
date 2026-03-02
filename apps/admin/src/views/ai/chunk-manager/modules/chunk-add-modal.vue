@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { NButton, NInput, NModal, NSpace, useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { addChunk } from '@/service/api/ai/knowledge';
 
 defineOptions({
@@ -8,27 +9,24 @@ defineOptions({
 });
 
 interface Props {
-  show: boolean;
   documentId: string | undefined;
 }
 
 interface Emits {
-  (e: 'update:show', value: boolean): void;
   (e: 'success'): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+const { t } = useI18n();
+const show = defineModel<boolean>('show', { required: true });
+
 const message = useMessage();
 
 const newChunkTitle = ref('');
 const newChunkContent = ref('');
 const addingChunk = ref(false);
-
-function handleClose() {
-  emit('update:show', false);
-}
 
 async function handleAddChunk() {
   if (!props.documentId || !newChunkContent.value.trim()) return;
@@ -40,13 +38,13 @@ async function handleAddChunk() {
       title: newChunkTitle.value.trim() || undefined,
       content: newChunkContent.value.trim()
     });
-    message.success('添加成功');
+    message.success(t('common.addSuccess'));
     newChunkTitle.value = '';
     newChunkContent.value = '';
-    emit('update:show', false);
+    show.value = false;
     emit('success');
   } catch {
-    message.error('添加失败');
+    message.error(t('ai.chunk_manager.save_fail'));
   } finally {
     addingChunk.value = false;
   }
@@ -54,23 +52,34 @@ async function handleAddChunk() {
 </script>
 
 <template>
-  <NModal :show="show" preset="card" title="新建分块" class="w-600px" :mask-closable="false" @update:show="handleClose">
+  <NModal
+    v-model:show="show"
+    preset="card"
+    :title="t('ai.chunk_manager.add_chunk')"
+    class="w-600px"
+    :mask-closable="false"
+  >
     <NSpace vertical :size="16">
-      <NInput v-model:value="newChunkTitle" :maxlength="256" show-count placeholder="分块标题（可选）" />
+      <NInput
+        v-model:value="newChunkTitle"
+        :maxlength="256"
+        show-count
+        :placeholder="t('ai.chunk_manager.title_optional_placeholder')"
+      />
       <NInput
         v-model:value="newChunkContent"
         type="textarea"
         :maxlength="1000"
         show-count
         :rows="8"
-        placeholder="分块内容（必填）"
+        :placeholder="t('ai.chunk_manager.content_required_placeholder')"
       />
     </NSpace>
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="handleClose">取消</NButton>
+        <NButton @click="show = false">{{ t('common.cancel') }}</NButton>
         <NButton type="primary" :loading="addingChunk" :disabled="!newChunkContent.trim()" @click="handleAddChunk">
-          添加
+          {{ t('common.add') }}
         </NButton>
       </NSpace>
     </template>

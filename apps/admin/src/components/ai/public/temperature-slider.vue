@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NSlider, NTooltip } from 'naive-ui';
+import { $t } from '@/locales';
 
 interface Props {
   /** 温度值 */
@@ -23,11 +24,11 @@ const emit = defineEmits<{
 
 // 温度标记
 const temperatureMarks = {
-  0: '精确',
-  0.5: '平衡',
-  1: '创意',
-  1.5: '随机',
-  2: '极随机'
+  0: $t('ai.workflow_public.precise'),
+  0.5: $t('ai.workflow_public.balanced'),
+  1: $t('ai.workflow_public.creative'),
+  1.5: $t('ai.workflow_public.random'),
+  2: $t('ai.workflow_public.extremely_random')
 };
 
 // 温度格式化
@@ -44,12 +45,12 @@ function handleTemperatureChange(value: number) {
 <template>
   <div class="workflow-config-item flex-1">
     <div v-if="showLabel" class="flex items-center gap-2">
-      <label class="mb-0 workflow-label">温度</label>
+      <label class="mb-0 workflow-label">{{ $t('ai.workflow_public.temperature') }}</label>
       <NTooltip v-if="showTooltip">
         <template #trigger>
           <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
         </template>
-        温度越高,模型越随机,越倾向于创造性和创新性,但可能会降低准确性。
+        {{ $t('ai.workflow_public.temperature_desc') }}
       </NTooltip>
     </div>
     <!-- 温度配置 -->

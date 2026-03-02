@@ -3,6 +3,7 @@ import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
 import { aiModelTypeOptions, aiProviderTypeOptions } from '@/constants/business';
 import { createModel, testModelConnection, updateModel } from '@/service/api/ai/model';
+import { $t } from '@/locales';
 import TemperatureSlider from '@/components/ai/public/temperature-slider.vue';
 
 const emit = defineEmits<{
@@ -40,13 +41,22 @@ const modelForm = reactive<any>({
 
 const rules = computed(() => {
   return {
-    providerId: { required: true, type: 'integer' as const, message: '请选择供应商', trigger: 'change' },
-    modelName: { required: true, message: '请输入模型名称', trigger: 'blur' },
-    modelKey: { required: true, message: '请输入或选择基础模型', trigger: ['blur', 'change'] },
-    modelType: { required: true, message: '请选择模型类型', trigger: 'change' },
-    modelSource: { required: true, message: '请选择模型来源', trigger: 'change' },
-    apiKey: { required: modelForm.modelSource === '1', message: '请输入apiKey', trigger: 'blur' },
-    apiBase: { required: modelForm.modelSource === '2', message: '请输入apiBase 地址', trigger: 'blur' }
+    providerId: {
+      required: true,
+      type: 'integer' as const,
+      message: $t('ai.model_manager.select_provider'),
+      trigger: 'change'
+    },
+    modelName: { required: true, message: $t('ai.model_manager.input_model_name'), trigger: 'blur' },
+    modelKey: { required: true, message: $t('ai.model_manager.select_base_model'), trigger: ['blur', 'change'] },
+    modelType: { required: true, message: $t('ai.model_manager.select_model_type'), trigger: 'change' },
+    modelSource: { required: true, message: $t('ai.model_manager.select_model_source'), trigger: 'change' },
+    apiKey: { required: modelForm.modelSource === '1', message: $t('ai.model_manager.input_api_key'), trigger: 'blur' },
+    apiBase: {
+      required: modelForm.modelSource === '2',
+      message: $t('ai.model_manager.input_api_base'),
+      trigger: 'blur'
+    }
   };
 });
 
@@ -200,7 +210,7 @@ const testingConnection = ref(false);
 async function handleTestConnection() {
   // 简单校验必要字段
   if (!modelForm.providerId || !modelForm.modelKey) {
-    message.warning('请先选择供应商和基础模型');
+    message.warning($t('ai.model_manager.select_provider_and_model_first'));
     return;
   }
 
@@ -209,7 +219,7 @@ async function handleTestConnection() {
     const submitData = { ...modelForm };
     const { error, data } = await testModelConnection(submitData);
     if (!error) {
-      message.success(data || '连接测试成功');
+      message.success(data || $t('ai.model_manager.test_connection_success'));
     }
   } finally {
     testingConnection.value = false;
@@ -243,7 +253,9 @@ async function handleSubmit() {
 
     const { error } = await api(submitData);
     if (!error) {
-      message.success(type.value === 'add' ? '新增成功' : '修改成功');
+      message.success(
+        type.value === 'add' ? $t('ai.model_manager.add_success') : $t('ai.model_manager.update_success')
+      );
       show.value = false;
       emit('success');
     }
@@ -264,45 +276,48 @@ defineExpose({ open });
     preset="card"
     :auto-focus="false"
     :mask-closable="false"
-    :title="type === 'add' ? '新增模型' : '编辑模型'"
+    :title="type === 'add' ? $t('ai.model_manager.add_model_title') : $t('ai.model_manager.edit_model_title')"
     class="w-650px rounded-8px"
     :segmented="{ content: true, action: true }"
   >
     <NForm ref="formRef" :model="modelForm" :rules="rules" label-placement="left" label-width="100">
       <NTabs type="line" animated>
-        <NTabPane name="basic" tab="基础设置">
+        <NTabPane name="basic" :tab="$t('ai.model_manager.basic_settings')">
           <!-- 基础设置表单 -->
           <div class="min-h-[580px] flex flex-col pr-3 pt-4">
-            <NFormItem label="模型来源" path="modelSource">
+            <NFormItem :label="$t('ai.model_manager.model_source')" path="modelSource">
               <NRadioGroup v-model:value="modelForm.modelSource" :disabled="isSourceLocked">
                 <NRadioButton v-for="option in aiProviderTypeOptions" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </NRadioButton>
               </NRadioGroup>
             </NFormItem>
-            <NFormItem label="模型名称" path="modelName">
-              <NInput v-model:value="modelForm.modelName" placeholder="如：千问Max，方便记忆" />
+            <NFormItem :label="$t('ai.model_manager.model_name')" path="modelName">
+              <NInput
+                v-model:value="modelForm.modelName"
+                :placeholder="$t('ai.model_manager.model_name_placeholder')"
+              />
             </NFormItem>
-            <NFormItem label="供应商" path="providerId">
+            <NFormItem :label="$t('ai.model_manager.provider.name')" path="providerId">
               <NSelect
                 :key="modelForm.modelSource"
                 v-model:value="modelForm.providerId"
                 :options="filteredProviders as any"
                 label-field="providerName"
                 value-field="providerId"
-                placeholder="请选择供应商"
+                :placeholder="$t('ai.model_manager.select_provider')"
                 filterable
                 clearable
               />
             </NFormItem>
-            <NFormItem label="模型类型" path="modelType">
+            <NFormItem :label="$t('ai.model_manager.model_type')" path="modelType">
               <NSelect v-model:value="modelForm.modelType" :options="aiModelTypeOptions" />
             </NFormItem>
-            <NFormItem label="基础模型" path="modelKey">
+            <NFormItem :label="$t('ai.model_manager.base_model')" path="modelKey">
               <NSelect
                 v-model:value="modelForm.modelKey"
                 :options="modelOptions"
-                placeholder="选择基础模型或直接输入"
+                :placeholder="$t('ai.model_manager.base_model_placeholder')"
                 filterable
                 tag
               />
@@ -311,7 +326,7 @@ defineExpose({ open });
               <div class="w-full flex flex-col gap-1">
                 <NInput
                   v-model:value="modelForm.apiKey"
-                  placeholder="请输入 API Key"
+                  :placeholder="$t('ai.model_manager.input_api_key')"
                   show-password-on="click"
                   type="password"
                 />
@@ -320,17 +335,17 @@ defineExpose({ open });
                   class="flex items-center gap-1 text-xs text-gray-500"
                 >
                   <span class="i-carbon-information" />
-                  <span>没有 API Key？前往</span>
+                  <span>{{ $t('ai.model_manager.no_api_key_tip') }}</span>
                   <a
                     :href="selectedProvider.siteUrl"
                     class="flex items-center gap-0.5 text-primary hover:underline"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    {{ selectedProvider.providerName }} 官网
+                    {{ selectedProvider.providerName }} {{ $t('ai.model_manager.official_website') }}
                     <span class="i-carbon-launch text-10px" />
                   </a>
-                  <span>获取</span>
+                  <span>{{ $t('ai.model_manager.get') }}</span>
                 </div>
               </div>
             </NFormItem>
@@ -339,39 +354,39 @@ defineExpose({ open });
                 v-model:value="modelForm.apiBase"
                 :placeholder="
                   modelForm.modelSource === '1'
-                    ? '可选，留空使用供应商默认值'
-                    : '请填写本地部署的大模型的 API Base 地址'
+                    ? $t('ai.model_manager.api_base_placeholder1')
+                    : $t('ai.model_manager.api_base_placeholder2')
                 "
               />
             </NFormItem>
-            <NFormItem label="状态">
+            <NFormItem :label="$t('common.status')">
               <NSwitch v-model:value="modelForm.status" checked-value="0" unchecked-value="1">
-                <template #checked>启用</template>
-                <template #unchecked>禁用</template>
+                <template #checked>{{ $t('common.enable') }}</template>
+                <template #unchecked>{{ $t('common.disable') }}</template>
               </NSwitch>
             </NFormItem>
           </div>
         </NTabPane>
-        <NTabPane name="advanced" tab="高级参数">
+        <NTabPane name="advanced" :tab="$t('ai.model_manager.advanced_settings')">
           <div class="min-h-[580px] flex flex-col pr-3 pt-4">
             <!-- 语言模型参数 (Type 1) -->
             <template v-if="modelForm.modelType === '1'">
-              <NFormItem label="最大 Token" path="maxTokens">
+              <NFormItem :label="$t('ai.model_manager.max_tokens')" path="maxTokens">
                 <NInputNumber
                   v-model:value="modelForm.maxTokens"
                   :min="1"
                   class="w-full"
-                  placeholder="默认使用模型上限"
+                  :placeholder="$t('ai.model_manager.max_tokens_placeholder')"
                 />
               </NFormItem>
-              <NFormItem label="温度" path="temperature">
+              <NFormItem :label="$t('ai.workflow_public.temperature')" path="temperature">
                 <TemperatureSlider v-model:model-value="modelForm.temperature" :show-label="false" />
               </NFormItem>
             </template>
 
             <!-- 向量模型参数 (Type 2) -->
             <template v-else-if="modelForm.modelType === '2'">
-              <NEmpty class="py-8" description="该模型类型暂无高级参数配置" />
+              <NEmpty class="py-8" :description="$t('ai.model_manager.no_advanced_settings')" />
             </template>
           </div>
         </NTabPane>
@@ -386,11 +401,11 @@ defineExpose({ open });
             <template #icon>
               <SvgIcon local-icon="carbon-network-overlay" />
             </template>
-            测试连接
+            {{ $t('ai.model_manager.test_connection') }}
           </NButton>
         </div>
-        <NButton @click="show = false">取消</NButton>
-        <NButton type="primary" :loading="loading" @click="handleSubmit">提交</NButton>
+        <NButton @click="show = false">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" :loading="loading" @click="handleSubmit">{{ $t('ai.model_manager.submit') }}</NButton>
       </div>
     </template>
   </NModal>

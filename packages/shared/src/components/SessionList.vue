@@ -1,9 +1,12 @@
 <script lang="ts" setup>
-import { h, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { NButton, NDropdown, NEmpty, NInput, NList, NListItem, useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { updateSessionTitle } from '../api/chat';
+
+const { t } = useI18n();
 
 interface Props {
   appId: string;
@@ -65,7 +68,7 @@ async function handleSaveTitle(sessionId: string) {
   const newTitle = editingTitle.value.trim();
 
   if (!newTitle) {
-    message.warning('标题不能为空');
+    message.warning(t('ai.chat.title_required'));
     return;
   }
 
@@ -77,11 +80,11 @@ async function handleSaveTitle(sessionId: string) {
     } else {
       await updateSessionTitle(sessionId, newTitle, props.token);
     }
-    message.success('标题已更新');
+    message.success(t('ai.chat.title_update_success'));
     editingSessionId.value = null;
     emit('refresh');
   } catch {
-    message.error('更新标题失败');
+    message.error(t('ai.chat.title_update_fail'));
   } finally {
     isSavingTitle.value = false;
   }
@@ -98,10 +101,10 @@ function handleCancelEdit() {
 const renderIcon = (icon: string) => () => h(SvgIcon, { icon, class: 'text-base' });
 
 // 菜单选项
-const menuOptions = [
-  { label: '编辑', key: 'edit', icon: renderIcon('carbon:edit') },
-  { label: '删除', key: 'delete', icon: renderIcon('carbon:trash-can') }
-];
+const menuOptions = computed(() => [
+  { label: t('common.edit'), key: 'edit', icon: renderIcon('carbon:edit') },
+  { label: t('common.delete'), key: 'delete', icon: renderIcon('carbon:trash-can') }
+]);
 
 // 菜单操作
 function handleMenuSelect(key: string, session: Api.AI.Chat.Session) {
@@ -138,7 +141,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
         <template #icon>
           <SvgIcon local-icon="mdi-chat-plus-outline" />
         </template>
-        新建对话
+        {{ t('ai.chat.new_chat') }}
       </NButton>
     </div>
 
@@ -147,11 +150,11 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
       class="flex items-center justify-between bg-gray-50/50 px-5 py-2 text-xs text-gray-500 font-medium dark:bg-gray-800/50"
     >
       <div class="flex items-center gap-1">
-        <span>历史记录</span>
+        <span>{{ t('ai.chat.history') }}</span>
       </div>
       <SvgIcon
         local-icon="carbon-trash-can"
-        title="清空全部"
+        :title="t('ai.chat.clear_all')"
         class="cursor-pointer hover:text-red-500"
         @click="emit('delete', 'all')"
       />
@@ -206,7 +209,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
         </NListItem>
       </NList>
 
-      <NEmpty v-else class="mt-20" description="暂无对话">
+      <NEmpty v-else class="mt-20" :description="t('ai.chat.no_sessions')">
         <template #icon>
           <SvgIcon class="text-6xl" local-icon="carbon-chat" />
         </template>
@@ -217,7 +220,7 @@ function handleKeyDown(e: KeyboardEvent, _sessionId: string) {
       class="flex items-center justify-center bg-gray-50/50 px-5 py-2 text-xs text-gray-500 font-medium dark:bg-gray-800/50"
     >
       <div class="flex items-center gap-1">
-        <span>只显示最近20条会话记录</span>
+        <span>{{ t('ai.chat.recent_sessions_tip') }}</span>
       </div>
     </div>
   </div>

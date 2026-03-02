@@ -11,16 +11,49 @@ function getMessage() {
 }
 
 /**
+ * Optional translation function or messages
+ */
+export interface CopyOptions {
+  label?: string;
+  msgSuccess?: string;
+  msgError?: string;
+  msgEmpty?: string;
+  t?: (key: string, ...args: any[]) => string;
+}
+
+/**
+ * 获取复制成功提示词
+ */
+function getSuccessMsg(opt: CopyOptions): string {
+  const { label, t } = opt;
+  if (opt.msgSuccess) return opt.msgSuccess;
+  const suffix = t ? t('common.copied') : '已复制';
+  return label ? `${label}${suffix}` : suffix;
+}
+
+/**
+ * 获取复制失败提示词
+ */
+function getErrorMsg(opt: CopyOptions): string {
+  const { label, t } = opt;
+  if (opt.msgError) return opt.msgError;
+  const suffix = t ? t('common.copy_fail') : '复制失败';
+  return label ? `${label}${suffix}` : suffix;
+}
+
+/**
  * 复制文本到剪贴板
  * @param text 要复制的文本
- * @param label 提示标签，如"链接"、"代码"等
+ * @param options 选项，包含翻译函数或提示信息
  * @returns boolean 是否复制成功
  */
-export async function copyToClipboard(text: string, label: string = '内容'): Promise<boolean> {
+export async function copyToClipboard(text: string, options: string | CopyOptions = '内容'): Promise<boolean> {
   const msg = getMessage();
+  const opt: CopyOptions = typeof options === 'string' ? { label: options } : options;
+  const { t } = opt;
 
   if (!text) {
-    msg.warning('复制内容为空');
+    msg.warning(opt.msgEmpty || (t ? t('common.copy_empty') : '复制内容为空'));
     return false;
   }
 
@@ -28,45 +61,35 @@ export async function copyToClipboard(text: string, label: string = '内容'): P
     // 优先使用 Clipboard API (仅在安全上下文可用)
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
-      const successMsg = label ? `${label}已复制` : '已复制';
-      msg.success(successMsg);
+      msg.success(getSuccessMsg(opt));
       return true;
     }
 
     // 降级方案
     const textArea = document.createElement('textarea');
     textArea.value = text;
-
-    // 避免页面滚动和闪烁
     textArea.style.position = 'fixed';
     textArea.style.left = '-9999px';
     textArea.style.top = '0';
     textArea.setAttribute('readonly', '');
-
     document.body.appendChild(textArea);
 
     textArea.focus();
     textArea.select();
-    textArea.setSelectionRange(0, 999999); // 兼容移动端
-
-    // 尝试执行复制命令
+    textArea.setSelectionRange(0, 999999);
     const successful = document.execCommand('copy');
-
     document.body.removeChild(textArea);
 
     if (successful) {
-      const successMsg = label ? `${label}已复制` : '已复制';
-      msg.success(successMsg);
+      msg.success(getSuccessMsg(opt));
       return true;
     }
-    const errorMsg = label ? `${label}复制失败` : '复制失败';
-    msg.error(errorMsg);
+    msg.error(getErrorMsg(opt));
     return false;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Copy failed:', err);
-    const errorMsg = label ? `${label}复制失败` : '复制失败';
-    msg.error(errorMsg);
+    msg.error(getErrorMsg(opt));
     return false;
   }
 }

@@ -16,6 +16,7 @@ import { useGraphInteraction } from '@/composables/ai/workflow/use-graph-interac
 import { useComponentPanel } from '@/composables/ai/workflow/use-component-panel';
 import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { hexToRgba } from '@/utils/color';
+import { $t } from '@/locales';
 import ConnectionLine from '@/components/ai/edges/connection-line.vue';
 import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
@@ -132,7 +133,7 @@ async function handleDebug() {
 
   const appInfoNode = workflowStore.nodes.find(n => n.data.nodeType === 'APP_INFO');
   if (appInfoNode?.data.config) {
-    debugAppName.value = appName.value || '未命名应用';
+    debugAppName.value = appName.value || $t('ai.workflow.unnamed_app');
   }
   showDebugDialog.value = true;
 }
@@ -161,7 +162,7 @@ onMounted(async () => {
     workflowStore.clearWorkflow();
     await loadWorkflow();
   } catch {
-    message.error('初始化失败,请刷新页面重试');
+    message.error($t('ai.workflow_template.init_failed'));
   }
 });
 
@@ -344,7 +345,7 @@ function updateNewNodeState(newId: string, oldId: string | null) {
               <template #icon>
                 <SvgIcon local-icon="carbon-add" />
               </template>
-              组件
+              {{ $t('ai.workflow_template.components') }}
             </NButton>
           </template>
         </ComponentLibraryModal>
@@ -352,15 +353,17 @@ function updateNewNodeState(newId: string, oldId: string | null) {
           <template #icon>
             <SvgIcon local-icon="mdi-content-save-outline" />
           </template>
-          保存
+          {{ $t('common.save') }}
         </NButton>
         <NButton class="bg-white/90 shadow-md dark:bg-dark-2" @click="handleDebug">
           <template #icon>
             <SvgIcon local-icon="mdi-bug-outline" />
           </template>
-          调试
+          {{ $t('ai.workflow.debug') }}
         </NButton>
-        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">发布</NButton>
+        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">
+          {{ $t('ai.workflow_template.publish') }}
+        </NButton>
         <NPopover trigger="hover" placement="bottom" :show-arrow="false">
           <template #trigger>
             <NButton quaternary circle class="ml-1">
@@ -375,20 +378,20 @@ function updateNewNodeState(newId: string, oldId: string | null) {
               @click="handleGoToChat"
             >
               <SvgIcon local-icon="mdi-chat-processing-outline" class="text-base text-gray-500" />
-              <span>去对话</span>
+              <span>{{ $t('ai.workflow.go_to_chat') }}</span>
             </div>
             <div
               class="flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="handlePublishHistory"
             >
               <SvgIcon local-icon="mdi-history" class="text-base text-gray-500" />
-              <span>发布历史</span>
+              <span>{{ $t('ai.workflow.publish_history') }}</span>
             </div>
             <div class="mx-2 my-0.5 h-px bg-gray-200 dark:bg-gray-700" />
             <div class="flex items-center justify-between px-3 py-2">
               <div class="flex items-center gap-2">
                 <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-base text-gray-500" />
-                <span>自动保存</span>
+                <span>{{ $t('ai.workflow.auto_save') }}</span>
               </div>
               <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
             </div>

@@ -3,6 +3,7 @@ import { onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 import VariableMention from '@/components/ai/Nodes/add-in/variable-mention.vue';
 import BaseNode from './base-node.vue';
 
@@ -59,11 +60,11 @@ onMounted(() => {
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
         <!-- 基础配置 -->
-        <NCollapseItem title="基础配置" name="config">
+        <NCollapseItem :title="$t('ai.workflow_template.base_config')" name="config">
           <div class="workflow-config-section">
             <div class="workflow-config-item flex-1">
               <div class="mb-1 flex items-center gap-1">
-                <span class="mb-0 workflow-label">指定回复内容</span>
+                <span class="mb-0 workflow-label">{{ $t('ai.workflow_node.specify_reply_content') }}</span>
                 <span class="workflow-label-required">*</span>
                 <NTooltip trigger="hover">
                   <template #trigger>
@@ -71,16 +72,16 @@ onMounted(() => {
                       <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
                     </span>
                   </template>
-                  该节点可以汇合各节点参数，定义特定的内容端，可以通过输入/来引用输入参数的值。
+                  {{ $t('ai.workflow_node.merge_node_desc') }}
                   <br />
-                  例如：${start.userName},你好。
+                  {{ $t('ai.workflow_node.eg_hello_user') }}
                 </NTooltip>
               </div>
               <VariableMention
                 v-model:model-value="formModel.content"
                 :node-id="id"
                 :rows="2"
-                placeholder="输入指定的回复文本内容 (输入 / 选择变量)"
+                :placeholder="$t('ai.workflow_node.input_reply_content')"
               />
             </div>
           </div>

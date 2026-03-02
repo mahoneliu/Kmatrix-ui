@@ -16,6 +16,7 @@ import {
   NTag,
   useMessage
 } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import {
   type TemplateCategory,
@@ -37,6 +38,7 @@ interface Emits {
 defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+const { t } = useI18n();
 const router = useRouter();
 const message = useMessage();
 
@@ -52,9 +54,9 @@ const selectedScopeType = ref<'0' | '1' | undefined>(undefined);
 
 // 类型筛选选项
 const scopeTypeOptions = [
-  { label: '全部', value: undefined },
-  { label: '系统模版', value: '0' },
-  { label: '自定义模版', value: '1' }
+  { label: t('common.all'), value: undefined },
+  { label: t('ai.app_manager.template_select.system_template'), value: '0' },
+  { label: t('ai.app_manager.template_select.custom_template'), value: '1' }
 ];
 
 // 创建应用弹窗
@@ -99,13 +101,13 @@ function handleSearch() {
 
 function handleSelectTemplate(template: WorkflowTemplate) {
   selectedTemplate.value = template;
-  appName.value = `基于${template.templateName}`;
+  appName.value = t('ai.app_manager.template_select.based_on', { name: template.templateName });
   showNameModal.value = true;
 }
 
 async function handleCreate() {
   if (!selectedTemplate.value || !appName.value.trim()) {
-    message.warning('请输入应用名称');
+    message.warning(t('ai.app_manager.search_placeholder'));
     return;
   }
 
@@ -114,7 +116,7 @@ async function handleCreate() {
     const res = await createAppFromTemplate(selectedTemplate.value.templateId, appName.value.trim());
     if (res.error) return;
     if (res.data) {
-      message.success('创建成功');
+      message.success(t('common.createSuccess'));
       showNameModal.value = false;
       emit('update:visible', false);
       emit('success', res.data);
@@ -126,14 +128,14 @@ async function handleCreate() {
       });
     }
   } catch (e: any) {
-    message.error(e.message || '创建失败');
+    message.error(e.message || t('common.createFailed'));
   } finally {
     creating.value = false;
   }
 }
 
 function getCategoryLabel(category: string | undefined) {
-  if (!category) return '未分类';
+  if (!category) return t('common.none');
   const found = categoryOptions.value.find(c => c.value === category);
   return found ? found.label : category;
 }
@@ -147,7 +149,7 @@ onMounted(() => {
 <template>
   <NModal
     :show="visible"
-    title="从模版创建应用"
+    :title="$t('ai.app_manager.template_select.title')"
     class="w-900px"
     preset="card"
     @update:show="val => emit('update:visible', val)"
@@ -156,7 +158,7 @@ onMounted(() => {
     <NSpace class="mb-4">
       <NInput
         v-model:value="searchName"
-        placeholder="搜索模版名称"
+        :placeholder="$t('ai.app_manager.template_select.search_placeholder')"
         clearable
         class="w-200px"
         @keyup.enter="handleSearch"
@@ -164,7 +166,7 @@ onMounted(() => {
       <NSelect
         v-model:value="selectedCategory"
         :options="categoryOptions"
-        placeholder="全部分类"
+        :placeholder="$t('ai.app_manager.template_select.all_categories')"
         clearable
         class="w-120px"
         @update:value="handleSearch"
@@ -172,11 +174,11 @@ onMounted(() => {
       <NSelect
         v-model:value="selectedScopeType"
         :options="scopeTypeOptions"
-        placeholder="全部类型"
+        :placeholder="$t('ai.app_manager.template_select.all_types')"
         class="w-120px"
         @update:value="handleSearch"
       />
-      <NButton type="primary" @click="handleSearch">搜索</NButton>
+      <NButton type="primary" @click="handleSearch">{{ $t('common.search') }}</NButton>
     </NSpace>
 
     <!-- 模版列表 -->
@@ -200,25 +202,37 @@ onMounted(() => {
                   <div class="mb-1 flex items-center gap-2">
                     <span class="truncate font-medium">{{ item.templateName }}</span>
                     <NTag :bordered="false" size="small" :type="item.scopeType === '0' ? 'info' : 'success'">
-                      {{ item.scopeType === '0' ? '系统' : '自定义' }}
+                      {{
+                        item.scopeType === '0'
+                          ? $t('ai.app_manager.template_select.system_template')
+                          : $t('ai.app_manager.template_select.custom_template')
+                      }}
                     </NTag>
                     <NTag :bordered="false" size="small" type="default">
                       {{ getCategoryLabel(item.category) }}
                     </NTag>
                   </div>
                   <div class="line-clamp-2 mb-2 text-xs text-gray-500">
-                    {{ item.description || '暂无描述' }}
+                    {{ item.description || $t('ai.app_manager.no_description') }}
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-400">已使用 {{ item.useCount || 0 }} 次</span>
-                    <NButton size="tiny" type="primary" @click.stop="handleSelectTemplate(item)">使用此模版</NButton>
+                    <span class="text-xs text-gray-400">
+                      {{
+                        $t('ai.app_manager.template_select.use_count', {
+                          count: item.useCount || 0
+                        })
+                      }}
+                    </span>
+                    <NButton size="tiny" type="primary" @click.stop="handleSelectTemplate(item)">
+                      {{ $t('ai.app_manager.template_select.use_this_template') }}
+                    </NButton>
                   </div>
                 </div>
               </div>
             </NCard>
           </NGridItem>
         </NGrid>
-        <NEmpty v-else description="暂无可用模版" />
+        <NEmpty v-else :description="$t('ai.app_manager.template_select.no_templates')" />
       </NScrollbar>
     </NSpin>
 
@@ -226,13 +240,13 @@ onMounted(() => {
     <NModal
       v-model:show="showNameModal"
       preset="dialog"
-      title="设置应用名称"
-      positive-text="创建"
-      negative-text="取消"
+      :title="$t('ai.app_manager.template_select.set_name_title')"
+      :positive-text="$t('common.confirm')"
+      :negative-text="$t('common.cancel')"
       :positive-button-props="{ loading: creating }"
       @positive-click="handleCreate"
     >
-      <NInput v-model:value="appName" placeholder="请输入应用名称" />
+      <NInput v-model:value="appName" :placeholder="$t('ai.app_manager.search_placeholder')" />
     </NModal>
   </NModal>
 </template>

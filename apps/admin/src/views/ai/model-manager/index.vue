@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <TableSiderLayout default-expanded sider-title="供应商">
+  <TableSiderLayout default-expanded sider-:title="$t('ai.model_manager.provider')">
     <template #header-extra>
       <SvgIcon
         local-icon="mdi-settings"

@@ -16,6 +16,7 @@ import {
 } from 'naive-ui';
 import type { FormInst, FormRules } from 'naive-ui';
 import { addDataset, updateDataset } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 
 interface Props {
   visible?: boolean;
@@ -53,33 +54,35 @@ const formData = ref<Partial<Api.AI.KB.Dataset>>({
   chunkOverlap: 50
 });
 
-const typeOptions = [
-  { label: '文件上传', value: 'FILE' },
-  { label: '网页爬取', value: 'WEB' },
-  { label: '手动录入', value: 'MANUAL' }
-];
+const typeOptions = computed(() => [
+  { label: $t('ai.knowledge_detail.datasetModal.typeOptions.FILE'), value: 'FILE' },
+  { label: $t('ai.knowledge_detail.datasetModal.typeOptions.WEB'), value: 'WEB' },
+  { label: $t('ai.knowledge_detail.datasetModal.typeOptions.MANUAL'), value: 'MANUAL' }
+]);
 
-const processTypeOptions = [
-  { label: '通用文件 (PDF/Word/TXT)', value: 'GENERIC_FILE' },
-  { label: 'QA问答对 (Excel/CSV)', value: 'QA_PAIR' },
-  { label: '在线文档', value: 'ONLINE_DOC' },
-  { label: '网页链接', value: 'WEB_LINK' }
-];
+const processTypeOptions = computed(() => [
+  { label: $t('ai.knowledge_detail.datasetModal.processTypeOptions.GENERIC_FILE'), value: 'GENERIC_FILE' },
+  { label: $t('ai.knowledge_detail.datasetModal.processTypeOptions.QA_PAIR'), value: 'QA_PAIR' },
+  { label: $t('ai.knowledge_detail.datasetModal.processTypeOptions.ONLINE_DOC'), value: 'ONLINE_DOC' },
+  { label: $t('ai.knowledge_detail.datasetModal.processTypeOptions.WEB_LINK'), value: 'WEB_LINK' }
+]);
 
-const sourceTypeOptions = [
-  { label: '上传文件', value: 'FILE_UPLOAD' },
-  { label: '文本输入', value: 'TEXT_INPUT' },
-  { label: '网页爬取', value: 'WEB_CRAWL' }
-];
+const sourceTypeOptions = computed(() => [
+  { label: $t('ai.knowledge_detail.datasetModal.sourceTypeOptions.FILE_UPLOAD'), value: 'FILE_UPLOAD' },
+  { label: $t('ai.knowledge_detail.datasetModal.sourceTypeOptions.TEXT_INPUT'), value: 'TEXT_INPUT' },
+  { label: $t('ai.knowledge_detail.datasetModal.sourceTypeOptions.WEB_CRAWL'), value: 'WEB_CRAWL' }
+]);
 
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   name: [
-    { required: true, message: '请输入数据集名称', trigger: 'blur' },
-    { max: 50, message: '名称不能超过50个字符', trigger: 'blur' }
+    { required: true, message: $t('ai.knowledge_detail.datasetModal.nameRequired'), trigger: 'blur' },
+    { max: 50, message: $t('ai.knowledge_detail.datasetModal.nameMaxLength'), trigger: 'blur' }
   ],
-  type: [{ required: true, message: '请选择数据集类型', trigger: 'blur' }],
-  processType: [{ required: true, message: '请选择处理方式', trigger: 'blur' }]
-};
+  type: [{ required: true, message: $t('ai.knowledge_detail.datasetModal.typeRequired'), trigger: 'blur' }],
+  processType: [
+    { required: true, message: $t('ai.knowledge_detail.datasetModal.processTypeRequired'), trigger: 'blur' }
+  ]
+}));
 
 watch(
   () => props.visible,
@@ -126,10 +129,10 @@ async function handleSubmit() {
   try {
     if (isEdit.value) {
       await updateDataset(formData.value);
-      message.success('更新成功');
+      message.success($t('ai.knowledge_detail.datasetModal.updateSuccess'));
     } else {
       await addDataset(formData.value);
-      message.success('创建成功');
+      message.success($t('ai.knowledge_detail.datasetModal.createSuccess'));
     }
     emit('success');
     emit('update:visible', false);
@@ -148,82 +151,94 @@ function handleCancel() {
   <NModal
     :show="visible"
     preset="card"
-    :title="isEdit ? '编辑数据集' : '新建数据集'"
+    :title="
+      isEdit ? $t('ai.knowledge_detail.datasetModal.editDataset') : $t('ai.knowledge_detail.datasetModal.createDataset')
+    "
     class="w-500px"
     :mask-closable="false"
     @update:show="val => emit('update:visible', val)"
   >
-    <NAlert v-if="isSystem" type="info" class="mb-4">系统预设数据集，部分设置不可修改</NAlert>
+    <NAlert v-if="isSystem" type="info" class="mb-4">{{ $t('ai.knowledge_detail.datasetModal.systemPreset') }}</NAlert>
 
     <NForm ref="formRef" :model="formData" :rules="rules" label-placement="left" label-width="100">
-      <NFormItem label="名称" path="name">
-        <NInput v-model:value="formData.name" placeholder="请输入数据集名称" maxlength="50" :disabled="isSystem" />
-      </NFormItem>
-      <NFormItem label="类型" path="type">
-        <NSelect v-model:value="formData.type" :options="typeOptions" placeholder="选择数据集类型" :disabled="isEdit" />
-      </NFormItem>
-      <NFormItem label="处理方式" path="processType">
-        <NSelect
-          v-model:value="formData.processType"
-          :options="processTypeOptions"
-          placeholder="选择处理方式"
+      <NFormItem :label="$t('ai.knowledge_detail.datasetModal.name')" path="name">
+        <NInput
+          v-model:value="formData.name"
+          :placeholder="$t('ai.knowledge_detail.datasetModal.namePlaceholder')"
+          maxlength="50"
           :disabled="isSystem"
         />
       </NFormItem>
-      <NFormItem label="来源类型" path="sourceType">
+      <NFormItem :label="$t('ai.knowledge_detail.datasetModal.type')" path="type">
+        <NSelect
+          v-model:value="formData.type"
+          :options="typeOptions"
+          :placeholder="$t('ai.knowledge_detail.datasetModal.typePlaceholder')"
+          :disabled="isEdit"
+        />
+      </NFormItem>
+      <NFormItem :label="$t('ai.knowledge_detail.datasetModal.processType')" path="processType">
+        <NSelect
+          v-model:value="formData.processType"
+          :options="processTypeOptions"
+          :placeholder="$t('ai.knowledge_detail.datasetModal.processTypePlaceholder')"
+          :disabled="isSystem"
+        />
+      </NFormItem>
+      <NFormItem :label="$t('ai.knowledge_detail.datasetModal.sourceType')" path="sourceType">
         <NSelect
           v-model:value="formData.sourceType"
           :options="sourceTypeOptions"
-          placeholder="选择数据来源类型"
+          :placeholder="$t('ai.knowledge_detail.datasetModal.sourceTypePlaceholder')"
           :disabled="isSystem"
         />
       </NFormItem>
 
       <NCollapse>
-        <NCollapseItem title="分块设置" name="chunk">
-          <NFormItem label="最小分块" path="minChunkSize">
+        <NCollapseItem :title="$t('ai.knowledge_detail.datasetModal.chunkSetting')" name="chunk">
+          <NFormItem :label="$t('ai.knowledge_detail.datasetModal.minChunkSize')" path="minChunkSize">
             <NInputNumber
               v-model:value="formData.minChunkSize"
               :min="10"
               :max="1000"
-              placeholder="最小 Token 数"
+              :placeholder="$t('ai.knowledge_detail.datasetModal.minChunkSizePlaceholder')"
               class="w-full"
             />
           </NFormItem>
-          <NFormItem label="最大分块" path="maxChunkSize">
+          <NFormItem :label="$t('ai.knowledge_detail.datasetModal.maxChunkSize')" path="maxChunkSize">
             <NInputNumber
               v-model:value="formData.maxChunkSize"
               :min="50"
               :max="2000"
-              placeholder="最大 Token 数"
+              :placeholder="$t('ai.knowledge_detail.datasetModal.maxChunkSizePlaceholder')"
               class="w-full"
             />
           </NFormItem>
-          <NFormItem label="重叠大小" path="chunkOverlap">
+          <NFormItem :label="$t('ai.knowledge_detail.datasetModal.chunkOverlap')" path="chunkOverlap">
             <NInputNumber
               v-model:value="formData.chunkOverlap"
               :min="0"
               :max="500"
-              placeholder="重叠 Token 数"
+              :placeholder="$t('ai.knowledge_detail.datasetModal.chunkOverlapPlaceholder')"
               class="w-full"
             />
           </NFormItem>
-          <NFormItem label="子块大小(可选)" path="childChunkSize">
+          <NFormItem :label="$t('ai.knowledge_detail.datasetModal.childChunkSize')" path="childChunkSize">
             <NInputNumber
               v-model:value="formData.childChunkSize"
               :min="50"
               :max="1000"
-              placeholder="留空即使用系统默认大小"
+              :placeholder="$t('ai.knowledge_detail.datasetModal.childChunkSizePlaceholder')"
               clearable
               class="w-full"
             />
           </NFormItem>
-          <NFormItem label="子块重叠(可选)" path="childChunkOverlap">
+          <NFormItem :label="$t('ai.knowledge_detail.datasetModal.childChunkOverlap')" path="childChunkOverlap">
             <NInputNumber
               v-model:value="formData.childChunkOverlap"
               :min="0"
               :max="200"
-              placeholder="留空即使用系统默认大小"
+              :placeholder="$t('ai.knowledge_detail.datasetModal.childChunkOverlapPlaceholder')"
               clearable
               class="w-full"
             />
@@ -234,9 +249,9 @@ function handleCancel() {
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="handleCancel">取消</NButton>
+        <NButton @click="handleCancel">{{ $t('common.cancel') }}</NButton>
         <NButton type="primary" :loading="submitting" @click="handleSubmit">
-          {{ isEdit ? '保存' : '创建' }}
+          {{ isEdit ? $t('ai.knowledge_detail.datasetModal.save') : $t('ai.knowledge_detail.datasetModal.create') }}
         </NButton>
       </NSpace>
     </template>

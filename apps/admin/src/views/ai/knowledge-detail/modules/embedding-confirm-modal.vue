@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { NButton, NModal, NRadio, NRadioGroup, NSpace } from 'naive-ui';
+import { $t } from '@/locales';
 
 interface Props {
   show?: boolean;
@@ -38,21 +39,21 @@ function handleConfirm() {
   <NModal
     :show="props.show"
     preset="dialog"
-    title="选择分段"
+    :title="$t('ai.embeddingConfirmModal.selectChunk')"
     class="w-400px"
     @update:show="(val: boolean) => emit('update:show', val)"
   >
     <NRadioGroup v-model:value="selectedOption">
       <NSpace vertical>
-        <NRadio value="UNEMBEDDED_ONLY">仅执行未成功分段</NRadio>
-        <NRadio value="ALL">全部分段</NRadio>
+        <NRadio value="UNEMBEDDED_ONLY">{{ $t('ai.embeddingConfirmModal.unembeddedOnly') }}</NRadio>
+        <NRadio value="ALL">{{ $t('ai.embeddingConfirmModal.allChunks') }}</NRadio>
       </NSpace>
     </NRadioGroup>
 
     <template #action>
       <NSpace>
-        <NButton @click="handleCancel">取消</NButton>
-        <NButton type="primary" @click="handleConfirm">提交</NButton>
+        <NButton @click="handleCancel">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" @click="handleConfirm">{{ $t('common.confirm') }}</NButton>
       </NSpace>
     </template>
   </NModal>

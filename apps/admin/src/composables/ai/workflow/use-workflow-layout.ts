@@ -9,6 +9,7 @@
 
 import type { Ref } from 'vue';
 import type { MessageApi } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import type { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { getLayoutedElements } from '@/utils/ai/layout-helper';
 
@@ -23,6 +24,7 @@ export interface UseWorkflowLayoutOptions {
 
 export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
   const { workflowStore, vueFlowInstance, getNodes, message } = options;
+  const { t } = useI18n();
 
   /**
    * 适应画布视图
@@ -38,7 +40,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleAutoLayout() {
     if (workflowStore.nodes.length === 0) {
-      message.warning('没有节点需要布局');
+      message.warning(t('page.ai.workflow.no_nodes_to_layout'));
       return;
     }
 
@@ -59,7 +61,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
       handleFitView();
     }, 50);
 
-    message.success('布局优化完成');
+    message.success(t('page.ai.workflow.layout_done'));
   }
 
   /**
@@ -67,7 +69,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleCollapseAll() {
     workflowStore.setCollapseAllNodes(true);
-    message.success('已折叠所有节点');
+    message.success(t('page.ai.workflow.all_nodes_collapsed'));
   }
 
   /**
@@ -75,7 +77,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleExpandAll() {
     workflowStore.setCollapseAllNodes(false);
-    message.success('已展开所有节点');
+    message.success(t('page.ai.workflow.all_nodes_expanded'));
   }
 
   /**
@@ -83,7 +85,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleCollapseAndLayout() {
     if (workflowStore.nodes.length === 0) {
-      message.warning('没有节点需要布局');
+      message.warning(t('page.ai.workflow.no_nodes_to_layout'));
       return;
     }
 

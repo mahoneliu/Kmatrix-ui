@@ -6,6 +6,7 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import { TestModelChatUrl } from '@/service/api/ai/model';
 import { useAuthStore } from '@/store/modules/auth'; // Adjust path if needed
+import { $t } from '@/locales';
 import 'highlight.js/styles/github-dark.css';
 
 const props = defineProps<{
@@ -142,18 +143,20 @@ watch(
     :show="visible"
     preset="card"
     class="h-[600px] w-[800px]"
-    title="模型测试 (Playground)"
+    :title="$t('ai.model_manager.test.title')"
     @update:show="handleClose"
   >
     <div class="h-full flex flex-col">
       <div class="mb-2 text-gray-500">
-        当前测试模型:
+        {{ $t('ai.model_manager.test.current_model') }}
         <span class="text-primary font-bold">{{ model?.modelName }}</span>
         ({{ model?.modelKey }})
       </div>
 
       <NScrollbar ref="scrollbarRef" class="custom-scrollbar flex-1 border rounded bg-gray-50 p-4">
-        <div v-if="chatHistory.length === 0" class="mt-20 text-center text-gray-400">请输入消息开始测试...</div>
+        <div v-if="chatHistory.length === 0" class="mt-20 text-center text-gray-400">
+          {{ $t('ai.model_manager.input_message_start') }}
+        </div>
         <div
           v-for="(msg, index) in formattedHistory"
           :key="index"
@@ -177,7 +180,7 @@ watch(
           v-model:value="inputMessage"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 4 }"
-          placeholder="Ctrl + Enter 发送..."
+          :placeholder="$t('ai.model_manager.test.ctrl_enter_send')"
           :disabled="loading"
           @keydown.enter.ctrl.prevent="handleSend"
         />
@@ -188,7 +191,7 @@ watch(
           :disabled="!inputMessage.trim()"
           @click="handleSend"
         >
-          发送
+          {{ $t('ai.model_manager.send') }}
         </NButton>
       </div>
     </div>

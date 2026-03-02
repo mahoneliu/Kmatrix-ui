@@ -12,6 +12,7 @@ import {
   parseDdlAndSave,
   syncMetadataFromDatabase
 } from '@/service/api/ai/datasource';
+import { $t } from '@/locales';
 
 interface Props {
   show: boolean;
@@ -34,23 +35,24 @@ const syncLoading = ref(false);
 // 表格列定义
 const columns: DataTableColumns<any> = [
   {
-    title: '表名',
+    title: () => $t('ai.datasource.table_name'),
     key: 'tableName',
     width: 200
   },
   {
-    title: '表注释',
+    title: () => $t('ai.datasource.table_comment'),
     key: 'tableComment',
     ellipsis: { tooltip: true }
   },
   {
-    title: '来源',
+    title: () => $t('ai.datasource.metadata.source_label'),
     key: 'metaSourceType',
     width: 100,
-    render: row => (row.metaSourceType === 'DDL' ? 'DDL 导入' : 'JDBC 同步')
+    render: row =>
+      row.metaSourceType === 'DDL' ? $t('ai.datasource.metadata.source_ddl') : $t('ai.datasource.metadata.source_jdbc')
   },
   {
-    title: '操作',
+    title: () => $t('ai.datasource.operation'),
     key: 'actions',
     width: 100,
     render: row => {
@@ -61,7 +63,7 @@ const columns: DataTableColumns<any> = [
           type: 'error',
           onClick: () => handleDeleteMeta(row.metaId)
         },
-        { default: () => '删除' }
+        { default: () => $t('ai.datasource.delete') }
       );
     }
   }
@@ -92,7 +94,11 @@ async function loadMetadata() {
     }
     metadataList.value = data || [];
   } catch (error: any) {
-    message.error(`加载元数据失败: ${error.message || '未知错误'}`);
+    message.error(
+      $t('ai.datasource.metadata.load_fail', {
+        error: error.message || $t('ai.datasource.metadata.unknown_error')
+      })
+    );
   } finally {
     loading.value = false;
   }
@@ -101,7 +107,7 @@ async function loadMetadata() {
 // 导入 DDL
 async function handleImportDdl() {
   if (!ddlContent.value.trim()) {
-    message.warning('请输入 DDL 语句');
+    message.warning($t('ai.datasource.metadata.ddl_required'));
     return;
   }
 
@@ -113,11 +119,15 @@ async function handleImportDdl() {
       dataSourceId: props.dataSourceId,
       ddlContent: ddlContent.value
     });
-    message.success('DDL 导入成功');
+    message.success($t('ai.datasource.metadata.import_success'));
     ddlContent.value = '';
     await loadMetadata();
   } catch (error: any) {
-    message.error(`DDL 导入失败: ${error.message || '未知错误'}`);
+    message.error(
+      $t('ai.datasource.metadata.import_fail', {
+        error: error.message || $t('ai.datasource.metadata.unknown_error')
+      })
+    );
   } finally {
     loading.value = false;
   }
@@ -130,10 +140,14 @@ async function handleSyncFromJdbc() {
   syncLoading.value = true;
   try {
     await syncMetadataFromDatabase(props.dataSourceId);
-    message.success('元数据同步成功');
+    message.success($t('ai.datasource.metadata.sync_success'));
     await loadMetadata();
   } catch (error: any) {
-    message.error(`同步失败: ${error.message || '未知错误'}`);
+    message.error(
+      $t('ai.datasource.metadata.sync_fail', {
+        error: error.message || $t('ai.datasource.metadata.unknown_error')
+      })
+    );
   } finally {
     syncLoading.value = false;
   }
@@ -143,10 +157,14 @@ async function handleSyncFromJdbc() {
 async function handleDeleteMeta(metaId: number) {
   try {
     await deleteMetadata([metaId]);
-    message.success('删除成功');
+    message.success($t('ai.datasource.metadata.delete_success'));
     await loadMetadata();
   } catch (error: any) {
-    message.error(`删除失败: ${error.message || '未知错误'}`);
+    message.error(
+      $t('ai.datasource.metadata.delete_fail', {
+        error: error.message || $t('ai.datasource.metadata.unknown_error')
+      })
+    );
   }
 }
 
@@ -157,52 +175,60 @@ function handleClose() {
 </script>
 
 <template>
-  <NModal :show="show" preset="card" title="元数据管理" class="w-240" @update:show="handleClose">
+  <NModal
+    :show="show"
+    preset="card"
+    :title="$t('ai.datasource.metadata.title')"
+    class="w-240"
+    @update:show="handleClose"
+  >
     <NTabs type="line">
       <!-- DDL 导入 -->
-      <NTabPane name="ddl" tab="DDL 导入">
+      <NTabPane name="ddl" :tab="$t('ai.datasource.metadata.ddl_import_title')">
         <div class="flex flex-col gap-3">
           <div class="text-sm c-gray-6">
-            请粘贴 MySQL CREATE TABLE 语句，系统将自动解析表结构信息。支持多个表的 DDL 语句。
+            {{ $t('ai.datasource.metadata.ddl_tip') }}
           </div>
           <NInput
             v-model:value="ddlContent"
             type="textarea"
             :rows="12"
-            placeholder="CREATE TABLE users (&#10;  id BIGINT PRIMARY KEY COMMENT '用户ID',&#10;  username VARCHAR(50) COMMENT '用户名',&#10;  ...&#10;);"
+            :placeholder="$t('ai.datasource.metadata.ddl_placeholder')"
           />
           <div class="flex justify-end">
-            <NButton type="primary" :loading="loading" @click="handleImportDdl">解析并导入</NButton>
+            <NButton type="primary" :loading="loading" @click="handleImportDdl">
+              {{ $t('ai.datasource.metadata.parse_and_import') }}
+            </NButton>
           </div>
         </div>
       </NTabPane>
 
       <!-- JDBC 同步 -->
-      <NTabPane name="jdbc" tab="JDBC 同步">
+      <NTabPane name="jdbc" :tab="$t('ai.datasource.metadata.jdbc_tab')">
         <div class="flex flex-col gap-3">
           <div class="text-sm c-gray-6">
-            从数据库的 information_schema 自动获取所有表的结构信息。此操作会覆盖已存在的元数据。
+            {{ $t('ai.datasource.metadata.jdbc_sync_tip') }}
           </div>
           <div class="flex justify-end">
             <NButton type="primary" :loading="syncLoading" @click="handleSyncFromJdbc">
               <template #icon>
                 <SvgIcon local-icon="mdi-sync" />
               </template>
-              同步元数据
+              {{ $t('ai.datasource.metadata.sync_metadata_title') }}
             </NButton>
           </div>
         </div>
       </NTabPane>
 
       <!-- 元数据列表 -->
-      <NTabPane name="list" tab="元数据列表">
+      <NTabPane name="list" :tab="$t('ai.datasource.metadata.list_tab')">
         <NDataTable :columns="columns" :data="metadataList" :loading="loading" :bordered="false" size="small" />
       </NTabPane>
     </NTabs>
 
     <template #footer>
       <div class="flex justify-end">
-        <NButton @click="handleClose">关闭</NButton>
+        <NButton @click="handleClose">{{ $t('ai.datasource.metadata.close') }}</NButton>
       </div>
     </template>
   </NModal>

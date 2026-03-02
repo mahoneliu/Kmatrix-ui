@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { NButton, NInput, NModal } from 'naive-ui';
 import { batchAddQuestions } from '@/service/api/ai/knowledge';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'QuestionAddModal'
@@ -34,7 +35,7 @@ function handleClose() {
 
 async function handleSubmit() {
   if (!props.kbId || !inputText.value.trim()) {
-    window.$message?.warning('请输入问题内容');
+    window.$message?.warning($t('ai.knowledge_detail.questionAddModal.requireContent'));
     return;
   }
 
@@ -45,7 +46,7 @@ async function handleSubmit() {
     .filter(line => line.length > 0);
 
   if (contents.length === 0) {
-    window.$message?.warning('请输入问题内容');
+    window.$message?.warning($t('ai.knowledge_detail.questionAddModal.requireContent'));
     return;
   }
 
@@ -53,12 +54,12 @@ async function handleSubmit() {
   try {
     const { error } = await batchAddQuestions(props.kbId, contents);
     if (!error) {
-      window.$message?.success(`成功添加 ${contents.length} 个问题`);
+      window.$message?.success($t('ai.knowledge_detail.questionAddModal.addSuccess', { count: contents.length }));
       emit('success');
       handleClose();
     }
   } catch {
-    window.$message?.error('添加失败');
+    window.$message?.error($t('ai.knowledge_detail.questionAddModal.addFail'));
   } finally {
     submitting.value = false;
   }
@@ -69,7 +70,7 @@ async function handleSubmit() {
   <NModal
     :show="visible"
     preset="card"
-    title="批量添加问题"
+    :title="$t('ai.knowledge_detail.questionAddModal.title')"
     :mask-closable="false"
     :bordered="false"
     :segmented="{ content: true }"
@@ -77,11 +78,11 @@ async function handleSubmit() {
     @update:show="(val: boolean) => emit('update:visible', val)"
   >
     <div class="flex flex-col gap-3">
-      <div class="text-sm text-gray-500">每行一个问题，提交后将批量创建。</div>
+      <div class="text-sm text-gray-500">{{ $t('ai.knowledge_detail.questionAddModal.tip') }}</div>
       <NInput
         v-model:value="inputText"
         type="textarea"
-        placeholder="请输入问题，每行一个问题&#10;例如：&#10;如何使用这个系统？&#10;系统支持哪些功能？&#10;如何导出数据？"
+        :placeholder="$t('ai.knowledge_detail.questionAddModal.placeholder')"
         :rows="10"
         :disabled="submitting"
         clearable
@@ -90,8 +91,8 @@ async function handleSubmit() {
 
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton @click="handleClose">取消</NButton>
-        <NButton type="primary" :loading="submitting" @click="handleSubmit">确定</NButton>
+        <NButton @click="handleClose">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" :loading="submitting" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
       </div>
     </template>
   </NModal>

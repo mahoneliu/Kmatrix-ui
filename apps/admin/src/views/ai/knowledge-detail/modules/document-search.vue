@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRaw } from 'vue';
+import { computed, toRaw } from 'vue';
 import { jsonClone } from '@sa/utils';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -36,19 +36,19 @@ async function search() {
   emit('search');
 }
 
-const enabledOptions = [
-  { label: '全部', value: undefined },
-  { label: '已启用', value: 1 },
-  { label: '已禁用', value: 0 }
-];
+const enabledOptions = computed(() => [
+  { label: $t('ai.documentSearch.all'), value: undefined },
+  { label: $t('ai.documentSearch.enabled'), value: 1 },
+  { label: $t('ai.documentSearch.disabled'), value: 0 }
+]);
 
-const statusOptions = [
-  { label: '全部', value: undefined },
-  { label: '未生成', value: 0 },
-  { label: '生成中', value: 1 },
-  { label: '已生成', value: 2 },
-  { label: '生成失败', value: 3 }
-];
+const statusOptions = computed(() => [
+  { label: $t('ai.documentSearch.all'), value: undefined },
+  { label: $t('ai.documentSearch.unGenerated'), value: 0 },
+  { label: $t('ai.documentSearch.generating'), value: 1 },
+  { label: $t('ai.documentSearch.generated'), value: 2 },
+  { label: $t('ai.documentSearch.generateFailed'), value: 3 }
+]);
 </script>
 
 <template>
@@ -57,16 +57,31 @@ const statusOptions = [
       <NCollapseItem :title="$t('common.search')" name="document-search">
         <NForm :model="model" label-placement="left" :label-width="100">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="关键词" path="keyword" class="pr-24px">
-              <NInput v-model:value="model.keyword" placeholder="搜索文档名称" clearable />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('ai.documentSearch.keyword')" path="keyword" class="pr-24px">
+              <NInput v-model:value="model.keyword" :placeholder="$t('ai.documentSearch.searchDocName')" clearable />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="启用状态" path="enabled" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('ai.documentSearch.enableStatus')"
+              path="enabled"
+              class="pr-24px"
+            >
               <NSelect v-model:value="model.enabled" :options="enabledOptions" clearable />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="向量化状态" path="embeddingStatus" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('ai.documentSearch.embeddingStatus')"
+              path="embeddingStatus"
+              class="pr-24px"
+            >
               <NSelect v-model:value="model.embeddingStatus" :options="statusOptions" clearable />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="问题生成状态" path="questionStatus" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('ai.documentSearch.questionStatus')"
+              path="questionStatus"
+              class="pr-24px"
+            >
               <NSelect v-model:value="model.questionStatus" :options="statusOptions" clearable />
             </NFormItemGi>
             <NFormItemGi span="24 s:24 m:24" class="pr-24px">

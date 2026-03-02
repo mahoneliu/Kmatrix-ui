@@ -2,6 +2,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { $t } from '@/locales';
 
 const workflowStore = useWorkflowStore();
 
@@ -24,11 +25,11 @@ const lastSavedText = computed(() => {
 
   const seconds = Math.floor((Date.now() - workflowStore.lastSavedAt) / 1000);
 
-  if (seconds < 10) return '刚刚保存';
-  if (seconds < 60) return '已保存';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} 分钟前保存`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} 小时前保存`;
-  return `${Math.floor(seconds / 86400)} 天前保存`;
+  if (seconds < 10) return $t('ai.workflow.just_saved');
+  if (seconds < 60) return $t('ai.workflow.saved');
+  if (seconds < 3600) return $t('ai.workflow.saved_n_minutes_ago', { n: Math.floor(seconds / 60) });
+  if (seconds < 86400) return $t('ai.workflow.saved_n_hours_ago', { n: Math.floor(seconds / 3600) });
+  return $t('ai.workflow.saved_n_days_ago', { n: Math.floor(seconds / 86400) });
 });
 </script>
 
@@ -37,13 +38,13 @@ const lastSavedText = computed(() => {
     <!-- 保存中 -->
     <div v-if="workflowStore.isSaving" class="flex items-center gap-1 text-blue-500">
       <SvgIcon local-icon="mdi-loading" class="animate-spin" :size="14" />
-      <span>保存中...</span>
+      <span>{{ $t('ai.workflow.saving') }}</span>
     </div>
 
     <!-- 未保存 -->
     <div v-else-if="workflowStore.isDirty" class="flex items-center gap-1 text-blue-500">
       <SvgIcon local-icon="mdi-circle" :size="8" />
-      <span>待保存</span>
+      <span>{{ $t('ai.workflow.pending_save') }}</span>
     </div>
 
     <!-- 已保存 -->
@@ -63,6 +64,7 @@ const lastSavedText = computed(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { NDataTable, NModal, NSpin, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { fetchPublishHistory } from '@/service/api/ai/app';
+import { $t } from '@/locales';
 
 interface Props {
   visible: boolean;
@@ -23,13 +24,13 @@ const publishHistory = ref<Api.AI.Admin.AppVersion[]>([]);
 // 表格列定义
 const columns: DataTableColumns<Api.AI.Admin.AppVersion> = [
   {
-    title: '版本号',
+    title: $t('ai.workflow.version'),
     key: 'version',
     width: 100,
     align: 'center'
   },
   {
-    title: '发布时间',
+    title: $t('ai.workflow.publish_time'),
     key: 'createTime',
     width: 180,
     render: row => {
@@ -38,12 +39,12 @@ const columns: DataTableColumns<Api.AI.Admin.AppVersion> = [
     }
   },
   {
-    title: '发布人',
+    title: $t('ai.workflow.publisher'),
     key: 'createByName',
     width: 120
   },
   {
-    title: '备注',
+    title: $t('common.remark'),
     key: 'remark',
     ellipsis: {
       tooltip: true
@@ -59,12 +60,12 @@ async function loadPublishHistory() {
   try {
     const { data, error } = await fetchPublishHistory(props.appId);
     if (error) {
-      message.error('加载发布历史失败');
+      message.error($t('ai.workflow.load_publish_history_failed'));
       return;
     }
     publishHistory.value = data || [];
   } catch {
-    message.error('加载发布历史失败');
+    message.error($t('ai.workflow.load_publish_history_failed'));
   } finally {
     loading.value = false;
   }
@@ -85,7 +86,7 @@ function handleClose() {
   <NModal
     :show="visible"
     preset="card"
-    title="发布历史"
+    :title="$t('ai.workflow.publish_history')"
     class="w-[800px]"
     @update:show="handleClose"
     @after-enter="handleAfterEnter"
@@ -103,7 +104,9 @@ function handleClose() {
           pageSizes: [10, 20, 50]
         }"
       />
-      <div v-if="!loading && publishHistory.length === 0" class="py-12 text-center text-gray-400">暂无发布历史</div>
+      <div v-if="!loading && publishHistory.length === 0" class="py-12 text-center text-gray-400">
+        {{ $t('ai.workflow.no_publish_history') }}
+      </div>
     </NSpin>
   </NModal>
 </template>

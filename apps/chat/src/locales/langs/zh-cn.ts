@@ -1,0 +1,53 @@
+/** Chat app doesn't need all admin keys, but shared components need specific keys. */
+const local = {
+  common: {
+    copy: '复制',
+    copied: '已复制',
+    copy_fail: '复制失败',
+    copy_empty: '复制内容为空',
+    input: '输入',
+    output: '输出',
+    stop: '停止',
+    retry: '重试',
+    network_error: '网络连接异常',
+    copy_code: '复制代码',
+    copy_code_success: '代码复制成功',
+    confirm: '确定',
+    cancel: '取消',
+    delete: '删除',
+    save: '保存',
+    search: '搜索',
+    edit: '编辑'
+  },
+  ai: {
+    chat: {
+      new_chat: '新建对话',
+      chat_title: '对话',
+      chat_failed: '对话失败',
+      thinking_process: '思考过程',
+      time_cost: '耗时',
+      execution_details: '执行详情',
+      node_count: '{count}个节点',
+      ai_thinking: 'AI正在思考...',
+      ai_responding: 'AI正在回复...',
+      input_placeholder: '请输入问题... (Enter发送)',
+      close_execution_details: '关闭执行详情',
+      open_execution_details: '开启执行详情',
+      citation_details: '引用详情',
+      similarity: '相似度',
+      chunk_id: '片段ID',
+      unknown_document: '未知文档',
+      title_required: '标题不能为空',
+      title_update_success: '标题已更新',
+      title_update_fail: '更新标题失败',
+      history: '历史记录',
+      clear_all: '清空全部',
+      no_sessions: '暂无对话',
+      confirm_delete_session: '确认删除该会话吗？',
+      clear_all_sessions: '清空所有会话',
+      read_stream_error: '无法读取响应流'
+    }
+  }
+};
+
+export default local;

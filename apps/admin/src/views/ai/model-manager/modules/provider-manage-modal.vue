@@ -14,6 +14,7 @@ import {
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { fetchProviderDetail, fetchProviderList, updateProvider } from '@/service/api/ai/provider';
+import { $t } from '@/locales';
 
 const props = defineProps<{
   visible: boolean;
@@ -39,18 +40,18 @@ const formData = ref<{
 });
 
 const modelTypeOptions = [
-  { label: '语言模型', value: '1' },
-  { label: '向量模型', value: '2' }
+  { label: $t('ai.model_manager.language_model'), value: '1' },
+  { label: $t('ai.model_manager.vector_model'), value: '2' }
 ];
 
 const columns = [
   {
-    title: '模型标识',
+    title: $t('ai.model_manager.model_key'),
     key: 'key',
     render: (row: any, index: number) => {
       return h(NInput, {
         value: row.key,
-        placeholder: '例如: gpt-4',
+        placeholder: $t('ai.model_manager.model_name_placeholder'),
         onUpdateValue: (val: string) => {
           formData.value.models[index].key = val;
         }
@@ -58,7 +59,7 @@ const columns = [
     }
   },
   {
-    title: '模型类型',
+    title: $t('ai.model_manager.model_type'),
     key: 'type',
     width: 150,
     render: (row: any, index: number) => {
@@ -72,7 +73,7 @@ const columns = [
     }
   },
   {
-    title: '操作',
+    title: $t('ai.model_manager.operation'),
     key: 'actions',
     width: 80,
     align: 'center' as const,
@@ -83,7 +84,7 @@ const columns = [
           onPositiveClick: () => handleDeleteModel(index)
         },
         {
-          default: () => '确认删除此模型?',
+          default: () => $t('ai.model_manager.delete_model_confirm_simple'),
           trigger: () =>
             h(
               NButton,
@@ -92,7 +93,7 @@ const columns = [
                 type: 'error',
                 text: true
               },
-              { default: () => '删除' }
+              { default: () => $t('common.delete') }
             )
         }
       );
@@ -138,14 +139,14 @@ function handleDeleteModel(index: number) {
 
 async function handleSubmit() {
   if (!formData.value.providerId) {
-    message.warning('请选择供应商');
+    message.warning($t('ai.model_manager.select_provider'));
     return;
   }
 
   // 验证模型数据
   const hasEmpty = formData.value.models.some(m => !m.key.trim());
   if (hasEmpty) {
-    message.warning('请填写所有模型标识');
+    message.warning($t('ai.model_manager.fill_all_model_keys'));
     return;
   }
 
@@ -157,7 +158,7 @@ async function handleSubmit() {
   loading.value = false;
 
   if (!error) {
-    message.success('更新成功');
+    message.success($t('ai.model_manager.update_success'));
     emit('success');
     handleClose();
   }
@@ -190,24 +191,35 @@ watch(selectedProviderId, val => {
 </script>
 
 <template>
-  <NModal :show="visible" preset="card" class="w-[900px]" title="供应商模型管理" @update:show="handleClose">
+  <NModal
+    :show="visible"
+    preset="card"
+    class="w-[900px]"
+    :title="$t('ai.model_manager.provider.manage')"
+    @update:show="handleClose"
+  >
     <NForm label-placement="left" label-width="100">
-      <NFormItem label="选择供应商">
-        <NSelect v-model:value="selectedProviderId" :options="providerOptions" placeholder="请选择供应商" filterable />
+      <NFormItem :label="$t('ai.model_manager.test.current_model')">
+        <NSelect
+          v-model:value="selectedProviderId"
+          :options="providerOptions"
+          :placeholder="$t('ai.model_manager.select_provider')"
+          filterable
+        />
       </NFormItem>
 
-      <NFormItem v-if="formData.providerId" label="供应商名称">
+      <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.provider_name')">
         <NInput :value="formData.providerName" readonly />
       </NFormItem>
 
-      <NFormItem v-if="formData.providerId" label="支持的模型">
+      <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.supported_models')">
         <div class="w-full">
           <div class="mb-2 flex justify-end">
             <NButton size="small" type="primary" @click="handleAddModel">
               <template #icon>
                 <SvgIcon icon="carbon:add" />
               </template>
-              添加模型
+              {{ $t('ai.model_manager.add_model') }}
             </NButton>
           </div>
 
@@ -221,7 +233,7 @@ watch(selectedProviderId, val => {
           />
 
           <div v-if="formData.models.length === 0" class="py-8 text-center text-gray-400">
-            暂无模型,点击上方按钮添加
+            {{ $t('ai.model_manager.provider.no_models_tip') }}
           </div>
         </div>
       </NFormItem>
@@ -229,8 +241,10 @@ watch(selectedProviderId, val => {
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="handleClose">取消</NButton>
-        <NButton type="primary" :loading="loading" :disabled="!formData.providerId" @click="handleSubmit">保存</NButton>
+        <NButton @click="handleClose">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" :loading="loading" :disabled="!formData.providerId" @click="handleSubmit">
+          {{ $t('common.save') }}
+        </NButton>
       </NSpace>
     </template>
   </NModal>

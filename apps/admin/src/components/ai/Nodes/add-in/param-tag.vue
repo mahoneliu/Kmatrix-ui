@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useMessage } from 'naive-ui';
 import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS, PARAM_TYPE_MAP } from '@/constants/workflow';
 import { getTagBackground } from '@/utils/color';
+import { $t } from '@/locales';
 
 interface Props {
   param: Workflow.ParamDefinition;
@@ -42,7 +43,7 @@ const message = useMessage();
 
 const getParamTypeName = (type: string | undefined) => {
   if (!type) return '未知';
-  return PARAM_TYPE_MAP[type] || type;
+  return PARAM_TYPE_MAP.value[type] || type;
 };
 
 // 复制参数引用
@@ -54,7 +55,7 @@ async function copyParamRef(e: Event) {
     await navigator.clipboard.writeText(ref);
     message.success(`已复制: ${ref}`);
   } catch {
-    message.error('复制失败,请手动复制');
+    message.error($t('ai.workflow_template.copy_failed'));
   }
 }
 

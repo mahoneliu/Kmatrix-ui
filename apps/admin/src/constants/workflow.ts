@@ -1,6 +1,8 @@
 /**
  * 工作流相关常量定义
  */
+import { computed } from 'vue';
+import { $t } from '@/locales';
 
 /**
  * 参数来源类型颜色映射
@@ -29,35 +31,37 @@ export const PARAM_GLOBAL_COLORS: string = '#93918fff';
 /**
  * 参数类型映射(用于显示)
  */
-export const PARAM_TYPE_MAP: Record<string, string> = {
-  string: '字符串',
-  number: '数字',
-  boolean: '布尔值',
-  object: '对象',
-  array: '数组',
-  datetime: '时间'
-};
+export const PARAM_TYPE_MAP = computed<Record<string, string>>(() => ({
+  string: $t('ai.workflow_node.param_type_string'),
+  number: $t('ai.workflow_node.param_type_number'),
+  boolean: $t('ai.workflow_node.param_type_boolean'),
+  object: $t('ai.workflow_node.param_type_object'),
+  array: $t('ai.workflow_node.param_type_array'),
+  datetime: $t('ai.workflow_node.param_type_datetime')
+}));
 
 /**
  * 参数类型选项(用于表单)
  */
-export const PARAM_TYPE_OPTIONS = Object.entries(PARAM_TYPE_MAP).map(([value, label]) => ({
-  label,
-  value
-}));
+export const PARAM_TYPE_OPTIONS = computed(() =>
+  Object.entries(PARAM_TYPE_MAP.value).map(([value, label]) => ({
+    label,
+    value
+  }))
+);
 
 // ========== 节点分类常量 ==========
 
 /**
  * 节点分类映射
  */
-export const NODE_CATEGORIES: Record<string, string> = {
-  basic: '基础节点',
-  ai: 'AI 节点',
-  logic: '逻辑节点',
-  database: '数据库节点',
-  action: '动作节点'
-};
+export const NODE_CATEGORIES = computed<Record<string, string>>(() => ({
+  basic: $t('ai.workflow_node.node_category_basic'),
+  ai: $t('ai.workflow_node.node_category_ai'),
+  logic: $t('ai.workflow_node.node_category_logic'),
+  database: $t('ai.workflow_node.node_category_database'),
+  action: $t('ai.workflow_node.node_category_action')
+}));
 
 /**
  * AI节点类型列表
@@ -68,46 +72,52 @@ export const AI_NODE_TYPES: Workflow.NodeType[] = ['LLM_CHAT', 'DB_QUERY', 'SQL_
 /**
  * 节点分类选项(用于表单)
  */
-export const NODE_CATEGORY_OPTIONS = Object.entries(NODE_CATEGORIES).map(([value, label]) => ({
-  label,
-  value
-}));
+export const NODE_CATEGORY_OPTIONS = computed(() =>
+  Object.entries(NODE_CATEGORIES.value).map(([value, label]) => ({
+    label,
+    value
+  }))
+);
 
 /**
  * 节点分类列表(用于展示，保留顺序)
  */
-export const NODE_CATEGORY_LIST = Object.entries(NODE_CATEGORIES).map(([key, label]) => ({
-  key,
-  label
-}));
+export const NODE_CATEGORY_LIST = computed(() =>
+  Object.entries(NODE_CATEGORIES.value).map(([key, label]) => ({
+    key,
+    label
+  }))
+);
 
 // ========== 条件节点相关常量 ==========
 
 /**
  * 比较运算符映射
  */
-export const COMPARISON_OPERATORS: Record<string, string> = {
-  eq: '等于 (==)',
-  ne: '不等于 (!=)',
-  gt: '大于 (>)',
-  lt: '小于 (<)',
-  gte: '大于等于 (>=)',
-  lte: '小于等于 (<=)',
-  contains: '包含',
-  notContains: '不包含',
-  startsWith: '开头是',
-  endsWith: '结尾是',
-  isEmpty: '为空',
-  isNotEmpty: '不为空'
-};
+export const COMPARISON_OPERATORS = computed<Record<string, string>>(() => ({
+  eq: $t('ai.workflow_node.op_eq'),
+  ne: $t('ai.workflow_node.op_ne'),
+  gt: $t('ai.workflow_node.op_gt'),
+  lt: $t('ai.workflow_node.op_lt'),
+  gte: $t('ai.workflow_node.op_gte'),
+  lte: $t('ai.workflow_node.op_lte'),
+  contains: $t('ai.workflow_node.op_contains'),
+  notContains: $t('ai.workflow_node.op_not_contains'),
+  startsWith: $t('ai.workflow_node.op_starts_with'),
+  endsWith: $t('ai.workflow_node.op_ends_with'),
+  isEmpty: $t('ai.workflow_node.op_is_empty'),
+  isNotEmpty: $t('ai.workflow_node.op_is_not_empty')
+}));
 
 /**
  * 比较运算符选项
  */
-export const COMPARISON_OPERATOR_OPTIONS = Object.entries(COMPARISON_OPERATORS).map(([value, label]) => ({
-  label,
-  value
-}));
+export const COMPARISON_OPERATOR_OPTIONS = computed(() =>
+  Object.entries(COMPARISON_OPERATORS.value).map(([value, label]) => ({
+    label,
+    value
+  }))
+);
 
 /**
  * 一元运算符（不需要比较值）
@@ -117,15 +127,17 @@ export const UNARY_OPERATORS = ['isEmpty', 'isNotEmpty'];
 /**
  * 逻辑运算符映射
  */
-export const LOGICAL_OPERATORS: Record<string, string> = {
-  AND: '且 (AND)',
-  OR: '或 (OR)'
-};
+export const LOGICAL_OPERATORS = computed<Record<string, string>>(() => ({
+  AND: $t('ai.workflow_node.log_op_and'),
+  OR: $t('ai.workflow_node.log_op_or')
+}));
 
 /**
  * 逻辑运算符选项
  */
-export const LOGICAL_OPERATOR_OPTIONS = Object.entries(LOGICAL_OPERATORS).map(([value, label]) => ({
-  label,
-  value
-}));
+export const LOGICAL_OPERATOR_OPTIONS = computed(() =>
+  Object.entries(LOGICAL_OPERATORS.value).map(([value, label]) => ({
+    label,
+    value
+  }))
+);
