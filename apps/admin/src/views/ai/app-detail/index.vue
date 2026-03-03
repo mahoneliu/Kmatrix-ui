@@ -421,14 +421,14 @@ ${scriptEnd}`;
 const runOptions = computed(() => {
   return [
     {
-      label: t('ai.app_manager.go_to_chat'),
-      key: 'chat',
-      icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
-    },
-    {
       label: t('ai.app_detail.embed.title'),
       key: 'embed',
       icon: () => h(SvgIcon, { localIcon: 'mdi-code-tags' })
+    },
+    {
+      label: t('ai.app_manager.go_to_chat'),
+      key: 'chat',
+      icon: () => h(SvgIcon, { localIcon: 'carbon-chat' })
     },
     {
       type: 'divider',
@@ -523,7 +523,7 @@ onMounted(async () => {
             </NInputGroup>
             <NTooltip>
               <template #trigger>
-                <NButton type="primary" size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">
+                <NButton size="small" @click="handleRefreshToken(tokenList[0]?.tokenId)">
                   {{ $t('ai.app_detail.refresh') }}
                 </NButton>
               </template>
@@ -550,7 +550,7 @@ onMounted(async () => {
             <!-- 已发布时显示运行下拉菜单 -->
             <template v-if="isPublished">
               <NDropdown trigger="hover" :options="runOptions" @select="handleRunSelect">
-                <NButton size="small">
+                <NButton size="small" type="primary">
                   <template #icon>
                     <SvgIcon local-icon="mdi-play" />
                   </template>
@@ -568,7 +568,7 @@ onMounted(async () => {
             </NButton>
 
             <!-- 显示发布按钮 -->
-            <NButton type="primary" size="small" @click="handlePublish">
+            <NButton size="small" @click="handlePublish">
               <template #icon>
                 <SvgIcon local-icon="mdi-rocket-launch" />
               </template>
@@ -576,7 +576,7 @@ onMounted(async () => {
             </NButton>
 
             <div v-if="isPublished">
-              <NSwitch v-model:value="publicAccessEnabled" class="rounded-none pt-1" size="large">
+              <NSwitch v-model:value="publicAccessEnabled" class="rounded-none" size="large">
                 <template #checked>{{ $t('ai.app_detail.public_access') }}</template>
                 <template #unchecked>{{ $t('ai.app_detail.public_access') }}</template>
               </NSwitch>

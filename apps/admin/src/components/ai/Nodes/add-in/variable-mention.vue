@@ -11,6 +11,7 @@ import { PARAM_GLOBAL_COLORS, PARAM_GLOBAL_NODE_COLORS } from '@/constants/workf
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { getAvailableParamsForNode } from '@/utils/ai/param-resolver';
 import { getNodeIconBackground } from '@/utils/color';
+import { $t } from '@/locales';
 
 interface Props {
   /** 当前节点ID (用于获取可用参数) */
@@ -22,7 +23,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   nodeId: undefined,
-  placeholder: '输入 / 选择变量',
+  placeholder: $t('ai.workflow_node.input_or_select_variable'),
   rows: 3
 });
 
@@ -207,7 +208,9 @@ function renderOption(option: { label: string; value: string }) {
     </template>
 
     <div class="variable-mention-dropdown max-h-80 w-96 overflow-y-auto rounded-2 bg-white shadow-lg">
-      <div v-if="filteredGroups.length === 0" class="py-4 text-center text-xs c-gray-4">无匹配变量</div>
+      <div v-if="filteredGroups.length === 0" class="py-4 text-center text-xs c-gray-4">
+        {{ $t('ai.workflow_node.no_matching_variables') }}
+      </div>
       <div v-for="group in filteredGroups" :key="group.label" class="py-1">
         <component :is="renderGroupLabel(group)" />
         <component :is="renderOption(option)" v-for="option in group.options" :key="option.value" />

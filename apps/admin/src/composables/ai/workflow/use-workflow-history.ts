@@ -264,7 +264,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
   /**
    * 记录当前状态到历史栈
    */
-  const takeSnapshot = (label: string = t('page.ai.workflow.unknown_status')) => {
+  const takeSnapshot = (label: string = t('ai.workflow.unknown_status')) => {
     if (isInnerStateChange) return;
 
     let finalLabel = label;
@@ -357,7 +357,7 @@ export const useWorkflowHistory = createSharedComposable(() => {
       {
         snapshot: getCleanSnapshot(),
         timestamp: Date.now(),
-        label: t('page.ai.workflow.init_history')
+        label: t('ai.workflow.init_history')
       }
     ];
     currentIndex.value = 0;

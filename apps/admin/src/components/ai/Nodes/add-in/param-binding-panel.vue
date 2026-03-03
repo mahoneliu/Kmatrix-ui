@@ -123,7 +123,7 @@ async function copyParamKey(e: Event, key: string) {
 
   try {
     await navigator.clipboard.writeText(ref);
-    message.success(`复制成功: ${ref}`);
+    message.success(`${$t('ai.workflow_template.copy_success')}: ${ref}`);
   } catch {
     message.error($t('ai.workflow_template.copy_failed'));
   }
@@ -204,7 +204,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
       class="workflow-config-item-section dark:bg-white/5"
     >
       <div class="flex items-center justify-between">
-        <span class="text-12px">输入参数</span>
+        <span class="text-12px">{{ $t('ai.workflow_node.input_params') }}</span>
         <NButton v-if="allowCustomInput" size="tiny" secondary @click="handleAddParam('input')">
           <template #icon>
             <SvgIcon local-icon="mdi-plus" />
@@ -307,7 +307,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
       class="workflow-config-item-section dark:bg-white/5"
     >
       <div class="flex items-center justify-between">
-        <span class="text-12px">输出参数</span>
+        <span class="text-12px">{{ $t('ai.workflow_node.output_params') }}</span>
         <NButton v-if="allowCustomOutput" size="tiny" secondary @click="handleAddParam('output')">
           <template #icon>
             <SvgIcon local-icon="mdi-plus" />

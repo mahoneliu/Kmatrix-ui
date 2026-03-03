@@ -274,7 +274,7 @@ function handleValueChange(value: string | null) {
       @update:value="handleValueChange"
     >
       <template #empty>
-        <div class="py-2 text-center text-xs c-gray-4">无可用参数来源</div>
+        <div class="py-2 text-center text-xs c-gray-4">{{ $t('ai.workflow_node.no_available_param_sources') }}</div>
       </template>
     </NSelect>
   </div>

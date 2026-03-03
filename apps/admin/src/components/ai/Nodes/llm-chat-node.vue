@@ -25,7 +25,7 @@ function initData() {
   if (config) {
     formModel.historyEnabled = config.historyEnabled || false;
     formModel.historyLimit = config.historyLimit || 10;
-    userPrompt.value = config.userPrompt || `已知信息：\${chatContext}\n问题：\${userInput}`;
+    userPrompt.value = config.userPrompt || $t('ai.workflow_node.default_user_prompt');
   }
 }
 
@@ -109,7 +109,7 @@ function handleConfigChange() {
                 class="text-xs"
                 :node-id="props.id"
                 :rows="2"
-                placeholder="例如:请帮我分析这个问题... (输入 / 选择变量)"
+                :placeholder="$t('ai.workflow_node.eg_analyze_problem')"
                 @update:model-value="handleConfigChange"
               />
             </div>

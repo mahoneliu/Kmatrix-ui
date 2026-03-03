@@ -153,17 +153,17 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
       const val = first.compareValue !== undefined && first.compareValue !== '' ? first.compareValue : '...';
       summary = `${varName} ${op} ${val}`;
     } else if (first.conditions || first.type === 'group') {
-      summary = '嵌套分组';
+      summary = $t('ai.workflow_node.nested_group');
     } else {
       summary = $t('ai.workflow_node.config_condition');
     }
 
     if (condition.conditions.length > 1) {
-      return `${summary} 等${condition.conditions.length}项`;
+      return $t('ai.workflow_node.and_n_more', { summary, count: condition.conditions.length });
     }
     return summary;
   } catch {
-    return '详情';
+    return $t('ai.workflow_node.detail');
   }
 }
 </script>
@@ -208,7 +208,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
                     <NInput
                       v-model:value="branch.name"
                       size="tiny"
-                      placeholder="分支"
+                      :placeholder="$t('ai.workflow_node.branch')"
                       :bordered="false"
                       class="branch-name-input"
                       @click.stop
@@ -236,7 +236,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
                     <template #icon>
                       <SvgIcon local-icon="mdi-delete" />
                     </template>
-                    删除
+                    {{ $t('ai.workflow_node.delete') }}
                   </NButton>
                 </div>
 
@@ -276,7 +276,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 
         <!-- 默认/其他 分支 (ELSE) -->
         <div v-if="localConfig.hasDefaultBranch" class="relative mt-1 flex items-center justify-between gap-1">
-          <NInput value="默认 (ELSE)" size="small" disabled class="flex-1" />
+          <NInput :value="$t('ai.workflow_node.default_else')" size="small" disabled class="flex-1" />
           <div class="w-14 flex flex-shrink-0 items-center justify-end pr-1">
             <Handle
               id="default"

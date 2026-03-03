@@ -76,7 +76,7 @@ function handleConfigChange() {
 
       <div class="workflow-config-item">
         <div class="flex items-center gap-1">
-          <span class="workflow-label">系统提示词</span>
+          <span class="workflow-label">{{ $t('ai.workflow_node.system_prompt') }}</span>
           <NTooltip>
             <template #trigger>
               <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
@@ -91,7 +91,7 @@ function handleConfigChange() {
           class="text-xs"
           :node-id="nodeId"
           :rows="2"
-          placeholder="例如:你是一个专业的客服助手... (输入 / 选择变量)"
+          :placeholder="$t('ai.workflow_node.eg_professional_assistant')"
           @update:model-value="handleConfigChange"
         />
       </div>
@@ -113,7 +113,7 @@ function handleConfigChange() {
             v-model:value="maxTokens"
             :min="1"
             :max="128000"
-            placeholder="不限制"
+            :placeholder="$t('ai.workflow_node.no_limit')"
             size="small"
             class="flex-1 workflow-input"
             clearable
@@ -134,7 +134,9 @@ function handleConfigChange() {
           </NTooltip>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-400">{{ streamOutput ? '开启' : $t('ai.workflow_template.close') }}</span>
+          <span class="text-xs text-gray-400">
+            {{ streamOutput ? $t('ai.workflow_template.open') : $t('ai.workflow_template.close') }}
+          </span>
           <NSwitch v-model:value="streamOutput" size="small" @update:value="handleConfigChange" />
         </div>
       </div>
@@ -146,6 +148,7 @@ function handleConfigChange() {
 .ai-config-panel :deep(.n-slider-marks) {
   font-size: 10px;
 }
+
 :deep(.n-input__textarea-el),
 :deep(.n-input__placeholder) {
   font-size: 12px;

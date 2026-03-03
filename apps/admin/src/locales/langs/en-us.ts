@@ -2063,9 +2063,9 @@ const local: App.I18n.Schema = {
       refresh: 'Refresh',
       workflow_settings: 'Workflow Settings',
       app_config: 'App Config',
-      run: 'Run',
+      run: 'Deploy & Run',
       debug: 'Debug',
-      publish_btn: 'Publish App',
+      publish_btn: 'Publish',
       publish_confirm_content:
         'Confirm publishing this app? After publishing, it can be accessed through the chat entry.',
       public_access: 'Public Access',
@@ -2081,7 +2081,7 @@ const local: App.I18n.Schema = {
       workflow_config_error_confirm: '{error}. Setup workflow now?',
       go_to_config: 'Go to Configuration',
       embed: {
-        title: 'Embed in Third Party',
+        title: 'Embed in Third Party Page',
         fullscreen: 'Fullscreen Mode',
         mobile: 'Mobile Mode',
         float: 'Float Mode',
@@ -2371,8 +2371,9 @@ const local: App.I18n.Schema = {
       eg_username: 'e.g., userName',
       eg_add_intent_node: 'e.g., Add intent recognition node, optimize LLM config',
       eg_user_name: 'e.g., User Name',
-      eg_professional_assistant: 'e.g., You are a professional customer service assistant... (input / select variable)',
-      eg_analyze_problem: 'e.g., Please help me analyze this problem... (input / select variable)',
+      eg_professional_assistant:
+        'e.g., You are a professional customer service assistant... (input / to select variable)',
+      eg_analyze_problem: 'e.g., Please help me analyze this problem... (input / to select variable)',
       eg_hello_user: 'e.g., Hello {userName}.',
       keep_n_messages: 'Keep the latest N messages for context memory, 5-20 is recommended',
       keyword_search: 'Keyword Search',
@@ -2471,7 +2472,7 @@ const local: App.I18n.Schema = {
       click_copy_tooltip: 'Click to copy variable reference',
       no_available_param_sources: 'No available parameter sources',
       no_matching_variables: 'No matching variables',
-      input_or_select_variable: 'Input or select variable',
+      input_or_select_variable: 'Input / to select variable',
       unknown_type: 'Unknown Type',
       copied_ref: 'Reference Copied',
       edit_type_name: 'Edit {typeName}',
@@ -2491,7 +2492,13 @@ const local: App.I18n.Schema = {
       detail: 'Detail',
       delete: 'Delete',
       intent_name_default: 'Intent {index}',
-      known_info_template: 'Known Information: {info}'
+      known_info_template: 'Known Information: {info}',
+      branch: 'Branch',
+      and_n_more: '{summary} and {count} more',
+      system_prompt: 'System Prompt',
+      no_limit: 'No limit',
+      default_user_prompt: 'Known Information: \\${chatContext}\\nQuestion: \\${userInput}', // eslint-disable-line no-template-curly-in-string
+      unknown: 'Unknown'
     },
     workflow_public: {
       select_model: 'Select Model',
@@ -2537,6 +2544,7 @@ const local: App.I18n.Schema = {
       edit: 'Edit',
       create: 'Create',
       close: 'Close',
+      open: 'Open',
       system: 'System',
       system_template: 'System Template',
       user_template: 'User Template',
@@ -2601,7 +2609,9 @@ const local: App.I18n.Schema = {
       uncategorized: 'Uncategorized',
       create_app_name_prefix: 'Based on ',
       copy_name_suffix: '_copy',
-      confirm_delete_template: 'Delete template "{name}"? This operation cannot be undone.'
+      confirm_delete_template: 'Delete template "{name}"? This operation cannot be undone.',
+      unknown: 'Unknown',
+      copy: 'Copy'
     }
   },
   datatable: {

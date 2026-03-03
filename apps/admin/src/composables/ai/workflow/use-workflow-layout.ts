@@ -40,7 +40,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleAutoLayout() {
     if (workflowStore.nodes.length === 0) {
-      message.warning(t('page.ai.workflow.no_nodes_to_layout'));
+      message.warning(t('ai.workflow.no_nodes_to_layout'));
       return;
     }
 
@@ -61,7 +61,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
       handleFitView();
     }, 50);
 
-    message.success(t('page.ai.workflow.layout_done'));
+    message.success(t('ai.workflow.layout_done'));
   }
 
   /**
@@ -69,7 +69,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleCollapseAll() {
     workflowStore.setCollapseAllNodes(true);
-    message.success(t('page.ai.workflow.all_nodes_collapsed'));
+    message.success(t('ai.workflow.all_nodes_collapsed'));
   }
 
   /**
@@ -77,7 +77,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleExpandAll() {
     workflowStore.setCollapseAllNodes(false);
-    message.success(t('page.ai.workflow.all_nodes_expanded'));
+    message.success(t('ai.workflow.all_nodes_expanded'));
   }
 
   /**
@@ -85,7 +85,7 @@ export function useWorkflowLayout(options: UseWorkflowLayoutOptions) {
    */
   function handleCollapseAndLayout() {
     if (workflowStore.nodes.length === 0) {
-      message.warning(t('page.ai.workflow.no_nodes_to_layout'));
+      message.warning(t('ai.workflow.no_nodes_to_layout'));
       return;
     }
 

@@ -1768,6 +1768,12 @@ declare namespace App {
           other_else: string;
           intent_name_default: string;
           known_info_template: string;
+          branch: string;
+          and_n_more: string;
+          system_prompt: string;
+          no_limit: string;
+          default_user_prompt: string;
+          unknown: string;
           param_name: string;
           global_params: string;
           session_params: string;
@@ -1895,6 +1901,7 @@ declare namespace App {
           edit: string;
           create: string;
           close: string;
+          open: string;
           system: string;
           system_template: string;
           user_template: string;
@@ -1970,6 +1977,8 @@ declare namespace App {
           create_app_name_prefix: string;
           copy_name_suffix: string;
           confirm_delete_template: string;
+          unknown: string;
+          copy: string;
         };
         chunk_manager: {
           batch_generate_loading: string;

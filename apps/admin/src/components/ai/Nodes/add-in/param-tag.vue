@@ -42,7 +42,7 @@ const tagColor = computed(() => {
 const message = useMessage();
 
 const getParamTypeName = (type: string | undefined) => {
-  if (!type) return '未知';
+  if (!type) return $t('ai.workflow_template.unknown');
   return PARAM_TYPE_MAP.value[type] || type;
 };
 
@@ -53,14 +53,14 @@ async function copyParamRef(e: Event) {
 
   try {
     await navigator.clipboard.writeText(ref);
-    message.success(`已复制: ${ref}`);
+    message.success($t('ai.workflow_template.copy_success'));
   } catch {
     message.error($t('ai.workflow_template.copy_failed'));
   }
 }
 
 // Tooltip 文本
-const tooltipText = computed(() => `点击复制 \${${props.param.key}}`);
+const tooltipText = computed(() => `${$t('ai.workflow_template.copy')} \${${props.param.key}}`);
 </script>
 
 <template>

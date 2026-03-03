@@ -184,7 +184,7 @@ function initFormData() {
   formData.value.maxTokens = props.modelSetting?.max_tokens ?? 2048;
   // New fields default values
   formData.value.systemPrompt = '';
-  formData.value.userPrompt = `已知信息：\${chatContext}\n问题：\${userInput}`;
+  formData.value.userPrompt = t('ai.workflow_node.default_user_prompt');
   formData.value.enableHistory = false;
   formData.value.historyCount = 5;
   formData.value.streamOutput = true;
@@ -443,7 +443,7 @@ defineExpose({
                 <NInput
                   v-model:value="formData.systemPrompt"
                   type="textarea"
-                  :autosize="{ minRows: 3, maxRows: 6 }"
+                  :autosize="{ minRows: 3 }"
                   :placeholder="t('ai.app_detail.config.system_prompt_placeholder')"
                   class="w-full"
                 />
@@ -463,7 +463,7 @@ defineExpose({
                 <NInput
                   v-model:value="formData.userPrompt"
                   type="textarea"
-                  :autosize="{ minRows: 2, maxRows: 4 }"
+                  :autosize="{ minRows: 3 }"
                   :placeholder="t('ai.app_detail.config.user_prompt_placeholder')"
                   class="w-full"
                 />
@@ -510,7 +510,8 @@ defineExpose({
                     <span class="w-8 text-center text-xs text-gray-400">{{ formData.topP }}</span>
                   </div>
                 </NFormItem>
-
+              </div>
+              <div class="flex gap-8">
                 <!-- 最大 Token -->
                 <NFormItem
                   :label="t('ai.app_detail.config.max_tokens')"
@@ -526,9 +527,9 @@ defineExpose({
                     v-model:value="formData.maxTokens"
                     :min="1"
                     :max="128000"
-                    :step="256"
+                    :step="10"
                     size="small"
-                    class="w-full"
+                    class="w-150px"
                   />
                 </NFormItem>
               </div>
@@ -633,18 +634,6 @@ defineExpose({
                 <NSelect v-model:value="formData.kbMode" :options="kbModeOptions" size="small" class="w-full" />
               </NFormItem>
 
-              <!-- 返回数量 (Top K) -->
-              <NFormItem
-                label="Top K"
-                label-placement="left"
-                label-width="140"
-                :show-feedback="false"
-                class="compact-form-item flex-1"
-              >
-                <template #label><span class="whitespace-nowrap">Top K</span></template>
-                <NInputNumber v-model:value="formData.kbTopK" :min="1" :max="20" size="small" class="w-full" />
-              </NFormItem>
-
               <!-- 相似度阈值 -->
               <NFormItem
                 :label="t('ai.app_detail.config.threshold')"
@@ -660,6 +649,17 @@ defineExpose({
                   <NSlider v-model:value="formData.kbThreshold" :min="0" :max="1" :step="0.05" class="flex-1" />
                   <span class="w-8 text-center text-xs text-gray-400">{{ formData.kbThreshold }}</span>
                 </div>
+              </NFormItem>
+              <!-- 返回数量 (Top K) -->
+              <NFormItem
+                label="Top K"
+                label-placement="left"
+                label-width="140"
+                :show-feedback="false"
+                class="compact-form-item flex-1"
+              >
+                <template #label><span class="whitespace-nowrap">Top K</span></template>
+                <NInputNumber v-model:value="formData.kbTopK" :min="1" :max="20" size="small" class="w-150px" />
               </NFormItem>
 
               <!-- 启用重排序 (Rerank) -->
@@ -690,7 +690,7 @@ defineExpose({
                 <NInput
                   v-model:value="formData.kbEmptyResponse"
                   type="textarea"
-                  :autosize="{ minRows: 3, maxRows: 5 }"
+                  :autosize="{ minRows: 2 }"
                   :placeholder="t('ai.app_detail.config.empty_response_placeholder')"
                   class="w-full"
                 />

@@ -49,7 +49,9 @@ const paramTypeNameMap: Record<string, string> = {
 // 弹窗标题
 const paramModalTitle = computed(() => {
   const typeName = paramTypeNameMap[editingParamType.value];
-  return editingParamIndex.value !== null ? `编辑${typeName}` : `添加${typeName}`;
+  return editingParamIndex.value !== null
+    ? $t('ai.workflow_node.edit_type_name', { typeName })
+    : $t('ai.workflow_node.add_type_name2', { typeName });
 });
 
 // 初始化数据
@@ -79,7 +81,7 @@ function addParam(type: 'app' | 'interface' | 'session') {
   editingParamIndex.value = null;
   Object.assign(editingParam, {
     key: `param${formModel[paramsKey]!.length + 1}`,
-    label: '新参数',
+    label: $t('ai.workflow_node.new_param'),
     type: 'string',
     required: false,
     defaultValue: '',
@@ -276,7 +278,7 @@ onMounted(() => {
             </div>
 
             <div class="workflow-config-item">
-              <label class="workflow-label">开场白</label>
+              <label class="workflow-label">{{ $t('ai.workflow_node.greeting') }}</label>
               <NInput
                 v-model:value="formModel.prologue"
                 class="workflow-textarea"
@@ -465,7 +467,7 @@ onMounted(() => {
       <template #footer>
         <div class="flex justify-end gap-2">
           <NButton @click="showParamModal = false">{{ $t('common.cancel') }}</NButton>
-          <NButton type="primary" @click="saveParam">保存</NButton>
+          <NButton type="primary" @click="saveParam">{{ $t('ai.workflow_node.save') }}</NButton>
         </div>
       </template>
     </NModal>
