@@ -5,6 +5,7 @@ import { fetchBatchDeleteOss } from '@/service/api/system/oss';
 import { getToken } from '@/store/modules/auth/shared';
 import { getServiceBaseURL } from '@/utils/service';
 import { AcceptType } from '@/enum/business';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'FileUpload'
@@ -64,20 +65,22 @@ function beforeUpload(options: { file: UploadFileInfo; fileList: UploadFileInfo[
     const fileExt = `.${fileName[fileName.length - 1]}`;
     const isTypeOk = accept.value.split(',')?.includes(fileExt);
     if (!isTypeOk) {
-      window.$message?.error(`文件格式不正确, 请上传 ${accept.value} 格式文件!`);
+      window.$message?.error(
+        `${$t('common.importFail')}, ${$t('common.importFormat')} ${accept.value}${$t('common.importEnd')}!`
+      );
       return false;
     }
   }
   // 校检文件名是否包含特殊字符
   if (file.name.includes(',')) {
-    window.$message?.error('文件名不正确，不能包含英文逗号!');
+    window.$message?.error($t('common.fileNameError'));
     return false;
   }
   // 校检文件大小
   if (props.fileSize && file.file?.size) {
     const isLt = file.file?.size / 1024 / 1024 < props.fileSize;
     if (!isLt) {
-      window.$message?.error(`上传文件大小不能超过 ${props.fileSize} MB!`);
+      window.$message?.error(`${$t('common.importSize')} ${props.fileSize} MB!`);
       return false;
     }
   }
@@ -102,7 +105,7 @@ function handleFinish(options: { file: UploadFileInfo; event?: ProgressEvent }) 
   file.url = oss.url;
   file.name = oss.fileName;
   if (fileNum === 0) {
-    window.$message?.success('上传成功');
+    window.$message?.success($t('common.importSuccess'));
   }
   return file;
 }
@@ -112,7 +115,7 @@ function handleError(options: { file: UploadFileInfo; event?: ProgressEvent }) {
   // @ts-expect-error Ignore type errors
   const responseText = event?.target?.responseText;
   const msg = JSON.parse(responseText).msg;
-  window.$message?.error(msg || '上传失败');
+  window.$message?.error(msg || $t('common.importFail'));
 }
 
 async function handleRemove(file: UploadFileInfo) {
@@ -121,7 +124,7 @@ async function handleRemove(file: UploadFileInfo) {
   }
   const { error } = await fetchBatchDeleteOss([file.id]);
   if (error) return false;
-  window.$message?.success('删除成功');
+  window.$message?.success($t('common.deleteSuccess'));
   return true;
 }
 </script>
@@ -150,32 +153,32 @@ async function handleRemove(file: UploadFileInfo) {
         <div class="mb-12px flex-center">
           <SvgIcon local-icon="material-symbols-unarchive-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
         </div>
-        <NText class="text-16px">点击或者拖动文件到该区域来上传</NText>
+        <NText class="text-16px">{{ $t('common.uploadTip') }}</NText>
         <NP v-if="showTip" depth="3" class="mt-8px text-center">
-          请上传
+          {{ $t('common.importTip') }}
           <template v-if="fileSize">
-            大小不超过
+            {{ $t('common.importSize') }}
             <b class="text-red-500">{{ fileSize }}MB</b>
           </template>
           <template v-if="accept">
-            ，且格式为
+            ，{{ $t('common.importFormat') }}
             <b class="text-red-500">{{ accept.replaceAll(',', '/') }}</b>
           </template>
-          的文件
+          {{ $t('common.importEnd') }}
         </NP>
       </NUploadDragger>
     </NUpload>
     <NP v-if="showTip && uploadType === 'image'" depth="3" class="mt-12px">
-      请上传
+      {{ $t('common.importTip') }}
       <template v-if="fileSize">
-        大小不超过
+        {{ $t('common.importSize') }}
         <b class="text-red-500">{{ fileSize }}MB</b>
       </template>
       <template v-if="accept">
-        ，且格式为
+        ，{{ $t('common.importFormat') }}
         <b class="text-red-500">{{ accept.replaceAll(',', '/') }}</b>
       </template>
-      的文件
+      {{ $t('common.importEnd') }}
     </NP>
   </div>
 </template>

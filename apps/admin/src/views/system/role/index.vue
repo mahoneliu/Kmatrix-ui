@@ -63,34 +63,34 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'roleName',
-        title: '角色名称',
+        title: $t('page.system.role.roleName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'roleKey',
-        title: '角色权限字符串',
+        title: $t('page.system.role.roleKey'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'roleSort',
-        title: '显示顺序',
+        title: $t('page.system.role.roleSort'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'dataScope',
-        title: '数据范围',
+        title: $t('page.system.role.dataScope'),
         align: 'center',
-        minWidth: 180,
+        minWidth: 280,
         render: row => {
           return <NTag type="info">{dataScopeRecord[row.dataScope]}</NTag>;
         }
       },
       {
         key: 'status',
-        title: '角色状态',
+        title: $t('page.system.role.status'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -106,7 +106,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: $t('page.system.role.createTime'),
         align: 'center',
         minWidth: 120
       },
@@ -136,7 +136,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 local-icon="material-symbols-database"
-                tooltipContent="数据范围权限"
+                tooltipContent={$t('page.system.role.dataScope')}
                 onClick={() => handleDataScope(row)}
               />
             );
@@ -148,7 +148,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 local-icon="material-symbols-assignment-ind-outline"
-                tooltipContent="分配用户"
+                tooltipContent={$t('page.system.role.authorizedUsers')}
                 onClick={() => handleAuthUser(row)}
               />
             );
@@ -212,7 +212,7 @@ async function edit(roleId: CommonType.IdType) {
 }
 
 async function handleExport() {
-  download('/system/role/export', searchParams.value, `角色_${new Date().getTime()}.xlsx`);
+  download('/system/role/export', searchParams.value, `${$t('page.system.role.role')}_${new Date().getTime()}.xlsx`);
 }
 
 /** 处理状态切换 */
@@ -229,7 +229,7 @@ async function handleStatusChange(
   callback(!error);
 
   if (!error) {
-    window.$message?.success('状态修改成功');
+    window.$message?.success($t('page.system.role.statusChangeSuccess'));
     getData();
   }
 }
@@ -250,7 +250,7 @@ function handleAuthUser(row: Api.System.Role) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <RoleSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="角色列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.system.role.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

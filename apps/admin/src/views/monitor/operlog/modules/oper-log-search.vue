@@ -52,32 +52,47 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="系统模块" path="title" class="pr-24px">
-              <NInput v-model:value="model.title" placeholder="请输入系统模块" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.monitor.operlog.module')" path="title" class="pr-24px">
+              <NInput v-model:value="model.title" :placeholder="$t('page.monitor.operlog.form.title.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="操作类型" path="businessType" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.monitor.operlog.businessType')"
+              path="businessType"
+              class="pr-24px"
+            >
               <DictSelect
                 v-model:value="model.businessType"
-                placeholder="请选择操作类型"
+                :placeholder="$t('page.monitor.operlog.form.businessType.required')"
                 dict-code="sys_oper_type"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="操作人员" path="operName" class="pr-24px">
-              <NInput v-model:value="model.operName" placeholder="请输入操作人员" />
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.monitor.operlog.operName')"
+              path="operName"
+              class="pr-24px"
+            >
+              <NInput v-model:value="model.operName" :placeholder="$t('page.monitor.operlog.form.operName.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="操作IP" path="operIp" class="pr-24px">
-              <NInput v-model:value="model.operIp" placeholder="请输入操作IP" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.monitor.operlog.operIp')" path="operIp" class="pr-24px">
+              <NInput v-model:value="model.operIp" :placeholder="$t('page.monitor.operlog.form.operIp.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作状态" path="status" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.monitor.operlog.status')" path="status" class="pr-24px">
               <DictSelect
                 v-model:value="model.status"
-                placeholder="请选择操作状态"
+                :placeholder="$t('page.monitor.operlog.form.status.required')"
                 dict-code="sys_common_status"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作时间" path="operTime" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.monitor.operlog.operTime')"
+              path="operTime"
+              class="pr-24px"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeOperTime"
                 type="datetimerange"

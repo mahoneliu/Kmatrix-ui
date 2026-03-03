@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { aiProviderTypeRecord } from '@/constants/business';
 import { $t } from '@/locales';
 
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>();
 
 const activeId = ref<CommonType.IdType | null>(null);
-const activeTab = ref<'0' | '1' | '2'>('0'); // '0'=全部, '1'=aiProviderTypeRecord['1'], '2'=aiProviderTypeRecord['2']
+const activeTab = ref<'0' | '1' | '2'>('0');
 
 // 根据当前 Tab 过滤供应商
 const filteredProviders = computed(() => {
@@ -49,23 +49,6 @@ function handleTabChange(value: '0' | '1' | '2') {
   // 切换Tab时，默认重置为不选中特定供应商
   handleSelect(null);
 }
-
-// 监听列表加载完成，默认选中全部
-watch(
-  () => props.list,
-  newList => {
-    if (newList && newList.length > 0 && !activeId.value) {
-      // 保持之前逻辑：如果是初始化加载且没有选中值，触发一次默认选择
-      // 但注意不要造成无限循环或其他副作用，这里主要为了确保父组件知道当前状态
-      // 之前的逻辑是 loadProviders 后直接调用的，现在靠 prop 变化感知
-      // 实际上，之前的逻辑是在 loadProviders 成功后：
-      // if (!activeId.value) { handleSelect(null); }
-      // 这里的 handleSelect(null) 会 emit {id: null, type: null} (如果tab是0)
-      // 考虑到父组件 index.vue 已经设置了初始值 null，这里可能不需要额外 emit，
-      // 除非用户操作了 Tab。
-    }
-  }
-);
 </script>
 
 <template>
@@ -112,7 +95,6 @@ watch(
               <img :alt="item.providerName" :src="item.iconUrl" class="h-5 w-5 object-contain" />
               <div class="flex-1 overflow-hidden">
                 <div class="truncate text-sm font-bold">{{ item.providerName }}</div>
-                <!-- <div class="text-xs text-gray-400 truncate uppercase tracking-wider">{{ item.providerKey }}</div> -->
               </div>
               <div v-if="activeId === item.providerId" class="animate-fade-in text-base text-lg text-primary">
                 <SvgIcon local-icon="carbon-chevron-right" />

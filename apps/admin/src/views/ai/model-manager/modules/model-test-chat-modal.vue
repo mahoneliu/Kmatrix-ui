@@ -5,7 +5,7 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import { TestModelChatUrl } from '@/service/api/ai/model';
-import { useAuthStore } from '@/store/modules/auth'; // Adjust path if needed
+import { useAuthStore } from '@/store/modules/auth';
 import { $t } from '@/locales';
 import 'highlight.js/styles/github-dark.css';
 
@@ -110,12 +110,11 @@ async function handleSend() {
       onerror(err: any) {
         message.error(`Connection error: ${err.message}`);
         loading.value = false;
-        throw err; // rethrow to stop retrying
+        throw err;
       }
     });
   } catch {
     loading.value = false;
-    // message.error('Failed to send message');
   }
 }
 
@@ -168,8 +167,8 @@ watch(
             :class="msg.role === 'user' ? 'bg-primary text-white' : 'bg-white border text-gray-800'"
           >
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <!-- eslint-disable-next-line vue/no-v-html -->
             <div v-if="msg.role === 'assistant'" class="markdown-body" v-html="msg.html"></div>
+
             <div v-else>{{ msg.content }}</div>
           </div>
         </div>

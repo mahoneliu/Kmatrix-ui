@@ -36,7 +36,7 @@ async function getMenuList() {
   options.value = [
     {
       id: 0,
-      label: '根目录',
+      label: $t('route.rootName'),
       localIcon: 'material-symbols-home-outline-rounded',
       children: data
     }
@@ -163,16 +163,20 @@ defineExpose({
 <template>
   <div class="w-full flex-col gap-12px">
     <div v-if="showHeader" class="w-full flex-center">
-      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">展开/折叠</NCheckbox>
+      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">
+        {{ $t('common.expandOrCollapse') }}
+      </NCheckbox>
       <NCheckbox
         v-model:checked="checkAll"
         :checked-value="true"
         :unchecked-value="false"
         @update:checked="handleCheckedTreeNodeAll"
       >
-        全选/反选
+        {{ $t('common.checkAllOrNot') }}
       </NCheckbox>
-      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">父子联动</NCheckbox>
+      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">
+        {{ $t('common.cascade') }}
+      </NCheckbox>
     </div>
     <NSpin class="resource h-full w-full py-6px pl-3px" content-class="h-full" :show="loading">
       <NTree

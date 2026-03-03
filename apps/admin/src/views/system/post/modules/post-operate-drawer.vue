@@ -36,8 +36,8 @@ const { createRequiredRule } = useFormRules();
 const { loading: deptLoading, startLoading: startDeptLoading, endLoading: endDeptLoading } = useLoading();
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增岗位信息',
-    edit: '编辑岗位信息'
+    add: $t('page.system.post.addPost'),
+    edit: $t('page.system.post.editPost')
   };
   return titles[props.operateType];
 });
@@ -61,12 +61,12 @@ function createDefaultModel(): Model {
 type RuleKey = Extract<keyof Model, 'postId' | 'deptId' | 'postCode' | 'postName' | 'postSort' | 'status'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  postId: createRequiredRule('岗位ID不能为空'),
-  deptId: createRequiredRule('归属部门不能为空'),
-  postCode: createRequiredRule('岗位编码不能为空'),
-  postName: createRequiredRule('岗位名称不能为空'),
-  postSort: createRequiredRule('显示顺序不能为空'),
-  status: createRequiredRule('状态不能为空')
+  postId: createRequiredRule($t('page.system.post.form.postId.required')),
+  deptId: createRequiredRule($t('page.system.post.form.deptId.required')),
+  postCode: createRequiredRule($t('page.system.post.form.postCode.required')),
+  postName: createRequiredRule($t('page.system.post.form.postName.required')),
+  postSort: createRequiredRule($t('page.system.post.form.postSort.required')),
+  status: createRequiredRule($t('page.system.post.form.status.required'))
 };
 
 function handleUpdateModelWhenEdit() {
@@ -125,7 +125,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm :model="model" :rules="rules">
-        <NFormItem label="归属部门" path="deptId">
+        <NFormItem :label="$t('page.system.dept.deptName')" path="deptId">
           <NTreeSelect
             v-model:value="model.deptId"
             :loading="deptLoading"
@@ -134,26 +134,31 @@ watch(visible, () => {
             label-field="label"
             key-field="id"
             :default-expanded-keys="deptData?.length ? [deptData[0].id] : []"
-            placeholder="请选择归属部门"
+            :placeholder="$t('page.system.post.form.deptId.required')"
           />
         </NFormItem>
-        <NFormItem label="岗位编码" path="postCode">
-          <NInput v-model:value="model.postCode" placeholder="请输入岗位编码" />
+        <NFormItem :label="$t('page.system.post.postCode')" path="postCode">
+          <NInput v-model:value="model.postCode" :placeholder="$t('page.system.post.form.postCode.required')" />
         </NFormItem>
-        <NFormItem label="类别编码" path="postCategory">
-          <NInput v-model:value="model.postCategory" placeholder="请输入类别编码" />
+        <NFormItem :label="$t('page.system.post.postCategory')" path="postCategory">
+          <NInput v-model:value="model.postCategory" :placeholder="$t('page.system.post.form.postCategory.required')" />
         </NFormItem>
-        <NFormItem label="岗位名称" path="postName">
-          <NInput v-model:value="model.postName" placeholder="请输入岗位名称" />
+        <NFormItem :label="$t('page.system.post.postName')" path="postName">
+          <NInput v-model:value="model.postName" :placeholder="$t('page.system.post.form.postName.required')" />
         </NFormItem>
-        <NFormItem label="显示顺序" path="postSort">
-          <NInputNumber v-model:value="model.postSort" placeholder="请输入显示顺序" />
+        <NFormItem :label="$t('page.system.post.postSort')" path="postSort">
+          <NInputNumber v-model:value="model.postSort" :placeholder="$t('page.system.post.form.postSort.required')" />
         </NFormItem>
-        <NFormItem label="状态" path="status">
+        <NFormItem :label="$t('page.system.post.status')" path="status">
           <DictRadio v-model:value="model.status" dict-code="sys_normal_disable" />
         </NFormItem>
-        <NFormItem label="备注" path="remark">
-          <NInput v-model:value="model.remark" :rows="3" type="textarea" placeholder="请输入备注" />
+        <NFormItem :label="$t('page.system.post.remark')" path="remark">
+          <NInput
+            v-model:value="model.remark"
+            :rows="3"
+            type="textarea"
+            :placeholder="$t('page.system.post.form.remark.required')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

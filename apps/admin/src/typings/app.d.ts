@@ -409,6 +409,16 @@ declare namespace App {
         enable: string;
         disable: string;
         remark: string;
+        createTime: string;
+        expandOrCollapse: string;
+        checkAllOrNot: string;
+        cascade: string;
+        uploadTip: string;
+        fetchListFail: string;
+        confirmAction: string;
+        deleteConfirmMsg: string;
+        fileNameError: string;
+        confirmDeleteFile: string;
         errorDetail: {
           unknown: string;
           auth_fail: string;
@@ -638,6 +648,29 @@ declare namespace App {
             desc5: string;
           };
           creativity: string;
+          total_docs: string;
+          ai_token_cost: string;
+          active_knowledge_base: string;
+          yesterday_new_notes: string;
+          recent_docs: string;
+          view_all: string;
+          minutes_ago: string;
+          hours_ago: string;
+          yesterday: string;
+          ai_resource_usage: string;
+          token_consumption: string;
+          last_7_days: string;
+          this_month: string;
+          new_kb: string;
+          week: {
+            monday: string;
+            tuesday: string;
+            wednesday: string;
+            thursday: string;
+            friday: string;
+            saturday: string;
+            sunday: string;
+          };
         };
         system: {
           client: {
@@ -850,7 +883,9 @@ declare namespace App {
               noticeType: FormMsg;
               noticeContent: FormMsg;
               status: FormMsg;
+              noticeId: FormMsg;
             };
+            createByName: string;
             addNotice: string;
             editNotice: string;
           };
@@ -862,14 +897,26 @@ declare namespace App {
             url: string;
             createTime: string;
             service: string;
+            ossId: string;
+            createByName: string;
+            previewEnable: string;
+            previewDisable: string;
+            confirmPreview: string;
             form: {
               file: FormMsg;
+              fileName: FormMsg;
+              originalName: FormMsg;
+              fileSuffix: FormMsg;
+              service: FormMsg;
+              url: FormMsg;
             };
             upload: string;
+            uploadImage: string;
             preview: string;
             download: string;
             copy: string;
             copySuccess: string;
+            configManage: string;
           };
           ossConfig: {
             title: string;
@@ -909,12 +956,16 @@ declare namespace App {
             status: string;
             remark: string;
             createTime: string;
+            postCategory: string;
             form: {
+              postId: FormMsg;
+              deptId: FormMsg;
               postCode: FormMsg;
               postName: FormMsg;
               postSort: FormMsg;
               status: FormMsg;
               remark: FormMsg;
+              postCategory: FormMsg;
             };
             addPost: string;
             editPost: string;
@@ -937,6 +988,7 @@ declare namespace App {
               remark: FormMsg;
               menuIds: FormMsg;
               deptIds: FormMsg;
+              dataScope: FormMsg;
             };
             addRole: string;
             editRole: string;
@@ -945,6 +997,14 @@ declare namespace App {
             selectMenuPermission: string;
             selectDataScope: string;
             selectDeptPermission: string;
+            cancelAuth: string;
+            batchCancelAuth: string;
+            authUser: string;
+            batchAuthUser: string;
+            dataScopeScope: string;
+            roleAuth: string;
+            role: string;
+            statusChangeSuccess: string;
           };
           tenant: {
             title: string;
@@ -1033,6 +1093,67 @@ declare namespace App {
             exportTemplate: string;
             importSuccess: string;
             statusChangeSuccess: string;
+          };
+        };
+        monitor: {
+          logininfor: {
+            title: string;
+            userName: string;
+            ipaddr: string;
+            loginLocation: string;
+            browser: string;
+            os: string;
+            status: string;
+            msg: string;
+            loginTime: string;
+            client: string;
+            deviceType: string;
+            unlock: string;
+            exportSuccess: string;
+            clean: string;
+            cleanConfirm: string;
+            cleanSuccess: string;
+            unlockConfirm: string;
+            unlockSuccess: string;
+            viewDetail: string;
+            detailTitle: string;
+            accountInfo: string;
+            form: {
+              ipaddr: FormMsg;
+              userName: FormMsg;
+              status: FormMsg;
+              loginTime: FormMsg;
+            };
+          };
+          operlog: {
+            title: string;
+            module: string;
+            businessType: string;
+            operName: string;
+            operIp: string;
+            operLocation: string;
+            status: string;
+            operTime: string;
+            costTime: string;
+            viewDetail: string;
+            detailTitle: string;
+            logId: string;
+            operInfo: string;
+            requestInfo: string;
+            requestParam: string;
+            responseParam: string;
+            errorMsg: string;
+            clean: string;
+            cleanConfirm: string;
+            cleanSuccess: string;
+            form: {
+              title: FormMsg;
+              businessType: FormMsg;
+              operName: FormMsg;
+              operIp: FormMsg;
+              status: FormMsg;
+              operTime: FormMsg;
+            };
           };
         };
         nodeDefinition: {
@@ -1769,6 +1890,7 @@ declare namespace App {
           intent_name_default: string;
           known_info_template: string;
           branch: string;
+          param: string;
           and_n_more: string;
           system_prompt: string;
           no_limit: string;
@@ -1785,17 +1907,11 @@ declare namespace App {
           condition_branch: string;
           if_specify_reply_content_it_is_final_output: string;
           config_branch_condition: string;
-          not_empty: string;
-          not_contain: string;
-          contain: string;
           empty_result_reply: string;
           table_whitelist: string;
           table_blacklist: string;
           allowed_query_tables: string;
           forbidden_query_tables: string;
-          start: string;
-          end: string;
-          end_suffix: string;
           variable_selection: string;
           similarity_threshold: string;
           config_condition: string;
@@ -1867,6 +1983,8 @@ declare namespace App {
           enable_rerank: string;
           intent_name: string;
           session_id: string;
+          start: string;
+          end: string;
         };
         workflow_public: {
           select_model: string;

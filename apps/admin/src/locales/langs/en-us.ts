@@ -83,6 +83,16 @@ const local: App.I18n.Schema = {
     enable: 'Enable',
     disable: 'Disable',
     remark: 'Remark',
+    createTime: 'Creation Time',
+    expandOrCollapse: 'Expand/Collapse',
+    checkAllOrNot: 'Check/Uncheck All',
+    cascade: 'Cascade',
+    uploadTip: 'Click or drag files to this area to upload',
+    fetchListFail: 'Failed to fetch list',
+    confirmAction: 'Are you sure you want to {action} {info}?',
+    deleteConfirmMsg: 'Deleted files cannot be recovered. Are you sure you want to delete?',
+    fileNameError: 'Invalid file name. Commas are not allowed!',
+    confirmDeleteFile: 'Are you sure you want to delete the file?',
     errorDetail: {
       unknown: 'Unknown system error, please report to the administrator',
       auth_fail: 'Authentication failed, unable to access system resources',
@@ -509,7 +519,30 @@ const local: App.I18n.Schema = {
         desc4: 'Is busy writing project documentation for kmatrix!',
         desc5: 'Just wrote some of the workbench pages casually, and it was enough to see!'
       },
-      creativity: 'Creativity'
+      creativity: 'Creativity',
+      total_docs: 'Total Documents',
+      ai_token_cost: 'AI Token Cost',
+      active_knowledge_base: 'Active Knowledge Base',
+      yesterday_new_notes: 'Yesterday New Notes',
+      recent_docs: 'Recent Edited Documents',
+      view_all: 'View All',
+      minutes_ago: '{count} minutes ago',
+      hours_ago: '{count} hours ago',
+      yesterday: 'Yesterday',
+      ai_resource_usage: 'AI Resource Usage',
+      token_consumption: 'Token Consumption',
+      last_7_days: 'Last 7 Days',
+      this_month: 'This Month',
+      new_kb: 'New Knowledge Base',
+      week: {
+        monday: 'Monday',
+        tuesday: 'Tuesday',
+        wednesday: 'Wednesday',
+        thursday: 'Thursday',
+        friday: 'Friday',
+        saturday: 'Saturday',
+        sunday: 'Sunday'
+      }
     },
     common: {
       id: 'ID',
@@ -906,8 +939,13 @@ const local: App.I18n.Schema = {
           status: {
             required: 'Please select Status',
             invalid: 'Status cannot be empty'
+          },
+          noticeId: {
+            required: 'Please enter Notice ID',
+            invalid: 'Notice ID cannot be empty'
           }
         },
+        createByName: 'Creator',
         addNotice: 'Add Notice',
         editNotice: 'Edit Notice'
       },
@@ -923,13 +961,40 @@ const local: App.I18n.Schema = {
           file: {
             required: 'Please select a file',
             invalid: 'File cannot be empty'
+          },
+          fileName: {
+            required: 'Please enter File Name',
+            invalid: 'File Name cannot be empty'
+          },
+          originalName: {
+            required: 'Please enter Original Name',
+            invalid: 'Original Name cannot be empty'
+          },
+          fileSuffix: {
+            required: 'Please enter File Extension',
+            invalid: 'File Extension cannot be empty'
+          },
+          service: {
+            required: 'Please enter Service Provider',
+            invalid: 'Service Provider cannot be empty'
+          },
+          url: {
+            required: 'Please enter File URL',
+            invalid: 'File URL cannot be empty'
           }
         },
         upload: 'Upload File',
+        uploadImage: 'Upload Image',
+        ossId: 'OSS ID',
+        createByName: 'Uploader',
         preview: 'Preview',
+        previewEnable: 'Enable Preview',
+        previewDisable: 'Disable Preview',
+        confirmPreview: 'Are you sure to {action} preview?',
         download: 'Download',
         copy: 'Copy Link',
-        copySuccess: 'Copy Success'
+        copySuccess: 'Copy Success',
+        configManage: 'Config Management'
       },
       ossConfig: {
         title: 'OSS Config List',
@@ -1002,7 +1067,16 @@ const local: App.I18n.Schema = {
         status: 'Status',
         remark: 'Remark',
         createTime: 'Create Time',
+        postCategory: 'Post Category',
         form: {
+          postId: {
+            required: 'Please enter Post ID',
+            invalid: 'Post ID cannot be empty'
+          },
+          deptId: {
+            required: 'Please select Belonging Dept',
+            invalid: 'Belonging Dept cannot be empty'
+          },
           postCode: {
             required: 'Please enter Post Code',
             invalid: 'Post Code cannot be empty'
@@ -1022,6 +1096,10 @@ const local: App.I18n.Schema = {
           remark: {
             required: 'Please enter Remark',
             invalid: 'Remark cannot be empty'
+          },
+          postCategory: {
+            required: 'Please enter Category Code',
+            invalid: 'Category Code cannot be empty'
           }
         },
         addPost: 'Add Post',
@@ -1065,6 +1143,10 @@ const local: App.I18n.Schema = {
           deptIds: {
             required: 'Please select Dept Permission',
             invalid: 'Dept Permission cannot be empty'
+          },
+          dataScope: {
+            required: 'Please select Data Scope',
+            invalid: 'Data Scope cannot be empty'
           }
         },
         addRole: 'Add Role',
@@ -1073,7 +1155,15 @@ const local: App.I18n.Schema = {
         authorizedUsers: 'Assign Users',
         selectMenuPermission: 'Select Menu Permission',
         selectDataScope: 'Select Data Scope',
-        selectDeptPermission: 'Select Dept Permission'
+        selectDeptPermission: 'Select Dept Permission',
+        cancelAuth: 'Cancel Authorization',
+        batchCancelAuth: 'Batch Cancel Authorization',
+        authUser: 'Authorize User',
+        batchAuthUser: 'Batch Authorize Users',
+        dataScopeScope: 'Data Scope',
+        roleAuth: 'Role Authorization',
+        role: 'Role',
+        statusChangeSuccess: 'Status modified successfully'
       },
       tenant: {
         title: 'Tenant List',
@@ -1246,6 +1336,97 @@ const local: App.I18n.Schema = {
         exportTemplate: 'Export Template',
         importSuccess: 'Import successful',
         statusChangeSuccess: 'Status modified successfully'
+      }
+    },
+    monitor: {
+      logininfor: {
+        title: 'Login Log List',
+        userName: 'User Account',
+        ipaddr: 'Login Address',
+        loginLocation: 'Login Location',
+        browser: 'Browser',
+        os: 'OS',
+        status: 'Login Status',
+        msg: 'Message',
+        loginTime: 'Access Time',
+        client: 'Client',
+        deviceType: 'Device Type',
+        unlock: 'Unlock',
+        exportSuccess: 'Export Success',
+        clean: 'Clean',
+        cleanConfirm: 'Are you sure you want to clean all login log data items?',
+        cleanSuccess: 'Cleaned successfully',
+        unlockConfirm: 'Are you sure you want to unlock user {userName}?',
+        unlockSuccess: 'Unlocked successfully',
+        viewDetail: 'Detail',
+        detailTitle: 'Login Information Detail',
+        accountInfo: 'Account Information',
+        form: {
+          ipaddr: {
+            required: 'Please enter Login IP Address',
+            invalid: 'Invalid IP Address format'
+          },
+          userName: {
+            required: 'Please enter User Account',
+            invalid: 'User Account cannot be empty'
+          },
+          status: {
+            required: 'Please select Login Status',
+            invalid: 'Login Status cannot be empty'
+          },
+          loginTime: {
+            required: 'Please select Login Time',
+            invalid: 'Login Time cannot be empty'
+          }
+        }
+      },
+      operlog: {
+        title: 'Operation Log List',
+        module: 'System Module',
+        businessType: 'Operation Type',
+        operName: 'Operator',
+        operIp: 'Operator IP',
+        operLocation: 'Operator Location',
+        status: 'Operation Status',
+        operTime: 'Operation Time',
+        costTime: 'Cost Time',
+        viewDetail: 'Detail',
+        detailTitle: 'Operation Log Detail',
+        logId: 'Log ID',
+        operInfo: 'Operation Info',
+        requestInfo: 'Request Info',
+        requestParam: 'Request Parameter',
+        responseParam: 'Response Parameter',
+        errorMsg: 'Error Message',
+        clean: 'Clean',
+        cleanConfirm: 'Are you sure you want to clean all operation log data items?',
+        cleanSuccess: 'Cleaned successfully',
+        form: {
+          title: {
+            required: 'Please enter System Module',
+            invalid: 'System Module cannot be empty'
+          },
+          businessType: {
+            required: 'Please select Operation Type',
+            invalid: 'Operation Type cannot be empty'
+          },
+          operName: {
+            required: 'Please enter Operator',
+            invalid: 'Operator cannot be empty'
+          },
+          operIp: {
+            required: 'Please enter Operator IP',
+            invalid: 'Invalid Operator IP format'
+          },
+          status: {
+            required: 'Please select Operation Status',
+            invalid: 'Operation Status cannot be empty'
+          },
+          operTime: {
+            required: 'Please select Operation Time',
+            invalid: 'Operation Time cannot be empty'
+          }
+        }
       }
     },
     nodeDefinition: {
@@ -2352,17 +2533,11 @@ const local: App.I18n.Schema = {
       if_specify_reply_content_it_is_final_output:
         'If the reply content is specified, it will be the final output of the workflow.',
       config_branch_condition: 'Config Branch Condition',
-      not_empty: 'Not Empty',
-      not_contain: 'Not Contain',
-      contain: 'Contain',
       empty_result_reply: 'Empty Result Reply',
       table_whitelist: 'Table White List',
       table_blacklist: 'Table Black List',
       allowed_query_tables: 'Allowed query tables, separated by commas',
       forbidden_query_tables: 'Forbidden query tables, separated by commas',
-      start: 'Start',
-      end: 'End',
-      end_suffix: 'End',
       variable_selection: 'Variable Selection',
       similarity_threshold: 'Similarity Threshold:',
       config_condition: 'Configure Conditions',
@@ -2395,7 +2570,7 @@ const local: App.I18n.Schema = {
       max_tokens_desc: 'Maximum tokens generated by the model, leave empty to use model default',
       compare_value: 'Compare Value',
       add_type_name: 'Add {typeName}',
-      click_copy_param: 'Click to copy parameter {{',
+      click_copy_param: 'Click to copy parameter ',
       user_name: 'User Name',
       user_prompt_desc: 'Specific questions or instructions from user to LLM, input / select variable',
       type: 'Type',
@@ -2494,11 +2669,14 @@ const local: App.I18n.Schema = {
       intent_name_default: 'Intent {index}',
       known_info_template: 'Known Information: {info}',
       branch: 'Branch',
+      param: 'Parameter',
       and_n_more: '{summary} and {count} more',
       system_prompt: 'System Prompt',
       no_limit: 'No limit',
       default_user_prompt: 'Known Information: \\${chatContext}\\nQuestion: \\${userInput}', // eslint-disable-line no-template-curly-in-string
-      unknown: 'Unknown'
+      unknown: 'Unknown',
+      start: 'Start',
+      end: 'End'
     },
     workflow_public: {
       select_model: 'Select Model',

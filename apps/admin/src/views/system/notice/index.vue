@@ -45,13 +45,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'noticeTitle',
-        title: '公告标题',
+        title: $t('page.system.notice.noticeTitle'),
         align: 'center',
         width: 300
       },
       {
         key: 'noticeType',
-        title: '公告类型',
+        title: $t('page.system.notice.noticeType'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -60,7 +60,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '公告状态',
+        title: $t('page.system.notice.status'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -69,13 +69,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createByName',
-        title: '创建者',
+        title: $t('page.system.notice.createByName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: $t('page.system.notice.createTime'),
         align: 'center',
         minWidth: 120
       },
@@ -160,7 +160,7 @@ async function edit(noticeId: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <NoticeSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="通知公告列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.system.notice.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

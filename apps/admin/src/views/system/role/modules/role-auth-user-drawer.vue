@@ -38,7 +38,7 @@ const visible = defineModel<boolean>('visible', {
 
 const appStore = useAppStore();
 
-const title = computed(() => '分配用户权限');
+const title = computed(() => $t('page.system.role.roleAuth'));
 
 useDict('sys_normal_disable', false);
 
@@ -77,35 +77,35 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'userName',
-      title: '用户名称',
+      title: $t('page.system.user.userName'),
       align: 'center',
       minWidth: 120,
       ellipsis: true
     },
     {
       key: 'nickName',
-      title: '用户昵称',
+      title: $t('page.system.user.nickName'),
       align: 'center',
       minWidth: 120,
       ellipsis: true
     },
     {
       key: 'deptName',
-      title: '部门',
+      title: $t('page.system.user.deptName'),
       align: 'center',
       minWidth: 120,
       ellipsis: true
     },
     {
       key: 'phonenumber',
-      title: '手机号码',
+      title: $t('page.system.user.phonenumber'),
       align: 'center',
       minWidth: 120,
       ellipsis: true
     },
     {
       key: 'status',
-      title: '状态',
+      title: $t('page.system.user.status'),
       align: 'center',
       minWidth: 80,
       render(row) {
@@ -114,7 +114,7 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'createTime',
-      title: '创建时间',
+      title: $t('page.system.user.createTime'),
       align: 'center',
       minWidth: 120
     }
@@ -205,19 +205,36 @@ function reset() {
       <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
         <NForm :model="searchParams" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="用户名称" path="userName" class="pr-24px">
-              <NInput v-model:value="searchParams.userName" placeholder="请输入用户名称" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.user.userName')" path="userName" class="pr-24px">
+              <NInput
+                v-model:value="searchParams.userName"
+                :placeholder="$t('page.system.user.form.userName.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="用户昵称" path="nickName" class="pr-24px">
-              <NInput v-model:value="searchParams.nickName" placeholder="请输入用户昵称" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.user.nickName')" path="nickName" class="pr-24px">
+              <NInput
+                v-model:value="searchParams.nickName"
+                :placeholder="$t('page.system.user.form.nickName.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="手机号码" path="phonenumber" class="pr-24px">
-              <NInput v-model:value="searchParams.phonenumber" placeholder="请输入手机号码" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.system.user.phonenumber')"
+              path="phonenumber"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="searchParams.phonenumber"
+                :placeholder="$t('page.system.user.form.phonenumber.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="所属部门" path="deptId" class="pr-24px">
-              <DeptTreeSelect v-model:value="searchParams.deptId" placeholder="请选择部门" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.user.deptName')" path="deptId" class="pr-24px">
+              <DeptTreeSelect
+                v-model:value="searchParams.deptId"
+                :placeholder="$t('page.system.user.form.deptId.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:10" label="创建时间" path="createTime" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:10" :label="$t('common.createTime')" path="createTime" class="pr-24px">
               <NDatePicker
                 ref="datePickerRef"
                 v-model:formatted-value="dateRangeCreateTime"

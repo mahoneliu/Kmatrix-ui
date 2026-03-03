@@ -18,7 +18,7 @@ const visible = defineModel<boolean>('visible', {
   default: false
 });
 
-const title = '操作日志详情';
+const title = $t('page.monitor.operlog.detailTitle');
 
 function closeDrawer() {
   visible.value = false;
@@ -29,39 +29,43 @@ function closeDrawer() {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NDescriptions label-class="min-w-100px" :column="1" size="small" bordered label-placement="left">
-        <NDescriptionsItem label="日志编号">{{ props.rowData?.operId }}</NDescriptionsItem>
-        <NDescriptionsItem label="操作状态">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.logId')">{{ props.rowData?.operId }}</NDescriptionsItem>
+        <NDescriptionsItem :label="$t('page.monitor.operlog.status')">
           <DictTag size="small" :value="props.rowData?.status" dict-code="sys_common_status" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="系统模块">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.module')">
           <NSpace>
-            <NTag class="m-1" size="small" type="primary">{{ props.rowData?.title }}模块</NTag>
+            <NTag class="m-1" size="small" type="primary">{{ props.rowData?.title }}</NTag>
             <DictTag size="small" :value="props.rowData?.businessType" dict-code="sys_oper_type" />
           </NSpace>
         </NDescriptionsItem>
-        <NDescriptionsItem label="操作信息">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.operInfo')">
           {{ props.rowData?.operName }} | {{ props.rowData?.deptName }} | {{ props.rowData?.operIp }} |
           {{ props.rowData?.operLocation }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="请求信息">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.requestInfo')">
           <NSpace>
             <NTag size="small" :type="getRequestMethodTagType(props.rowData?.requestMethod ?? '')">
-              {{ `${props.rowData?.requestMethod?.toUpperCase()}请求` }}
+              {{ props.rowData?.requestMethod?.toUpperCase() }}
             </NTag>
             {{ props.rowData?.operUrl }}
           </NSpace>
         </NDescriptionsItem>
-        <NDescriptionsItem label="操作时间">{{ props.rowData?.operTime }}</NDescriptionsItem>
-        <NDescriptionsItem label="请求参数">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.operTime')">
+          {{ props.rowData?.operTime }}
+        </NDescriptionsItem>
+        <NDescriptionsItem :label="$t('page.monitor.operlog.requestParam')">
           <JsonPreview :code="props.rowData?.operParam" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="返回参数">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.responseParam')">
           <JsonPreview :code="props.rowData?.jsonResult" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="消耗时间">
+        <NDescriptionsItem :label="$t('page.monitor.operlog.costTime')">
           {{ `${props.rowData?.costTime} ms` }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="错误消息">{{ props.rowData?.errorMsg }}</NDescriptionsItem>
+        <NDescriptionsItem :label="$t('page.monitor.operlog.errorMsg')">
+          {{ props.rowData?.errorMsg }}
+        </NDescriptionsItem>
       </NDescriptions>
       <template #footer>
         <NSpace :size="16">

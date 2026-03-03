@@ -31,7 +31,7 @@ async function getMenuList() {
   options.value = [
     {
       menuId: 0,
-      menuName: '根目录',
+      menuName: $t('route.rootName'),
       localIcon: 'material-symbols-home-outline-rounded',
       children: tree
     }

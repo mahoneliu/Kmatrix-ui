@@ -125,17 +125,8 @@ const modeOptions = [
 async function loadKnowledgeBases() {
   try {
     const { data } = await fetchAllKnowledgeBases();
-
-    // 如果指定了 kbId，则只保留该知识库，或者在列表中选中
-    if (props.kbId) {
-      // 如果是固定模式，我们可以只显示该知识库，或者仍然显示所有但选中且禁用
-      // 这里为了简单，如果 fixedKb 为 true，我们仍然加载所有以便显示名称，但会强制选中
-    }
-
     knowledgeBases.value = data || [];
-  } catch {
-    // ignore
-  }
+  } catch {}
 }
 
 // 加载数据集列表（基于选择的知识库）
@@ -432,7 +423,6 @@ function handleReset() {
                   <div class="min-w-0 flex-1">
                     <div class="items-between flex justify-between gap-2">
                       <!-- 标题展示 -->
-                      <!-- 标题展示 -->
                       <div
                         v-if="item.title"
                         class="group mb-2 flex cursor-pointer items-center gap-2 text-sm text-gray-800 font-bold dark:text-gray-200 hover:text-primary"
@@ -486,8 +476,6 @@ function handleReset() {
                           {{ $t('ai.knowledge_manager.sandbox.downloadFile') }}
                         </NTooltip>
                       </div>
-
-                      <!-- 来源类型标签 -->
                     </div>
 
                     <!-- 匹配问题展示 -->

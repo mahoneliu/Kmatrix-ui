@@ -71,10 +71,8 @@ function checkHandleHighlight(handleId: string | null, type: 'source' | 'target'
 const shouldHighlightSourceHandle = computed(() => checkHandleHighlight(null, 'source'));
 
 // 默认 Target Handle 高亮状态
-// 默认 Target Handle 高亮状态
 const shouldHighlightTargetHandle = computed(() => checkHandleHighlight(null, 'target'));
 
-// 动态计算 Handle 样式（用于高亮颜色同步）
 // 动态计算 Handle 样式（用于高亮颜色同步，以及常态颜色显示）
 function getHandleStyle(highlighted: boolean) {
   const baseStyle = {
@@ -89,7 +87,6 @@ function getHandleStyle(highlighted: boolean) {
 
   return {
     ...baseStyle
-    // boxShadow: `0 0 0 4px ${props.data.nodeColor}66` // 移除“额外色层”，响应用户需求
   };
 }
 
@@ -251,12 +248,12 @@ let handleHideTimer: number | null = null;
 // 菜单选项
 const menuOptions: DropdownOption[] = [
   {
-    label: '重命名',
+    label: $t('ai.workflow_node.rename_node'),
     key: 'rename',
     icon: () => h(SvgIcon, { localIcon: 'mdi-rename-box', class: 'text-18px' })
   },
   {
-    label: '复制节点',
+    label: $t('ai.workflow_node.copy_node'),
     key: 'duplicate',
     icon: () => h(SvgIcon, { localIcon: 'mdi-content-copy', class: 'text-18px' })
   },
@@ -333,7 +330,7 @@ const showRenameModal = ref(false);
 const newLabel = ref('');
 
 function handleRename() {
-  newLabel.value = props.data.nodeLabel || '未命名节点';
+  newLabel.value = props.data.nodeLabel || $t('ai.workflow_node.unnamed_node');
   showRenameModal.value = true;
 }
 
@@ -463,9 +460,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
           </template>
-          <!-- AI模型配置面板（仅AI节点显示） -->
-          <!-- <AiConfigPanel v-if="isAiNode" :node-data="data" @update-ai-config="handleAiConfigUpdate" /> -->
-
           <!-- 统一的参数绑定面板 -->
           <NCollapseItem
             v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"

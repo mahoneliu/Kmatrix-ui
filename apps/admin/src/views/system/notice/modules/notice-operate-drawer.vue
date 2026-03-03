@@ -35,8 +35,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增通知公告',
-    edit: '编辑通知公告'
+    add: $t('page.system.notice.addNotice'),
+    edit: $t('page.system.notice.editNotice')
   };
   return titles[props.operateType];
 });
@@ -57,11 +57,11 @@ function createDefaultModel(): Model {
 type RuleKey = Extract<keyof Model, 'noticeId' | 'noticeTitle' | 'noticeType' | 'noticeContent' | 'status'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  noticeId: createRequiredRule('公告ID不能为空'),
-  noticeTitle: createRequiredRule('公告标题不能为空'),
-  noticeType: createRequiredRule('公告类型不能为空'),
-  noticeContent: createRequiredRule('公告内容不能为空'),
-  status: createRequiredRule('公告状态不能为空')
+  noticeId: createRequiredRule($t('page.system.notice.form.noticeId.required')),
+  noticeTitle: createRequiredRule($t('page.system.notice.form.noticeTitle.required')),
+  noticeType: createRequiredRule($t('page.system.notice.form.noticeType.required')),
+  noticeContent: createRequiredRule($t('page.system.notice.form.noticeContent.required')),
+  status: createRequiredRule($t('page.system.notice.form.status.required'))
 };
 
 function handleUpdateModelWhenEdit() {
@@ -118,13 +118,16 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm :model="model" :rules="rules">
         <div class="grid grid-cols-1 gap-16px md:grid-cols-4">
-          <NFormItem class="col-span-2" label="公告标题" path="noticeTitle">
-            <NInput v-model:value="model.noticeTitle" placeholder="请输入公告标题" />
+          <NFormItem class="col-span-2" :label="$t('page.system.notice.noticeTitle')" path="noticeTitle">
+            <NInput
+              v-model:value="model.noticeTitle"
+              :placeholder="$t('page.system.notice.form.noticeTitle.required')"
+            />
           </NFormItem>
-          <NFormItem class="col-span-1" label="公告类型" path="noticeType">
+          <NFormItem class="col-span-1" :label="$t('page.system.notice.noticeType')" path="noticeType">
             <DictRadio v-model:value="model.noticeType" dict-code="sys_notice_type" />
           </NFormItem>
-          <NFormItem class="col-span-1" label="公告状态" path="status">
+          <NFormItem class="col-span-1" :label="$t('page.system.notice.status')" path="status">
             <DictRadio v-model:value="model.status" dict-code="sys_normal_disable" />
           </NFormItem>
         </div>

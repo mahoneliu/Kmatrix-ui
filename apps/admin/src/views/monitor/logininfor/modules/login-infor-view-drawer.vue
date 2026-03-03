@@ -17,7 +17,7 @@ const visible = defineModel<boolean>('visible', {
   default: false
 });
 
-const title = '登录信息详情';
+const title = $t('page.monitor.logininfor.detailTitle');
 
 function closeDrawer() {
   visible.value = false;
@@ -28,34 +28,34 @@ function closeDrawer() {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NDescriptions label-placement="left" :column="1" size="small" bordered>
-        <NDescriptionsItem label="账号信息">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.accountInfo')">
           {{ props.rowData?.userName }} | {{ props.rowData?.ipaddr }} | {{ props.rowData?.loginLocation }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="客户端">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.client')">
           {{ props.rowData?.clientKey }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="设备类型">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.deviceType')">
           <DictTag size="small" :value="props.rowData?.deviceType" dict-code="sys_device_type" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="浏览器类型">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.browser')">
           <div class="flex items-center gap-2">
             <SvgIcon :icon="getBrowserIcon(props.rowData?.browser ?? '')" />
             {{ props.rowData?.browser }}
           </div>
         </NDescriptionsItem>
-        <NDescriptionsItem label="操作系统">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.os')">
           <div class="flex items-center gap-2">
             <SvgIcon :icon="getOsIcon(props.rowData?.os ?? '')" />
             {{ props.rowData?.os }}
           </div>
         </NDescriptionsItem>
-        <NDescriptionsItem label="登录状态">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.status')">
           <DictTag size="small" :value="props.rowData?.status" dict-code="sys_common_status" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="提示消息">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.msg')">
           {{ props.rowData?.msg }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="访问时间">
+        <NDescriptionsItem :label="$t('page.monitor.logininfor.loginTime')">
           {{ props.rowData?.loginTime }}
         </NDescriptionsItem>
       </NDescriptions>

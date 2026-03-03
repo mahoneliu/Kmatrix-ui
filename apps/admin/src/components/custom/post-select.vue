@@ -3,6 +3,7 @@ import { ref, useAttrs, watch } from 'vue';
 import type { SelectProps } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchGetPostSelect } from '@/service/api/system';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'PostSelect'
@@ -56,7 +57,7 @@ async function getPostOptions() {
     :loading="postLoading"
     :options="postOptions"
     v-bind="attrs"
-    placeholder="请选择岗位"
+    :placeholder="$t('common.pleaseCheckValue') + $t('page.system.post.postName')"
   />
 </template>
 

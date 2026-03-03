@@ -58,13 +58,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'title',
-        title: '系统模块',
+        title: $t('page.monitor.operlog.module'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'businessType',
-        title: '操作类型',
+        title: $t('page.monitor.operlog.businessType'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -73,25 +73,25 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'operName',
-        title: '操作人员',
+        title: $t('page.monitor.operlog.operName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'operIp',
-        title: '操作IP',
+        title: $t('page.monitor.operlog.operIp'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'operLocation',
-        title: '操作地点',
+        title: $t('page.monitor.operlog.operLocation'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'status',
-        title: '操作状态',
+        title: $t('page.monitor.operlog.status'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -100,13 +100,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'operTime',
-        title: '操作时间',
+        title: $t('page.monitor.operlog.operTime'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'costTime',
-        title: '消耗时间',
+        title: $t('page.monitor.operlog.costTime'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -125,7 +125,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 type="primary"
                 text
                 local-icon="material-symbols-visibility-outline"
-                tooltipContent="详情"
+                tooltipContent={$t('page.monitor.operlog.viewDetail')}
                 onClick={() => view(row.operId!)}
               />
             );
@@ -153,19 +153,23 @@ async function view(operId: CommonType.IdType) {
 }
 
 async function handleExport() {
-  download('/monitor/operlog/export', searchParams.value, `操作日志_${new Date().getTime()}.xlsx`);
+  download(
+    '/monitor/operlog/export',
+    searchParams.value,
+    `${$t('page.monitor.operlog.title')}_${new Date().getTime()}.xlsx`
+  );
 }
 
 async function handleCleanOperLog() {
   window.$dialog?.error({
-    title: '提示',
-    content: '是否确认清空所有操作日志数据项?',
-    positiveText: '确认清空',
-    negativeText: '取消',
+    title: $t('common.tip'),
+    content: $t('page.monitor.operlog.cleanConfirm'),
+    positiveText: $t('page.monitor.operlog.clean'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await fetchCleanOperLog();
       if (error) return;
-      window.$message?.success('清空成功');
+      window.$message?.success($t('page.monitor.operlog.cleanSuccess'));
       await getData();
     }
   });
@@ -175,7 +179,12 @@ async function handleCleanOperLog() {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <OperLogSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="操作日志列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('page.monitor.operlog.title')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -199,7 +208,7 @@ async function handleCleanOperLog() {
               <template #icon>
                 <icon-material-symbols-warning-outline-rounded />
               </template>
-              清空
+              {{ $t('page.monitor.operlog.clean') }}
             </NButton>
           </template>
         </TableHeaderOperation>

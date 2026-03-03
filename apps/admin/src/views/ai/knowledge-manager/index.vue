@@ -269,11 +269,6 @@ onMounted(() => {
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="truncate text-base font-bold">{{ item.name }}</div>
-                    <!--
- <div class="text-xs text-gray-400">
-                      {{ getPermissionLabel(item.permissionLevel) }}
-                    </div> 
--->
                   </div>
                 </div>
               </template>

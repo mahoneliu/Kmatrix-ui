@@ -45,8 +45,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增角色',
-    edit: '编辑角色'
+    add: $t('page.system.role.addRole'),
+    edit: $t('page.system.role.editRole')
   };
   return titles[props.operateType];
 });
@@ -67,13 +67,12 @@ function createDefaultModel(): Model {
   };
 }
 
-type RuleKey = Extract<keyof Model, 'roleId' | 'roleName' | 'roleKey' | 'status'>;
+type RuleKey = Extract<keyof Model, 'roleName' | 'roleKey' | 'status'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  roleId: createRequiredRule('角色ID不能为空'),
-  roleName: createRequiredRule('角色名称不能为空'),
-  roleKey: createRequiredRule('角色权限字符串不能为空'),
-  status: createRequiredRule('角色状态不能为空')
+  roleName: createRequiredRule($t('page.system.role.form.roleName.required')),
+  roleKey: createRequiredRule($t('page.system.role.form.roleKey.required')),
+  status: createRequiredRule($t('page.system.role.form.status.required'))
 };
 
 async function handleUpdateModelWhenEdit() {
@@ -150,27 +149,27 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm :model="model" :rules="rules">
-        <NFormItem label="角色名称" path="roleName">
-          <NInput v-model:value="model.roleName" placeholder="请输入角色名称" />
+        <NFormItem :label="$t('page.system.role.roleName')" path="roleName">
+          <NInput v-model:value="model.roleName" :placeholder="$t('page.system.role.form.roleName.required')" />
         </NFormItem>
         <NFormItem path="roleKey">
           <template #label>
             <div class="flex-center">
-              <FormTip content="控制器中定义的权限字符，如：@SaCheckRole('admin')" />
-              <span class="pl-3px">权限字符</span>
+              <FormTip :content="$t('page.system.role.form.roleKey.tooltip')" />
+              <span class="pl-3px">{{ $t('page.system.role.roleKey') }}</span>
             </div>
           </template>
-          <NInput v-model:value="model.roleKey" placeholder="请输入权限字符" />
+          <NInput v-model:value="model.roleKey" :placeholder="$t('page.system.role.form.roleKey.required')" />
         </NFormItem>
-        <NFormItem label="显示顺序" path="roleSort">
-          <NInputNumber v-model:value="model.roleSort" placeholder="请输入显示顺序" />
+        <NFormItem :label="$t('page.system.role.roleSort')" path="roleSort">
+          <NInputNumber v-model:value="model.roleSort" :placeholder="$t('page.system.role.form.roleSort.required')" />
         </NFormItem>
-        <NFormItem label="角色状态" path="status">
+        <NFormItem :label="$t('page.system.role.status')" path="status">
           <NRadioGroup v-model:value="model.status">
             <NRadio v-for="item in sysNormalDisableOptions" :key="item.value" :value="item.value" :label="item.label" />
           </NRadioGroup>
         </NFormItem>
-        <NFormItem label="菜单权限" path="menuIds" class="pr-24px">
+        <NFormItem :label="$t('page.system.role.menuPermission')" path="menuIds" class="pr-24px">
           <MenuTree
             v-if="visible"
             ref="menuTreeRef"
@@ -181,8 +180,13 @@ watch(visible, () => {
             :immediate="operateType === 'add'"
           />
         </NFormItem>
-        <NFormItem label="备注" path="remark">
-          <NInput v-model:value="model.remark" :rows="3" type="textarea" placeholder="请输入备注" />
+        <NFormItem :label="$t('page.system.role.remark')" path="remark">
+          <NInput
+            v-model:value="model.remark"
+            :rows="3"
+            type="textarea"
+            :placeholder="$t('page.system.role.form.remark.required')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

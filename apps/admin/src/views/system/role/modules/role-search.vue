@@ -58,21 +58,21 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="角色名称" path="roleName" class="pr-24px">
-              <NInput v-model:value="model.roleName" placeholder="请输入角色名称" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.role.roleName')" path="roleName" class="pr-24px">
+              <NInput v-model:value="model.roleName" :placeholder="$t('page.system.role.form.roleName.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="权限字符" path="roleKey" class="pr-24px">
-              <NInput v-model:value="model.roleKey" placeholder="请输入权限字符" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.role.roleKey')" path="roleKey" class="pr-24px">
+              <NInput v-model:value="model.roleKey" :placeholder="$t('page.system.role.form.roleKey.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="角色状态" path="status" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.role.status')" path="status" class="pr-24px">
               <NSelect
                 v-model:value="model.status"
-                placeholder="请选择角色状态"
+                :placeholder="$t('page.system.role.form.status.required')"
                 :options="sysNormalDisableOptions"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="创建时间" path="createTime" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:6" :label="$t('common.createTime')" path="createTime" class="pr-24px">
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 update-value-on-close

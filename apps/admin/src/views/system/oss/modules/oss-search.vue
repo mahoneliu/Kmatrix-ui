@@ -55,19 +55,32 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm :model="model" label-placement="left" :label-width="100">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="文件名" path="fileName" class="pr-24px">
-              <NInput v-model:value="model.fileName" placeholder="请输入文件名" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.oss.fileName')" path="fileName" class="pr-24px">
+              <NInput v-model:value="model.fileName" :placeholder="$t('page.system.oss.form.fileName.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="原名" path="originalName" class="pr-24px">
-              <NInput v-model:value="model.originalName" placeholder="请输入原名" />
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.system.oss.originalName')"
+              path="originalName"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.originalName"
+                :placeholder="$t('page.system.oss.form.originalName.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="文件后缀名" path="fileSuffix" class="pr-24px">
-              <NInput v-model:value="model.fileSuffix" placeholder="请输入文件后缀名" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.oss.fileSuffix')" path="fileSuffix" class="pr-24px">
+              <NInput v-model:value="model.fileSuffix" :placeholder="$t('page.system.oss.form.fileSuffix.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="服务商" path="service" class="pr-24px">
-              <NInput v-model:value="model.service" placeholder="请输入服务商" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.system.oss.service')" path="service" class="pr-24px">
+              <NInput v-model:value="model.service" :placeholder="$t('page.system.oss.form.service.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:12" label="创建时间" path="createTime" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:12"
+              :label="$t('page.system.oss.createTime')"
+              path="createTime"
+              class="pr-24px"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 type="datetimerange"

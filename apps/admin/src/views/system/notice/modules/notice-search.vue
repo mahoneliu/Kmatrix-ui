@@ -42,11 +42,28 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="公告标题" path="noticeTitle" class="pr-24px">
-              <NInput v-model:value="model.noticeTitle" placeholder="请输入公告标题" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.system.notice.noticeTitle')"
+              path="noticeTitle"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.noticeTitle"
+                :placeholder="$t('page.system.notice.form.noticeTitle.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="公告类型" path="noticeType" class="pr-24px">
-              <DictSelect v-model:value="model.noticeType" dict-code="sys_notice_type" placeholder="请选择公告类型" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.system.notice.noticeType')"
+              path="noticeType"
+              class="pr-24px"
+            >
+              <DictSelect
+                v-model:value="model.noticeType"
+                dict-code="sys_notice_type"
+                :placeholder="$t('page.system.notice.form.noticeType.required')"
+              />
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:8" class="pr-24px">
               <NSpace class="w-full" justify="end">

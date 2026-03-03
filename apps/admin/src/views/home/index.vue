@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useEcharts } from '@/hooks/common/echarts';
+
+const { t } = useI18n();
 
 defineOptions({ name: 'HomeAnalysis' });
 
@@ -12,19 +15,19 @@ interface StatCard {
 }
 
 const stats: StatCard[] = [
-  { title: '总文档数', value: '1,280', localIcon: 'lucide-file-text', color: 'text-blue-600' },
-  { title: 'AI 消耗 Token', value: '850K', localIcon: 'lucide-bot', color: 'text-emerald-500' },
-  { title: '活跃知识库', value: '12', localIcon: 'lucide-database', color: 'text-purple-600' },
-  { title: '昨日新增笔记', value: '34', localIcon: 'lucide-file-plus', color: 'text-orange-500' }
+  { title: t('page.home.total_docs'), value: '1,280', localIcon: 'lucide-file-text', color: 'text-blue-600' },
+  { title: t('page.home.ai_token_cost'), value: '850K', localIcon: 'lucide-bot', color: 'text-emerald-500' },
+  { title: t('page.home.active_knowledge_base'), value: '12', localIcon: 'lucide-database', color: 'text-purple-600' },
+  { title: t('page.home.yesterday_new_notes'), value: '34', localIcon: 'lucide-file-plus', color: 'text-orange-500' }
 ];
 
 // Mock data for recent docs
 const recentDocs = [
-  { id: 1, title: 'KMatrix 产品需求文档', time: '10 分钟前', tags: ['需求', 'V1.0'] },
-  { id: 2, title: '后端接口规范 v2.0', time: '2 小时前', tags: ['开发', '后端'] },
-  { id: 3, title: '用户反馈整理 2023-10', time: '5 小时前', tags: ['运营'] },
-  { id: 4, title: '前端架构设计图', time: '昨天', tags: ['设计', '架构'] },
-  { id: 5, title: 'AI 模型微调日志', time: '昨天', tags: ['AI', '实验'] }
+  { id: 1, title: 'KMatrix 产品需求文档', time: t('page.home.minutes_ago', { count: 10 }), tags: ['需求', 'V1.0'] },
+  { id: 2, title: '后端接口规范 v2.0', time: t('page.home.hours_ago', { count: 2 }), tags: ['开发', '后端'] },
+  { id: 3, title: '用户反馈整理 2023-10', time: t('page.home.hours_ago', { count: 5 }), tags: ['运营'] },
+  { id: 4, title: '前端架构设计图', time: t('page.home.yesterday'), tags: ['设计', '架构'] },
+  { id: 5, title: 'AI 模型微调日志', time: t('page.home.yesterday'), tags: ['AI', '实验'] }
 ];
 
 // ECharts setup
@@ -42,7 +45,15 @@ const { domRef: chartRef } = useEcharts(() => ({
   xAxis: {
     type: 'category',
     boundaryGap: false,
-    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+    data: [
+      t('page.home.week.monday'),
+      t('page.home.week.tuesday'),
+      t('page.home.week.wednesday'),
+      t('page.home.week.thursday'),
+      t('page.home.week.friday'),
+      t('page.home.week.saturday'),
+      t('page.home.week.sunday')
+    ],
     axisLine: { show: false },
     axisTick: { show: false },
     axisLabel: { color: '#64748b' }
@@ -55,7 +66,7 @@ const { domRef: chartRef } = useEcharts(() => ({
   },
   series: [
     {
-      name: 'Token 消耗',
+      name: t('page.home.token_consumption'),
       type: 'line',
       smooth: true,
       data: [120, 132, 101, 134, 90, 230, 210],
@@ -109,9 +120,11 @@ const { domRef: chartRef } = useEcharts(() => ({
             <div class="rounded-md bg-blue-100 p-1.5 dark:bg-blue-900">
               <SvgIcon local-icon="lucide-clock" class="text-sm text-blue-600 dark:text-blue-400" />
             </div>
-            最近编辑文档
+            {{ $t('page.home.recent_docs') }}
           </h2>
-          <button class="text-sm text-slate-400 transition-colors hover:text-blue-600">查看全部</button>
+          <button class="text-sm text-slate-400 transition-colors hover:text-blue-600">
+            {{ $t('page.home.view_all') }}
+          </button>
         </div>
 
         <div class="custom-scrollbar flex-1 overflow-y-auto pr-2">
@@ -157,13 +170,13 @@ const { domRef: chartRef } = useEcharts(() => ({
             <div class="rounded-md bg-emerald-100 p-1.5 dark:bg-emerald-900">
               <SvgIcon local-icon="lucide-activity" class="text-sm text-emerald-500" />
             </div>
-            AI 资源使用
+            {{ $t('page.home.ai_resource_usage') }}
           </h2>
           <select
             class="border border-slate-200 rounded-md bg-transparent px-2 py-1 text-xs text-slate-500 focus:border-emerald-500 focus:outline-none"
           >
-            <option>最近7天</option>
-            <option>本月</option>
+            <option>{{ $t('page.home.last_7_days') }}</option>
+            <option>{{ $t('page.home.this_month') }}</option>
           </select>
         </div>
         <div ref="chartRef" class="min-h-[300px] flex-1" />
@@ -175,7 +188,7 @@ const { domRef: chartRef } = useEcharts(() => ({
       class="group fixed bottom-8 right-8 z-50 flex items-center gap-2 rounded-full bg-[#1e293b] p-4 text-white shadow-2xl shadow-slate-900/20 transition-all duration-300 active:scale-95 hover:scale-105 dark:bg-blue-600 hover:bg-slate-700 dark:hover:bg-blue-500"
     >
       <SvgIcon local-icon="lucide-plus" class="text-xl transition-transform duration-300 group-hover:rotate-90" />
-      <span class="pr-1 font-medium">新建知识库</span>
+      <span class="pr-1 font-medium">{{ $t('page.home.new_kb') }}</span>
     </button>
   </div>
 </template>
@@ -184,13 +197,16 @@ const { domRef: chartRef } = useEcharts(() => ({
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }

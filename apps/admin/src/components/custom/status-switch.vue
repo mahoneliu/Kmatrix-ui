@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBoolean } from '@sa/hooks';
 import { enableStatusRecord } from '@/constants/business';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'StatusSwitch'
@@ -30,10 +31,10 @@ const { bool: loading, setTrue: startLoading, setFalse: endLoading } = useBoolea
 const handleUpdateValue = (val: Api.Common.EnableStatus) => {
   value.value = val === '0' ? '1' : '0';
   window.$dialog?.warning({
-    title: '系统提示',
-    content: `确定要${enableStatusRecord[val]} ${props.info} 吗？`,
-    positiveText: '确定',
-    negativeText: '取消',
+    title: $t('common.tip'),
+    content: $t('common.confirmAction', { action: enableStatusRecord[val], info: props.info }),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: () => {
       startLoading();
       emit('submitted', val, flag => {
@@ -55,7 +56,14 @@ const handleUpdateValue = (val: Api.Common.EnableStatus) => {
     unchecked-value="1"
     :disabled="props.disabled"
     @update:value="handleUpdateValue"
-  />
+  >
+    <template #checked>
+      {{ $t('common.enable') }}
+    </template>
+    <template #unchecked>
+      {{ $t('common.disable') }}
+    </template>
+  </NSwitch>
 </template>
 
 <style scoped></style>

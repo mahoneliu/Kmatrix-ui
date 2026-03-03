@@ -248,7 +248,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
               <div class="max-w-200px text-12px">
                 {{ param.description ? param.description : '' }}
                 <br />
-                点击复制参数 {{ '${' + param.key + '}' }}
+                {{ $t('ai.workflow_node.click_copy_param') }} {{ '${' + param.key + '}' }}
               </div>
             </NPopover>
             <span v-if="param.required" class="c-red-5">*</span>
@@ -318,7 +318,6 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
       <div class="flex flex-col gap-2">
         <!-- 固定输出参数 - 使用 ParamTag 展示 -->
         <div v-if="outputParams.length > 0" class="flex flex-col gap-1.5">
-          <!-- <div class="text-11px c-gray-5 font-600">系统输出</div> -->
           <div class="min-w-full w-0 flex flex-wrap gap-1.5">
             <ParamTag
               v-for="param in outputParams"
@@ -332,17 +331,6 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
 
         <!-- 自定义输出参数 -->
         <div v-for="(param, index) in customOutputParams" :key="index" class="flex flex-col gap-1">
-          <!--
- <div class="flex items-center justify-between text-11px c-gray-5 font-600">
-            <span>{{ $t('ai.workflow_node.custom_output') }}</span>
-            <NButton v-if="allowCustomOutput" size="tiny" secondary @click="handleAddParam('output')">
-              <template #icon>
-                <SvgIcon local-icon="mdi-plus" />
-              </template>
-            </NButton>
-          </div>
--->
-
           <!-- 参数行 -->
           <div class="flex items-center gap-3">
             <!-- 左侧: 可编辑的变量名 -->

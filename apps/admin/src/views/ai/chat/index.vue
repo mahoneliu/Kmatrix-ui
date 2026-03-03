@@ -62,21 +62,6 @@ function toggleSidebar() {
 
 // 获取应用信息
 async function getAppInfo() {
-  // admin内应该不存在只通过token加载应用信息的场景
-  // const token = route.query.token as string;
-  // if (token) {
-  //   try {
-  //     const { data } = await fetchAppDetail(token);
-  //     if (data) {
-  //       appInfo.value = data;
-  //       appId.value = String(data.appId);
-  //     }
-  //   } catch {
-  //     message.error('加载应用信息失败');
-  //   }
-  //   return;
-  // }
-
   if (!appId.value) return;
   try {
     const { data } = await fetchAppDetail(appId.value);
@@ -100,9 +85,6 @@ async function loadSessions() {
       if (data) {
         sessions.value = data;
       }
-    } else {
-      // 嵌入模式暂不支持在 admin 预览页带 token 加载列表（通常嵌入模式下 session 管理由嵌入页面自己处理）
-      // 但这里为了逻辑完整，可以保留
     }
   } catch {
     // console.error('加载会话列表失败:', error);

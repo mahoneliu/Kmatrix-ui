@@ -2,6 +2,7 @@
 import { useAttrs } from 'vue';
 import type { TagProps } from 'naive-ui';
 import { isNotNull } from '@/utils/common';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'BooleanTag'
@@ -18,7 +19,9 @@ const attrs: TagProps = useAttrs();
 </script>
 
 <template>
-  <NTag v-if="isNotNull(value)" :type="tagMap[value]" v-bind="attrs">{{ value === '0' ? '是' : '否' }}</NTag>
+  <NTag v-if="isNotNull(value)" :type="tagMap[value]" v-bind="attrs">
+    {{ value === '0' ? $t('common.yesOrNo.yes') : $t('common.yesOrNo.no') }}
+  </NTag>
 </template>
 
 <style scoped></style>

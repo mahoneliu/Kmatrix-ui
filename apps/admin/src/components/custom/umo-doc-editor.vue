@@ -5,6 +5,7 @@ import { UmoEditor } from '@umoteam/editor';
 import { fetchBatchDeleteOss, fetchUploadFile } from '@/service/api/system/oss';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'UmoDocEditor'
@@ -49,7 +50,7 @@ async function handleSave(content: { html: string }) {
 
 async function handleFileUpload(file: File) {
   const { error, data } = await fetchUploadFile(file);
-  if (error) throw new Error(error.message || '上传失败');
+  if (error) throw new Error(error.message || $t('common.importFail'));
 
   return {
     id: data.ossId,
@@ -59,13 +60,13 @@ async function handleFileUpload(file: File) {
 
 function handleFileDelete(id: CommonType.IdType) {
   window.$dialog?.warning({
-    title: '确认删除文件？',
-    content: '文件删除后不可恢复，请确认是否删除！',
-    positiveText: '确认删除',
-    negativeText: '取消',
+    title: $t('common.confirmDeleteFile'),
+    content: $t('common.deleteConfirmMsg'),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       const { error } = await fetchBatchDeleteOss([id]);
-      if (error) throw new Error(error.message || '文件删除失败');
+      if (error) throw new Error(error.message || $t('common.fetchListFail'));
     }
   });
   return true;

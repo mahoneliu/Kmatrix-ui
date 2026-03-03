@@ -4,6 +4,7 @@ import type { UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchGetOssListByIds } from '@/service/api/system/oss';
 import { isNotNull } from '@/utils/common';
+import { $t } from '@/locales';
 import FileUpload from '@/components/custom/file-upload.vue';
 
 defineOptions({
@@ -30,7 +31,7 @@ async function handleFetchOssList(ossIds: string[]) {
       status: 'finished'
     }));
   } catch (error) {
-    window.$message?.error(`获取文件列表失败: ${error}`);
+    window.$message?.error(`${$t('common.fetchListFail')}: ${error}`);
   } finally {
     endLoading();
   }

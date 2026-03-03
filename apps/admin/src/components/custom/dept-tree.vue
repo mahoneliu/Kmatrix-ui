@@ -3,6 +3,7 @@ import { onMounted, ref, useAttrs, watch } from 'vue';
 import type { TreeSelectInst, TreeSelectProps } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
 import { fetchGetDeptTree } from '@/service/api/system/user';
+import { $t } from '@/locales';
 
 defineOptions({ name: 'DeptTree' });
 
@@ -98,16 +99,20 @@ defineExpose({
 <template>
   <div class="w-full flex-col gap-12px">
     <div class="w-full flex-center">
-      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">展开/折叠</NCheckbox>
+      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">
+        {{ $t('common.expandOrCollapse') }}
+      </NCheckbox>
       <NCheckbox
         v-model:checked="checkAll"
         :checked-value="true"
         :unchecked-value="false"
         @update:checked="handleCheckedTreeNodeAll"
       >
-        全选/反选
+        {{ $t('common.checkAllOrNot') }}
       </NCheckbox>
-      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">父子联动</NCheckbox>
+      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">
+        {{ $t('common.cascade') }}
+      </NCheckbox>
     </div>
     <NSpin class="resource h-full w-full py-6px pl-3px" content-class="h-full" :show="loading">
       <NTree

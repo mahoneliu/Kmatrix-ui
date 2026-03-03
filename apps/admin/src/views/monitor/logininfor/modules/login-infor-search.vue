@@ -52,21 +52,34 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="IP地址" path="ipaddr" class="pr-24px">
-              <NInput v-model:value="model.ipaddr" placeholder="请输入登录IP地址" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.monitor.logininfor.ipaddr')" path="ipaddr" class="pr-24px">
+              <NInput v-model:value="model.ipaddr" :placeholder="$t('page.monitor.logininfor.form.ipaddr.required')" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="用户账号" path="userName" class="pr-24px">
-              <NInput v-model:value="model.userName" placeholder="请输入用户账号" />
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.monitor.logininfor.userName')"
+              path="userName"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.userName"
+                :placeholder="$t('page.monitor.logininfor.form.userName.required')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="登录状态" path="status" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.monitor.logininfor.status')" path="status" class="pr-24px">
               <DictSelect
                 v-model:value="model.status"
-                placeholder="请选择登录状态"
+                :placeholder="$t('page.monitor.logininfor.form.status.required')"
                 dict-code="sys_common_status"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="登录时间" path="loginTime" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.monitor.logininfor.loginTime')"
+              path="loginTime"
+              class="pr-24px"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeLoginTime"
                 type="datetimerange"

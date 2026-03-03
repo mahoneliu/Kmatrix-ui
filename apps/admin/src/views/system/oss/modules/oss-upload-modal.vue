@@ -55,7 +55,7 @@ watch(visible, () => {
     v-model:show="visible"
     class="max-h-520px max-w-90% w-600px"
     preset="card"
-    :title="`上传${uploadType === 'file' ? '文件' : '图片'}`"
+    :title="uploadType === 'file' ? $t('page.system.oss.upload') : $t('page.system.oss.uploadImage')"
     size="huge"
     :bordered="false"
     @after-leave="handleClose"

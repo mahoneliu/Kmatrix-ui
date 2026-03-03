@@ -56,31 +56,31 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'postCode',
-        title: '岗位编码',
+        title: $t('page.system.post.postCode'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'postCategory',
-        title: '类别编码',
+        title: $t('page.system.post.postCategory'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'postName',
-        title: '岗位名称',
+        title: $t('page.system.post.postName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'postSort',
-        title: '显示顺序',
+        title: $t('page.system.post.postSort'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('page.system.post.status'),
         align: 'center',
         minWidth: 120,
         render(row) {
@@ -89,7 +89,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: $t('common.createTime'),
         align: 'center',
         minWidth: 120,
         ellipsis: {
@@ -174,7 +174,7 @@ async function edit(postId: CommonType.IdType) {
 }
 
 async function handleExport() {
-  download('/system/post/export', searchParams.value, `岗位信息_${new Date().getTime()}.xlsx`);
+  download('/system/post/export', searchParams.value, `${$t('page.system.post.title')}_${new Date().getTime()}.xlsx`);
 }
 
 const expandedKeys = ref<CommonType.IdType[]>([100]);
@@ -217,7 +217,7 @@ function handleResetSearch() {
 </script>
 
 <template>
-  <TableSiderLayout sider-title="部门列表">
+  <TableSiderLayout :sider-title="$t('page.system.dept.title')">
     <template #header-extra>
       <NButton size="small" text class="h-18px" @click.stop="() => handleResetTreeData()">
         <template #icon>
@@ -245,14 +245,14 @@ function handleResetSearch() {
           @update:selected-keys="handleClickTree"
         >
           <template #empty>
-            <NEmpty description="暂无部门信息" class="h-full min-h-200px justify-center" />
+            <NEmpty :description="$t('page.system.dept.empty')" class="h-full min-h-200px justify-center" />
           </template>
         </NTree>
       </NSpin>
     </template>
     <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
       <PostSearch v-model:model="searchParams" @reset="handleResetSearch" @search="getDataByPage" />
-      <NCard title="岗位信息列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+      <NCard :title="$t('page.system.post.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
         <template #header-extra>
           <TableHeaderOperation
             v-model:columns="columnChecks"

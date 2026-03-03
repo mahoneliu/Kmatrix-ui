@@ -3,6 +3,7 @@ import { ref, useAttrs } from 'vue';
 import type { SelectProps } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchGetRoleSelect } from '@/service/api/system';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'RoleSelect'
@@ -45,7 +46,7 @@ getRoleOptions();
     :loading="roleLoading"
     :options="roleOptions"
     v-bind="attrs"
-    placeholder="请选择角色"
+    :placeholder="$t('common.pleaseCheckValue') + $t('page.system.role.roleName')"
   />
 </template>
 

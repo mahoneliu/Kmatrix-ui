@@ -72,10 +72,6 @@ const formData = ref({
 });
 
 /**
- * 从 graphData 解析配置数据
- * 优先从工作流节点配置中提取 modelId、kbIds 等
- */
-/**
  * 辅助函数:如果值已定义则执行赋值回调
  */
 function assignIfDefined<T>(value: T | undefined, callback: (val: T) => void) {

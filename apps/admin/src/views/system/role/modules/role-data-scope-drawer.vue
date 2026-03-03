@@ -37,7 +37,7 @@ const { loading: deptLoading, startLoading: startDeptLoading, endLoading: endDep
 const { validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
 
-const title = computed(() => '分配数据权限');
+const title = computed(() => $t('page.system.role.selectDataScope'));
 
 type Model = Api.System.RoleOperateParams;
 
@@ -59,7 +59,7 @@ function createDefaultModel(): Model {
 type RuleKey = Extract<keyof Model, 'dataScope'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  dataScope: createRequiredRule('数据权限范围不能为空')
+  dataScope: createRequiredRule($t('page.system.role.form.dataScope.required'))
 };
 
 async function handleUpdateModelWhenEdit() {
@@ -114,22 +114,31 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm :model="model" :rules="rules">
-        <NFormItem label="角色名称" path="roleName">
-          <NInput v-model:value="model.roleName" disabled placeholder="请输入角色名称" />
+        <NFormItem :label="$t('page.system.role.roleName')" path="roleName">
+          <NInput
+            v-model:value="model.roleName"
+            disabled
+            :placeholder="$t('page.system.role.form.roleName.required')"
+          />
         </NFormItem>
         <NFormItem path="roleKey">
           <template #label>
             <div class="flex-center">
-              <FormTip content="控制器中定义的权限字符，如：@SaCheckRole('admin')" />
-              <span class="pl-3px">权限字符</span>
+              <FormTip :content="$t('page.system.role.form.roleKey.tooltip')" />
+              <span class="pl-3px">{{ $t('page.system.role.roleKey') }}</span>
             </div>
           </template>
-          <NInput v-model:value="model.roleKey" disabled placeholder="请输入权限字符" />
+          <NInput v-model:value="model.roleKey" disabled :placeholder="$t('page.system.role.form.roleKey.required')" />
         </NFormItem>
-        <NFormItem label="权限范围" path="dataScope">
+        <NFormItem :label="$t('page.system.role.dataScopeScope')" path="dataScope">
           <NSelect v-model:value="model.dataScope" :options="dataScopeOptions" />
         </NFormItem>
-        <NFormItem v-if="model.dataScope === '2'" label="数据权限" path="deptIds" class="pr-24px">
+        <NFormItem
+          v-if="model.dataScope === '2'"
+          :label="$t('page.system.role.dataScope')"
+          path="deptIds"
+          class="pr-24px"
+        >
           <DeptTree
             v-if="visible"
             ref="deptTreeRef"

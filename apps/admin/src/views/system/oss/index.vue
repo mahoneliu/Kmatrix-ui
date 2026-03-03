@@ -66,13 +66,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'ossId',
-        title: '对象存储主键',
+        title: $t('page.system.oss.ossId'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'fileName',
-        title: '文件名',
+        title: $t('page.system.oss.fileName'),
         align: 'center',
         ellipsis: {
           tooltip: true,
@@ -82,7 +82,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'originalName',
-        title: '原名',
+        title: $t('page.system.oss.originalName'),
         align: 'center',
         ellipsis: {
           tooltip: true,
@@ -92,13 +92,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'fileSuffix',
-        title: '文件后缀名',
+        title: $t('page.system.oss.fileSuffix'),
         align: 'center',
         minWidth: 100
       },
       {
         key: 'url',
-        title: 'URL地址',
+        title: $t('page.system.oss.url'),
         align: 'center',
         minWidth: 120,
         render: row => {
@@ -108,7 +108,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           return (
             <NTooltip>
               {{
-                default: () => <span>点击复制</span>,
+                default: () => <span>{$t('common.copy')}</span>,
                 trigger: () => (
                   <div class="cursor-pointer" onClick={async () => await handleCopy(row.url)}>
                     <NEllipsis line-clamp={3} tooltip={false}>
@@ -123,7 +123,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: $t('page.system.oss.createTime'),
         align: 'center',
         minWidth: 120,
         sorter: true,
@@ -131,13 +131,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'createByName',
-        title: '上传人',
+        title: $t('page.system.oss.createByName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'service',
-        title: '服务商',
+        title: $t('page.system.oss.service'),
         align: 'center',
         minWidth: 100,
         render: row => {
@@ -251,10 +251,10 @@ onMounted(() => {
 async function handleUpdatePreview(checked: boolean) {
   setPreview(!checked);
   window.$dialog?.warning({
-    title: '提示',
-    content: `是否确认${checked ? '开启' : '关闭'}预览？`,
-    positiveText: '确认',
-    negativeText: '取消',
+    title: $t('common.tip'),
+    content: $t('page.system.oss.confirmPreview', { action: checked ? $t('common.enable') : $t('common.disable') }),
+    positiveText: $t('common.confirm'),
+    negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
       startPreviewLoading();
       const { error } = await fetchUpdateConfigByKey({
@@ -267,7 +267,7 @@ async function handleUpdatePreview(checked: boolean) {
         return;
       }
       setPreview(checked);
-      window.$message?.success('更新成功');
+      window.$message?.success($t('common.updateSuccess'));
       endPreviewLoading();
     },
     onNegativeClick: () => {
@@ -284,7 +284,7 @@ function handleToOssConfig() {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <OssSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="OSS 对象存储列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.system.oss.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -306,10 +306,10 @@ function handleToOssConfig() {
               @update:value="handleUpdatePreview"
             >
               <template #checked>
-                <span class="text-14px">禁用预览</span>
+                <span class="text-14px">{{ $t('page.system.oss.previewDisable') }}</span>
               </template>
               <template #unchecked>
-                <span class="text-14px">开启预览</span>
+                <span class="text-14px">{{ $t('page.system.oss.previewEnable') }}</span>
               </template>
             </NSwitch>
 
@@ -317,19 +317,19 @@ function handleToOssConfig() {
               <template #icon>
                 <icon-material-symbols-upload-rounded />
               </template>
-              上传文件
+              {{ $t('page.system.oss.upload') }}
             </NButton>
             <NButton size="small" ghost @click="handleUpload('image')">
               <template #icon>
                 <icon-material-symbols-image-outline />
               </template>
-              上传图片
+              {{ $t('page.system.oss.uploadImage') }}
             </NButton>
             <NButton type="primary" size="small" ghost @click="handleToOssConfig">
               <template #icon>
                 <icon-hugeicons-configuration-01 />
               </template>
-              配置管理
+              {{ $t('page.system.oss.configManage') }}
             </NButton>
           </template>
         </TableHeaderOperation>

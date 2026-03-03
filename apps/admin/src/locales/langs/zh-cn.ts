@@ -83,6 +83,16 @@ const local: App.I18n.Schema = {
     enable: '启用',
     disable: '禁用',
     remark: '备注',
+    createTime: '创建时间',
+    expandOrCollapse: '展开/折叠',
+    checkAllOrNot: '全选/反选',
+    cascade: '父子联动',
+    uploadTip: '点击或者拖动文件到该区域来上传',
+    fetchListFail: '获取列表失败',
+    confirmAction: '确定要{action} {info} 吗？',
+    deleteConfirmMsg: '文件删除后不可恢复，请确认是否删除！',
+    fileNameError: '文件名不正确，不能包含英文逗号!',
+    confirmDeleteFile: '确认删除文件？',
     errorDetail: {
       unknown: '系统未知错误，请反馈给管理员',
       auth_fail: '认证失败，无法访问系统资源',
@@ -505,7 +515,30 @@ const local: App.I18n.Schema = {
         desc4: '正在忙于为kmatrix写项目说明文档！',
         desc5: '刚才把工作台页面随便写了一些，凑合能看了！'
       },
-      creativity: '创意'
+      creativity: '创意',
+      total_docs: '总文档数',
+      ai_token_cost: 'AI 消耗 Token',
+      active_knowledge_base: '活跃知识库',
+      yesterday_new_notes: '昨日新增笔记',
+      recent_docs: '最近编辑文档',
+      view_all: '查看全部',
+      minutes_ago: '{count} 分钟前',
+      hours_ago: '{count} 小时前',
+      yesterday: '昨天',
+      ai_resource_usage: 'AI 资源使用',
+      token_consumption: 'Token 消耗',
+      last_7_days: '最近7天',
+      this_month: '本月',
+      new_kb: '新建知识库',
+      week: {
+        monday: '周一',
+        tuesday: '周二',
+        wednesday: '周三',
+        thursday: '周四',
+        friday: '周五',
+        saturday: '周六',
+        sunday: '周日'
+      }
     },
     common: {
       id: 'ID',
@@ -898,8 +931,13 @@ const local: App.I18n.Schema = {
           status: {
             required: '请选择状态',
             invalid: '状态不能为空'
+          },
+          noticeId: {
+            required: '请输入公告ID',
+            invalid: '公告ID不能为空'
           }
         },
+        createByName: '创建者',
         addNotice: '新增公告',
         editNotice: '编辑公告'
       },
@@ -915,13 +953,40 @@ const local: App.I18n.Schema = {
           file: {
             required: '请选择文件',
             invalid: '文件不能为空'
+          },
+          fileName: {
+            required: '请输入文件名称',
+            invalid: '文件名称不能为空'
+          },
+          originalName: {
+            required: '请输入原始名称',
+            invalid: '原始名称不能为空'
+          },
+          fileSuffix: {
+            required: '请输入文件后缀',
+            invalid: '文件后缀不能为空'
+          },
+          service: {
+            required: '请输入服务商',
+            invalid: '服务商不能为空'
+          },
+          url: {
+            required: '请输入文件地址',
+            invalid: '文件地址不能为空'
           }
         },
         upload: '上传文件',
+        uploadImage: '上传图片',
+        ossId: '对象存储主键',
+        createByName: '上传人',
         preview: '预览',
+        previewEnable: '开启预览',
+        previewDisable: '禁用预览',
+        confirmPreview: '是否确认{action}预览？',
         download: '下载',
         copy: '复制链接',
-        copySuccess: '复制成功'
+        copySuccess: '复制成功',
+        configManage: '配置管理'
       },
       ossConfig: {
         title: 'OSS配置列表',
@@ -994,7 +1059,16 @@ const local: App.I18n.Schema = {
         status: '状态',
         remark: '备注',
         createTime: '创建时间',
+        postCategory: '岗位类别',
         form: {
+          postId: {
+            required: '请输入岗位ID',
+            invalid: '岗位ID不能为空'
+          },
+          deptId: {
+            required: '请选择归属部门',
+            invalid: '归属部门不能为空'
+          },
           postCode: {
             required: '请输入岗位编码',
             invalid: '岗位编码不能为空'
@@ -1014,6 +1088,10 @@ const local: App.I18n.Schema = {
           remark: {
             required: '请输入备注',
             invalid: '备注不能为空'
+          },
+          postCategory: {
+            required: '请输入类别编码',
+            invalid: '类别编码不能为空'
           }
         },
         addPost: '新增岗位',
@@ -1057,6 +1135,10 @@ const local: App.I18n.Schema = {
           deptIds: {
             required: '请选择部门权限',
             invalid: '部门权限不能为空'
+          },
+          dataScope: {
+            required: '请选择数据范围',
+            invalid: '数据范围不能为空'
           }
         },
         addRole: '新增角色',
@@ -1065,7 +1147,15 @@ const local: App.I18n.Schema = {
         authorizedUsers: '分配用户',
         selectMenuPermission: '选择菜单权限',
         selectDataScope: '选择数据权限',
-        selectDeptPermission: '选择部门权限'
+        selectDeptPermission: '选择部门权限',
+        cancelAuth: '取消授权',
+        batchCancelAuth: '批量取消授权',
+        authUser: '授权用户',
+        batchAuthUser: '批量授权用户',
+        dataScopeScope: '数据范围',
+        roleAuth: '角色授权',
+        role: '角色',
+        statusChangeSuccess: '状态修改成功'
       },
       tenant: {
         title: '租户列表',
@@ -1238,6 +1328,97 @@ const local: App.I18n.Schema = {
         exportTemplate: '导出模板',
         importSuccess: '导入成功',
         statusChangeSuccess: '状态修改成功'
+      }
+    },
+    monitor: {
+      logininfor: {
+        title: '登录日志列表',
+        userName: '用户账号',
+        ipaddr: '登录地址',
+        loginLocation: '登录地点',
+        browser: '浏览器',
+        os: '操作系统',
+        status: '登录状态',
+        msg: '提示消息',
+        loginTime: '访问时间',
+        client: '客户端',
+        deviceType: '设备类型',
+        unlock: '解锁',
+        exportSuccess: '导出成功',
+        clean: '清空',
+        cleanConfirm: '是否确认清空所有登录日志数据项?',
+        cleanSuccess: '清空成功',
+        unlockConfirm: '确认解锁用户 {userName} 吗？',
+        unlockSuccess: '解锁成功',
+        viewDetail: '详情',
+        detailTitle: '登录信息详情',
+        accountInfo: '账号信息',
+        form: {
+          ipaddr: {
+            required: '请输入登录IP地址',
+            invalid: 'IP地址格式不正确'
+          },
+          userName: {
+            required: '请输入用户账号',
+            invalid: '用户账号不能为空'
+          },
+          status: {
+            required: '请选择登录状态',
+            invalid: '登录状态不能为空'
+          },
+          loginTime: {
+            required: '请选择登录时间',
+            invalid: '登录时间不能为空'
+          }
+        }
+      },
+      operlog: {
+        title: '操作日志列表',
+        module: '系统模块',
+        businessType: '操作类型',
+        operName: '操作人员',
+        operIp: '操作IP',
+        operLocation: '操作地点',
+        status: '操作状态',
+        operTime: '操作时间',
+        costTime: '消耗时间',
+        viewDetail: '详情',
+        detailTitle: '操作日志详情',
+        logId: '日志编号',
+        operInfo: '操作信息',
+        requestInfo: '请求信息',
+        requestParam: '请求参数',
+        responseParam: '返回参数',
+        errorMsg: '错误消息',
+        clean: '清空',
+        cleanConfirm: '是否确认清空所有操作日志数据项?',
+        cleanSuccess: '清空成功',
+        form: {
+          title: {
+            required: '请输入系统模块',
+            invalid: '系统模块不能为空'
+          },
+          businessType: {
+            required: '请选择操作类型',
+            invalid: '操作类型不能为空'
+          },
+          operName: {
+            required: '请输入操作人员',
+            invalid: '操作人员不能为空'
+          },
+          operIp: {
+            required: '请输入操作IP',
+            invalid: '操作IP格式不正确'
+          },
+          status: {
+            required: '请选择操作状态',
+            invalid: '操作状态不能为空'
+          },
+          operTime: {
+            required: '请选择操作时间',
+            invalid: '操作时间不能为空'
+          }
+        }
       }
     },
     nodeDefinition: {
@@ -2335,17 +2516,11 @@ const local: App.I18n.Schema = {
       condition_branch: '条件分支 (IF / ELSE IF)',
       if_specify_reply_content_it_is_final_output: '如果指定回复内容，就是最终工作流的输出。',
       config_branch_condition: '配置分支条件',
-      not_empty: '不为空',
-      not_contain: '不包含',
-      contain: '包含',
       empty_result_reply: '空结果回复',
       table_whitelist: '表白名单',
       table_blacklist: '表黑名单',
       allowed_query_tables: '允许查询的表,逗号分隔',
       forbidden_query_tables: '禁止查询的表,逗号分隔',
-      start: '开始',
-      end: '结束',
-      end_suffix: '结尾',
       variable_selection: '变量选择',
       similarity_threshold: '相似度阈值:',
       config_condition: '配置条件',
@@ -2376,7 +2551,7 @@ const local: App.I18n.Schema = {
       max_tokens_desc: '模型生成的最大token数,留空则使用模型默认值',
       compare_value: '比较值',
       add_type_name: '添加{typeName}',
-      click_copy_param: '点击复制参数 {{',
+      click_copy_param: '点击复制参数 ',
       user_name: '用户名称',
       user_prompt_desc: '用户向大模型提出的具体问题或指令,输入 / 以选择变量',
       type: '类型',
@@ -2474,11 +2649,14 @@ const local: App.I18n.Schema = {
       intent_name_default: '意图 {index}',
       known_info_template: '已知信息: {info}',
       branch: '分支',
+      param: '参数',
       and_n_more: '{summary} 等{count}项',
       system_prompt: '系统提示词',
       no_limit: '不限制',
       default_user_prompt: '已知信息：\\${chatContext}\\n问题：\\${userInput}', // eslint-disable-line no-template-curly-in-string
-      unknown: '未知'
+      unknown: '未知',
+      start: '开始',
+      end: '结束'
     },
     workflow_public: {
       select_model: '选择模型',

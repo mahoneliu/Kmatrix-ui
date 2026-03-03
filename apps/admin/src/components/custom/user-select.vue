@@ -3,6 +3,7 @@ import { ref, useAttrs } from 'vue';
 import type { SelectProps } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchGetUserSelect } from '@/service/api/system';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'UserSelect'
@@ -45,7 +46,7 @@ getUserOptions();
     :loading="userLoading"
     :options="userOptions"
     v-bind="attrs"
-    placeholder="请选择用户"
+    :placeholder="$t('common.pleaseCheckValue') + $t('page.system.user.userName')"
   />
 </template>
 

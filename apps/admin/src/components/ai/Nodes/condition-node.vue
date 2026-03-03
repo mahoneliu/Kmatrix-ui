@@ -26,7 +26,7 @@ const workflowStore = useWorkflowStore();
 // 创建默认空分支
 function createDefaultBranch(index: number): Workflow.ConditionBranch {
   return {
-    name: `分支 ${index + 1}`,
+    name: `${$t('ai.workflow_node.branch')} ${index + 1}`,
     handleId: `condition-${index}`,
     condition: {
       type: 'group',
@@ -109,18 +109,18 @@ const opMap: Record<string, string> = {
   lt: '<',
   gte: '≥',
   lte: '≤',
-  contains: $t('ai.workflow_node.contain'),
-  notContains: $t('ai.workflow_node.not_contain'),
-  startsWith: '开头',
-  endsWith: $t('ai.workflow_node.end_suffix'),
-  isEmpty: '为空',
-  isNotEmpty: $t('ai.workflow_node.not_empty')
+  contains: $t('ai.workflow_node.op_contains'),
+  notContains: $t('ai.workflow_node.op_not_contains'),
+  startsWith: $t('ai.workflow_node.op_starts_with'),
+  endsWith: $t('ai.workflow_node.op_ends_with'),
+  isEmpty: $t('ai.workflow_node.op_is_empty'),
+  isNotEmpty: $t('ai.workflow_node.op_is_not_empty')
 };
 
 // 获取友好的参数名称
 function getParamLabel(variable: any): string {
   if (!variable?.sourceKey || !variable?.sourceParam) {
-    return variable?.sourceParam || '参数';
+    return variable?.sourceParam || $t('ai.workflow_node.param');
   }
 
   // 统一使用 param-resolver 获取所有可用参数 (包括全局、节点输出等)

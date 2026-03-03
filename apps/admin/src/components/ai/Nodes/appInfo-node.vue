@@ -334,7 +334,6 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
-              <!-- <div v-else class="py-2 text-center text-11px c-gray-4">{{ $t('ai.workflow_node.no_global_params') }}</div> -->
             </div>
 
             <!-- 接口参数 -->

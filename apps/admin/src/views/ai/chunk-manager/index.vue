@@ -262,7 +262,6 @@ const chunkIndex = computed(() => {
       @question-scroll="handleQuestionScroll"
     />
 
-    <!-- 模型选择弹窗 -->
     <!-- 模型选择弹窗 (单条生成) -->
     <ModelSelectModal v-model:show="showModelSelectModal" @confirm="handleGenerateQuestions" />
 

@@ -85,9 +85,6 @@ const tooltipText = computed(() => `${$t('ai.workflow_template.copy')} \${${prop
     </NPopover>
 
     <div class="flex items-center gap-1">
-      <!-- 分隔符 -->
-      <!-- <span class="c-gray-4">·</span> -->
-
       <!-- 数据类型 -->
       <span class="c-gray-5 dark:c-gray-4">{{ getParamTypeName(param.type) }}</span>
 

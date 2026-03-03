@@ -22,7 +22,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   providers: () => []
 });
-// const providers = ref<Api.AI.Admin.ModelProvider[]>([]); // Removed internal ref
 
 const modelForm = reactive<any>({
   modelId: undefined,
@@ -61,9 +60,6 @@ const rules = computed(() => {
 });
 
 const formRef = ref<any>(null);
-
-// 移除 loadProviders 函数
-// 移除 onMounted 钩子
 
 const isInitializing = ref(false);
 
@@ -113,8 +109,6 @@ watch(
   }
 );
 
-// onMounted removed
-
 // 计算当前选中供应商支持的模型列表(根据模型类型过滤)
 const modelOptions = computed(() => {
   const provider = selectedProvider.value;
@@ -145,8 +139,6 @@ const modelOptions = computed(() => {
   }
   return [];
 });
-
-// ... (omitted)
 
 async function open(modalType: 'add' | 'edit', data?: any) {
   isInitializing.value = true;
@@ -261,7 +253,6 @@ async function handleSubmit() {
     }
   } catch {
     // 校验失败或请求失败
-    // console.error('Submit failed:', err);
   } finally {
     loading.value = false;
   }
@@ -397,7 +388,6 @@ defineExpose({ open });
       <div class="w-full flex justify-end gap-2">
         <div class="flex-1">
           <NButton :loading="testingConnection" secondary @click="handleTestConnection">
-            <!-- <template #icon><span class="i-carbon-network-overlay" /></template> -->
             <template #icon>
               <SvgIcon local-icon="carbon-network-overlay" />
             </template>
