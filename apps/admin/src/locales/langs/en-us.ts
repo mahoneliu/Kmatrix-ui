@@ -307,6 +307,8 @@ const local: App.I18n.Schema = {
     system_client: 'Client Management',
     system_tenant: 'Tenant Management',
     'system_tenant-package': 'Tenant Package Management',
+    log: 'Log Management',
+    system_system_log: 'Log Management',
     monitor: 'Monitor',
     monitor_logininfor: 'Login Log',
     monitor_operlog: 'Operate Log',

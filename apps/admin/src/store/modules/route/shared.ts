@@ -131,9 +131,10 @@ function getGlobalMenuByBaseRoute(route: RouteLocationNormalizedLoaded | Elegant
   let { title, i18nKey, icon = import.meta.env.VITE_MENU_ICON, localIcon, iconFontSize } = route.meta ?? {};
 
   if (!i18nKey) {
+    const isUrl = (name as string)?.startsWith('http') || (path as string)?.startsWith('http') || route.meta?.href;
     if (title && (title.startsWith('route.') || title.startsWith('menu.'))) {
       i18nKey = title as App.I18n.I18nKey;
-    } else {
+    } else if (!isUrl) {
       i18nKey = `route.${name as string}` as App.I18n.I18nKey;
     }
   }

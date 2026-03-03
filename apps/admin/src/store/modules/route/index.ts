@@ -102,23 +102,52 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     if (route.meta.title.startsWith('route.') || route.meta.title.startsWith('menu.')) {
       route.meta.i18nKey = route.meta.title as App.I18n.I18nKey;
     }
-    const isLayout = route.component === 'Layout';
-    const isFramePage = route.component === 'FrameView';
-    const isParentLayout = route.component === 'ParentView';
-    const isBlankLayout = route.component?.startsWith('layout.blank$view.');
+
+    const component = route.component || '';
+    const isElegantRouterFormat = component.startsWith('layout.') || component.startsWith('view.');
+    const isLayout = component === 'Layout';
+    const isFramePage = component === 'FrameView';
+    const isParentLayout = component === 'ParentView';
+    const isBlankLayout = component.startsWith('layout.blank$view.');
     const isExternalLink = isNotNull(route.meta.link);
 
     route.path = route.path.startsWith('/') ? route.path : `/${route.path}`;
     route.path = parent ? parent.path + route.path : route.path;
 
-    route.name = route
-      .component!.replace(/\/index$/, '')
-      .replace(/\//g, '_')
-      .replace(/([A-Z])/g, '-$1')
-      .toLowerCase();
-    if (isLayout || isFramePage || isParentLayout) {
-      const name = route.path.substring(1).replaceAll('/', '_');
-      route.name = parent ? `${parent.name}_${name}` : name;
+    // Only transform name and component if not already in elegant-router format
+    if (!isElegantRouterFormat) {
+      if (isLayout || isFramePage || isParentLayout) {
+        const name = route.path.substring(1).replaceAll('/', '_');
+        route.name = parent ? `${parent.name}_${name}` : name;
+      } else {
+        route.name = component
+          .replace(/\/index$/, '')
+          .replace(/\//g, '_')
+          .replace(/([A-Z])/g, '-$1')
+          .toLowerCase();
+      }
+
+      if (isFramePage) {
+        if (isExternalLink) {
+          route.meta.href = String(route.meta.link);
+          const random = Math.random().toString(36).slice(2, 12);
+          route.name = random;
+          route.path = `/${random}`;
+          route.component = 'layout.base$view.iframe-page';
+        } else {
+          try {
+            route.props = {
+              // @ts-expect-error no query field
+              url: JSON.parse(route.query)?.url
+            };
+          } catch {}
+          route.component = parent ? 'view.iframe-page' : 'layout.base$view.iframe-page';
+        }
+      } else if (!isLayout && !isParentLayout && !isBlankLayout) {
+        route.component = parent ? `view.${route.name}` : `layout.base$view.${route.name}`;
+      } else if (!isBlankLayout) {
+        route.component = isParentLayout ? undefined : 'layout.base';
+      }
     }
 
     if (route.meta.icon?.startsWith('local-icon-')) {
@@ -138,28 +167,6 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     }
     // 是否需要keepAlive
     route.meta.keepAlive = !route.meta.noCache;
-
-    if (isFramePage) {
-      if (isExternalLink) {
-        route.meta.href = String(route.meta.link);
-        const random = Math.random().toString(36).slice(2, 12);
-        route.name = random;
-        route.path = `/${random}`;
-        route.component = 'layout.base$view.iframe-page';
-      } else {
-        try {
-          route.props = {
-            // @ts-expect-error no query field
-            url: JSON.parse(route.query)?.url
-          };
-        } catch {}
-      }
-      route.component = parent && !isExternalLink ? 'view.iframe-page' : 'layout.base$view.iframe-page';
-    } else if (!isLayout && !isParentLayout && !isBlankLayout) {
-      route.component = parent ? `view.${route.name}` : `layout.base$view.${route.name}`;
-    } else if (!isBlankLayout) {
-      route.component = isParentLayout ? undefined : 'layout.base';
-    }
 
     delete route.meta.link;
     delete route.meta.noCache;
