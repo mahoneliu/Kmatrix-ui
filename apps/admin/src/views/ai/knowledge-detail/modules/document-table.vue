@@ -456,11 +456,11 @@ async function handleConfirmEmbedding(option: 'UNEMBEDDED_ONLY' | 'ALL') {
 }
 
 // 文档问题生成的默认提示词
-const documentPrompt = $t('ai.knowledge_detail.document.documentPromptText');
+const documentPrompt = $t('ai.knowledge_detail.document.documentPromptText', { data: '{data}' });
 
 // 提示信息内容
 const documentAlertContent = computed(() => {
-  const promptTip = $t('ai.knowledge_detail.document.documentPromptTip');
+  const promptTip = $t('ai.knowledge_detail.document.documentPromptTip', { data: '{data}' });
   const splits = promptTip.split('\n');
   return `
     <div class="mb-2">

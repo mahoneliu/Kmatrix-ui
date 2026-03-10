@@ -18,13 +18,13 @@ const emit = defineEmits<Emits>();
 const { t } = useI18n();
 
 // 切片问题生成的默认提示词
-const defaultPrompt = t('ai.chunk_manager.model_select_modal.default_prompt');
+const defaultPrompt = t('ai.chunk_manager.model_select_modal.default_prompt', { data: '{data}' });
 
 // 提示信息内容
 const alertContent = computed(() => {
   return `
     <div class="mb-2">
-      ${t('ai.chunk_manager.model_select_modal.alert_placeholders')}
+      ${t('ai.chunk_manager.model_select_modal.alert_placeholders', { data: '{data}' })}
     </div>
     <div class="mb-2">
       ${t('ai.chunk_manager.model_select_modal.alert_role')}
