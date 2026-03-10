@@ -2085,7 +2085,15 @@ const local: App.I18n.Schema = {
       action: '操作',
       display_concise: '精简',
       display_medium: '中等',
-      display_detailed: '详细'
+      display_detailed: '详细',
+      model_select_modal: {
+        default_prompt:
+          '请根据以下参考文本，识别 3-5 个潜在的用户问题。\n仅输出问题，每行一个。不要对它们进行编号。\n参考文本：\n{data}',
+        alert_placeholders:
+          '提示词中的<code class="rounded bg-gray-100 px-1">{data}</code>为分段内容的占位符,执行时替换为分段内容发送给 AI 模型;',
+        alert_role: 'AI 模型会根据分段内容生成相关问题,每行一个问题返回;',
+        alert_adjustment: '生成效果依赖于所选模型和提示词,用户可自行调整至最佳效果。'
+      }
     },
     chat: {
       new_chat: '新建对话',

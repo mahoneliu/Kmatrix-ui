@@ -2099,7 +2099,17 @@ const local: App.I18n.Schema = {
       action: 'Action',
       display_concise: 'Concise',
       display_medium: 'Medium',
-      display_detailed: 'Detailed'
+      display_detailed: 'Detailed',
+      model_select_modal: {
+        default_prompt:
+          'Please identify 3-5 potential user questions based on the following reference text.\nOutput only the questions, one per line. Do not number them.\nReference text:\n{data}',
+        alert_placeholders:
+          'The <code class="rounded bg-gray-100 px-1">{data}</code> in the prompt is a placeholder for the chunk content, which will be replaced by the actual content when sent to the AI model;',
+        alert_role:
+          'The AI model will generate relevant questions based on the chunk content and return them one per line;',
+        alert_adjustment:
+          'The generation quality depends on the selected model and prompt. Users can adjust them for the best results.'
+      }
     },
     chat: {
       new_chat: 'New Chat',

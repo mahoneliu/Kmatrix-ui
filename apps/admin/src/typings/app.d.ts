@@ -2146,6 +2146,12 @@ declare namespace App {
           display_concise: string;
           display_medium: string;
           display_detailed: string;
+          model_select_modal: {
+            default_prompt: string;
+            alert_placeholders: string;
+            alert_role: string;
+            alert_adjustment: string;
+          };
         };
         knowledge_manager: {
           stats: {

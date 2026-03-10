@@ -83,7 +83,7 @@ function handleCancelEdit() {
   <NModal
     :show="show"
     preset="card"
-    :title="isEditing ? '编辑分块' : '分块详情'"
+    :title="isEditing ? t('ai.chunk_manager.edit_chunk') : t('ai.chunk_manager.chunk_detail')"
     class="w-1500px"
     :closable="true"
     :mask-closable="false"
