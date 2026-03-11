@@ -98,7 +98,7 @@ async function handleDelete(item: Api.AI.KB.KnowledgeBase) {
 
   dialog.warning({
     title: $t('ai.knowledge_manager.deleteConfirmTitle'),
-    content: $t('ai.knowledge_manager.deleteConfirmContent').replace('{name}', item.name),
+    content: $t('ai.knowledge_manager.deleteConfirmContent', { name: item.name }),
     positiveText: $t('common.confirm'),
     negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
@@ -282,17 +282,13 @@ onMounted(() => {
                 <div class="flex items-center gap-1">
                   <SvgIcon local-icon="mdi-folder-outline" />
                   <span>
-                    {{
-                      $t('ai.knowledge_manager.datasetCount').replace('{count}', (item.datasetCount || 0).toString())
-                    }}
+                    {{ $t('ai.knowledge_manager.datasetCount', { count: item.datasetCount || 0 }) }}
                   </span>
                 </div>
                 <div class="flex items-center gap-1">
                   <SvgIcon local-icon="mdi-file-document-outline" />
                   <span>
-                    {{
-                      $t('ai.knowledge_manager.documentCount').replace('{count}', (item.documentCount || 0).toString())
-                    }}
+                    {{ $t('ai.knowledge_manager.documentCount', { count: item.documentCount || 0 }) }}
                   </span>
                 </div>
               </div>

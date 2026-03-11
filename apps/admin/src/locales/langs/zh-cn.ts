@@ -103,7 +103,9 @@ const local: App.I18n.Schema = {
     copied: '已复制',
     copy_fail: '复制失败',
     input: '输入',
-    output: '输出'
+    output: '输出',
+    publishSuccess: '发布成功',
+    publishFailed: '发布失败'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -2655,13 +2657,12 @@ const local: App.I18n.Schema = {
       detail: '详情',
       delete: '删除',
       intent_name_default: '意图 {index}',
-      known_info_template: '已知信息: {info}',
       branch: '分支',
       param: '参数',
       and_n_more: '{summary} 等{count}项',
       system_prompt: '系统提示词',
       no_limit: '不限制',
-      default_user_prompt: '已知信息：\\${chatContext}\\n问题：\\${userInput}', // eslint-disable-line no-template-curly-in-string
+      default_user_prompt: "已知信息：${'{'}chatContext{'}'}\n问题：${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
       unknown: '未知',
       start: '开始',
       end: '结束'

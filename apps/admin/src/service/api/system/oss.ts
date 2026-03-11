@@ -33,8 +33,6 @@ export function fetchUploadFile(file: File) {
     url: '/resource/oss/upload',
     method: 'post',
     data: formData,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    timeout: 10 * 60 * 1000
   });
 }

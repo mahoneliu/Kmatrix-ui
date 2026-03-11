@@ -388,7 +388,7 @@ function handleReset() {
             <SvgIcon local-icon="mdi-format-list-bulleted" />
             <span>{{ $t('ai.knowledge_manager.sandbox.resultTitle') }}</span>
             <NTag v-if="searched" size="small" :bordered="false">
-              {{ $t('ai.knowledge_manager.sandbox.items').replace('{count}', results.length.toString()) }}
+              {{ $t('ai.knowledge_manager.sandbox.items', { count: results.length }) }}
             </NTag>
           </div>
         </template>
@@ -521,7 +521,7 @@ function handleReset() {
     <div v-if="currentDetail" class="max-h-60vh overflow-y-auto">
       <div class="mb-4 flex flex-wrap gap-2">
         <NTag v-if="currentDetail.score" type="success" size="small">
-          {{ $t('ai.knowledge_manager.sandbox.similarity').replace('{score}', formatScore(currentDetail.score)) }}
+          {{ $t('ai.knowledge_manager.sandbox.similarity', { score: formatScore(currentDetail.score) }) }}
         </NTag>
         <NTag v-if="currentDetail.rerankScore" type="info" size="small">
           Rerank: {{ formatScore(currentDetail.rerankScore) }}

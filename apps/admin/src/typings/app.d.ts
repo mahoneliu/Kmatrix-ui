@@ -430,6 +430,8 @@ declare namespace App {
         copy_fail: string;
         input: string;
         output: string;
+        publishSuccess: string;
+        publishFailed: string;
       };
       request: {
         logout: string;
@@ -1888,7 +1890,6 @@ declare namespace App {
           default_else: string;
           other_else: string;
           intent_name_default: string;
-          known_info_template: string;
           branch: string;
           param: string;
           and_n_more: string;

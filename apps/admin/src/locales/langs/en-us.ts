@@ -103,7 +103,9 @@ const local: App.I18n.Schema = {
     copied: 'Copied',
     copy_fail: 'Copy failed',
     input: 'Input',
-    output: 'Output'
+    output: 'Output',
+    publishSuccess: 'Publish Success',
+    publishFailed: 'Publish Failed'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -2677,13 +2679,12 @@ const local: App.I18n.Schema = {
       detail: 'Detail',
       delete: 'Delete',
       intent_name_default: 'Intent {index}',
-      known_info_template: 'Known Information: {info}',
       branch: 'Branch',
       param: 'Parameter',
       and_n_more: '{summary} and {count} more',
       system_prompt: 'System Prompt',
       no_limit: 'No limit',
-      default_user_prompt: 'Known Information: \\${chatContext}\\nQuestion: \\${userInput}', // eslint-disable-line no-template-curly-in-string
+      default_user_prompt: "Known Information: ${'{'}chatContext{'}'}\nQuestion: ${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
       unknown: 'Unknown',
       start: 'Start',
       end: 'End'

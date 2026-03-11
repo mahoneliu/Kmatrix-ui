@@ -106,7 +106,7 @@ async function handleDeleteDataset(ds: Api.AI.KB.Dataset) {
   if (!ds.id) return;
   dialog.warning({
     title: $t('ai.knowledge_detail.index.confirmDelete'),
-    content: $t('ai.knowledge_detail.index.deleteDatasetConfirm').replace('{name}', ds.name),
+    content: $t('ai.knowledge_detail.index.deleteDatasetConfirm', { name: ds.name }),
     positiveText: $t('ai.knowledge_detail.index.confirmDelete'),
     negativeText: $t('common.cancel'),
     onPositiveClick: async () => {
@@ -149,7 +149,7 @@ async function handleSubmitWebLink(data: { urls: string[] }) {
   try {
     // 批量添加网页链接
     await batchCreateWebLinkDocument(selectedDatasetId.value!, data.urls);
-    message.success($t('ai.knowledge_detail.index.addWebLinkSuccess').replace('{count}', data.urls.length.toString()));
+    message.success($t('ai.knowledge_detail.index.addWebLinkSuccess', { count: data.urls.length }));
     tableRef.value?.getData();
   } catch {
     message.error($t('ai.knowledge_detail.index.addFail'));

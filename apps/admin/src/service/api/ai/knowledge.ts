@@ -168,8 +168,8 @@ export function uploadDocument(datasetId: CommonType.IdType, file: File) {
     url: '/ai/document/upload',
     method: 'post',
     data: formData,
+    timeout: 10 * 60 * 1000,
     headers: {
-      'Content-Type': 'multipart/form-data',
       repeatSubmit: false
     }
   });
@@ -187,8 +187,8 @@ export function uploadDocuments(datasetId: CommonType.IdType, files: File[]) {
     url: '/ai/document/uploadBatch',
     method: 'post',
     data: formData,
+    timeout: 10 * 60 * 1000,
     headers: {
-      'Content-Type': 'multipart/form-data',
       repeatSubmit: false
     }
   });
@@ -206,8 +206,8 @@ export function uploadTempFile(datasetId: CommonType.IdType, file: File) {
     url: '/ai/document/uploadTemp',
     method: 'post',
     data: formData,
+    timeout: 10 * 60 * 1000,
     headers: {
-      'Content-Type': 'multipart/form-data',
       repeatSubmit: false
     }
   });
@@ -225,8 +225,8 @@ export function uploadTempFiles(datasetId: CommonType.IdType, files: File[]) {
     url: '/ai/document/uploadTempBatch',
     method: 'post',
     data: formData,
+    timeout: 10 * 60 * 1000,
     headers: {
-      'Content-Type': 'multipart/form-data',
       repeatSubmit: false
     }
   });
