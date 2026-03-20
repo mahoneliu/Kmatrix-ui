@@ -2,8 +2,15 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { NAlert, NButton } from 'naive-ui';
 import { ChatPanel } from '@km/shared';
+import { fetchGetAllSkillList } from '@/service/api/ai/skill';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+
+interface AvailableSkill {
+  skillId: string;
+  skillName: string;
+  spec: string;
+}
 
 interface Props {
   visible: boolean;
@@ -23,8 +30,26 @@ function getNodeDefinition(nodeType: string) {
   return nodeDefinitionStore.getNodeDefinition(nodeType);
 }
 
+const skills = ref<AvailableSkill[]>([]);
+
+async function loadSkills() {
+  try {
+    const { data } = await fetchGetAllSkillList({ status: '0', skillName: '' });
+    if (data) {
+      skills.value = data.map((item: any) => ({
+        skillId: String(item.skillId),
+        skillName: item.skillName,
+        spec: item.spec || ''
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load skills:', error);
+  }
+}
+
 onMounted(async () => {
   await nodeDefinitionStore.loadNodeDefinitions();
+  await loadSkills();
 });
 
 // 窗口状态
@@ -126,6 +151,7 @@ watch(
         :app-id="appId"
         :app-name="appName"
         :get-node-definition="getNodeDefinition"
+        :available-skills="skills"
         class="flex-1 overflow-hidden"
         @node-start="id => workflowStore.setRunningNodeId(id)"
         @node-end="() => workflowStore.setRunningNodeId(null)"

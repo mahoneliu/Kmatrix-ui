@@ -111,6 +111,8 @@ const outputParams = computed(() => {
   let extraOutputs: any[] = [];
   if (props.data.nodeType === 'TOOL' && props.data.config?.tool?.outputs) {
     extraOutputs = props.data.config.tool.outputs;
+  } else if (props.data.nodeType === 'SKILL' && props.data.config?.outputs) {
+    extraOutputs = props.data.config.outputs;
   }
 
   // 转换为完整的 ParamDefinition 格式

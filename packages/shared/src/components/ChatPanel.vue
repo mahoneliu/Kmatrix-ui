@@ -19,6 +19,13 @@ import { getNodeIconBackground } from '../utils/color';
 import { copyToClipboard } from '../utils/clipboard';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
+/** 可用技能条目（由父组件传入） */
+export interface AvailableSkill {
+  skillId: string;
+  skillName: string;
+  spec: string;
+}
+
 interface Props {
   /** 对话模式: chat=正式对话, debug=调试 */
   mode: 'chat' | 'debug';
@@ -39,6 +46,8 @@ interface Props {
   getNodeDefinition?: (nodeType: string) => any;
   /** 是否为管理员模式（使用鉴权接口） */
   isAdmin?: boolean;
+  /** 可用技能列表（由父组件按需传入，为空则不显示 Skill 提示） */
+  availableSkills?: AvailableSkill[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -48,7 +57,8 @@ const props = withDefaults(defineProps<Props>(), {
   token: undefined,
   hasExecutionDetailPermission: false,
   getNodeDefinition: undefined,
-  isAdmin: false
+  isAdmin: false,
+  availableSkills: () => []
 });
 
 const emit = defineEmits<{
@@ -132,12 +142,63 @@ onMounted(async () => {
   // await nodeDefinitionStore.loadNodeDefinitions();
 });
 
+// --- 技能建议功能 (Skill Suggestions) ---
+const suggestionIndex = ref(0);
+const skillSearchText = ref('');
+const isSearchingSkills = ref(false);
+
+const filteredSkills = computed(() => {
+  if (!isSearchingSkills.value) return [];
+  const search = skillSearchText.value.toLowerCase();
+  return props.availableSkills.filter(s => s.skillName.toLowerCase().includes(search));
+});
+
+const showSkillSuggestions = computed(() => {
+  return isSearchingSkills.value && filteredSkills.value.length > 0;
+});
+
+// 监听输入，处理 @ 符号
+watch(userInput, val => {
+  const lastAtPos = val.lastIndexOf('@');
+  if (lastAtPos !== -1 && (lastAtPos === 0 || val[lastAtPos - 1] === ' ' || val[lastAtPos - 1] === '\n')) {
+    const afterAt = val.substring(lastAtPos + 1);
+    // 假设联想时不包含空格
+    if (!afterAt.includes(' ')) {
+      isSearchingSkills.value = true;
+      skillSearchText.value = afterAt;
+      suggestionIndex.value = 0;
+      return;
+    }
+  }
+  isSearchingSkills.value = false;
+});
+
+function selectSkill(skill: AvailableSkill) {
+  const lastAtPos = userInput.value.lastIndexOf('@');
+  if (lastAtPos !== -1) {
+    userInput.value = `${userInput.value.substring(0, lastAtPos) + skill.skillName} `;
+  }
+  isSearchingSkills.value = false;
+}
+
 // 发送消息
 async function handleSend() {
   if (!userInput.value.trim() || isStreaming.value) return;
 
-  const userMsg = userInput.value.trim();
+  let userMsg = userInput.value.trim();
+
+  // 检查是否直接输入了完整技能名称 (如果输入的是 @Name 或直接是 Name 且在可用列表中)
+  const cleanMsg = userMsg.startsWith('@') ? userMsg.substring(1) : userMsg;
+  const matchedSkill = props.availableSkills.find(s => s.skillName === cleanMsg);
+
+  if (matchedSkill) {
+    // 如果匹配到完整技能名，可以在 prompt 前面加一个指令，强导 LLM 调用该工具/技能
+    // 或者直接告知 LLM 用户的目的是执行该技能
+    userMsg = `[Direct Execution] Use skill: ${matchedSkill.skillName}\nUser Instruction: ${userMsg}`;
+  }
+
   userInput.value = '';
+  isSearchingSkills.value = false;
 
   emit('messageSent', userMsg);
 
@@ -173,6 +234,29 @@ async function handleCopyMessage(content: string) {
 
 // 按Enter发送
 function handleKeyDown(e: KeyboardEvent) {
+  // 处理技能建议选择
+  if (showSkillSuggestions.value) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggestionIndex.value = (suggestionIndex.value + 1) % filteredSkills.value.length;
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggestionIndex.value = (suggestionIndex.value - 1 + filteredSkills.value.length) % filteredSkills.value.length;
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      selectSkill(filteredSkills.value[suggestionIndex.value]);
+      return;
+    }
+    if (e.key === 'Escape') {
+      isSearchingSkills.value = false;
+      return;
+    }
+  }
+
   if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
     e.preventDefault();
     handleSend();
@@ -198,6 +282,8 @@ function getNodeDisplayName(exec: NodeExecution): string {
 const shouldShowExecutions = computed(() => {
   return props.mode === 'debug' || showExecutionInfo.value;
 });
+
+// ------------------------------------
 
 // 监听 props 变化
 watch(
@@ -449,7 +535,37 @@ defineExpose({
     </div>
 
     <!-- 输入框 -->
-    <div class="flex-shrink-0 px-4 py-4">
+    <div class="relative flex-shrink-0 px-4 py-4">
+      <!-- 技能建议浮层 -->
+      <Transition name="fade">
+        <div
+          v-if="showSkillSuggestions"
+          class="absolute bottom-full left-4 right-4 z-50 mb-2 max-h-60 overflow-y-auto border border-gray-100 rounded-lg bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+        >
+          <div
+            v-for="(skill, index) in filteredSkills"
+            :key="skill.skillId"
+            class="flex cursor-pointer items-center gap-3 rounded px-3 py-2 transition-colors"
+            :class="[
+              suggestionIndex === index
+                ? 'bg-primary-50 dark:bg-primary-900/20 text-primary'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+            ]"
+            @mousedown.prevent="selectSkill(skill)"
+          >
+            <div
+              class="h-6 w-6 flex items-center justify-center rounded bg-primary-50 text-primary dark:bg-primary-900/10"
+            >
+              <SvgIcon local-icon="mdi-brain" class="text-sm" />
+            </div>
+            <div class="flex-1 overflow-hidden">
+              <div class="truncate text-sm font-medium">{{ skill.skillName }}</div>
+              <div class="truncate text-xs text-gray-400">{{ skill.spec }}</div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
       <div
         class="relative border border-gray-200 rounded-2xl bg-white p-3 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] transition-all duration-300 dark:border-gray-700 focus-within:border-primary-300 dark:bg-gray-800 focus-within:shadow-[0_4px_16px_0_rgba(0,0,0,0.1)] dark:focus-within:border-primary-700"
       >

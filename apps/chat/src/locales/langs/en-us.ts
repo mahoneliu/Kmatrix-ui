@@ -29,7 +29,7 @@ const local = {
       node_count: '{count} nodes',
       ai_thinking: 'AI is thinking...',
       ai_responding: 'AI is responding...',
-      input_placeholder: 'Please enter your question... (Enter to send)',
+      input_placeholder: 'Please enter your question, or type @ to invoke a skill... (Enter to send)',
       close_execution_details: 'Close execution details',
       open_execution_details: 'Open execution details',
       citation_details: 'Citation Details',

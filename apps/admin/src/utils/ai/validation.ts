@@ -54,7 +54,8 @@ const NODE_CONFIG_RULES: Record<
   START: [],
   END: [],
   CONDITION: [],
-  TOOL: []
+  TOOL: [],
+  SKILL: [{ field: 'skillId', label: '执行技能' }]
 };
 
 /**

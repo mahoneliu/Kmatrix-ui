@@ -18,7 +18,8 @@ declare namespace Workflow {
     | 'SQL_GENERATE'
     | 'SQL_EXECUTE'
     | 'KNOWLEDGE_RETRIEVAL'
-    | 'TOOL';
+    | 'TOOL'
+    | 'SKILL';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -120,8 +121,8 @@ declare namespace Workflow {
 
   /** 工具绑定条目（供 LLM 节点使用） */
   interface NodeToolBinding {
-    /** 工具类型: 'mcp' | 'builtin' */
-    type: 'mcp' | 'builtin';
+    /** 工具类型: 'mcp' | 'builtin' | 'skill' */
+    type: 'mcp' | 'builtin' | 'skill';
     /** 工具 ID */
     id: CommonType.IdType;
   }
@@ -146,6 +147,8 @@ declare namespace Workflow {
     mcpServerIds?: CommonType.IdType[];
     /** 绑定的内置 Python 工具 ID 列表 */
     builtinToolIds?: CommonType.IdType[];
+    /** 绑定的技能 ID 列表 */
+    skillIds?: CommonType.IdType[];
     /** 是否输出工具执行过程（Tool Trace） */
     enableToolTrace?: boolean;
   }

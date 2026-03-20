@@ -333,6 +333,7 @@ declare namespace App {
         updateCancel: string;
       };
       common: {
+        basicInfo: string;
         action: string;
         add: string;
         addSuccess: string;
@@ -1250,6 +1251,32 @@ declare namespace App {
             fail: string;
           };
         };
+        skill: {
+          label: string;
+          info: string;
+          add: string;
+          edit: string;
+          name: string;
+          description: string;
+          toolBindings: string;
+          inputSchema: string;
+          outputSchema: string;
+          providedBySkillConfig: string;
+          noAvailableToolsOrSkills: string;
+          confirmDelete: string;
+          confirmBatchDelete: string;
+          placeholder: {
+            name: string;
+            nameSearch: string;
+            description: string;
+            toolBindings: string;
+            inputSchema: string;
+            statusSearch: string;
+          };
+          tip: {
+            jsonBinding: string;
+          };
+        };
         datasource: {
           name: string;
           type: string;
@@ -1731,6 +1758,7 @@ declare namespace App {
           save: string;
           components: string;
           tools: string;
+          builtin_tools: string;
           message_not_empty: string;
           app_not_published: string;
           clear_chat_history: string;
@@ -1992,6 +2020,8 @@ declare namespace App {
           mcp_select_placeholder: string;
           bind_builtin_tools: string;
           tool_select_placeholder: string;
+          bind_skills: string;
+          skill_select_placeholder: string;
           enable_tool_trace: string;
           enable_tool_trace_desc: string;
           providedBy: string;

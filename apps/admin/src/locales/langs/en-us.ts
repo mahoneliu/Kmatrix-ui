@@ -7,6 +7,7 @@ const local: App.I18n.Schema = {
     updateCancel: 'Later'
   },
   common: {
+    basicInfo: 'Basic Info',
     action: 'Action',
     add: 'Add',
     addSuccess: 'Add Success',
@@ -355,7 +356,8 @@ const local: App.I18n.Schema = {
     'ai_tool-manager': 'Tool Management',
     'ai_document-upload': 'Document Upload',
     'ai_document-upload_step1': 'Document Upload Step 1',
-    'ai_document-upload_step2': 'Document Upload Step 2'
+    'ai_document-upload_step2': 'Document Upload - Step 2',
+    'ai_skill-manager': 'Skill Management'
   },
   menu: {
     system_tenant: 'Tenant Management',
@@ -1553,6 +1555,32 @@ const local: App.I18n.Schema = {
         fail: 'Fail'
       }
     },
+    skill: {
+      label: 'Skill',
+      info: 'Skill Info',
+      add: 'Add Skill',
+      edit: 'Edit Skill',
+      name: 'Skill Name',
+      description: 'Skill Description',
+      toolBindings: 'Tool Bindings',
+      inputSchema: 'Input Schema',
+      outputSchema: 'Output Schema',
+      providedBySkillConfig: 'Provided by skill configuration',
+      noAvailableToolsOrSkills: 'No available tools or skills',
+      confirmDelete: 'Are you sure you want to delete this skill?',
+      confirmBatchDelete: 'Are you sure you want to delete the selected skills?',
+      placeholder: {
+        name: 'Please enter skill name (used as LLM Function name, English recommended)',
+        nameSearch: 'Please enter skill name',
+        description: 'Please enter skill description (for LLM reference)',
+        toolBindings: 'Please enter tool binding JSON configuration',
+        inputSchema: 'JSON Schema format',
+        statusSearch: 'Please select status'
+      },
+      tip: {
+        jsonBinding: 'Temporarily use JSON format for tool binding: [{"type":"builtin","id":1}, {"type":"mcp","id":2}]'
+      }
+    },
     datasource: {
       name: 'Name',
       type: 'Type',
@@ -2131,7 +2159,7 @@ const local: App.I18n.Schema = {
       node_count: '{count} nodes',
       ai_thinking: 'AI is thinking...',
       ai_responding: 'AI is responding...',
-      input_placeholder: 'Please enter your question... (Enter to send)',
+      input_placeholder: 'Please enter your question, or type @ to invoke a skill... (Enter to send)',
       close_execution_details: 'Close execution details',
       open_execution_details: 'Open execution details',
       citation_details: 'Citation Details',
@@ -2432,6 +2460,7 @@ const local: App.I18n.Schema = {
       save: 'Save',
       components: 'Components',
       tools: 'Tools',
+      builtin_tools: 'Built-in Tools',
       message_not_empty: 'Message content cannot be empty',
       app_not_published: 'Your app has not been published yet. Please publish it before running functional tests',
       clear_chat_history: 'Clear Chat History',
@@ -2696,6 +2725,8 @@ const local: App.I18n.Schema = {
       mcp_select_placeholder: 'Select MCP Servers to use (Multiple Selection)',
       bind_builtin_tools: 'Bind Built-in Tools',
       tool_select_placeholder: 'Select Built-in Python Tools to use (Multiple Selection)',
+      bind_skills: 'Bind Skills',
+      skill_select_placeholder: 'Select custom Skills to use (Multiple Selection)',
       enable_tool_trace: 'Output Tool Execution Trace',
       enable_tool_trace_desc:
         'When enabled, the request parameters and return results of tool calls will be pushed to the frontend via SSE stream for debugging',

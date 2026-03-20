@@ -117,9 +117,12 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
       outputParams.push(...node.data.customOutputParams);
     }
 
-    // 2. 追加节点附带的动态输出 Schema（如 TOOL 节点自带的出参）
+    // 2. 追加节点附带的动态输出 Schema（如 TOOL/SKILL 节点自带的出参）
     if (nodeType === 'TOOL' && node.data.config?.tool?.outputs) {
       outputParams.push(...node.data.config.tool.outputs);
+    }
+    if (nodeType === 'SKILL' && node.data.config?.outputs) {
+      outputParams.push(...node.data.config.outputs);
     }
 
     // 过滤掉未命名（key为空）的参数

@@ -185,6 +185,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_skill-manager',
+        path: '/ai/skill-manager',
+        component: 'view.ai_skill-manager',
+        meta: {
+          title: 'ai_skill-manager',
+          i18nKey: 'route.ai_skill-manager'
+        }
+      },
+      {
         name: 'ai_template-editor',
         path: '/ai/template-editor',
         component: 'view.ai_template-editor',

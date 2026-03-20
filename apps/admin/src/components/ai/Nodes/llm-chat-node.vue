@@ -4,6 +4,7 @@ import { NCollapse, NCollapseItem, NInputNumber, NSelect, NSwitch, NTooltip } fr
 import type { NodeProps } from '@vue-flow/core';
 import { fetchMcpServerList } from '@/service/api/ai/mcp-server';
 import { fetchBuiltinToolList } from '@/service/api/ai/builtin-tool';
+import { fetchGetAllSkillList } from '@/service/api/ai/skill';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
@@ -18,12 +19,14 @@ const formModel = reactive({
   historyLimit: 10,
   mcpServerIds: [] as string[],
   builtinToolIds: [] as string[],
+  skillIds: [] as string[],
   enableToolTrace: false
 });
 
 // MCP Server 和工具下拉选项
 const mcpOptions = ref<{ label: string; value: string }[]>([]);
 const toolOptions = ref<{ label: string; value: string }[]>([]);
+const skillOptions = ref<{ label: string; value: string }[]>([]);
 
 // 用户提示词 (独立管理)
 const userPrompt = ref<string>('');
@@ -36,6 +39,7 @@ function initData() {
     formModel.historyLimit = config.historyLimit || 10;
     formModel.mcpServerIds = (config.mcpServerIds as string[]) || [];
     formModel.builtinToolIds = (config.builtinToolIds as string[]) || [];
+    formModel.skillIds = (config.skillIds as string[]) || [];
     formModel.enableToolTrace = config.enableToolTrace || false;
     userPrompt.value = config.userPrompt || $t('ai.workflow_node.default_user_prompt');
   }
@@ -51,6 +55,7 @@ watch(
       newValue.historyLimit !== currentConfig?.historyLimit ||
       JSON.stringify(newValue.mcpServerIds) !== JSON.stringify(currentConfig?.mcpServerIds) ||
       JSON.stringify(newValue.builtinToolIds) !== JSON.stringify(currentConfig?.builtinToolIds) ||
+      JSON.stringify(newValue.skillIds) !== JSON.stringify(currentConfig?.skillIds) ||
       newValue.enableToolTrace !== currentConfig?.enableToolTrace
     ) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
@@ -83,6 +88,9 @@ watch(
       if (JSON.stringify(config.builtinToolIds) !== JSON.stringify(formModel.builtinToolIds)) {
         formModel.builtinToolIds = (config.builtinToolIds as string[]) || [];
       }
+      if (JSON.stringify(config.skillIds) !== JSON.stringify(formModel.skillIds)) {
+        formModel.skillIds = (config.skillIds as string[]) || [];
+      }
       if (config.enableToolTrace !== formModel.enableToolTrace) {
         formModel.enableToolTrace = config.enableToolTrace || false;
       }
@@ -109,6 +117,11 @@ onMounted(() => {
     toolOptions.value = list
       .filter((t: Api.Ai.BuiltinToolVo) => t.status === '0')
       .map((t: Api.Ai.BuiltinToolVo) => ({ label: t.toolName, value: String(t.toolId) }));
+  });
+  // 加载技能选项
+  fetchGetAllSkillList({ status: '0', skillName: '' }).then(res => {
+    const list = (res as any)?.data ?? res ?? [];
+    skillOptions.value = list.map((s: Api.Ai.Skill.Info) => ({ label: s.skillName, value: String(s.skillId) }));
   });
 });
 
@@ -215,6 +228,19 @@ function handleConfigChange() {
                 multiple
                 :options="toolOptions"
                 :placeholder="$t('ai.workflow_node.tool_select_placeholder')"
+                size="small"
+                class="mt-1"
+              />
+            </div>
+
+            <!-- 绑定智能技能 -->
+            <div class="workflow-config-item">
+              <span class="workflow-label">{{ $t('ai.workflow_node.bind_skills') || '绑定技能' }}</span>
+              <NSelect
+                v-model:value="formModel.skillIds"
+                multiple
+                :options="skillOptions"
+                :placeholder="$t('ai.workflow_node.skill_select_placeholder') || '请选择技能'"
                 size="small"
                 class="mt-1"
               />

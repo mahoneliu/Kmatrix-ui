@@ -7,6 +7,7 @@ const local: App.I18n.Schema = {
     updateCancel: '稍后再说'
   },
   common: {
+    basicInfo: '基本信息',
     action: '操作',
     add: '新增',
     addSuccess: '添加成功',
@@ -351,7 +352,8 @@ const local: App.I18n.Schema = {
     'ai_tool-manager': '工具管理',
     'ai_document-upload': '文档上传',
     'ai_document-upload_step1': '文档上传-第一步',
-    'ai_document-upload_step2': '文档上传-第二步'
+    'ai_document-upload_step2': '文档上传-第二步',
+    'ai_skill-manager': '技能管理'
   },
   menu: {
     system_tenant: '租户管理',
@@ -1543,6 +1545,32 @@ const local: App.I18n.Schema = {
         fail: '失败'
       }
     },
+    skill: {
+      label: '技能',
+      info: '技能信息',
+      add: '新增技能',
+      edit: '编辑技能',
+      name: '技能名称',
+      description: '技能描述',
+      toolBindings: '工具绑定',
+      inputSchema: '输入参数(Schema)',
+      outputSchema: '输出参数(Schema)',
+      providedBySkillConfig: '由技能配置提供',
+      noAvailableToolsOrSkills: '暂无可用的工具或技能',
+      confirmDelete: '确认删除该技能？',
+      confirmBatchDelete: '确认删除选中的技能？',
+      placeholder: {
+        name: '请输入技能名称 (用作大模型 Function name, 建议英文)',
+        nameSearch: '请输入技能名称',
+        description: '请输入技能描述 (提供给大模型参考)',
+        toolBindings: '请输入绑定的工具 JSON 配置',
+        inputSchema: 'JSON Schema 格式',
+        statusSearch: '请选择状态'
+      },
+      tip: {
+        jsonBinding: '暂用 JSON 格式绑定工具：[{"type":"builtin","id":1}, {"type":"mcp","id":2}]'
+      }
+    },
     datasource: {
       name: '名称',
       type: '类型',
@@ -2115,7 +2143,7 @@ const local: App.I18n.Schema = {
       node_count: '{count}个节点',
       ai_thinking: 'AI正在思考...',
       ai_responding: 'AI正在回复...',
-      input_placeholder: '请输入问题... (Enter发送)',
+      input_placeholder: '请输入问题，或输入 @ 调用技能... (Enter发送)',
       close_execution_details: '关闭执行详情',
       open_execution_details: '开启执行详情',
       citation_details: '引用详情',
@@ -2414,6 +2442,7 @@ const local: App.I18n.Schema = {
       save: '保存',
       components: '组件',
       tools: '工具',
+      builtin_tools: '内置工具',
       message_not_empty: '消息内容不能为空',
       app_not_published: '您的应用还没有正式发布，请发布后再进行功能测试',
       clear_chat_history: '清空会话内容',
@@ -2674,6 +2703,8 @@ const local: App.I18n.Schema = {
       mcp_select_placeholder: '选择要使用的 MCP Server（可多选）',
       bind_builtin_tools: '绑定内置工具',
       tool_select_placeholder: '选择要使用的内置 Python 工具（可多选）',
+      bind_skills: '绑定技能',
+      skill_select_placeholder: '选择要使用的自定义技能（可多选）',
       enable_tool_trace: '输出工具执行过程',
       enable_tool_trace_desc: '开启后，工具调用的请求参数与返回结果将通过 SSE 流式推送到前端，用于调试',
       providedBy: '由 {type} 提供',
