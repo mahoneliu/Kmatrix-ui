@@ -1730,6 +1730,7 @@ declare namespace App {
           auto_save: string;
           save: string;
           components: string;
+          tools: string;
           message_not_empty: string;
           app_not_published: string;
           clear_chat_history: string;
@@ -1986,6 +1987,16 @@ declare namespace App {
           session_id: string;
           start: string;
           end: string;
+          tool_config: string;
+          bind_mcp_servers: string;
+          mcp_select_placeholder: string;
+          bind_builtin_tools: string;
+          tool_select_placeholder: string;
+          enable_tool_trace: string;
+          enable_tool_trace_desc: string;
+          providedBy: string;
+          mcpService: string;
+          builtinTool: string;
         };
         workflow_public: {
           select_model: string;
@@ -2483,6 +2494,71 @@ declare namespace App {
           };
           view_chunks: string;
           test: string;
+        };
+        mcp: {
+          listTitle: string;
+          addTitle: string;
+          editTitle: string;
+          serverName: string;
+          description: string;
+          transportType: string;
+          serverConfig: string;
+          status: string;
+          searchPlaceholder: string;
+          form: {
+            serverNameRequired: string;
+            transportTypeRequired: string;
+            serverNamePlaceholder: string;
+            descriptionPlaceholder: string;
+            serverConfigPlaceholder: string;
+          };
+        };
+        builtinTool: {
+          listTitle: string;
+          addTitle: string;
+          editTitle: string;
+          toolName: string;
+          description: string;
+          pythonCode: string;
+          inputSchema: string;
+          initParamsTab: string;
+          inputSchemaTab: string;
+          outputSchemaTab: string;
+          status: string;
+          searchPlaceholder: string;
+          securityWarningTitle: string;
+          securityWarning: string;
+          paramEditor: {
+            defaultTitle: string;
+            addParam: string;
+            editParam: string;
+            name: string;
+            namePlaceholder: string;
+            displayName: string;
+            displayNamePlaceholder: string;
+            type: string;
+            required: string;
+            description: string;
+            descriptionPlaceholder: string;
+            defaultValue: string;
+            defaultValuePlaceholder: string;
+            nameRequired: string;
+            namePattern: string;
+            deleteConfirm: string;
+            typeString: string;
+            typeNumber: string;
+            typeBoolean: string;
+            typeObject: string;
+            typeArray: string;
+          };
+          form: {
+            toolNameRequired: string;
+            toolNamePattern: string;
+            toolNamePlaceholder: string;
+            descriptionPlaceholder: string;
+            codePlaceholder: string;
+            schemaPlaceholder: string;
+          };
         };
       };
       datatable: {

@@ -17,7 +17,8 @@ declare namespace Workflow {
     | 'DB_QUERY'
     | 'SQL_GENERATE'
     | 'SQL_EXECUTE'
-    | 'KNOWLEDGE_RETRIEVAL';
+    | 'KNOWLEDGE_RETRIEVAL'
+    | 'TOOL';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -117,6 +118,14 @@ declare namespace Workflow {
     globalParams?: ParamDefinition[];
   }
 
+  /** 工具绑定条目（供 LLM 节点使用） */
+  interface NodeToolBinding {
+    /** 工具类型: 'mcp' | 'builtin' */
+    type: 'mcp' | 'builtin';
+    /** 工具 ID */
+    id: CommonType.IdType;
+  }
+
   /** LLM 节点配置 */
   interface LlmNodeConfig extends NodeConfigFormData {
     /** 推理模型ID (必填) */
@@ -133,6 +142,12 @@ declare namespace Workflow {
     historyEnabled?: boolean;
     /** 历史对话条数限制 */
     historyLimit?: number;
+    /** 绑定的 MCP Server ID 列表 */
+    mcpServerIds?: CommonType.IdType[];
+    /** 绑定的内置 Python 工具 ID 列表 */
+    builtinToolIds?: CommonType.IdType[];
+    /** 是否输出工具执行过程（Tool Trace） */
+    enableToolTrace?: boolean;
   }
 
   /** 意图分类节点配置 */

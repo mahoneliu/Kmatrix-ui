@@ -34,11 +34,27 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
       });
     }
 
+    const config = { ...(node.data?.config || {}) };
+    if (
+      node.data?.customInputParams &&
+      Array.isArray(node.data.customInputParams) &&
+      node.data.customInputParams.length > 0
+    ) {
+      config.customInputParams = node.data.customInputParams;
+    }
+    if (
+      node.data?.customOutputParams &&
+      Array.isArray(node.data.customOutputParams) &&
+      node.data.customOutputParams.length > 0
+    ) {
+      config.customOutputParams = node.data.customOutputParams;
+    }
+
     return {
       id: node.id,
       type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || '',
       name: node.data?.nodeLabel || node.id,
-      config: node.data?.config || {},
+      config,
       inputs,
       condition: undefined
     };

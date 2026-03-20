@@ -347,6 +347,8 @@ const local: App.I18n.Schema = {
     'ai_workflow-template': '工作流模板',
     'ai_template-editor': '模板编辑器',
     'ai_chunk-manager': '分块管理',
+    'ai_mcp-manager': 'MCP 管理',
+    'ai_tool-manager': '工具管理',
     'ai_document-upload': '文档上传',
     'ai_document-upload_step1': '文档上传-第一步',
     'ai_document-upload_step2': '文档上传-第二步'
@@ -2411,6 +2413,7 @@ const local: App.I18n.Schema = {
       auto_save: '自动保存',
       save: '保存',
       components: '组件',
+      tools: '工具',
       message_not_empty: '消息内容不能为空',
       app_not_published: '您的应用还没有正式发布，请发布后再进行功能测试',
       clear_chat_history: '清空会话内容',
@@ -2665,7 +2668,17 @@ const local: App.I18n.Schema = {
       default_user_prompt: "已知信息：${'{'}chatContext{'}'}\n问题：${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
       unknown: '未知',
       start: '开始',
-      end: '结束'
+      end: '结束',
+      tool_config: '工具配置',
+      bind_mcp_servers: '绑定 MCP Server',
+      mcp_select_placeholder: '选择要使用的 MCP Server（可多选）',
+      bind_builtin_tools: '绑定内置工具',
+      tool_select_placeholder: '选择要使用的内置 Python 工具（可多选）',
+      enable_tool_trace: '输出工具执行过程',
+      enable_tool_trace_desc: '开启后，工具调用的请求参数与返回结果将通过 SSE 流式推送到前端，用于调试',
+      providedBy: '由 {type} 提供',
+      mcpService: 'MCP服务',
+      builtinTool: '内置工具'
     },
     workflow_public: {
       select_model: '选择模型',
@@ -2778,6 +2791,72 @@ const local: App.I18n.Schema = {
       confirm_delete_template: '删除模板「{name}」吗？此操作不可恢复。',
       unknown: '未知',
       copy: '复制'
+    },
+    mcp: {
+      listTitle: 'MCP Server 列表',
+      addTitle: '新增 MCP Server',
+      editTitle: '编辑 MCP Server',
+      serverName: 'Server 名称',
+      description: '描述',
+      transportType: '传输协议',
+      serverConfig: 'Server 配置（JSON）',
+      status: '状态',
+      searchPlaceholder: '请输入 Server 名称搜索',
+      form: {
+        serverNameRequired: '请输入 Server 名称',
+        transportTypeRequired: '请选择传输协议',
+        serverNamePlaceholder: '请输入 MCP Server 名称',
+        descriptionPlaceholder: '请输入描述信息',
+        serverConfigPlaceholder: '请输入 JSON 格式的 Server 配置，如：{"url": "http://...","headers": {}}'
+      }
+    },
+    builtinTool: {
+      listTitle: '内置工具列表',
+      addTitle: '新增内置工具',
+      editTitle: '编辑内置工具',
+      toolName: '工具名称（英文标识）',
+      description: '功能描述',
+      pythonCode: 'Python 脚本',
+      inputSchema: '输入参数 Schema',
+      initParamsTab: '启动参数',
+      inputSchemaTab: '输入参数',
+      outputSchemaTab: '输出参数 JSON Schema',
+      status: '状态',
+      searchPlaceholder: '请输入工具名称搜索',
+      securityWarningTitle: '安全警告',
+      securityWarning:
+        'Python 脚本将以服务器进程权限执行，请确保代码来源可信。请勿编写删除文件、访问网络等高危操作，或交由管理员审核后发布。',
+      paramEditor: {
+        defaultTitle: '参数',
+        addParam: '添加{title}',
+        editParam: '编辑{title}',
+        name: '参数名',
+        namePlaceholder: '请输入参数的英文标识，如 query',
+        displayName: '显示名称',
+        displayNamePlaceholder: '请输入显示名称（可选）',
+        type: '数据类型',
+        required: '是否必填',
+        description: '提示说明',
+        descriptionPlaceholder: '请输入详细的参数说明以便 LLM 理解',
+        defaultValue: '默认值',
+        defaultValuePlaceholder: '请输入默认值（可选）',
+        nameRequired: '请输入参数名称',
+        namePattern: '参数名只能包含字母、数字下划线，且以字母或下划线开头',
+        deleteConfirm: '确定删除该参数吗？',
+        typeString: 'String (字符串)',
+        typeNumber: 'Number (数字)',
+        typeBoolean: 'Boolean (布尔)',
+        typeObject: 'Object (对象)',
+        typeArray: 'Array (数组)'
+      },
+      form: {
+        toolNameRequired: '请输入工具名称',
+        toolNamePattern: '工具名称只能使用小写字母、数字和下划线，且必须以字母开头',
+        toolNamePlaceholder: '英文小写，如：search_tool（将作为 LLM 工具函数名）',
+        descriptionPlaceholder: '描述该工具的功能，LLM 将根据此描述判断何时调用',
+        codePlaceholder: '在此编写 Python 代码...',
+        schemaPlaceholder: '请输入 JSON Schema 格式的输入参数定义'
+      }
     }
   },
   datatable: {

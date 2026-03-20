@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { NCollapse, NCollapseItem, NInputNumber, NSwitch, NTooltip } from 'naive-ui';
+import { NCollapse, NCollapseItem, NInputNumber, NSelect, NSwitch, NTooltip } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
+import { fetchMcpServerList } from '@/service/api/ai/mcp-server';
+import { fetchBuiltinToolList } from '@/service/api/ai/builtin-tool';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
@@ -13,8 +15,15 @@ const workflowStore = useWorkflowStore();
 // 局部表单数据 (仅保留特有配置)
 const formModel = reactive({
   historyEnabled: false,
-  historyLimit: 10
+  historyLimit: 10,
+  mcpServerIds: [] as string[],
+  builtinToolIds: [] as string[],
+  enableToolTrace: false
 });
+
+// MCP Server 和工具下拉选项
+const mcpOptions = ref<{ label: string; value: string }[]>([]);
+const toolOptions = ref<{ label: string; value: string }[]>([]);
 
 // 用户提示词 (独立管理)
 const userPrompt = ref<string>('');
@@ -25,6 +34,9 @@ function initData() {
   if (config) {
     formModel.historyEnabled = config.historyEnabled || false;
     formModel.historyLimit = config.historyLimit || 10;
+    formModel.mcpServerIds = (config.mcpServerIds as string[]) || [];
+    formModel.builtinToolIds = (config.builtinToolIds as string[]) || [];
+    formModel.enableToolTrace = config.enableToolTrace || false;
     userPrompt.value = config.userPrompt || $t('ai.workflow_node.default_user_prompt');
   }
 }
@@ -36,7 +48,10 @@ watch(
     const currentConfig = props.data.config as Workflow.LlmNodeConfig | undefined;
     if (
       newValue.historyEnabled !== currentConfig?.historyEnabled ||
-      newValue.historyLimit !== currentConfig?.historyLimit
+      newValue.historyLimit !== currentConfig?.historyLimit ||
+      JSON.stringify(newValue.mcpServerIds) !== JSON.stringify(currentConfig?.mcpServerIds) ||
+      JSON.stringify(newValue.builtinToolIds) !== JSON.stringify(currentConfig?.builtinToolIds) ||
+      newValue.enableToolTrace !== currentConfig?.enableToolTrace
     ) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
     }
@@ -62,6 +77,15 @@ watch(
         formModel.historyEnabled = config.historyEnabled || false;
         formModel.historyLimit = config.historyLimit || 10;
       }
+      if (JSON.stringify(config.mcpServerIds) !== JSON.stringify(formModel.mcpServerIds)) {
+        formModel.mcpServerIds = (config.mcpServerIds as string[]) || [];
+      }
+      if (JSON.stringify(config.builtinToolIds) !== JSON.stringify(formModel.builtinToolIds)) {
+        formModel.builtinToolIds = (config.builtinToolIds as string[]) || [];
+      }
+      if (config.enableToolTrace !== formModel.enableToolTrace) {
+        formModel.enableToolTrace = config.enableToolTrace || false;
+      }
       if (config.userPrompt !== userPrompt.value) {
         userPrompt.value = config.userPrompt || '';
       }
@@ -72,6 +96,20 @@ watch(
 
 onMounted(() => {
   initData();
+  // 加载 MCP Server 选项
+  fetchMcpServerList({ serverName: '' }).then(res => {
+    const list = (res as any)?.data ?? res ?? [];
+    mcpOptions.value = list
+      .filter((s: Api.Ai.McpServerVo) => s.status === '0')
+      .map((s: Api.Ai.McpServerVo) => ({ label: s.serverName, value: String(s.serverId) }));
+  });
+  // 加载内置工具选项
+  fetchBuiltinToolList({ toolName: '' }).then(res => {
+    const list = (res as any)?.data ?? res ?? [];
+    toolOptions.value = list
+      .filter((t: Api.Ai.BuiltinToolVo) => t.status === '0')
+      .map((t: Api.Ai.BuiltinToolVo) => ({ label: t.toolName, value: String(t.toolId) }));
+  });
 });
 
 // 处理配置变更
@@ -148,6 +186,53 @@ function handleConfigChange() {
                   class="flex-1 workflow-input"
                   :placeholder="$t('ai.workflow_node.latest_n_messages')"
                 />
+              </div>
+            </div>
+          </div>
+        </NCollapseItem>
+
+        <!-- 工具配置 -->
+        <NCollapseItem :title="$t('ai.workflow_node.tool_config')" name="tools">
+          <div class="workflow-config-section">
+            <!-- 绑定 MCP Server -->
+            <div class="workflow-config-item">
+              <span class="workflow-label">{{ $t('ai.workflow_node.bind_mcp_servers') }}</span>
+              <NSelect
+                v-model:value="formModel.mcpServerIds"
+                multiple
+                :options="mcpOptions"
+                :placeholder="$t('ai.workflow_node.mcp_select_placeholder')"
+                size="small"
+                class="mt-1"
+              />
+            </div>
+
+            <!-- 绑定内置工具 -->
+            <div class="workflow-config-item">
+              <span class="workflow-label">{{ $t('ai.workflow_node.bind_builtin_tools') }}</span>
+              <NSelect
+                v-model:value="formModel.builtinToolIds"
+                multiple
+                :options="toolOptions"
+                :placeholder="$t('ai.workflow_node.tool_select_placeholder')"
+                size="small"
+                class="mt-1"
+              />
+            </div>
+
+            <!-- 输出工具执行过程 -->
+            <div class="workflow-config-item">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <label class="workflow-label">{{ $t('ai.workflow_node.enable_tool_trace') }}</label>
+                  <NTooltip>
+                    <template #trigger>
+                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
+                    </template>
+                    {{ $t('ai.workflow_node.enable_tool_trace_desc') }}
+                  </NTooltip>
+                </div>
+                <NSwitch v-model:value="formModel.enableToolTrace" size="small" />
               </div>
             </div>
           </div>

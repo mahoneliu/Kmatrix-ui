@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
-import { NPopover } from 'naive-ui';
+import { NPopover, NTabPane, NTabs } from 'naive-ui';
 import { NODE_CATEGORY_LIST } from '@/constants/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { isValidConnection } from '@/utils/ai/connection-rules';
 import { getNodeIconBackground } from '@/utils/color';
 import { $t } from '@/locales';
+import ToolLibraryPanel from './tool-library-panel.vue';
 
 interface Emits {
-  (e: 'select', nodeType: Workflow.NodeType): void;
-  (e: 'dragStart', data: { type: Workflow.NodeType; x: number; y: number }): void;
+  (e: 'select', nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>): void;
+  (
+    e: 'dragStart',
+    data: { type: Workflow.NodeType; x: number; y: number; extraData?: Partial<Workflow.NodeData> }
+  ): void;
 }
 
 const props = defineProps<{
@@ -41,7 +45,6 @@ const availableNodeTypes = computed(() => {
   return filteredNodes;
 });
 
-// 定义分类配置
 // 定义分类配置
 const categories = NODE_CATEGORY_LIST;
 
@@ -90,71 +93,102 @@ function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
 }
+
+function handleToolSelect(nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>) {
+  emit('select', nodeType, extraData);
+}
+
+function handleToolDragStart(data: {
+  type: Workflow.NodeType;
+  x: number;
+  y: number;
+  extraData?: Partial<Workflow.NodeData>;
+}) {
+  emit('dragStart', data);
+}
 </script>
 
 <template>
-  <div class="max-h-160 w-80 overflow-y-auto rounded-2 bg-container p-4 shadow-lg">
-    <!-- 循环渲染所有分类 -->
-    <div
-      v-for="(category, index) in nodeTypesByCategory"
-      :key="category.key"
-      :class="{ 'mb-4': index < nodeTypesByCategory.length - 1 }"
+  <div class="h-160 w-80 flex flex-col rounded-2 bg-container shadow-lg">
+    <NTabs
+      type="line"
+      animated
+      justify-content="space-evenly"
+      class="flex-1 overflow-hidden p-0"
+      pane-class="h-full overflow-hidden"
     >
-      <div class="mb-2 pl-1 text-3 c-gray-6 font-bold">{{ category.label }}</div>
-      <div class="grid grid-cols-2 gap-2">
-        <!-- 循环渲染分类下的节点 -->
-        <NPopover
-          v-for="categoryNodes in category.nodes"
-          :key="categoryNodes.nodeType"
-          placement="right"
-          trigger="hover"
-          :show-arrow="false"
-          :delay="1000"
-          raw
-        >
-          <template #trigger>
-            <div
-              class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-gray-1 px-1 py-1 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
-              @mousedown="handleMouseDown($event, categoryNodes.nodeType)"
-            >
-              <div
-                class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-2"
-                :style="{
-                  backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
-                  color: categoryNodes.nodeColor
-                }"
+      <NTabPane name="components" :tab="$t('ai.workflow.components', '组件')" display-directive="show">
+        <div class="h-[calc(40rem-44px)] overflow-y-auto p-4 pt-2">
+          <!-- 循环渲染所有分类 -->
+          <div
+            v-for="(category, index) in nodeTypesByCategory"
+            :key="category.key"
+            :class="{ 'mb-4': index < nodeTypesByCategory.length - 1 }"
+          >
+            <div class="mb-2 pl-1 text-3 c-gray-6 font-bold">{{ category.label }}</div>
+            <div class="grid grid-cols-2 gap-2">
+              <!-- 循环渲染分类下的节点 -->
+              <NPopover
+                v-for="categoryNodes in category.nodes"
+                :key="categoryNodes.nodeType"
+                placement="right"
+                trigger="hover"
+                :show-arrow="false"
+                :delay="1000"
+                raw
               >
-                <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-lg" />
-              </div>
-              <div class="flex-1 text-3 c-gray-7 font-500 leading-tight dark:c-gray-2">
-                {{ categoryNodes.nodeLabel }}
-              </div>
+                <template #trigger>
+                  <div
+                    class="hover:bg-primary-1 dark:hover:bg-primary-1 flex cursor-pointer select-none items-center gap-2.5 b-1 b-gray-2 rounded-2 b-solid bg-gray-1 px-1 py-1 transition-all dark:b-dark-3 hover:b-primary dark:bg-dark-2"
+                    @mousedown="handleMouseDown($event, categoryNodes.nodeType)"
+                  >
+                    <div
+                      class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-2"
+                      :style="{
+                        backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
+                        color: categoryNodes.nodeColor
+                      }"
+                    >
+                      <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-lg" />
+                    </div>
+                    <div class="flex-1 text-3 c-gray-7 font-500 leading-tight dark:c-gray-2">
+                      {{ categoryNodes.nodeLabel }}
+                    </div>
+                  </div>
+                </template>
+                <!-- Popover 详情 -->
+                <div class="max-w-45 rounded-2 bg-container p-3 shadow-md">
+                  <!-- 上部：图标 + 标题 -->
+                  <div class="mb-2 flex items-center gap-2.5">
+                    <div
+                      class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
+                      :style="{
+                        backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
+                        color: categoryNodes.nodeColor
+                      }"
+                    >
+                      <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-xl" />
+                    </div>
+                    <div class="text-3.75 c-base-text font-600">{{ categoryNodes.nodeLabel }}</div>
+                  </div>
+                  <!-- 下部：描述 -->
+                  <div class="text-3.25 c-base-text leading-normal op-70">{{ categoryNodes.description }}</div>
+                </div>
+              </NPopover>
             </div>
-          </template>
-          <!-- Popover 详情 -->
-          <div class="max-w-45 rounded-2 bg-container p-3 shadow-md">
-            <!-- 上部：图标 + 标题 -->
-            <div class="mb-2 flex items-center gap-2.5">
-              <div
-                class="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-2"
-                :style="{
-                  backgroundColor: getNodeIconBackground(categoryNodes.nodeColor),
-                  color: categoryNodes.nodeColor
-                }"
-              >
-                <SvgIcon :local-icon="categoryNodes.nodeIcon" class="text-xl" />
-              </div>
-              <div class="text-3.75 c-base-text font-600">{{ categoryNodes.nodeLabel }}</div>
-            </div>
-            <!-- 下部：描述 -->
-            <div class="text-3.25 c-base-text leading-normal op-70">{{ categoryNodes.description }}</div>
           </div>
-        </NPopover>
-      </div>
-    </div>
-    <div v-if="nodeTypesByCategory.length < 1" class="text-ms c-gray-5">
-      <SvgIcon local-icon="carbon-close-filled" class="mr-2 inline-block text-5 text-red-4" />
-      {{ $t('ai.workflow.no_nodes_to_add') }}
-    </div>
+          <div v-if="nodeTypesByCategory.length < 1" class="text-ms c-gray-5">
+            <SvgIcon local-icon="carbon-close-filled" class="mr-2 inline-block text-5 text-red-4" />
+            {{ $t('ai.workflow.no_nodes_to_add') }}
+          </div>
+        </div>
+      </NTabPane>
+      <NTabPane name="tools" :tab="$t('ai.workflow.tools', '工具')" display-directive="show">
+        <div class="h-[calc(40rem-44px)] overflow-hidden p-4 pt-2">
+          <!-- 工具列表 -->
+          <ToolLibraryPanel @select="handleToolSelect" @drag-start="handleToolDragStart" />
+        </div>
+      </NTabPane>
+    </NTabs>
   </div>
 </template>

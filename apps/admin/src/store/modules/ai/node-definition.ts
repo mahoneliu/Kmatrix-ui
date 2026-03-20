@@ -61,7 +61,20 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
    * 根据类型获取节点定义
    */
   function getNodeDefinition(type: string) {
-    return nodeDefinitions.value.find(def => def.nodeType === type);
+    const def = nodeDefinitions.value.find(d => d.nodeType === type);
+    if (!def && type === 'TOOL') {
+      return {
+        nodeType: 'TOOL',
+        nodeLabel: 'Tool',
+        nodeIcon: 'mdi-tools',
+        nodeColor: '#0d9488',
+        allowCustomInputParams: '1',
+        allowCustomOutputParams: '1',
+        inputParams: [],
+        outputParams: []
+      } as unknown as Api.AI.Workflow.KmNodeDefinitionBo;
+    }
+    return def;
   }
 
   /**

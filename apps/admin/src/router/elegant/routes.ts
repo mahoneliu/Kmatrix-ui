@@ -158,6 +158,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_mcp-manager',
+        path: '/ai/mcp-manager',
+        component: 'view.ai_mcp-manager',
+        meta: {
+          title: 'ai_mcp-manager',
+          i18nKey: 'route.ai_mcp-manager'
+        }
+      },
+      {
         name: 'ai_model-manager',
         path: '/ai/model-manager',
         component: 'view.ai_model-manager',
@@ -184,6 +193,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           i18nKey: 'route.ai_template-editor',
           hideInMenu: true,
           constant: true
+        }
+      },
+      {
+        name: 'ai_tool-manager',
+        path: '/ai/tool-manager',
+        component: 'view.ai_tool-manager',
+        meta: {
+          title: 'ai_tool-manager',
+          i18nKey: 'route.ai_tool-manager'
         }
       },
       {

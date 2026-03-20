@@ -110,14 +110,27 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
 
   uniqueUpstreamNodes.forEach(node => {
     const nodeType = node.data.nodeType as Workflow.NodeType;
-    const outputParams = getNodeOutputParams(nodeType);
+    const outputParams = [...getNodeOutputParams(nodeType)];
 
-    if (outputParams.length > 0) {
+    // 1. 追加用户在面板上自定义的输出参数
+    if (node.data.customOutputParams && Array.isArray(node.data.customOutputParams)) {
+      outputParams.push(...node.data.customOutputParams);
+    }
+
+    // 2. 追加节点附带的动态输出 Schema（如 TOOL 节点自带的出参）
+    if (nodeType === 'TOOL' && node.data.config?.tool?.outputs) {
+      outputParams.push(...node.data.config.tool.outputs);
+    }
+
+    // 过滤掉未命名（key为空）的参数
+    const validParams = outputParams.filter(p => p.key && p.key.trim() !== '');
+
+    if (validParams.length > 0) {
       sources.push({
         type: 'node',
         sourceKey: node.id,
         sourceName: node.data.nodeLabel || nodeType,
-        params: outputParams
+        params: validParams
       });
     }
   });

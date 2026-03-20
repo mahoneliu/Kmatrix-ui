@@ -350,7 +350,9 @@ const local: App.I18n.Schema = {
     'ai_knowledge-detail': 'Knowledge Base Detail',
     ai_chat: 'AI Chat',
     'ai_template-editor': 'Template Editor',
-    'ai_chunk-manager': 'Chunk Manager',
+    'ai_chunk-manager': 'Chunk Management',
+    'ai_mcp-manager': 'MCP Management',
+    'ai_tool-manager': 'Tool Management',
     'ai_document-upload': 'Document Upload',
     'ai_document-upload_step1': 'Document Upload Step 1',
     'ai_document-upload_step2': 'Document Upload Step 2'
@@ -2429,6 +2431,7 @@ const local: App.I18n.Schema = {
       auto_save: 'Auto Save',
       save: 'Save',
       components: 'Components',
+      tools: 'Tools',
       message_not_empty: 'Message content cannot be empty',
       app_not_published: 'Your app has not been published yet. Please publish it before running functional tests',
       clear_chat_history: 'Clear Chat History',
@@ -2687,7 +2690,18 @@ const local: App.I18n.Schema = {
       default_user_prompt: "Known Information: ${'{'}chatContext{'}'}\nQuestion: ${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
       unknown: 'Unknown',
       start: 'Start',
-      end: 'End'
+      end: 'End',
+      tool_config: 'Tool Config',
+      bind_mcp_servers: 'Bind MCP Servers',
+      mcp_select_placeholder: 'Select MCP Servers to use (Multiple Selection)',
+      bind_builtin_tools: 'Bind Built-in Tools',
+      tool_select_placeholder: 'Select Built-in Python Tools to use (Multiple Selection)',
+      enable_tool_trace: 'Output Tool Execution Trace',
+      enable_tool_trace_desc:
+        'When enabled, the request parameters and return results of tool calls will be pushed to the frontend via SSE stream for debugging',
+      providedBy: 'Provided by {type}',
+      mcpService: 'MCP Service',
+      builtinTool: 'Built-in Tool'
     },
     workflow_public: {
       select_model: 'Select Model',
@@ -2801,6 +2815,73 @@ const local: App.I18n.Schema = {
       confirm_delete_template: 'Delete template "{name}"? This operation cannot be undone.',
       unknown: 'Unknown',
       copy: 'Copy'
+    },
+    mcp: {
+      listTitle: 'MCP Server List',
+      addTitle: 'Add MCP Server',
+      editTitle: 'Edit MCP Server',
+      serverName: 'Server Name',
+      description: 'Description',
+      transportType: 'Transport Protocol',
+      serverConfig: 'Server Config (JSON)',
+      status: 'Status',
+      searchPlaceholder: 'Enter Server Name to search',
+      form: {
+        serverNameRequired: 'Please enter Server Name',
+        transportTypeRequired: 'Please select Transport Protocol',
+        serverNamePlaceholder: 'Enter MCP Server Name',
+        descriptionPlaceholder: 'Enter description',
+        serverConfigPlaceholder: 'Enter Server Config in JSON format, e.g.: {"url": "http://...","headers": {}}'
+      }
+    },
+    builtinTool: {
+      listTitle: 'Built-in Tool List',
+      addTitle: 'Add Built-in Tool',
+      editTitle: 'Edit Built-in Tool',
+      toolName: 'Tool Name (English ID)',
+      description: 'Function Description',
+      pythonCode: 'Python Script',
+      inputSchema: 'Input Schema',
+      initParamsTab: 'Init Params',
+      inputSchemaTab: 'Input Params',
+      outputSchemaTab: 'Output Params JSON Schema',
+      status: 'Status',
+      searchPlaceholder: 'Enter Tool Name to search',
+      securityWarningTitle: 'Security Warning',
+      securityWarning:
+        'The Python script will execute with server process permissions. Ensure the code source is trusted. Do not write high-risk operations like deleting files or accessing unauthorized networks.',
+      paramEditor: {
+        defaultTitle: 'Param',
+        addParam: 'Add {title}',
+        editParam: 'Edit {title}',
+        name: 'Param Name',
+        namePlaceholder: 'Please enter the English identifier of the parameter, such as query',
+        displayName: 'Display Name',
+        displayNamePlaceholder: 'Please enter the display name (optional)',
+        type: 'Data Type',
+        required: 'Required',
+        description: 'Description',
+        descriptionPlaceholder: 'Please enter detailed parameter description for LLM to understand',
+        defaultValue: 'Default Value',
+        defaultValuePlaceholder: 'Please enter the default value (optional)',
+        nameRequired: 'Please enter parameter name',
+        namePattern:
+          'Parameter name can only contain letters, numbers, and underscores, and must start with a letter or underscore',
+        deleteConfirm: 'Are you sure you want to delete this parameter?',
+        typeString: 'String',
+        typeNumber: 'Number',
+        typeBoolean: 'Boolean',
+        typeObject: 'Object',
+        typeArray: 'Array'
+      },
+      form: {
+        toolNameRequired: 'Please enter Tool Name',
+        toolNamePattern: 'Tool name must use lowercase letters, numbers, and underscores, and must start with a letter',
+        toolNamePlaceholder: 'e.g., search_tool (used as LLM tool function name)',
+        descriptionPlaceholder: 'Describe what the tool does, so LLM knows when to call it',
+        codePlaceholder: 'Write Python code here...',
+        schemaPlaceholder: 'Enter input parameter definition in JSON Schema format'
+      }
     }
   },
   datatable: {

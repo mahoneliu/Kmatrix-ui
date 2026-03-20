@@ -106,8 +106,15 @@ const inputParams = computed(() => {
 const outputParams = computed(() => {
   if (!props.data.nodeType) return [];
   const params = getNodeOutputParams(props.data.nodeType);
+
+  // 对于具有动态架构输出的节点（如 TOOL），将解析到的特有出参合并为只读输出
+  let extraOutputs: any[] = [];
+  if (props.data.nodeType === 'TOOL' && props.data.config?.tool?.outputs) {
+    extraOutputs = props.data.config.tool.outputs;
+  }
+
   // 转换为完整的 ParamDefinition 格式
-  return params.map(p => ({
+  return [...params, ...extraOutputs].map(p => ({
     key: p.key,
     label: p.label,
     type: p.type,

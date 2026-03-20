@@ -24,29 +24,43 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
   const availableNodeTypes = computed(() => nodeDefinitionStore.getAllNodeTypes());
 
   // 创建新节点数据
-  function createNodeData(nodeType: Workflow.NodeType, position: { x: number; y: number }) {
-    const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === nodeType);
-    if (!nodeConfig) return null;
-
-    const timestamp = Date.now();
-    const id = `${nodeType.toLowerCase()}-${timestamp}`;
+  function getDefaults(nodeConfig: any) {
     return {
-      id,
-      type: 'custom',
-      position,
-      data: {
-        id,
-        nodeType,
-        nodeLabel: generateNodeLabel(nodeConfig.nodeLabel, workflowStore.nodes),
-        nodeIcon: nodeConfig.nodeIcon,
-        nodeColor: nodeConfig.nodeColor,
-        isSystem: nodeConfig.isSystem,
-        description: nodeConfig.description,
-        status: 'idle' as Workflow.NodeStatus,
-        config: {},
-        paramBindings: []
-      }
+      nodeLabel: generateNodeLabel(nodeConfig?.nodeLabel || 'TOOL', workflowStore.nodes),
+      nodeIcon: nodeConfig?.nodeIcon || 'carbon-tool',
+      nodeColor: nodeConfig?.nodeColor || '#2d8cf0',
+      description: nodeConfig?.description || '',
+      isSystem: nodeConfig?.isSystem || '0'
     };
+  }
+
+  function createNodeData(
+    nodeType: Workflow.NodeType,
+    position: { x: number; y: number },
+    extraData?: Partial<Workflow.NodeData>
+  ) {
+    const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === nodeType);
+    if (!nodeConfig && !extraData) return null;
+
+    const id = `${nodeType.toLowerCase()}-${Date.now()}`;
+    const defaults = getDefaults(nodeConfig);
+
+    const data: Workflow.NodeData = {
+      id,
+      nodeType,
+      nodeLabel: extraData?.nodeLabel || defaults.nodeLabel,
+      nodeIcon: extraData?.nodeIcon || defaults.nodeIcon,
+      nodeColor: extraData?.nodeColor || defaults.nodeColor,
+      isSystem: defaults.isSystem,
+      description: extraData?.description || defaults.description,
+      status: 'idle',
+      config: extraData?.config || {},
+      paramBindings: [],
+      customInputParams: extraData?.customInputParams || [],
+      customOutputParams: extraData?.customOutputParams || []
+    };
+
+    return { id, type: 'custom', position, data };
   }
 
   // 处理 Source Handle 点击
@@ -93,17 +107,30 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
   }
 
   // 手动拖拽处理 (绕过 HTML5 DnD 限制)
-  function handleManualDragStart({ type, x, y }: { type: Workflow.NodeType; x: number; y: number }) {
+  function handleManualDragStart({
+    type,
+    x,
+    y,
+    extraData
+  }: {
+    type: Workflow.NodeType;
+    x: number;
+    y: number;
+    extraData?: Partial<Workflow.NodeData>;
+  }) {
     const nodeConfig = availableNodeTypes.value.find(n => n.nodeType === type);
+
+    const displayLabel = extraData?.nodeLabel || nodeConfig?.nodeLabel || type;
+    const displayColor = extraData?.nodeColor || nodeConfig?.nodeColor || '#2d8cf0';
 
     // 创建跟随鼠标的 Ghost 元素
     const ghost = document.createElement('div');
     ghost.innerHTML = `
       <div class="flex items-center gap-2">
-        <div style="width: 16px; height: 16px; background: ${nodeConfig?.nodeColor}20; color: ${nodeConfig?.nodeColor}; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 16px; height: 16px; background: ${displayColor}20; color: ${displayColor}; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
           <span class="icon" style="font-size: 12px;">+</span>
         </div>
-        <span>${nodeConfig?.nodeLabel || type}</span>
+        <span>${displayLabel}</span>
       </div>
     `;
 
@@ -138,7 +165,7 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
             y: e.clientY - rect.top
           });
 
-          const newNode = createNodeData(type, position);
+          const newNode = createNodeData(type, position, extraData);
           if (newNode) {
             workflowStore.addNode(newNode);
             // 如果有sourceNodeByHandle，说明是handle点击或拖拽，创建连接
@@ -174,7 +201,7 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
   }
 
   // 从 Handle 面板选择节点后自动连接
-  function handlePanelSelectNode(nodeType: Workflow.NodeType) {
+  function handlePanelSelectNode(nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>) {
     showHandlePanel.value = false;
     // 在面板位置附近创建节点
     if (flowWrapper.value && vueFlowInstance.value) {
@@ -183,7 +210,7 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
         x: handlePanelPosition.value.x - rect.left,
         y: handlePanelPosition.value.y - rect.top
       });
-      const newNode = createNodeData(nodeType, position);
+      const newNode = createNodeData(nodeType, position, extraData);
       if (newNode) {
         workflowStore.addNode(newNode);
         // 创建连接
@@ -209,17 +236,22 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
   }
 
   // 从 Handle 面板拖拽节点
-  function handlePanelDragStart(data: { type: Workflow.NodeType; x: number; y: number }) {
+  function handlePanelDragStart(data: {
+    type: Workflow.NodeType;
+    x: number;
+    y: number;
+    extraData?: Partial<Workflow.NodeData>;
+  }) {
     showHandlePanel.value = false;
     handleManualDragStart(data);
   }
 
   // 从组件库选择节点 (点击添加)
-  function handleSelectNode(nodeType: Workflow.NodeType) {
+  function handleSelectNode(nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>) {
     // 在画布中心位置添加节点
     // 简单的位移策略，避免重叠
     const position = { x: 300, y: 200 + workflowStore.nodes.length * 50 };
-    const newNode = createNodeData(nodeType, position);
+    const newNode = createNodeData(nodeType, position, extraData);
     if (newNode) {
       workflowStore.addNode(newNode);
       takeSnapshot(`添加节点[${newNode.data.nodeLabel}]`);

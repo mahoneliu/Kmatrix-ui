@@ -37,6 +37,7 @@
     "jsencrypt": "^3.5.4",
     "json5": "2.2.3",
     "markdown-it": "^14.1.0",
+    "monaco-editor": "^0.55.1",
     "naive-ui": "2.43.2",
     "nprogress": "0.2.0",
     "pinia": "3.0.4",

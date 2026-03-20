@@ -53,7 +53,8 @@ const NODE_CONFIG_RULES: Record<
   APP_INFO: [], // APP_INFO 节点在保存时单独校验
   START: [],
   END: [],
-  CONDITION: []
+  CONDITION: [],
+  TOOL: []
 };
 
 /**

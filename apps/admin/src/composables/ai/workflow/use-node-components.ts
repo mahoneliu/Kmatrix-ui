@@ -9,6 +9,7 @@ import DbQueryNode from '@/components/ai/Nodes/db-query-node.vue';
 import SqlGenerateNode from '@/components/ai/Nodes/sql-generate-node.vue';
 import SqlExecuteNode from '@/components/ai/Nodes/sql-execute-node.vue';
 import KnowledgeRetrievalNode from '@/components/ai/Nodes/knowledge-retrieval-node.vue';
+import ToolNode from '@/components/ai/Nodes/tool-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
 
@@ -30,6 +31,7 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     SQL_GENERATE: markRaw(SqlGenerateNode),
     SQL_EXECUTE: markRaw(SqlExecuteNode),
     KNOWLEDGE_RETRIEVAL: markRaw(KnowledgeRetrievalNode),
+    TOOL: markRaw(ToolNode),
     APP_INFO: markRaw(AppInfoComp)
   };
 

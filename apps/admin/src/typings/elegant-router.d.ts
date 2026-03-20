@@ -36,9 +36,11 @@ declare module "@elegant-router/types" {
     "ai_document-upload_step2": "/ai/document-upload/step2";
     "ai_knowledge-detail": "/ai/knowledge-detail";
     "ai_knowledge-manager": "/ai/knowledge-manager";
+    "ai_mcp-manager": "/ai/mcp-manager";
     "ai_model-manager": "/ai/model-manager";
     "ai_node-definition": "/ai/node-definition";
     "ai_template-editor": "/ai/template-editor";
+    "ai_tool-manager": "/ai/tool-manager";
     "ai_workflow": "/ai/workflow";
     "ai_workflow-template": "/ai/workflow-template";
     "demo": "/demo";
@@ -154,9 +156,11 @@ declare module "@elegant-router/types" {
     | "ai_document-upload_step2"
     | "ai_knowledge-detail"
     | "ai_knowledge-manager"
+    | "ai_mcp-manager"
     | "ai_model-manager"
     | "ai_node-definition"
     | "ai_template-editor"
+    | "ai_tool-manager"
     | "ai_workflow-template"
     | "ai_workflow"
     | "demo_demo"
