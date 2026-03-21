@@ -338,6 +338,7 @@ declare namespace App {
         add: string;
         addSuccess: string;
         backToHome: string;
+        back: string;
         batchDelete: string;
         import: string;
         export: string;

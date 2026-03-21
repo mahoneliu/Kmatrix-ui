@@ -379,6 +379,7 @@ onMounted(() => {
               <DocumentTable
                 ref="tableRef"
                 class="h-full flex flex-col flex-1"
+                :kb-id="kbId"
                 :dataset-id="selectedDatasetId"
                 :process-type="selectedDataset?.processType"
                 @add-online-doc="onlineDocModalVisible = true"

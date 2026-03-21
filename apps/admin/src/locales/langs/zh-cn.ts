@@ -12,6 +12,7 @@ const local: App.I18n.Schema = {
     add: '新增',
     addSuccess: '添加成功',
     backToHome: '返回首页',
+    back: '返回',
     batchDelete: '批量删除',
     import: '导入',
     export: '导出',

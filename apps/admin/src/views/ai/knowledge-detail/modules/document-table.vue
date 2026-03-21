@@ -33,11 +33,13 @@ defineOptions({
 });
 
 interface Props {
+  kbId?: CommonType.IdType | null;
   datasetId?: CommonType.IdType | null;
   processType?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  kbId: null,
   datasetId: null,
   processType: 'GENERIC_FILE'
 });
@@ -638,10 +640,11 @@ function handleAddDocument() {
 
 // 自定义分块上传（跳转到分块预览流程）
 function handleCustomChunk() {
+  const kbId = props.kbId || (router.currentRoute.value.query.kbId as string) || '';
   router.push({
     name: 'ai_document-upload_step1',
     query: {
-      kbId: (router.currentRoute.value.query.kbId as string) || '',
+      kbId,
       datasetId: props.datasetId?.toString() || ''
     }
   });

@@ -27,7 +27,19 @@ export function setupElegantRouter() {
     onRouteMetaGen(routeName) {
       const key = routeName as RouteKey;
 
-      const constantRoutes: RouteKey[] = ['login', '403', '404', '500', 'ai_chat', 'ai_workflow'];
+      const constantRoutes: RouteKey[] = [
+        'login',
+        '403',
+        '404',
+        '500',
+        'ai_chat',
+        'ai_workflow',
+        'ai_app-detail',
+        'ai_template-editor',
+        'ai_document-upload',
+        'ai_document-upload_step1',
+        'ai_document-upload_step2'
+      ];
 
       const meta: Partial<RouteMeta> = {
         title: key,
@@ -36,6 +48,7 @@ export function setupElegantRouter() {
 
       if (constantRoutes.includes(key)) {
         meta.constant = true;
+        meta.hideInMenu = true;
       }
 
       return meta;
