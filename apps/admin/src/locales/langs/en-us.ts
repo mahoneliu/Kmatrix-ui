@@ -39,6 +39,7 @@ const local: App.I18n.Schema = {
     save: 'Save',
     delete: 'Delete',
     deleteSuccess: 'Delete Success',
+    deleteFail: 'Delete failed',
     confirmDelete: 'Are you sure you want to delete?',
     edit: 'Edit',
     download: 'Download',
@@ -107,7 +108,9 @@ const local: App.I18n.Schema = {
     input: 'Input',
     output: 'Output',
     publishSuccess: 'Publish Success',
-    publishFailed: 'Publish Failed'
+    publishFailed: 'Publish Failed',
+    generateSuccess: 'Generate Success',
+    generateFail: 'Generate Fail'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -2127,6 +2130,11 @@ const local: App.I18n.Schema = {
       save_success: 'Saved successfully',
       save_fail: 'Save failed',
       op_fail: 'Operation failed',
+      link_success: 'Link successfully',
+      unlink_success: 'Unlink successfully',
+      generating: 'Generating...',
+      batch_enable_success: 'Batch enable successful',
+      batch_disable_success: 'Batch disable successful',
       please_select_chunks: 'Please select chunks first',
       displayLevel: 'Display',
       action: 'Action',

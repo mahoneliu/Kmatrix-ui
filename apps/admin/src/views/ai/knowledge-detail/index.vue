@@ -200,7 +200,7 @@ onMounted(() => {
 <template>
   <div class="h-0 flex flex-col flex-1">
     <!-- 头部 -->
-    <NCard :bordered="false" size="small" class="mb-2 card-wrapper">
+    <div :bordered="false" size="small" class="mb-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
@@ -256,7 +256,7 @@ onMounted(() => {
           </NButton>
         </div>
       </div>
-    </NCard>
+    </div>
 
     <!-- 主内容区 -->
     <div class="h-full min-h-0 flex flex-1 overflow-hidden">

@@ -39,6 +39,7 @@ const local: App.I18n.Schema = {
     save: '保存',
     delete: '删除',
     deleteSuccess: '删除成功',
+    deleteFail: '删除失败',
     confirmDelete: '确认删除吗？',
     edit: '编辑',
     download: '下载',
@@ -107,7 +108,9 @@ const local: App.I18n.Schema = {
     input: '输入',
     output: '输出',
     publishSuccess: '发布成功',
-    publishFailed: '发布失败'
+    publishFailed: '发布失败',
+    generateSuccess: '生成成功',
+    generateFail: '生成失败'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -2113,6 +2116,11 @@ const local: App.I18n.Schema = {
       save_success: '保存成功',
       save_fail: '保存失败',
       op_fail: '操作失败',
+      link_success: '关联成功',
+      unlink_success: '取消关联成功',
+      generating: '正在生成中...',
+      batch_enable_success: '批量启用成功',
+      batch_disable_success: '批量禁用成功',
       please_select_chunks: '请先选择分块',
       displayLevel: '显示',
       action: '操作',

@@ -365,6 +365,7 @@ declare namespace App {
         save: string;
         delete: string;
         deleteSuccess: string;
+        deleteFail: string;
         confirmDelete: string;
         edit: string;
         download: string;
@@ -434,6 +435,8 @@ declare namespace App {
         output: string;
         publishSuccess: string;
         publishFailed: string;
+        generateSuccess: string;
+        generateFail: string;
       };
       request: {
         logout: string;
@@ -2183,6 +2186,11 @@ declare namespace App {
           save_success: string;
           save_fail: string;
           op_fail: string;
+          link_success: string;
+          unlink_success: string;
+          generating: string;
+          batch_enable_success: string;
+          batch_disable_success: string;
           please_select_chunks: string;
           displayLevel: string;
           action: string;
