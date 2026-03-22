@@ -380,6 +380,7 @@ const local: App.I18n.Schema = {
       hide: 'Hide'
     },
     sys_normal_disable: {
+      name: 'Status',
       normal: 'Normal',
       disable: 'Disable'
     },
@@ -2168,7 +2169,7 @@ const local: App.I18n.Schema = {
       node_count: '{count} nodes',
       ai_thinking: 'AI is thinking...',
       ai_responding: 'AI is responding...',
-      input_placeholder: 'Please enter your question, or type @ to invoke a skill... (Enter to send)',
+      input_placeholder: "Please enter your question, or type {'@'} to invoke a skill... (Enter to send)",
       close_execution_details: 'Close execution details',
       open_execution_details: 'Open execution details',
       citation_details: 'Citation Details',
@@ -2741,7 +2742,14 @@ const local: App.I18n.Schema = {
         'When enabled, the request parameters and return results of tool calls will be pushed to the frontend via SSE stream for debugging',
       providedBy: 'Provided by {type}',
       mcpService: 'MCP Service',
-      builtinTool: 'Built-in Tool'
+      builtinTool: 'Built-in Tool',
+      continue_condition: 'Continue Condition',
+      continue_when_all_met: 'Continue loop when all conditions are met, otherwise exit',
+      config_continue_condition: 'Configure Continue Condition',
+      continue_when_met: 'Loop when {varName} {op} {val} is met',
+      loop_when: 'Loop when {summary}',
+      max_iterations_label: 'Max Iterations',
+      exit_or_end: 'Exit / End'
     },
     workflow_public: {
       select_model: 'Select Model',

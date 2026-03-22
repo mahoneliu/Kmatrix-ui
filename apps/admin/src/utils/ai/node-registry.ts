@@ -23,7 +23,8 @@ export const NODE_TYPE_MAPPING: Record<Workflow.NodeType, string> = {
   SQL_EXECUTE: 'SQL_EXECUTE',
   KNOWLEDGE_RETRIEVAL: 'KNOWLEDGE_RETRIEVAL',
   TOOL: 'TOOL',
-  SKILL: 'SKILL'
+  SKILL: 'SKILL',
+  LOOP: 'LOOP'
 };
 
 /**
@@ -42,7 +43,8 @@ export const NODE_TYPE_REVERSE_MAPPING: Record<string, Workflow.NodeType> = {
   SQL_EXECUTE: 'SQL_EXECUTE',
   KNOWLEDGE_RETRIEVAL: 'KNOWLEDGE_RETRIEVAL',
   TOOL: 'TOOL',
-  SKILL: 'SKILL'
+  SKILL: 'SKILL',
+  LOOP: 'LOOP'
 };
 
 /**

@@ -16,7 +16,7 @@ const fallbackConnectionRules: Record<string, string[]> = {
   CONDITION: ['LLM_CHAT', 'FIXED_RESPONSE', 'END', 'DB_QUERY', 'KNOWLEDGE_RETRIEVAL'],
   DB_QUERY: ['END', 'LLM_CHAT', 'CONDITION', 'FIXED_RESPONSE'],
   KNOWLEDGE_RETRIEVAL: ['LLM_CHAT', 'CONDITION', 'END'],
-  FIXED_RESPONSE: ['END'],
+  FIXED_RESPONSE: ['END', 'LOOP'],
   END: [],
   APP_INFO: []
 };

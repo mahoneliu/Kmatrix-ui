@@ -30,7 +30,7 @@ const local = {
       node_count: '{count}个节点',
       ai_thinking: 'AI正在思考...',
       ai_responding: 'AI正在回复...',
-      input_placeholder: '请输入问题，或输入 @ 调用技能... (Enter发送)',
+      input_placeholder: "请输入问题，或输入 {'@'} 调用技能... (Enter发送)",
       close_execution_details: '关闭执行详情',
       open_execution_details: '开启执行详情',
       citation_details: '引用详情',

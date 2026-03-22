@@ -343,6 +343,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
           } else {
             aiMsg.content += msg;
           }
+          // 必须手动触发响应式更新，否则 Vue 不知道数组元素的内部属性变化了
+          triggerRef(messages);
         },
         onNodeStatus: (nodeName: string | null) => {
           currentNodeName.value = nodeName;
@@ -362,8 +364,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
         },
 
         onComplete: data => {
-          if (data.length > 0) {
+          // 只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充
+          // 若已有流式内容（打字机效果），则不覆盖，避免整段文字突然替换已有内容
+          if (data.length > 0 && !aiMsg.content) {
             aiMsg.content = data;
+            triggerRef(messages);
           }
         },
         onDone: data => {

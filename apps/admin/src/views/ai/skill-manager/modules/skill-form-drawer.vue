@@ -248,13 +248,7 @@ async function handleSubmit() {
 
             <NFormItem :label="$t('common.status')" path="status">
               <NSwitch v-model:value="model.status" checked-value="0" unchecked-value="1">
-                <template #checked>
-                  {{
-                    $t('dict.sys_normal_disable.name') === '正常'
-                      ? $t('dict.sys_normal_disable.normal')
-                      : $t('dict.sys_normal_disable.normal')
-                  }}
-                </template>
+                <template #checked>{{ $t('dict.sys_normal_disable.normal') }}</template>
                 <template #unchecked>{{ $t('dict.sys_normal_disable.disable') }}</template>
               </NSwitch>
             </NFormItem>

@@ -376,6 +376,7 @@ const local: App.I18n.Schema = {
       hide: '隐藏'
     },
     sys_normal_disable: {
+      name: '状态',
       normal: '正常',
       disable: '停用'
     },
@@ -2152,7 +2153,7 @@ const local: App.I18n.Schema = {
       node_count: '{count}个节点',
       ai_thinking: 'AI正在思考...',
       ai_responding: 'AI正在回复...',
-      input_placeholder: '请输入问题，或输入 @ 调用技能... (Enter发送)',
+      input_placeholder: "请输入问题，或输入 {'@'} 调用技能... (Enter发送)",
       close_execution_details: '关闭执行详情',
       open_execution_details: '开启执行详情',
       citation_details: '引用详情',
@@ -2718,7 +2719,14 @@ const local: App.I18n.Schema = {
       enable_tool_trace_desc: '开启后，工具调用的请求参数与返回结果将通过 SSE 流式推送到前端，用于调试',
       providedBy: '由 {type} 提供',
       mcpService: 'MCP服务',
-      builtinTool: '内置工具'
+      builtinTool: '内置工具',
+      continue_condition: '继续条件 (Continue Condition)',
+      continue_when_all_met: '所有条件满足时继续循环，否则跳出',
+      config_continue_condition: '配置继续循环条件',
+      continue_when_met: '{varName} {op} {val} 满足时循环',
+      loop_when: '{summary} 时循环',
+      max_iterations_label: '最大迭代次数',
+      exit_or_end: '跳出或结束 (Exit)'
     },
     workflow_public: {
       select_model: '选择模型',

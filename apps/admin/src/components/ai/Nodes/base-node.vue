@@ -502,7 +502,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
       <!-- 输出连接点 (右侧) -->
       <Handle
-        v-if="!['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION'].includes(data.nodeType)"
+        v-if="!['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)"
         :position="Position.Right"
         type="source"
         class="custom-handle custom-handle-source"

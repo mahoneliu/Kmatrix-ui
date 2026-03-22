@@ -19,7 +19,8 @@ declare namespace Workflow {
     | 'SQL_EXECUTE'
     | 'KNOWLEDGE_RETRIEVAL'
     | 'TOOL'
-    | 'SKILL';
+    | 'SKILL'
+    | 'LOOP';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -244,6 +245,16 @@ declare namespace Workflow {
       targetNodeId: string;
     }>;
     defaultTargetNodeId?: string;
+  }
+
+  // ========== 循环节点相关类型 ==========
+
+  /** 循环节点配置 */
+  interface LoopConfig extends NodeConfigFormData {
+    /** 循环条件 (条件组) */
+    condition: ConditionGroup;
+    /** 最大循环迭代次数，默认 50 */
+    maxIterations?: number;
   }
 
   /** 固定回复节点配置 */

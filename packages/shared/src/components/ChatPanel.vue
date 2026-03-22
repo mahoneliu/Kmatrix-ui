@@ -115,6 +115,13 @@ const { messages, isStreaming, streamChat, clearMessages } = useStreamChat({
   }
 });
 
+// 流式输出期间自动滚动到底部
+watch(isStreaming, streaming => {
+  if (!streaming) {
+    scrollToBottom();
+  }
+});
+
 // 输入消息
 const userInput = ref('');
 

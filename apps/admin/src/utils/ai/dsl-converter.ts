@@ -189,6 +189,11 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
  * @returns sourceHandle ID,如果无法反推则返回 null
  */
 function extractSourceHandleFromCondition(condition: string, sourceNode: Workflow.DslNodeConfig): string | null {
+  // 通用处理：如果包含 __HANDLE__: 前缀，直接提取并返回
+  if (condition && condition.startsWith('__HANDLE__:')) {
+    return condition.substring('__HANDLE__:'.length);
+  }
+
   const nodeType = NODE_TYPE_REVERSE_MAPPING[sourceNode.type] || sourceNode.type;
 
   // 意图分类器节点: 从条件反推 sourceHandle

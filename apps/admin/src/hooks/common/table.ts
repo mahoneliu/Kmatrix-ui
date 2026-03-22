@@ -94,7 +94,7 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
     itemCount: 0,
     showSizePicker: true,
     pageSizes: [10, 15, 20, 25, 30],
-    prefix: showTotal.value ? page => $t('datatable.itemCount', { total: page.itemCount }) : undefined,
+    prefix: showTotal.value ? page => $t('datatable.itemCount', { count: page.itemCount }) : undefined,
     onUpdatePage(page) {
       pagination.page = page;
     },

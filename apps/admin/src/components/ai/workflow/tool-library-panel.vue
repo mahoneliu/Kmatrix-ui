@@ -58,14 +58,40 @@ function handleMouseDown(e: MouseEvent, toolRef: any, isMcp: boolean) {
   const nodeLabel = isMcp ? toolRef.serverName : toolRef.toolName;
   const description = toolRef.spec || toolRef.description || '';
 
-  const parsedInputs: any[] = [];
+  // 先解析 initParams（启动参数），再解析 inputSchema（运行参数）；同名 key 以 inputSchema 为准
+  const initParamMap = new Map<string, any>();
+  if (!isMcp && toolRef.initParams) {
+    try {
+      const initArr = typeof toolRef.initParams === 'string' ? JSON.parse(toolRef.initParams) : toolRef.initParams;
+      if (Array.isArray(initArr)) {
+        initArr.forEach((p: any) => {
+          const paramKey = p.name;
+          const entry = {
+            key: paramKey,
+            label: p.displayName || p.name,
+            type: p.type === 'integer' ? 'number' : p.type || 'string',
+            required: Boolean(p.required),
+            defaultValue: p.defaultValue,
+            description: p.description || '',
+            isInitParam: true
+          };
+          initParamMap.set(paramKey, entry);
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 解析 inputSchema，结果保存到 map（覆盖同名 initParam）
+  const inputSchemaMap = new Map<string, any>();
   if (!isMcp && toolRef.inputSchema) {
     try {
       const schema = JSON.parse(toolRef.inputSchema);
       if (schema.properties) {
         Object.keys(schema.properties).forEach(key => {
           const prop = schema.properties[key];
-          parsedInputs.push({
+          inputSchemaMap.set(key, {
             key,
             label: prop.description || key,
             type: prop.type === 'integer' ? 'number' : prop.type || 'string',
@@ -78,6 +104,10 @@ function handleMouseDown(e: MouseEvent, toolRef: any, isMcp: boolean) {
       // ignore
     }
   }
+
+  // 合并：initParams 先放，inputSchema 覆盖同名
+  const mergedMap = new Map<string, any>([...initParamMap, ...inputSchemaMap]);
+  const parsedInputs: any[] = Array.from(mergedMap.values());
 
   const parsedOutputs: any[] = [];
   if (!isMcp && toolRef.outputSchema) {

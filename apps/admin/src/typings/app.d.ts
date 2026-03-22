@@ -2031,6 +2031,13 @@ declare namespace App {
           providedBy: string;
           mcpService: string;
           builtinTool: string;
+          continue_condition: string;
+          continue_when_all_met: string;
+          config_continue_condition: string;
+          continue_when_met: string;
+          loop_when: string;
+          max_iterations_label: string;
+          exit_or_end: string;
         };
         workflow_public: {
           select_model: string;
