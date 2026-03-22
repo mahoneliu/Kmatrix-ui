@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import {
   clearAdminAppHistory,
   clearAdminChatHistory,
+  fetchAdminAvailableSkills,
   fetchAdminChatHistory,
   fetchAdminSessionList,
   updateAdminSessionTitle
@@ -88,6 +89,24 @@ async function loadSessions() {
     }
   } catch {
     // console.error('加载会话列表失败:', error);
+  }
+}
+
+// 可用技能
+const availableSkills = ref<any[]>([]);
+
+async function loadSkills() {
+  try {
+    const { data } = await fetchAdminAvailableSkills();
+    if (data) {
+      availableSkills.value = data.map((s: any) => ({
+        skillId: String(s.skillId),
+        skillName: s.skillName,
+        spec: s.spec
+      }));
+    }
+  } catch {
+    // ignore
   }
 }
 
@@ -249,6 +268,7 @@ onMounted(async () => {
   initSidebarState();
   await getAppInfo();
   await loadSessions();
+  await loadSkills();
   // 加载节点定义
   nodeDefinitionStore.loadNodeDefinitions();
 
@@ -362,6 +382,7 @@ onMounted(async () => {
             :token="route.query.token as string"
             :is-admin="!route.query.token"
             :get-node-definition="nodeDefinitionStore.getNodeDefinition"
+            :available-skills="availableSkills"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
             @session-update="handleSessionUpdate"

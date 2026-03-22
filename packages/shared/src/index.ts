@@ -21,6 +21,7 @@ export {
   updateSessionTitle,
   fetchAppInfoByToken,
   anonymousAuth,
+  fetchAvailableSkills,
   type AnonymousAuthResponse
 } from './api/chat';
 

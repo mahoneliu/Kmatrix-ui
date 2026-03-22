@@ -8,6 +8,7 @@ import {
   clearAppHistory,
   clearChatHistory,
   fetchAppInfoByToken,
+  fetchAvailableSkills,
   fetchChatHistory,
   fetchSessionList
 } from '@km/shared';
@@ -109,6 +110,25 @@ async function loadAppInfo() {
   }
 }
 
+// 可用技能
+const availableSkills = ref<any[]>([]);
+
+async function loadSkills() {
+  if (!embedParams.appToken) return;
+  try {
+    const { data } = await fetchAvailableSkills(embedParams.appToken);
+    if (data) {
+      availableSkills.value = data.map((s: any) => ({
+        skillId: String(s.skillId),
+        skillName: s.skillName,
+        spec: s.spec
+      }));
+    }
+  } catch {
+    // ignore
+  }
+}
+
 // 最大化/全屏
 const isMaximized = ref(false);
 function handleMaximize() {
@@ -197,6 +217,7 @@ function handleNewSession() {
 onMounted(async () => {
   await loadAppInfo();
   await loadSessions();
+  await loadSkills();
 });
 </script>
 
@@ -298,6 +319,7 @@ onMounted(async () => {
             :token="embedParams.appToken"
             :prologue="prologue"
             :has-execution-detail-permission="true"
+            :available-skills="availableSkills"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
           />

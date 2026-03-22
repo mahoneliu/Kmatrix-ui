@@ -61,6 +61,16 @@ export function fetchAdminSessionList(appId: CommonType.IdType) {
 }
 
 /**
+ * 获取可用技能列表
+ */
+export function fetchAdminAvailableSkills() {
+  return request<any[]>({
+    url: `${ADMIN_CHAT_BASE}/skills`,
+    method: 'get'
+  });
+}
+
+/**
  * 更新会话标题
  */
 export function updateAdminSessionTitle(sessionId: CommonType.IdType, title: string) {

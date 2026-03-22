@@ -65,6 +65,17 @@ export function fetchSessionList(appId: CommonType.IdType, token?: string) {
 }
 
 /**
+ * 获取可用技能列表
+ */
+export function fetchAvailableSkills(token?: string) {
+  return request<any[]>({
+    url: `${CHAT_API_BASE}/skills`,
+    method: 'get',
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+
+/**
  * 构建SSE流式对话URL
  */
 export function getStreamChatUrl(baseUrl: string, token: string, clientId: string) {
