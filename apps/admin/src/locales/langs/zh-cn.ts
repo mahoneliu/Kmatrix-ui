@@ -357,7 +357,8 @@ const local: App.I18n.Schema = {
     'ai_document-upload': '文档上传',
     'ai_document-upload_step1': '文档上传-第一步',
     'ai_document-upload_step2': '文档上传-第二步',
-    'ai_skill-manager': '技能管理'
+    'ai_skill-manager': '技能管理',
+    'ai_rate-limit': '频率限制'
   },
   menu: {
     system_tenant: '租户管理',
@@ -1475,6 +1476,44 @@ const local: App.I18n.Schema = {
       },
       prdDep: '生产依赖',
       devDep: '开发依赖'
+    },
+    ai_rateLimit: {
+      title: '频率限制配置',
+      systemDefault: '系统默认配置',
+      userCustom: '用户个别配置',
+      quota: {
+        minute: '按分钟',
+        hour: '按小时',
+        day: '按天',
+        requests: '次数限制',
+        tokens: 'Token 限制'
+      },
+      table: {
+        userId: '用户ID',
+        userName: '用户名',
+        nickName: '昵称',
+        minuteLimit: '分阈值',
+        hourLimit: '小时阈值',
+        dayLimit: '日阈值',
+        action: '操作',
+        hasCustom: '已定义',
+        useDefault: '系统默认'
+      },
+      form: {
+        addUserConfig: '新增用户限流配置',
+        editUserConfig: '编辑用户【{userName}】限流配置',
+        reqPlaceholder: '请求次数 (为空不限)',
+        tokenPlaceholder: 'Tokens数量 (为空不限)',
+        clearCustom: '恢复默认(清空)'
+      },
+      msg: {
+        updateSuccess: '系统默认限流更新成功',
+        userAddSuccess: '用户限流配置已保存',
+        userUpdateSuccess: '用户限流配置更新成功',
+        clearSuccess: '用户限流配置已成功恢复系统默认',
+        clearConfirm: '确定要清除该用户的个别配置，使其恢复为系统默认吗？',
+        exceeded: '您已达到当前对话频率与 Token 限制，请稍后再试。'
+      }
     }
   },
   form: {
@@ -1526,6 +1565,12 @@ const local: App.I18n.Schema = {
     unpin: '取消固定'
   },
   ai: {
+    msg: {
+      rate_limit: {
+        request_exceeded: '请求频率超限，请稍后再试',
+        token_exceeded: 'Token 消耗超限，请稍后再试'
+      }
+    },
     common: {
       provider_type: {
         public: '公有',

@@ -393,8 +393,14 @@ defineExpose({
                   <SvgIcon local-icon="logo" class="text-xl text-primary" />
                 </div>
               </div>
-
-              <div class="max-w-[90%] rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-800">
+              <div
+                class="max-w-[90%] rounded-lg px-4 py-2"
+                :class="
+                  msg.isError
+                    ? 'bg-red-50 text-red-600 dark:bg-red-900/40 dark:text-red-400'
+                    : 'bg-gray-100 dark:bg-gray-800'
+                "
+              >
                 <!-- Thinking区域（可折叠） -->
                 <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
                   <NCollapse

@@ -39,6 +39,7 @@ declare module "@elegant-router/types" {
     "ai_mcp-manager": "/ai/mcp-manager";
     "ai_model-manager": "/ai/model-manager";
     "ai_node-definition": "/ai/node-definition";
+    "ai_rate-limit": "/ai/rate-limit";
     "ai_skill-manager": "/ai/skill-manager";
     "ai_template-editor": "/ai/template-editor";
     "ai_tool-manager": "/ai/tool-manager";
@@ -160,6 +161,7 @@ declare module "@elegant-router/types" {
     | "ai_mcp-manager"
     | "ai_model-manager"
     | "ai_node-definition"
+    | "ai_rate-limit"
     | "ai_skill-manager"
     | "ai_template-editor"
     | "ai_tool-manager"

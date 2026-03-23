@@ -45,6 +45,12 @@ const local = {
       confirm_delete_session: 'Are you sure you want to delete this session?',
       clear_all_sessions: 'Clear all sessions',
       read_stream_error: 'Unable to read response stream'
+    },
+    msg: {
+      rate_limit: {
+        request_exceeded: 'Request rate limit exceeded, please try again later',
+        token_exceeded: 'Token usage limit exceeded, please try again later'
+      }
     }
   }
 };

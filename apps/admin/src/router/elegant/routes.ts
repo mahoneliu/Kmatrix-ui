@@ -191,6 +191,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'ai_rate-limit',
+        path: '/ai/rate-limit',
+        component: 'view.ai_rate-limit',
+        meta: {
+          title: 'ai_rate-limit',
+          i18nKey: 'route.ai_rate-limit'
+        }
+      },
+      {
         name: 'ai_skill-manager',
         path: '/ai/skill-manager',
         component: 'view.ai_skill-manager',

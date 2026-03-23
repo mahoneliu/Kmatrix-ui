@@ -46,6 +46,12 @@ const local = {
       confirm_delete_session: '确认删除该会话吗？',
       clear_all_sessions: '清空所有会话',
       read_stream_error: '无法读取响应流'
+    },
+    msg: {
+      rate_limit: {
+        request_exceeded: '请求频率已达上限，请稍后再试',
+        token_exceeded: 'Token 消耗量已达上限，请稍后再试'
+      }
     }
   }
 };

@@ -36,6 +36,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "ai_mcp-manager": () => import("@/views/ai/mcp-manager/index.vue"),
   "ai_model-manager": () => import("@/views/ai/model-manager/index.vue"),
   "ai_node-definition": () => import("@/views/ai/node-definition/index.vue"),
+  "ai_rate-limit": () => import("@/views/ai/rate-limit/index.vue"),
   "ai_skill-manager": () => import("@/views/ai/skill-manager/index.vue"),
   "ai_template-editor": () => import("@/views/ai/template-editor/index.vue"),
   "ai_tool-manager": () => import("@/views/ai/tool-manager/index.vue"),

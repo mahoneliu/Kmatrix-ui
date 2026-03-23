@@ -1207,6 +1207,44 @@ declare namespace App {
           prdDep: string;
           devDep: string;
         };
+        ai_rateLimit: {
+          title: string;
+          systemDefault: string;
+          userCustom: string;
+          quota: {
+            minute: string;
+            hour: string;
+            day: string;
+            requests: string;
+            tokens: string;
+          };
+          table: {
+            userId: string;
+            userName: string;
+            nickName: string;
+            minuteLimit: string;
+            hourLimit: string;
+            dayLimit: string;
+            action: string;
+            hasCustom: string;
+            useDefault: string;
+          };
+          form: {
+            addUserConfig: string;
+            editUserConfig: string;
+            reqPlaceholder: string;
+            tokenPlaceholder: string;
+            clearCustom: string;
+          };
+          msg: {
+            updateSuccess: string;
+            userAddSuccess: string;
+            userUpdateSuccess: string;
+            clearSuccess: string;
+            clearConfirm: string;
+            exceeded: string;
+          };
+        };
       };
       form: {
         required: string;
@@ -1231,6 +1269,12 @@ declare namespace App {
         unpin: string;
       };
       ai: {
+        msg: {
+          rate_limit: {
+            request_exceeded: string;
+            token_exceeded: string;
+          };
+        };
         common: {
           provider_type: {
             public: string;

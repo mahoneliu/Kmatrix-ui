@@ -23,6 +23,8 @@ export interface ChatMessage {
   streaming?: boolean;
   /** 引用元数据列表 (来自知识检索节点) */
   citations?: Citation[];
+  /** 标记当前消息是否为错误消息 */
+  isError?: boolean;
 }
 
 export interface Citation {
@@ -326,7 +328,19 @@ export function useStreamChat(options: UseStreamChatOptions) {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 429) {
+          throw new Error(t('page.ai_rateLimit.msg.exceeded') || '请求过于频繁，请稍后再试');
+        }
+        let errorMsg = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.msg) {
+            errorMsg = errorData.msg;
+          }
+        } catch {
+          // ignore parsing error
+        }
+        throw new Error(errorMsg);
       }
 
       const reader = response.body?.getReader();
@@ -424,8 +438,13 @@ export function useStreamChat(options: UseStreamChatOptions) {
         }
       });
     } catch (error: any) {
-      const errorMsg = error.message || t('common.errorDetail.unknown');
+      let errorMsg = error.message || t('common.errorDetail.unknown');
+      // 尝试翻译后端返回的 Key
+      if (errorMsg.startsWith('ai.msg.rate_limit.')) {
+        errorMsg = t(errorMsg, { 0: '' }).trim(); // 后端可能带参数，这里简单处理
+      }
       aiMsg.content = `${t('ai.chat.chat_failed')}: ${errorMsg}`;
+      aiMsg.isError = true;
       if (onError) {
         onError(errorMsg);
       }

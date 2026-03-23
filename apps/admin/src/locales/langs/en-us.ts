@@ -361,7 +361,8 @@ const local: App.I18n.Schema = {
     'ai_document-upload': 'Document Upload',
     'ai_document-upload_step1': 'Document Upload Step 1',
     'ai_document-upload_step2': 'Document Upload - Step 2',
-    'ai_skill-manager': 'Skill Management'
+    'ai_skill-manager': 'Skill Management',
+    'ai_rate-limit': 'Rate Limit'
   },
   menu: {
     system_tenant: 'Tenant Management',
@@ -1484,6 +1485,44 @@ const local: App.I18n.Schema = {
       },
       prdDep: 'Production Dependency',
       devDep: 'Development Dependency'
+    },
+    ai_rateLimit: {
+      title: 'Rate Limit Configuration',
+      systemDefault: 'System Default Config',
+      userCustom: 'User Custom Config',
+      quota: {
+        minute: 'Per Minute',
+        hour: 'Per Hour',
+        day: 'Per Day',
+        requests: 'Requests Limit',
+        tokens: 'Tokens Limit'
+      },
+      table: {
+        userId: 'User ID',
+        userName: 'User Name',
+        nickName: 'Nick Name',
+        minuteLimit: 'Min Limit',
+        hourLimit: 'Hour Limit',
+        dayLimit: 'Day Limit',
+        action: 'Action',
+        hasCustom: 'Customized',
+        useDefault: 'System Default'
+      },
+      form: {
+        addUserConfig: 'Add User Rate Limit Configuration',
+        editUserConfig: 'Edit Rate Limit for User "{userName}"',
+        reqPlaceholder: 'Req Count (Empty for No Limit)',
+        tokenPlaceholder: 'Tokens Count (Empty for No Limit)',
+        clearCustom: 'Restore Default (Clear)'
+      },
+      msg: {
+        updateSuccess: 'System Default Rate Limit Updated Successfully',
+        userAddSuccess: 'User rate limit configuration saved',
+        userUpdateSuccess: 'User Rate Limit Updated Successfully',
+        clearSuccess: 'User Rate Limit Restored to System Default',
+        clearConfirm: "Are you sure you want to clear this user's custom config and restore system default?",
+        exceeded: 'You have reached the current chat frequency or Token limit, please try again later.'
+      }
     }
   },
   form: {
@@ -1536,6 +1575,12 @@ const local: App.I18n.Schema = {
   },
 
   ai: {
+    msg: {
+      rate_limit: {
+        request_exceeded: 'Request frequency exceeded, please try again later',
+        token_exceeded: 'Token consumption exceeded, please try again later'
+      }
+    },
     common: {
       provider_type: {
         public: 'Public',
