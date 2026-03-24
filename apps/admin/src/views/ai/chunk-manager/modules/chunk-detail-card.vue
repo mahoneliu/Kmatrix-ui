@@ -49,18 +49,22 @@ function handleDropdownSelect(key: string) {
 
         <!-- 悬浮操作栏 -->
         <div class="flex items-center gap-2" @click.stop>
-          <!-- 启用/禁用开关 -->
-          <NSwitch :value="chunk.enabled === 1" size="small" @update:value="enabled => emit('toggleStatus', enabled)" />
-
           <div v-if="chunk" class="flex items-center gap-2">
             <NButton quaternary size="tiny" @click="emit('edit')">
               <template #icon>
-                <icon-meilisearch:edit class="text-base" />
+                <icon-material-symbols-edit-outline class="text-base" />
               </template>
               {{ t('common.edit') }}
             </NButton>
+            <!-- 启用/禁用开关 -->
+            <NSwitch
+              :value="chunk.enabled === 1"
+              size="small"
+              @update:value="enabled => emit('toggleStatus', enabled)"
+            />
+
             <NDropdown
-              trigger="click"
+              trigger="hover"
               :options="[
                 {
                   label: t('ai.chunk_manager.ai_generate_question'),
@@ -68,7 +72,7 @@ function handleDropdownSelect(key: string) {
                   icon: () => h(SvgIcon, { localIcon: 'mdi-magic-staff' })
                 },
                 {
-                  label: t('ai.chunk_manager.batch_delete'),
+                  label: t('ai.chunk_manager.delete'),
                   key: 'delete',
                   icon: () => h(SvgIcon, { localIcon: 'mdi-delete-outline' }),
                   props: { class: 'text-error' }
@@ -76,7 +80,7 @@ function handleDropdownSelect(key: string) {
               ]"
               @select="handleDropdownSelect"
             >
-              <NButton size="small" text>
+              <NButton size="tiny">
                 <template #icon>
                   <icon-material-symbols-more-vert />
                 </template>

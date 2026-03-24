@@ -44,145 +44,155 @@ const searchParams = ref<Api.AI.KB.QuestionQuery>({
   pageSize: 10
 });
 
-const { columns, data, loading, mobilePagination, getData, getDataByPage, scrollX } = useNaivePaginatedTable({
-  api: () => fetchQuestionPage(searchParams.value),
-  transform: response => defaultTransform(response),
-  onPaginationParamsChange: params => {
-    searchParams.value.pageNum = params.page;
-    searchParams.value.pageSize = params.pageSize;
-  },
-  columns: () => [
-    {
-      type: 'selection',
-      align: 'center',
-      width: 48
+const { columns, columnChecks, data, loading, mobilePagination, getData, getDataByPage, scrollX } =
+  useNaivePaginatedTable({
+    api: () => fetchQuestionPage(searchParams.value),
+    transform: response => defaultTransform(response),
+    onPaginationParamsChange: params => {
+      searchParams.value.pageNum = params.page;
+      searchParams.value.pageSize = params.pageSize;
     },
-    {
-      key: 'content',
-      title: () => $t('ai.knowledge_detail.questionTable.content'),
-      align: 'left',
-      minWidth: 250,
-      ellipsis: {
-        tooltip: true
+    columns: () => [
+      {
+        type: 'selection',
+        align: 'center',
+        width: 48
       },
-      render(row) {
-        // 内联编辑模式
-        if (editingId.value === row.id) {
+      {
+        key: 'content',
+        title: () => $t('ai.knowledge_detail.questionTable.content'),
+        align: 'left',
+        minWidth: 250,
+        ellipsis: {
+          tooltip: true
+        },
+        render(row) {
+          // 内联编辑模式
+          if (editingId.value === row.id) {
+            return (
+              <NInput
+                ref={editInputRef}
+                v-model:value={editingContent.value}
+                type="text"
+                size="small"
+                onBlur={() => saveEdit(row)}
+                onKeydown={(e: KeyboardEvent) => {
+                  if (e.key === 'Escape') cancelEdit();
+                  if (e.key === 'Enter') saveEdit(row);
+                }}
+              />
+            );
+          }
+          // 普通显示模式
           return (
-            <NInput
-              ref={editInputRef}
-              v-model:value={editingContent.value}
-              type="text"
-              size="small"
-              onBlur={() => saveEdit(row)}
-              onKeydown={(e: KeyboardEvent) => {
-                if (e.key === 'Escape') cancelEdit();
-                if (e.key === 'Enter') saveEdit(row);
-              }}
-            />
+            <div class="group flex items-center gap-2">
+              <span
+                class="flex-1 cursor-pointer hover:text-primary"
+                onClick={() => handleRowClick(row)}
+                title={$t('ai.knowledge_detail.questionTable.clickToDetail')}
+              >
+                {row.content}
+              </span>
+              <span
+                class="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={() => startEdit(row)}
+              >
+                <SvgIcon local-icon="mdi-pencil" />
+              </span>
+            </div>
           );
         }
-        // 普通显示模式
-        return (
-          <div class="group flex items-center gap-2">
-            <span
-              class="flex-1 cursor-pointer hover:text-primary"
-              onClick={() => handleRowClick(row)}
-              title={$t('ai.knowledge_detail.questionTable.clickToDetail')}
-            >
-              {row.content}
-            </span>
-            <span
-              class="cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={() => startEdit(row)}
-            >
-              <SvgIcon local-icon="mdi-pencil" />
-            </span>
-          </div>
-        );
+      },
+      {
+        key: 'chunkCount',
+        title: () => $t('ai.knowledge_detail.questionTable.chunkCount'),
+        align: 'center',
+        width: 100,
+        render(row) {
+          const count = row.chunkCount || 0;
+          return (
+            <NTag size="small" type={count > 0 ? 'info' : 'default'} bordered={false}>
+              {count}
+            </NTag>
+          );
+        }
+      },
+      {
+        key: 'hitNum',
+        title: () => $t('ai.knowledge_detail.questionTable.hitNum'),
+        align: 'center',
+        width: 100,
+        render(row) {
+          return <span class="text-gray-500">{row.hitNum || 0}</span>;
+        }
+      },
+      {
+        key: 'sourceType',
+        title: () => $t('ai.knowledge_detail.questionTable.sourceType'),
+        align: 'center',
+        width: 100,
+        render(row) {
+          const typeMap: Record<string, { label: string; type: string }> = {
+            MANUAL: { label: $t('ai.knowledge_detail.questionTable.sourceMap.MANUAL'), type: 'success' },
+            LLM: { label: $t('ai.knowledge_detail.questionTable.sourceMap.LLM'), type: 'info' }
+          };
+          const info = typeMap[row.sourceType || ''] || {
+            label: $t('ai.knowledge_detail.questionTable.sourceMap.UNKNOWN'),
+            type: 'default'
+          };
+          return (
+            <NTag size="small" type={info.type as any} bordered={false}>
+              {info.label}
+            </NTag>
+          );
+        }
+      },
+      {
+        key: 'createTime',
+        title: () => $t('ai.knowledge_detail.questionTable.createTime'),
+        align: 'center',
+        width: 160,
+        render(row) {
+          return formatDate(row.createTime);
+        }
+      },
+      {
+        key: 'updateTime',
+        title: () => $t('ai.knowledge_detail.questionTable.updateTime'),
+        align: 'center',
+        width: 160,
+        render(row) {
+          return formatDate(row.updateTime);
+        }
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 80,
+        render(row) {
+          return (
+            <div class="flex items-center gap-2">
+              <ButtonIcon
+                text
+                type="primary"
+                local-icon="mdi-link-variant-plus"
+                tooltipContent={$t('ai.knowledge_detail.questionTable.actionLink')}
+                onClick={() => handleLink(row)}
+              />
+              <ButtonIcon
+                text
+                type="error"
+                local-icon="mdi-delete"
+                tooltipContent={$t('ai.knowledge_detail.questionTable.actionDelete')}
+                onClick={() => handleDelete(row.id)}
+              />
+            </div>
+          );
+        }
       }
-    },
-    {
-      key: 'chunkCount',
-      title: () => $t('ai.knowledge_detail.questionTable.chunkCount'),
-      align: 'center',
-      width: 100,
-      render(row) {
-        const count = row.chunkCount || 0;
-        return (
-          <NTag size="small" type={count > 0 ? 'info' : 'default'} bordered={false}>
-            {count}
-          </NTag>
-        );
-      }
-    },
-    {
-      key: 'sourceType',
-      title: () => $t('ai.knowledge_detail.questionTable.sourceType'),
-      align: 'center',
-      width: 100,
-      render(row) {
-        const typeMap: Record<string, { label: string; type: string }> = {
-          MANUAL: { label: $t('ai.knowledge_detail.questionTable.sourceMap.MANUAL'), type: 'success' },
-          LLM: { label: $t('ai.knowledge_detail.questionTable.sourceMap.LLM'), type: 'info' }
-        };
-        const info = typeMap[row.sourceType || ''] || {
-          label: $t('ai.knowledge_detail.questionTable.sourceMap.UNKNOWN'),
-          type: 'default'
-        };
-        return (
-          <NTag size="small" type={info.type as any} bordered={false}>
-            {info.label}
-          </NTag>
-        );
-      }
-    },
-    {
-      key: 'createTime',
-      title: () => $t('ai.knowledge_detail.questionTable.createTime'),
-      align: 'center',
-      width: 160,
-      render(row) {
-        return formatDate(row.createTime);
-      }
-    },
-    {
-      key: 'updateTime',
-      title: () => $t('ai.knowledge_detail.questionTable.updateTime'),
-      align: 'center',
-      width: 160,
-      render(row) {
-        return formatDate(row.updateTime);
-      }
-    },
-    {
-      key: 'operate',
-      title: $t('common.operate'),
-      align: 'center',
-      width: 80,
-      render(row) {
-        return (
-          <div class="flex items-center gap-2">
-            <ButtonIcon
-              text
-              type="primary"
-              local-icon="mdi-link-variant-plus"
-              tooltipContent={$t('ai.knowledge_detail.questionTable.actionLink')}
-              onClick={() => handleLink(row)}
-            />
-            <ButtonIcon
-              text
-              type="error"
-              local-icon="mdi-delete"
-              tooltipContent={$t('ai.knowledge_detail.questionTable.actionDelete')}
-              onClick={() => handleDelete(row.id)}
-            />
-          </div>
-        );
-      }
-    }
-  ]
-});
+    ]
+  });
 
 const { checkedRowKeys, onBatchDeleted, onDeleted } = useTableOperate(data, 'id', getData);
 
@@ -352,6 +362,7 @@ defineExpose({
     >
       <template #header-extra>
         <TableHeaderOperation
+          v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
           :show-add="false"
@@ -424,8 +435,7 @@ defineExpose({
 
     <QuestionDetailDrawer
       v-model:visible="detailDrawerVisible"
-      v-model:selected-row="selectedQuestionId"
-      :question-id="selectedQuestionId"
+      v-model:question-id="selectedQuestionId"
       :questions="data"
       :kb-id="kbId || undefined"
       :has-next-page="hasNextPage"

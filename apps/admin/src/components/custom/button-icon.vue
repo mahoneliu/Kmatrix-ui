@@ -51,7 +51,11 @@ const DEFAULT_CLASS = 'h-[36px] text-icon';
 const attrs: ButtonProps = useAttrs();
 
 const quaternary = computed(() => {
-  return !(attrs.text || attrs.dashed || attrs.ghost) && props.quaternary;
+  const hasTextProps =
+    (attrs.text !== undefined && attrs.text !== false) ||
+    (attrs.dashed !== undefined && attrs.dashed !== false) ||
+    (attrs.ghost !== undefined && attrs.ghost !== false);
+  return !hasTextProps && props.quaternary;
 });
 
 const handlePositiveClick = () => {

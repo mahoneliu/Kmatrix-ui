@@ -5,7 +5,7 @@ import { useBoolean } from '@sa/hooks';
 import { router } from '@/router';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
-import { $t, setLocale } from '@/locales';
+import { $t, i18n, setLocale } from '@/locales';
 import { setDayjsLocale } from '@/locales/dayjs';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
@@ -63,16 +63,29 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
   ];
 
   function changeLocale(lang: App.I18n.LangType) {
-    locale.value = lang;
     setLocale(lang);
+    locale.value = lang;
     localStg.set('lang', lang);
   }
 
   /** Update document title by locale */
-  function updateDocumentTitleByLocale() {
+  async function updateDocumentTitleByLocale() {
+    await nextTick();
     const { i18nKey, title } = router.currentRoute.value.meta;
 
-    const documentTitle = i18nKey ? $t(i18nKey) : title;
+    let documentTitle = title;
+
+    if (i18nKey) {
+      documentTitle = $t(i18nKey);
+    } else if (title && (title.startsWith('route.') || title.startsWith('menu.'))) {
+      documentTitle = $t(title as App.I18n.I18nKey);
+    } else {
+      const routeI18nKey = `route.${router.currentRoute.value.name as string}`;
+      const hasRouteI18nKey = i18n.global.te(routeI18nKey);
+      if (hasRouteI18nKey) {
+        documentTitle = $t(routeI18nKey as App.I18n.I18nKey);
+      }
+    }
 
     useTitle(documentTitle);
   }

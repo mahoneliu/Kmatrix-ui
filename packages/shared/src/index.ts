@@ -22,6 +22,7 @@ export {
   fetchAppInfoByToken,
   anonymousAuth,
   fetchAvailableSkills,
+  submitChatFeedback,
   type AnonymousAuthResponse
 } from './api/chat';
 

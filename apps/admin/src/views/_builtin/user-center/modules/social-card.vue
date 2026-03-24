@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchSocialAuthBinding, fetchSocialAuthUnbinding, fetchSocialList } from '@/service/api/system';
 import { useAuthStore } from '@/store/modules/auth';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'SocialCard'
@@ -38,7 +39,7 @@ async function unbindSsoAccount(socialId: CommonType.IdType) {
   startBtnLoading();
   const { error } = await fetchSocialAuthUnbinding(socialId);
   if (!error) {
-    window.$message?.success('账户解绑成功');
+    window.$message?.success($t('page.userCenter.social.unbindSuccess'));
     await getSsoUserList();
   }
   endBtnLoading();
@@ -51,7 +52,7 @@ const socialSources: {
   color: string;
   name: string;
 }[] = [
-  { key: 'wechat_open', localIcon: 'ic-outline-wechat', color: '#44b549', name: '微信' },
+  { key: 'wechat_open', localIcon: 'ic-outline-wechat', color: '#44b549', name: $t('page.userCenter.social.wechat') },
   { key: 'topiam', localIcon: 'topiam', color: '', name: 'TopIAM' },
   { key: 'maxkey', localIcon: 'maxkey', color: '', name: 'MaxKey' },
   { key: 'gitee', localIcon: 'simple-icons-gitee', color: '#c71d23', name: 'Gitee' },
@@ -77,7 +78,9 @@ function getSocial(key: string) {
                 <div class="text-16px font-medium">
                   {{ getSocial(source.key)?.nickName }}
                 </div>
-                <div class="mt-4px text-12px text-gray-500">绑定时间：{{ getSocial(source.key)?.createTime }}</div>
+                <div class="mt-4px text-12px text-gray-500">
+                  {{ $t('page.userCenter.social.bindTime') }}：{{ getSocial(source.key)?.createTime }}
+                </div>
               </div>
               <NButton
                 type="error"
@@ -85,7 +88,7 @@ function getSocial(key: string) {
                 :loading="btnLoading"
                 @click="unbindSsoAccount(getSocial(source.key)?.id || '')"
               >
-                解绑
+                {{ $t('page.userCenter.social.unbind') }}
               </NButton>
             </div>
           </template>
@@ -98,7 +101,9 @@ function getSocial(key: string) {
                 :style="{ color: source.color }"
               />
               <div class="text-16px font-medium">{{ source.name }}</div>
-              <NButton type="primary" size="small" @click="bindSsoAccount(source.key)">绑定</NButton>
+              <NButton type="primary" size="small" @click="bindSsoAccount(source.key)">
+                {{ $t('page.userCenter.social.bind') }}
+              </NButton>
             </div>
           </template>
         </NCard>

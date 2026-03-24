@@ -24,7 +24,7 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
   transform: response => defaultTransform(response),
   columns: () => [
     {
-      title: '设备类型',
+      title: $t('page.userCenter.onlineDeviceColumns.deviceType'),
       key: 'deviceType',
       align: 'center',
       minWidth: 120,
@@ -32,10 +32,15 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
         return <DictTag size="small" value={row.deviceType} dict-code="sys_device_type" />;
       }
     },
-    { title: 'IP地址', key: 'ipaddr', align: 'center', minWidth: 120 },
-    { title: '登录地点', key: 'loginLocation', align: 'center', minWidth: 120 },
+    { title: $t('page.userCenter.onlineDeviceColumns.ipaddr'), key: 'ipaddr', align: 'center', minWidth: 120 },
     {
-      title: '浏览器',
+      title: $t('page.userCenter.onlineDeviceColumns.loginLocation'),
+      key: 'loginLocation',
+      align: 'center',
+      minWidth: 120
+    },
+    {
+      title: $t('page.userCenter.onlineDeviceColumns.browser'),
       key: 'browser',
       align: 'center',
       minWidth: 120,
@@ -49,7 +54,7 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
       }
     },
     {
-      title: '操作系统',
+      title: $t('page.userCenter.onlineDeviceColumns.os'),
       key: 'os',
       align: 'center',
       minWidth: 120,
@@ -64,7 +69,7 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
       }
     },
     {
-      title: '登录时间',
+      title: $t('page.userCenter.onlineDeviceColumns.loginTime'),
       key: 'loginTime',
       align: 'center',
       minWidth: 180,
@@ -84,8 +89,8 @@ const { columns, data, getData, loading, scrollX } = useNaivePaginatedTable({
               local-icon="material-symbols-delete-outline"
               loading={btnLoading.value}
               class="text-18px"
-              tooltipContent="强制下线"
-              popconfirmContent="确定强制下线吗？"
+              tooltipContent={$t('page.userCenter.forceLogout')}
+              popconfirmContent={$t('page.userCenter.confirmForceLogout')}
               onPositiveClick={() => forceLogout(row.tokenId)}
             />
           </div>
@@ -100,7 +105,7 @@ async function forceLogout(tokenId: string) {
   startBtnLoading();
   const { error } = await fetchKickOutCurrentDevice(tokenId);
   if (!error) {
-    window.$message?.success('强制下线成功');
+    window.$message?.success($t('page.userCenter.forceLogoutSuccess'));
     await getData();
   }
   endBtnLoading();

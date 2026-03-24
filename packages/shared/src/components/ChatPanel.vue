@@ -74,6 +74,8 @@ const emit = defineEmits<{
   sessionUpdate: [data: any];
   /** 执行详情可见性变更事件 */
   executionVisibilityChange: [visible: boolean];
+  /** 提交评价/反馈事件 */
+  submitFeedback: [message: ChatMessage, status: number];
 }>();
 
 const message = useMessage();
@@ -239,6 +241,11 @@ async function handleCopyMessage(content: string) {
   await copyToClipboard(content, { t });
 }
 
+// 提交反馈
+function handleFeedback(msg: ChatMessage, status: number) {
+  emit('submitFeedback', msg, status);
+}
+
 // 按Enter发送
 function handleKeyDown(e: KeyboardEvent) {
   // 处理技能建议选择
@@ -371,9 +378,9 @@ defineExpose({
                 <template #trigger>
                   <NButton
                     circle
-                    class="opacity-0 transition-opacity group-hover:opacity-100"
+                    class="opacity-0 transition-opacity group-hover:opacity-50"
                     quaternary
-                    size="small"
+                    size="tiny"
                     @click="handleCopyMessage(msg.content)"
                   >
                     <template #icon>
@@ -517,13 +524,49 @@ defineExpose({
                 </div>
               </div>
 
+              <NTooltip v-if="!msg.streaming && !msg.isError">
+                <template #trigger>
+                  <NButton
+                    circle
+                    class="opacity-0 transition-opacity group-hover:opacity-50"
+                    :class="{ 'text-primary': msg.feedbackStatus === 1 }"
+                    quaternary
+                    size="tiny"
+                    @click="handleFeedback(msg, msg.feedbackStatus === 1 ? 0 : 1)"
+                  >
+                    <template #icon>
+                      <SvgIcon :icon="msg.feedbackStatus === 1 ? 'mdi:thumb-up' : 'mdi:thumb-up-outline'" />
+                    </template>
+                  </NButton>
+                </template>
+                {{ msg.feedbackStatus === 1 ? t('ai.chat.cancel_like', '取消点赞') : t('ai.chat.like', '点赞') }}
+              </NTooltip>
+
+              <NTooltip v-if="!msg.streaming && !msg.isError">
+                <template #trigger>
+                  <NButton
+                    circle
+                    class="opacity-0 transition-opacity group-hover:opacity-50"
+                    :class="{ 'text-primary': msg.feedbackStatus === -1 }"
+                    quaternary
+                    size="tiny"
+                    @click="handleFeedback(msg, msg.feedbackStatus === -1 ? 0 : -1)"
+                  >
+                    <template #icon>
+                      <SvgIcon :icon="msg.feedbackStatus === -1 ? 'mdi:thumb-down' : 'mdi:thumb-down-outline'" />
+                    </template>
+                  </NButton>
+                </template>
+                {{ msg.feedbackStatus === -1 ? t('ai.chat.cancel_dislike', '取消踩') : t('ai.chat.dislike', '踩') }}
+              </NTooltip>
+
               <NTooltip>
                 <template #trigger>
                   <NButton
                     circle
-                    class="opacity-0 transition-opacity group-hover:opacity-100"
+                    class="opacity-0 transition-opacity group-hover:opacity-50"
                     quaternary
-                    size="small"
+                    size="tiny"
                     @click="handleCopyMessage(msg.content)"
                   >
                     <template #icon>

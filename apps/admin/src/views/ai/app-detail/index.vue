@@ -69,12 +69,13 @@ const publicAccessEnabled = computed({
 });
 
 // 监控统计时间范围
-const statsPeriod = ref('7d');
-const statsPeriodOptions = [
+const statsPeriod = ref('all');
+const statsPeriodOptions = computed<CommonType.Option<string>[]>(() => [
+  { label: t('ai.app_detail.monitor.period_all'), value: 'all' },
   { label: t('ai.app_detail.monitor.period_7d'), value: '7d' },
   { label: t('ai.app_detail.monitor.period_30d'), value: '30d' },
   { label: t('ai.app_detail.monitor.period_90d'), value: '90d' }
-];
+]);
 
 // 统计数据
 const statsData = ref<Api.AI.Admin.AppStatistics>({
@@ -495,7 +496,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-full flex flex-col overflow-auto p-4">
+  <div class="h-full flex flex-col overflow-auto">
     <!-- 应用信息卡片 -->
     <NCard class="mb-4" size="small">
       <div class="flex gap-8">
@@ -547,18 +548,6 @@ onMounted(async () => {
               {{ $t('ai.app_detail.workflow_settings') }}
             </NButton>
 
-            <!-- 已发布时显示运行下拉菜单 -->
-            <template v-if="isPublished">
-              <NDropdown trigger="hover" :options="runOptions" @select="handleRunSelect">
-                <NButton size="small" type="primary">
-                  <template #icon>
-                    <SvgIcon local-icon="mdi-play" />
-                  </template>
-                  {{ $t('ai.app_detail.run') }}
-                </NButton>
-              </NDropdown>
-            </template>
-
             <!-- 调试按钮 -->
             <NButton v-if="appInfo?.appType === '1'" size="small" @click="handleDebug">
               <template #icon>
@@ -574,6 +563,18 @@ onMounted(async () => {
               </template>
               {{ $t('ai.app_detail.publish_btn') }}
             </NButton>
+
+            <!-- 已发布时显示运行下拉菜单 -->
+            <template v-if="isPublished">
+              <NDropdown trigger="hover" :options="runOptions" @select="handleRunSelect">
+                <NButton size="small" type="primary">
+                  <template #icon>
+                    <SvgIcon local-icon="mdi-play" />
+                  </template>
+                  {{ $t('ai.app_detail.run') }}
+                </NButton>
+              </NDropdown>
+            </template>
 
             <div v-if="isPublished">
               <NSwitch v-model:value="publicAccessEnabled" class="rounded-none" size="large">

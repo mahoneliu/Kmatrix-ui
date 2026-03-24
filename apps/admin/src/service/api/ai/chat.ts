@@ -90,3 +90,14 @@ export function fetchAdminExecutionDetails(sessionId: CommonType.IdType) {
     method: 'get'
   });
 }
+
+/**
+ * 提交聊天消息评价反馈
+ */
+export function submitAdminChatFeedback(messageId: string, status: number) {
+  return request<boolean>({
+    url: `${ADMIN_CHAT_BASE}/feedback`,
+    method: 'post',
+    data: { messageId, feedbackStatus: status }
+  });
+}

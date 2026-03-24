@@ -21,6 +21,8 @@ export interface ChatMessage {
   thinkingExpanded?: boolean;
   /** 是否正在流式输出 */
   streaming?: boolean;
+  /** 评价状态：0=未评价, 1=赞, -1=踩 */
+  feedbackStatus?: number;
   /** 引用元数据列表 (来自知识检索节点) */
   citations?: Citation[];
   /** 标记当前消息是否为错误消息 */
@@ -429,6 +431,12 @@ export function useStreamChat(options: UseStreamChatOptions) {
             // if (retrievalExec?.outputs?.citations) {
             //   aiMsg.citations = retrievalExec.outputs.citations;
             // }
+          }
+
+          // 如果返回了消息 ID，记录到消息对象中，以便后续评价/反馈
+          if (data?.messageId) {
+            aiMsg.id = String(data.messageId);
+            triggerRef(messages);
           }
 
           // 触发完成回调

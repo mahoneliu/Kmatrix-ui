@@ -125,3 +125,15 @@ export function anonymousAuth(appToken: string) {
     data: { appToken }
   });
 }
+
+/**
+ * 提交聊天消息评价反馈
+ */
+export function submitChatFeedback(messageId: string, status: number, token?: string) {
+  return request<boolean>({
+    url: `${CHAT_API_BASE}/feedback`,
+    method: 'post',
+    data: { messageId, feedbackStatus: status },
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}

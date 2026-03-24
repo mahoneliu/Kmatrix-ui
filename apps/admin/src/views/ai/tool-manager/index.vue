@@ -43,7 +43,7 @@ const columns: DataTableColumns<Api.Ai.BuiltinToolVo> = [
   },
   {
     title: () => $t('ai.builtinTool.description'),
-    key: 'description',
+    key: 'spec',
     ellipsis: { tooltip: true }
   },
   {

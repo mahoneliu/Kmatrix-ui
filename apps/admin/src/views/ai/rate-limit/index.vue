@@ -97,9 +97,9 @@ const { columns, data, loading, mobilePagination, getData } = useNaivePaginatedT
     {
       title: t('common.action'),
       key: 'operate',
-      width: 150,
+      width: 180,
       render: (row: Api.Ai.RateLimit.UserInfo) => (
-        <NSpace justify="center">
+        <NSpace justify="end">
           {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
           <NButton size="small" type="primary" ghost onClick={() => handleEdit(row.userId)}>
             {t('common.edit')}

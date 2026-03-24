@@ -570,6 +570,67 @@ const local: App.I18n.Schema = {
         }
       }
     },
+    userCenter: {
+      personalInfo: 'Personal Information',
+      basicInfo: 'Basic Info',
+      changePassword: 'Change Password',
+      thirdPartyApp: 'Third-party App',
+      onlineDevice: 'Online Devices',
+      nickname: 'Nickname',
+      email: 'Email',
+      phoneNumber: 'Phone Number',
+      gender: 'Gender',
+      department: 'Department',
+      role: 'Roles',
+      createTime: 'Creation Date',
+      save: 'Save',
+      nicknamePlaceholder: 'Please enter nickname',
+      emailPlaceholder: 'Please enter email',
+      phonePlaceholder: 'Please enter phone number',
+      genderMale: 'Male',
+      genderFemale: 'Female',
+      oldPassword: 'Old Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm Password',
+      oldPasswordPlaceholder: 'Please enter old password',
+      newPasswordPlaceholder: 'Please enter new password',
+      confirmPasswordPlaceholder: 'Please enter new password again',
+      updateSuccess: 'Update Success',
+      passwordSuccess: 'Password modified successfully',
+      passwordDiff: 'Passwords do not match',
+      rules: {
+        nickname: 'Nickname is required',
+        gender: 'Gender is required',
+        oldPassword: 'Old password is required',
+        newPassword: 'New password is required',
+        confirmPassword: 'Confirm password is required'
+      },
+      onlineDeviceColumns: {
+        deviceType: 'Device Type',
+        ipaddr: 'IP Address',
+        loginLocation: 'Login Location',
+        browser: 'Browser',
+        os: 'OS',
+        loginTime: 'Login Time'
+      },
+      forceLogout: 'Force Logout',
+      confirmForceLogout: 'Are you sure you want to force logout?',
+      forceLogoutSuccess: 'Force logout successfully',
+      social: {
+        wechat: 'WeChat',
+        bindTime: 'Bind Time',
+        unbind: 'Unbind',
+        bind: 'Bind',
+        unbindSuccess: 'Account unbind successfully'
+      },
+      avatar: {
+        changeTitle: 'Change Avatar',
+        uploadTip: 'Please upload image type files (JPG, PNG, etc.)',
+        updateSuccess: 'Avatar updated successfully!',
+        selectImage: 'Select Image',
+        confirmCrop: 'Confirm Crop'
+      }
+    },
     system: {
       client: {
         title: 'Client List',
@@ -1610,6 +1671,7 @@ const local: App.I18n.Schema = {
       info: 'Skill Info',
       add: 'Add Skill',
       edit: 'Edit Skill',
+      listTitle: 'Skill List',
       name: 'Skill Name',
       description: 'Skill Description',
       toolBindings: 'Tool Bindings',
@@ -1935,7 +1997,7 @@ const local: App.I18n.Schema = {
         batchEmbedding: 'Embedding',
         batchGenerateQuestion: 'Generate Questions',
         documentPromptTip:
-          'The {data} in the prompt is a placeholder for the segment content, which will be replaced with the segment content and sent to the AI model during execution;\nThe AI model generates related questions based on the segment content, returning one question per line;\nThe generation quality depends on the selected model and prompt, users can adjust for best results.',
+          'The {code} in the prompt is a placeholder for the segment content, which will be replaced with the segment content and sent to the AI model during execution;\nThe AI model generates related questions based on the segment content, returning one question per line;\nThe generation quality depends on the selected model and prompt, users can adjust for best results.',
         documentPromptText:
           'Based on the following reference text, identify 3-5 potential user questions.\nOnly output questions, one per line. Do not number them.\nReference text:\n{data}'
       },
@@ -2014,6 +2076,7 @@ const local: App.I18n.Schema = {
         content: 'Question Content',
         clickToDetail: 'Click to view details',
         chunkCount: 'Linked Chunks',
+        hitNum: 'Hit Count',
         sourceType: 'Source',
         sourceMap: {
           MANUAL: 'Manual',
@@ -2080,6 +2143,7 @@ const local: App.I18n.Schema = {
           LLM: 'AI Generated'
         },
         sourcePrefix: 'Source: ',
+        hitNumPrefix: 'Hit Count: ',
         createTimePrefix: 'Created: ',
         linkedChunksTitle: 'Linked Chunks ({count})',
         addLink: 'Add Link',
@@ -2167,6 +2231,7 @@ const local: App.I18n.Schema = {
       batch_enable: 'Batch Enable',
       batch_disable: 'Batch Disable',
       batch_delete: 'Batch Delete',
+      delete: 'Delete',
       confirm_delete_chunk: 'Are you sure to delete this chunk?',
       operating: 'Operation in progress, please wait...',
       enabled_success: 'Enabled',
@@ -2191,7 +2256,7 @@ const local: App.I18n.Schema = {
         default_prompt:
           'Please identify 3-5 potential user questions based on the following reference text.\nOutput only the questions, one per line. Do not number them.\nReference text:\n{data}',
         alert_placeholders:
-          'The <code class="rounded bg-gray-100 px-1">{data}</code> in the prompt is a placeholder for the chunk content, which will be replaced by the actual content when sent to the AI model;',
+          'The {code} in the prompt is a placeholder for the chunk content, which will be replaced by the actual content when sent to the AI model;',
         alert_role:
           'The AI model will generate relevant questions based on the chunk content and return them one per line;',
         alert_adjustment:
@@ -2373,7 +2438,8 @@ const local: App.I18n.Schema = {
         satisfaction: 'User Satisfaction',
         period_7d: 'Last 7 Days',
         period_30d: 'Last 30 Days',
-        period_90d: 'Last 90 Days'
+        period_90d: 'Last 90 Days',
+        period_all: 'All Time'
       },
       config: {
         pleaseSelect: 'Please Select',

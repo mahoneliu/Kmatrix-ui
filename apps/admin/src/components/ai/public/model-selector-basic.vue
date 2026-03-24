@@ -126,9 +126,11 @@ watch(
   >
     <NForm :model="formData" label-placement="top" label-width="100">
       <!-- 提示信息 -->
-      <NAlert v-if="showAlert && alertContent" type="info" class="mb-4">
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="text-sm" v-html="alertContent"></div>
+      <NAlert v-if="showAlert && (alertContent || $slots.alert)" type="info" class="mb-4">
+        <slot name="alert">
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div class="text-sm" v-html="alertContent"></div>
+        </slot>
       </NAlert>
 
       <!-- AI 模型 -->

@@ -147,52 +147,68 @@ onMounted(() => {
 <template>
   <div class="h-full flex flex-col">
     <!-- 统计面板 -->
-    <NCard :bordered="false" size="small" class="mb-4 card-wrapper">
+    <div :bordered="false" class="mb-4 pl-4">
       <NGrid :cols="6" responsive="screen" x-gap="16" y-gap="16">
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.knowledgeBase')" :value="statistics.totalKbs">
+          <NStatistic
+            class="text-xs"
+            :label="$t('ai.knowledge_manager.stats.knowledgeBase')"
+            :value="statistics.totalKbs"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-book-open-page-variant" class="text-primary" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.dataset')" :value="statistics.totalDatasets">
+          <NStatistic
+            class="text-xs"
+            :label="$t('ai.knowledge_manager.stats.dataset')"
+            :value="statistics.totalDatasets"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-folder" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.document')" :value="statistics.totalDocuments">
+          <NStatistic
+            class="text-xs"
+            :label="$t('ai.knowledge_manager.stats.document')"
+            :value="statistics.totalDocuments"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-file-document" class="text-success" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.chunk')" :value="statistics.totalChunks">
+          <NStatistic class="text-xs" :label="$t('ai.knowledge_manager.stats.chunk')" :value="statistics.totalChunks">
             <template #prefix>
               <SvgIcon local-icon="mdi-puzzle" class="text-warning" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.processing')" :value="statistics.processingDocs">
+          <NStatistic
+            class="text-xs"
+            :label="$t('ai.knowledge_manager.stats.processing')"
+            :value="statistics.processingDocs"
+          >
             <template #prefix>
               <SvgIcon local-icon="mdi-progress-clock" class="text-info" />
             </template>
           </NStatistic>
         </NGridItem>
         <NGridItem>
-          <NStatistic :label="$t('ai.knowledge_manager.stats.failed')" :value="statistics.errorDocs">
+          <NStatistic class="text-xs" :label="$t('ai.knowledge_manager.stats.failed')" :value="statistics.errorDocs">
             <template #prefix>
               <SvgIcon local-icon="mdi-alert-circle" class="text-error" />
             </template>
           </NStatistic>
         </NGridItem>
       </NGrid>
-    </NCard>
+    </div>
 
     <!-- 搜索区域 -->
     <NCard :bordered="false" size="small" class="mb-4 card-wrapper">

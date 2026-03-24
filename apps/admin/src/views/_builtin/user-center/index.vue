@@ -5,6 +5,7 @@ import { useLoading } from '@sa/hooks';
 import { fetchUpdateUserPassword, fetchUpdateUserProfile } from '@/service/api/system';
 import { useAuthStore } from '@/store/modules/auth';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
 import OnlineTable from './modules/online-table.vue';
 import SocialCard from './modules/social-card.vue';
 import UserAvatar from './modules/user-avatar.vue';
@@ -57,16 +58,16 @@ type ProfileRuleKey = Extract<keyof ProfileModel, 'nickName' | 'email' | 'phonen
 type PasswordRuleKey = Extract<keyof PasswordModel, 'oldPassword' | 'newPassword' | 'confirmPassword'>;
 
 const profileRules: Record<ProfileRuleKey, App.Global.FormRule> = {
-  nickName: createRequiredRule('昵称不能为空'),
+  nickName: createRequiredRule($t('page.userCenter.rules.nickname')),
   email: { ...patternRules.email, required: true },
   phonenumber: { ...patternRules.phone, required: true },
-  sex: createRequiredRule('性别不能为空')
+  sex: createRequiredRule($t('page.userCenter.rules.gender'))
 };
 
 const passwordRules: Record<PasswordRuleKey, App.Global.FormRule> = {
-  oldPassword: createRequiredRule('旧密码不能为空'),
-  confirmPassword: createRequiredRule('确认密码不能为空'),
-  newPassword: createRequiredRule('新密码不能为空')
+  oldPassword: createRequiredRule($t('page.userCenter.rules.oldPassword')),
+  confirmPassword: createRequiredRule($t('page.userCenter.rules.confirmPassword')),
+  newPassword: createRequiredRule($t('page.userCenter.rules.newPassword'))
 };
 
 async function updateProfile() {
@@ -74,7 +75,7 @@ async function updateProfile() {
   startBtnLoading();
   const { error } = await fetchUpdateUserProfile(profileModel);
   if (!error) {
-    window.$message?.success('更新成功');
+    window.$message?.success($t('page.userCenter.updateSuccess'));
     // 更新本地用户信息
     if (userInfo.user) {
       Object.assign(userInfo.user, profileModel);
@@ -87,14 +88,14 @@ async function updateProfile() {
 async function updatePassword() {
   await passwordValidate();
   if (passwordModel.newPassword !== passwordModel.confirmPassword) {
-    window.$message?.error('两次输入的密码不一致');
+    window.$message?.error($t('page.userCenter.passwordDiff'));
     return;
   }
   startBtnLoading();
   const { oldPassword, newPassword } = passwordModel;
   const { error } = await fetchUpdateUserPassword({ oldPassword, newPassword });
   if (!error) {
-    window.$message?.success('密码修改成功');
+    window.$message?.success($t('page.userCenter.passwordSuccess'));
     // 清空表单
     Object.assign(passwordModel, createDefaultPasswordModel());
     passwordRestoreValidation();
@@ -106,7 +107,7 @@ async function updatePassword() {
 <template>
   <div class="flex gap-16px">
     <!-- 个人信息卡片 -->
-    <NCard title="个人信息" class="w-360px shadow-sm">
+    <NCard :title="$t('page.userCenter.personalInfo')" class="w-360px shadow-sm">
       <div class="flex-x-center flex-wrap gap-24px">
         <div class="flex-center flex-col gap-16px">
           <div class="relative">
@@ -116,23 +117,23 @@ async function updatePassword() {
           <div class="text-14px text-gray-500">{{ userInfo.user?.userName }}</div>
         </div>
         <NDescriptions :column="1" label-placement="left" label-width="120px">
-          <NDescriptionsItem label="手机号码">
+          <NDescriptionsItem :label="$t('page.userCenter.phoneNumber')">
             <div class="text-14px">{{ userInfo.user?.phonenumber }}</div>
           </NDescriptionsItem>
-          <NDescriptionsItem label="用户邮箱">
+          <NDescriptionsItem :label="$t('page.userCenter.email')">
             <div class="text-14px">{{ userInfo.user?.email }}</div>
           </NDescriptionsItem>
-          <NDescriptionsItem label="所属部门">
+          <NDescriptionsItem :label="$t('page.userCenter.department')">
             <div class="text-14px">{{ userInfo.user?.deptName }}</div>
           </NDescriptionsItem>
-          <NDescriptionsItem label="所属角色">
+          <NDescriptionsItem :label="$t('page.userCenter.role')">
             <NSpace>
               <NTag v-for="role in userInfo.user?.roles" :key="role.roleId" type="primary" size="small">
                 {{ role.roleName }}
               </NTag>
             </NSpace>
           </NDescriptionsItem>
-          <NDescriptionsItem label="创建日期">
+          <NDescriptionsItem :label="$t('page.userCenter.createTime')">
             <div class="text-14px">{{ userInfo.user?.createTime }}</div>
           </NDescriptionsItem>
         </NDescriptions>
@@ -140,9 +141,9 @@ async function updatePassword() {
     </NCard>
 
     <!-- 基本资料卡片 -->
-    <NCard title="基本资料" class="w-full overflow-x-auto shadow-sm">
+    <NCard :title="$t('page.userCenter.personalInfo')" class="w-full overflow-x-auto shadow-sm">
       <NTabs type="line" animated class="h-full" s>
-        <NTabPane name="userInfo" tab="基本资料">
+        <NTabPane name="userInfo" :tab="$t('page.userCenter.basicInfo')">
           <NForm
             ref="profileFormRef"
             :model="profileModel"
@@ -151,19 +152,19 @@ async function updatePassword() {
             label-width="100px"
             class="mt-16px max-w-520px"
           >
-            <NFormItem label="昵称" path="nickName">
-              <NInput v-model:value="profileModel.nickName" placeholder="请输入昵称" />
+            <NFormItem :label="$t('page.userCenter.nickname')" path="nickName">
+              <NInput v-model:value="profileModel.nickName" :placeholder="$t('page.userCenter.nicknamePlaceholder')" />
             </NFormItem>
-            <NFormItem label="邮箱" path="email">
-              <NInput v-model:value="profileModel.email" placeholder="请输入邮箱" />
+            <NFormItem :label="$t('page.userCenter.email')" path="email">
+              <NInput v-model:value="profileModel.email" :placeholder="$t('page.userCenter.emailPlaceholder')" />
             </NFormItem>
-            <NFormItem label="手机号" path="phonenumber">
-              <NInput v-model:value="profileModel.phonenumber" placeholder="请输入手机号" />
+            <NFormItem :label="$t('page.userCenter.phoneNumber')" path="phonenumber">
+              <NInput v-model:value="profileModel.phonenumber" :placeholder="$t('page.userCenter.phonePlaceholder')" />
             </NFormItem>
-            <NFormItem label="性别" path="sex">
+            <NFormItem :label="$t('page.userCenter.gender')" path="sex">
               <NRadioGroup v-model:value="profileModel.sex">
-                <NRadio value="0">男</NRadio>
-                <NRadio value="1">女</NRadio>
+                <NRadio value="0">{{ $t('page.userCenter.genderMale') }}</NRadio>
+                <NRadio value="1">{{ $t('page.userCenter.genderFemale') }}</NRadio>
               </NRadioGroup>
             </NFormItem>
             <NFormItem class="flex items-center justify-end">
@@ -171,12 +172,12 @@ async function updatePassword() {
                 <template #icon>
                   <SvgIcon local-icon="ic-outline-save" class="size-24px" />
                 </template>
-                保存
+                {{ $t('page.userCenter.save') }}
               </NButton>
             </NFormItem>
           </NForm>
         </NTabPane>
-        <NTabPane name="updatePwd" tab="修改密码">
+        <NTabPane name="updatePwd" :tab="$t('page.userCenter.changePassword')">
           <NForm
             ref="passwordFormRef"
             :model="passwordModel"
@@ -185,27 +186,27 @@ async function updatePassword() {
             label-width="100px"
             class="mt-16px max-w-520px"
           >
-            <NFormItem label="旧密码" path="oldPassword">
+            <NFormItem :label="$t('page.userCenter.oldPassword')" path="oldPassword">
               <NInput
                 v-model:value="passwordModel.oldPassword"
                 type="password"
-                placeholder="请输入旧密码"
+                :placeholder="$t('page.userCenter.oldPasswordPlaceholder')"
                 show-password-on="click"
               />
             </NFormItem>
-            <NFormItem label="新密码" path="newPassword">
+            <NFormItem :label="$t('page.userCenter.newPassword')" path="newPassword">
               <NInput
                 v-model:value="passwordModel.newPassword"
                 type="password"
-                placeholder="请输入新密码"
+                :placeholder="$t('page.userCenter.newPasswordPlaceholder')"
                 show-password-on="click"
               />
             </NFormItem>
-            <NFormItem label="确认密码" path="confirmPassword">
+            <NFormItem :label="$t('page.userCenter.confirmPassword')" path="confirmPassword">
               <NInput
                 v-model:value="passwordModel.confirmPassword"
                 type="password"
-                placeholder="请再次输入新密码"
+                :placeholder="$t('page.userCenter.confirmPasswordPlaceholder')"
                 show-password-on="click"
               />
             </NFormItem>
@@ -214,15 +215,15 @@ async function updatePassword() {
                 <template #icon>
                   <SvgIcon local-icon="ic-outline-key" class="size-24px" />
                 </template>
-                修改密码
+                {{ $t('page.userCenter.changePassword') }}
               </NButton>
             </NFormItem>
           </NForm>
         </NTabPane>
-        <NTabPane name="social" tab="第三方应用">
+        <NTabPane name="social" :tab="$t('page.userCenter.thirdPartyApp')">
           <SocialCard />
         </NTabPane>
-        <NTabPane name="online" tab="在线设备">
+        <NTabPane name="online" :tab="$t('page.userCenter.onlineDevice')">
           <div class="h-full">
             <OnlineTable />
           </div>

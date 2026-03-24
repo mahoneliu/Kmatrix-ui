@@ -266,23 +266,25 @@ onMounted(() => {
                 {{ item.description || $t('ai.app_manager.no_description') }}
               </div>
 
-              <!-- 左下角状态和时间 -->
-              <div class="flex items-center gap-2 text-xs">
-                <div class="flex items-center gap-1">
-                  <SvgIcon
-                    :icon="item.status === '1' ? 'carbon:checkmark-filled' : 'carbon:error-outline'"
-                    :class="item.status === '1' ? 'text-success' : ''"
-                  />
-                  <span :class="item.status === '1' ? 'text-success' : 'text-warning'">
-                    {{
-                      item.status === '1'
-                        ? $t('ai.app_manager.status_published')
-                        : $t('ai.app_manager.status_unpublished')
-                    }}
-                  </span>
+              <!-- 底部状态、时间和反馈信息 -->
+              <div class="mt-auto flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-1">
+                    <SvgIcon
+                      :icon="item.status === '1' ? 'carbon:checkmark-filled' : 'carbon:error-outline'"
+                      :class="item.status === '1' ? 'text-success' : ''"
+                    />
+                    <span :class="item.status === '1' ? 'text-success' : 'text-warning'">
+                      {{
+                        item.status === '1'
+                          ? $t('ai.app_manager.status_published')
+                          : $t('ai.app_manager.status_unpublished')
+                      }}
+                    </span>
+                  </div>
+                  <span class="text-gray-400">|</span>
+                  <span class="text-gray-400">{{ formatDate(item.updateTime || item.createTime) }}</span>
                 </div>
-                <span class="text-gray-400">|</span>
-                <span class="text-gray-400">{{ formatDate(item.updateTime || item.createTime) }}</span>
               </div>
 
               <!-- 右下角操作菜单 -->

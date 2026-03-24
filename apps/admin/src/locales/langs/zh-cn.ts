@@ -566,6 +566,67 @@ const local: App.I18n.Schema = {
         }
       }
     },
+    userCenter: {
+      personalInfo: '个人信息',
+      basicInfo: '基本资料',
+      changePassword: '修改密码',
+      thirdPartyApp: '第三方应用',
+      onlineDevice: '在线设备',
+      nickname: '昵称',
+      email: '邮箱',
+      phoneNumber: '手机号码',
+      gender: '性别',
+      department: '所属部门',
+      role: '所属角色',
+      createTime: '创建日期',
+      save: '保存',
+      nicknamePlaceholder: '请输入昵称',
+      emailPlaceholder: '请输入邮箱',
+      phonePlaceholder: '请输入手机号',
+      genderMale: '男',
+      genderFemale: '女',
+      oldPassword: '旧密码',
+      newPassword: '新密码',
+      confirmPassword: '确认密码',
+      oldPasswordPlaceholder: '请输入旧密码',
+      newPasswordPlaceholder: '请输入新密码',
+      confirmPasswordPlaceholder: '请再次输入新密码',
+      updateSuccess: '更新成功',
+      passwordSuccess: '密码修改成功',
+      passwordDiff: '两次输入的密码不一致',
+      rules: {
+        nickname: '昵称不能为空',
+        gender: '性别不能为空',
+        oldPassword: '旧密码不能为空',
+        newPassword: '新密码不能为空',
+        confirmPassword: '确认密码不能为空'
+      },
+      onlineDeviceColumns: {
+        deviceType: '设备类型',
+        ipaddr: 'IP地址',
+        loginLocation: '登录地点',
+        browser: '浏览器',
+        os: '操作系统',
+        loginTime: '登录时间'
+      },
+      forceLogout: '强制下线',
+      confirmForceLogout: '确定强制下线吗？',
+      forceLogoutSuccess: '强制下线成功',
+      social: {
+        wechat: '微信',
+        bindTime: '绑定时间',
+        unbind: '解绑',
+        bind: '绑定',
+        unbindSuccess: '账户解绑成功'
+      },
+      avatar: {
+        changeTitle: '修改头像',
+        uploadTip: '请上传图片类型文件（JPG、PNG等）',
+        updateSuccess: '头像更新成功！',
+        selectImage: '选择图片',
+        confirmCrop: '确认裁剪'
+      }
+    },
     system: {
       client: {
         title: '客户端列表',
@@ -1600,6 +1661,7 @@ const local: App.I18n.Schema = {
       info: '技能信息',
       add: '新增技能',
       edit: '编辑技能',
+      listTitle: '技能列表',
       name: '技能名称',
       description: '技能描述',
       toolBindings: '工具绑定',
@@ -2001,6 +2063,7 @@ const local: App.I18n.Schema = {
         content: '问题内容',
         clickToDetail: '点击查看详情',
         chunkCount: '关联分段',
+        hitNum: '命中次数',
         sourceType: '来源',
         sourceMap: {
           MANUAL: '手动添加',
@@ -2066,6 +2129,7 @@ const local: App.I18n.Schema = {
           LLM: 'AI生成'
         },
         sourcePrefix: '来源: ',
+        hitNumPrefix: '命中次数: ',
         createTimePrefix: '创建时间: ',
         linkedChunksTitle: '关联分段 ({count}个)',
         addLink: '添加关联',
@@ -2153,6 +2217,7 @@ const local: App.I18n.Schema = {
       batch_enable: '批量启用',
       batch_disable: '批量禁用',
       batch_delete: '批量删除',
+      delete: '删除',
       confirm_delete_chunk: '确定要删除该分块吗？',
       operating: '操作进行中，请稍候...',
       enabled_success: '已启用',
@@ -2176,8 +2241,7 @@ const local: App.I18n.Schema = {
       model_select_modal: {
         default_prompt:
           '请根据以下参考文本，识别 3-5 个潜在的用户问题。\n仅输出问题，每行一个。不要对它们进行编号。\n参考文本：\n{data}',
-        alert_placeholders:
-          '提示词中的<code class="rounded bg-gray-100 px-1">{data}</code>为分段内容的占位符,执行时替换为分段内容发送给 AI 模型;',
+        alert_placeholders: '提示词中的{code}为分段内容的占位符,执行时替换为分段内容发送给 AI 模型;',
         alert_role: 'AI 模型会根据分段内容生成相关问题,每行一个问题返回;',
         alert_adjustment: '生成效果依赖于所选模型和提示词,用户可自行调整至最佳效果。'
       }
@@ -2355,7 +2419,8 @@ const local: App.I18n.Schema = {
         satisfaction: '用户满意度',
         period_7d: '过去7天',
         period_30d: '过去30天',
-        period_90d: '过去90天'
+        period_90d: '过去90天',
+        period_all: '全时段'
       },
       config: {
         pleaseSelect: '请先选择',

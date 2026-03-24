@@ -30,7 +30,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
-  (e: 'update:selected-row', value: CommonType.IdType | null): void;
+  (e: 'update:question-id', value: CommonType.IdType | null): void;
   (e: 'refresh'): void;
   (e: 'loadNextPage'): void;
 }
@@ -253,7 +253,7 @@ function handlePrevious() {
   if (!canPrevious.value || props.loading) return;
   const prevQuestion = props.questions[currentIndex.value - 1];
   if (prevQuestion) {
-    emit('update:selected-row', prevQuestion.id);
+    emit('update:question-id', prevQuestion.id);
   }
 }
 
@@ -269,7 +269,7 @@ function handleNext() {
 
   const nextQuestion = props.questions[currentIndex.value + 1];
   if (nextQuestion) {
-    emit('update:selected-row', nextQuestion.id);
+    emit('update:question-id', nextQuestion.id);
   }
 }
 
@@ -333,6 +333,9 @@ watch(
                 ? $t('ai.knowledge_detail.questionDetailDrawer.sourceMap.MANUAL')
                 : $t('ai.knowledge_detail.questionDetailDrawer.sourceMap.LLM')
             }}
+          </span>
+          <span>
+            {{ $t('ai.knowledge_detail.questionDetailDrawer.hitNumPrefix') }}{{ currentQuestion.hitNum || 0 }}
           </span>
           <span>
             {{ $t('ai.knowledge_detail.questionDetailDrawer.createTimePrefix') }}{{ currentQuestion.createTime }}

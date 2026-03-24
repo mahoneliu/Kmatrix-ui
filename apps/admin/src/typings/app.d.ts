@@ -679,6 +679,67 @@ declare namespace App {
             sunday: string;
           };
         };
+        userCenter: {
+          personalInfo: string;
+          basicInfo: string;
+          changePassword: string;
+          thirdPartyApp: string;
+          onlineDevice: string;
+          nickname: string;
+          email: string;
+          phoneNumber: string;
+          gender: string;
+          department: string;
+          role: string;
+          createTime: string;
+          save: string;
+          nicknamePlaceholder: string;
+          emailPlaceholder: string;
+          phonePlaceholder: string;
+          genderMale: string;
+          genderFemale: string;
+          oldPassword: string;
+          newPassword: string;
+          confirmPassword: string;
+          oldPasswordPlaceholder: string;
+          newPasswordPlaceholder: string;
+          confirmPasswordPlaceholder: string;
+          updateSuccess: string;
+          passwordSuccess: string;
+          passwordDiff: string;
+          rules: {
+            nickname: string;
+            gender: string;
+            oldPassword: string;
+            newPassword: string;
+            confirmPassword: string;
+          };
+          onlineDeviceColumns: {
+            deviceType: string;
+            ipaddr: string;
+            loginLocation: string;
+            browser: string;
+            os: string;
+            loginTime: string;
+          };
+          forceLogout: string;
+          confirmForceLogout: string;
+          forceLogoutSuccess: string;
+          social: {
+            wechat: string;
+            bindTime: string;
+            unbind: string;
+            bind: string;
+            unbindSuccess: string;
+          };
+          avatar: {
+            changeTitle: string;
+            uploadTip: string;
+            updateSuccess: string;
+            selectImage: string;
+            confirmCrop: string;
+          };
+        };
         system: {
           client: {
             title: string;
@@ -1304,6 +1365,7 @@ declare namespace App {
           info: string;
           add: string;
           edit: string;
+          listTitle: string;
           name: string;
           description: string;
           toolBindings: string;
@@ -1576,6 +1638,7 @@ declare namespace App {
             period_7d: string;
             period_30d: string;
             period_90d: string;
+            period_all: string;
           };
           config: {
             pleaseSelect: string;
@@ -2228,6 +2291,7 @@ declare namespace App {
           batch_enable: string;
           batch_disable: string;
           batch_delete: string;
+          delete: string;
           confirm_delete_chunk: string;
           operating: string;
           enabled_success: string;
@@ -2497,6 +2561,7 @@ declare namespace App {
             content: string;
             clickToDetail: string;
             chunkCount: string;
+            hitNum: string;
             sourceType: string;
             sourceMap: {
               MANUAL: string;
@@ -2562,6 +2627,7 @@ declare namespace App {
               LLM: string;
             };
             sourcePrefix: string;
+            hitNumPrefix: string;
             createTimePrefix: string;
             linkedChunksTitle: string;
             addLink: string;

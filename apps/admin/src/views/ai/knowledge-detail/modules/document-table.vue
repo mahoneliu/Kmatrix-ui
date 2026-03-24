@@ -460,21 +460,6 @@ async function handleConfirmEmbedding(option: 'UNEMBEDDED_ONLY' | 'ALL') {
 // 文档问题生成的默认提示词
 const documentPrompt = $t('ai.knowledge_detail.document.documentPromptText', { data: '{data}' });
 
-// 提示信息内容
-const documentAlertContent = computed(() => {
-  const promptTip = $t('ai.knowledge_detail.document.documentPromptTip', { data: '{data}' });
-  const splits = promptTip.split('\n');
-  return `
-    <div class="mb-2">
-      ${splits[0] || ''}
-    </div>
-    <div class="mb-2">
-      ${splits[1] || ''}
-    </div>
-    <div>${splits[2] || ''}</div>
-  `;
-});
-
 // 打开模型选择器
 function handleBatchGenerateQuestions() {
   modelSelectorVisible.value = true;
@@ -815,14 +800,21 @@ defineExpose({
     <!-- 模型选择器 -->
     <ModelSelectorBasic
       v-model:show="modelSelectorVisible"
-      :title="$t('ai.knowledge_detail.document.batchGenerateQuestion')"
+      :default-max-tokens="2048"
       :default-prompt="documentPrompt"
       :default-temperature="0.7"
-      :default-max-tokens="2048"
-      :alert-content="documentAlertContent"
       :show-alert="true"
+      :title="$t('ai.knowledge_detail.document.actionGenerateQuestion')"
       @confirm="handleConfirmGenerateQuestions"
-    />
+    >
+      <template #alert>
+        <I18nT keypath="ai.knowledge_detail.document.documentPromptTip" tag="div">
+          <template #code>
+            <code class="rounded bg-gray-100 px-1">{data}</code>
+          </template>
+        </I18nT>
+      </template>
+    </ModelSelectorBasic>
 
     <EmbeddingConfirmModal v-model:show="embeddingModalVisible" @confirm="handleConfirmEmbedding" />
     <DocumentStatusModal v-model:visible="statusVisible" :meta="currentStatusMeta" />

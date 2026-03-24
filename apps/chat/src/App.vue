@@ -10,7 +10,8 @@ import {
   fetchAppInfoByToken,
   fetchAvailableSkills,
   fetchChatHistory,
-  fetchSessionList
+  fetchSessionList,
+  submitChatFeedback
 } from '@km/shared';
 import { getColorPalette, getRgb } from '@sa/color';
 import logoImg from '@sa/materials/assets/svg-icon/logo.svg';
@@ -158,7 +159,7 @@ async function loadHistory() {
     const { data } = await fetchChatHistory(sessionId.value, embedParams.appToken);
     if (data) {
       const msgs: ChatMessage[] = data.map((item: any, index: number) => ({
-        id: item.id || String(index),
+        id: item.messageId || String(index),
         role: item.role,
         content: item.content,
         timestamp: item.createTime,
@@ -212,6 +213,17 @@ function handleSessionChange(newSessionId: string) {
 function handleNewSession() {
   sessionId.value = undefined;
   chatPanelRef.value?.clearMessages();
+}
+
+// 提交反馈
+async function handleSubmitFeedback(msg: ChatMessage, status: number) {
+  if (!msg.id || msg.isError) return;
+  try {
+    await submitChatFeedback(msg.id, status, embedParams.appToken);
+    msg.feedbackStatus = status;
+  } catch (err: any) {
+    (window as any).$message?.error?.(err.message || '反馈提交失败');
+  }
 }
 
 onMounted(async () => {
@@ -322,6 +334,7 @@ onMounted(async () => {
             :available-skills="availableSkills"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
+            @submit-feedback="handleSubmitFeedback"
           />
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   fetchAdminAvailableSkills,
   fetchAdminChatHistory,
   fetchAdminSessionList,
+  submitAdminChatFeedback,
   updateAdminSessionTitle
 } from '@/service/api/ai/chat';
 // import { fetchAppInfoByToken } from '@/service/api/ai/chat/chat';
@@ -151,7 +152,7 @@ async function loadHistory() {
         }
 
         return {
-          id: item.id || String(index),
+          id: item.messageId || String(index),
           role: item.role,
           content: item.content,
           timestamp: item.createTime,
@@ -224,6 +225,17 @@ function handleSessionUpdate(data: any) {
 // 处理执行详情可见性变更 (from ChatPanel)
 function handleExecutionVisibilityChange(visible: boolean) {
   currentExecutionVisible.value = visible;
+}
+
+// 处理反馈 (from ChatPanel)
+async function handleSubmitFeedback(msg: ChatMessage, status: number) {
+  if (!msg.id || msg.isError) return;
+  try {
+    await submitAdminChatFeedback(msg.id, status);
+    msg.feedbackStatus = status; // 乐观更新
+  } catch (err: any) {
+    message.error(err.message || t('chat.op_fail'));
+  }
 }
 
 // 新建对话
@@ -387,6 +399,7 @@ onMounted(async () => {
             @session-change="handleSessionChange"
             @session-update="handleSessionUpdate"
             @execution-visibility-change="handleExecutionVisibilityChange"
+            @submit-feedback="handleSubmitFeedback"
           />
         </div>
       </div>
