@@ -20,7 +20,13 @@ import {
   useMessage
 } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
-import { deleteKnowledgeBase, fetchKnowledgeBaseList, fetchKnowledgeBaseStatistics } from '@/service/api/ai/knowledge';
+import {
+  deleteKnowledgeBase,
+  fetchKnowledgeBaseConfig,
+  fetchKnowledgeBaseList,
+  fetchKnowledgeBaseStatistics
+} from '@/service/api/ai/knowledge';
+import { fetchModelList } from '@/service/api/ai/model';
 import { $t } from '@/locales';
 import KnowledgeBaseModal from './modules/kb-modal.vue';
 import RetrievalSandbox from './modules/retrieval-sandbox.vue';
@@ -62,6 +68,34 @@ async function loadStatistics() {
   } catch {
     // ignore
   }
+}
+
+const unifiedEmbeddingModel = ref(true);
+const models = ref<Api.AI.Admin.Model[]>([]);
+
+async function loadModelsAndConfig() {
+  try {
+    const [configRes, modelRes] = await Promise.all([fetchKnowledgeBaseConfig(), fetchModelList({ modelType: '2' })]);
+    if (!configRes.error && configRes.data) {
+      unifiedEmbeddingModel.value = configRes.data.unifiedEmbeddingModel;
+    }
+    if (!modelRes.error && modelRes.data) {
+      models.value = modelRes.data;
+    }
+  } catch (error) {
+    console.error('Failed to load KB config or models', error);
+  }
+}
+
+function getEmbeddingModelDisplay(item: Api.AI.KB.KnowledgeBase) {
+  if (unifiedEmbeddingModel.value) {
+    // If unified mode, theoretically it uses the default embedding model.
+    const defaultModel = models.value.find(m => m.isDefault === 1);
+    return defaultModel ? defaultModel.modelName : '全局统一向量模型';
+  }
+  if (!item.embeddingModelId) return '未绑定模型';
+  const model = models.value.find(m => m.modelId === item.embeddingModelId);
+  return model ? model.modelName : '未知模型';
 }
 
 async function getData() {
@@ -139,6 +173,7 @@ function getStatusColor(status?: string) {
 }
 
 onMounted(() => {
+  loadModelsAndConfig();
   getData();
   loadStatistics();
 });
@@ -307,6 +342,12 @@ onMounted(() => {
                     {{ $t('ai.knowledge_manager.documentCount', { count: item.documentCount || 0 }) }}
                   </span>
                 </div>
+              </div>
+
+              <!-- 绑定的向量模型 -->
+              <div class="mt-2 flex items-center gap-1 text-xs text-info">
+                <SvgIcon local-icon="mdi-brain" />
+                <span>{{ getEmbeddingModelDisplay(item) }}</span>
               </div>
 
               <!-- 时间 -->

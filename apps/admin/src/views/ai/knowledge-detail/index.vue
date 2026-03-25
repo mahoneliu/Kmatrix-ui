@@ -21,9 +21,11 @@ import {
   createOnlineDocument,
   deleteDataset,
   fetchDatasetsByKbId,
+  fetchKnowledgeBaseConfig,
   fetchKnowledgeBaseDetail,
   fetchKnowledgeBaseDetailStatistics
 } from '@/service/api/ai/knowledge';
+import { fetchModelList } from '@/service/api/ai/model';
 import { $t } from '@/locales';
 import RetrievalSandbox from '../knowledge-manager/modules/retrieval-sandbox.vue';
 import DatasetModal from './modules/dataset-modal.vue';
@@ -75,6 +77,33 @@ async function loadStats() {
   } catch {
     // ignore
   }
+}
+
+const unifiedEmbeddingModel = ref(true);
+const models = ref<Api.AI.Admin.Model[]>([]);
+
+async function loadModelsAndConfig() {
+  try {
+    const [configRes, modelRes] = await Promise.all([fetchKnowledgeBaseConfig(), fetchModelList({ modelType: '2' })]);
+    if (!configRes.error && configRes.data) {
+      unifiedEmbeddingModel.value = configRes.data.unifiedEmbeddingModel;
+    }
+    if (!modelRes.error && modelRes.data) {
+      models.value = modelRes.data;
+    }
+  } catch (error) {
+    console.error('Failed to load KB config or models', error);
+  }
+}
+
+function getEmbeddingModelDisplay(kbObj: Api.AI.KB.KnowledgeBase | null) {
+  if (unifiedEmbeddingModel.value) {
+    const defaultModel = models.value.find(m => m.isDefault === 1);
+    return defaultModel ? defaultModel.modelName : '全局统一向量模型';
+  }
+  if (!kbObj || !kbObj.embeddingModelId) return '未绑定模型';
+  const model = models.value.find(m => m.modelId === kbObj.embeddingModelId);
+  return model ? model.modelName : '未知模型';
 }
 
 async function loadDatasets() {
@@ -191,6 +220,7 @@ function getProcessTypeLabel(type?: string) {
 }
 
 onMounted(() => {
+  loadModelsAndConfig();
   loadKnowledgeBase();
   loadStats();
   loadDatasets();
@@ -213,6 +243,19 @@ onMounted(() => {
         </div>
 
         <div class="flex items-center justify-between gap-12 pr-4 text-gray-500">
+          <NButton type="info" ghost @click="sandboxVisible = true">
+            <template #icon>
+              <SvgIcon local-icon="mdi-flask" />
+            </template>
+            {{ $t('ai.knowledge_detail.index.retrievalTest') }}
+          </NButton>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_manager.modal.embeddingModel') }}</span>
+            <div class="max-w-28 flex items-center gap-1 truncate text-sm text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-brain" class="text-info" />
+              <span>{{ getEmbeddingModelDisplay(kb) }}</span>
+            </div>
+          </div>
           <div class="flex flex-col items-center">
             <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.question') }}</span>
             <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
@@ -248,12 +291,6 @@ onMounted(() => {
               <span>{{ stats?.errorDocs || 0 }}</span>
             </div>
           </div>
-          <NButton type="info" ghost @click="sandboxVisible = true">
-            <template #icon>
-              <SvgIcon local-icon="mdi-flask" />
-            </template>
-            {{ $t('ai.knowledge_detail.index.retrievalTest') }}
-          </NButton>
         </div>
       </div>
     </div>

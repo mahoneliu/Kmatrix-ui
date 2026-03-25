@@ -53,32 +53,35 @@ function handleTabChange(value: '0' | '1' | '2') {
 
 <template>
   <div class="h-full flex flex-col gap-2">
-    <NTabs v-model:value="activeTab" class="w-full" type="segment" @update:value="handleTabChange">
-      <NTab name="0" :tab="$t('ai.model_manager.all')">
-        <template #default>
-          <div class="flex items-center gap-2">
-            <SvgIcon local-icon="carbon-grid" class="text-xs" />
-            <span>{{ $t('ai.model_manager.all') }}</span>
-          </div>
-        </template>
-      </NTab>
-      <NTab name="1" :tab="aiProviderTypeRecord['1']">
-        <template #default>
-          <div class="flex items-center gap-2">
-            <SvgIcon local-icon="carbon-cloud" class="text-xs" />
-            <span>{{ aiProviderTypeRecord['1'] }}</span>
-          </div>
-        </template>
-      </NTab>
-      <NTab name="2" :tab="aiProviderTypeRecord['2']">
-        <template #default>
-          <div class="flex items-center gap2">
-            <SvgIcon local-icon="carbon-laptop" class="text-xs" />
-            <span>{{ aiProviderTypeRecord['2'] }}</span>
-          </div>
-        </template>
-      </NTab>
-    </NTabs>
+    <div class="flex items-center gap-2">
+      <NTabs v-model:value="activeTab" class="flex-1" type="segment" @update:value="handleTabChange">
+        <NTab name="0" :tab="$t('ai.model_manager.all')">
+          <template #default>
+            <div class="flex items-center gap-2">
+              <SvgIcon local-icon="carbon-grid" class="text-xs" />
+              <span>{{ $t('ai.model_manager.all') }}</span>
+            </div>
+          </template>
+        </NTab>
+        <NTab name="1" :tab="aiProviderTypeRecord['1']">
+          <template #default>
+            <div class="flex items-center gap-2">
+              <SvgIcon local-icon="carbon-cloud" class="text-xs" />
+              <span>{{ aiProviderTypeRecord['1'] }}</span>
+            </div>
+          </template>
+        </NTab>
+        <NTab name="2" :tab="aiProviderTypeRecord['2']">
+          <template #default>
+            <div class="flex items-center gap2">
+              <SvgIcon local-icon="carbon-laptop" class="text-xs" />
+              <span>{{ aiProviderTypeRecord['2'] }}</span>
+            </div>
+          </template>
+        </NTab>
+      </NTabs>
+      <slot name="extra" />
+    </div>
 
     <NSpin :show="loading" class="flex-1 overflow-hidden py-1" content-class="h-full">
       <NScrollbar class="h-full">

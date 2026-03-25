@@ -1859,7 +1859,11 @@ const local: App.I18n.Schema = {
         nameMaxLength: '名称不能超过50个字符',
         nameRequired: '请输入知识库名称',
         addSuccess: '创建成功',
-        updateSuccess: '更新成功'
+        updateSuccess: '更新成功',
+        embeddingModel: '向量模型',
+        embeddingModelPlaceholder: '请选择向量模型（创建后不可修改）',
+        embeddingModelEditTip: '向量模型一旦绑定不可更改，以保证知识库向量空间的一致性。',
+        embeddingModelRequired: '独立向量模型模式下，请选择知识库向量模型'
       },
       sandbox: {
         title: '检索测试沙箱',
@@ -2495,6 +2499,9 @@ const local: App.I18n.Schema = {
       delete_success: '删除成功',
       copy_success: '复制成功',
       model: '模型',
+      default_model: '兜底模型',
+      set_default_model: '设为兜底模型',
+      set_default_confirm: '确定要将 "{name}" 设为其类型的兜底默认模型？',
       model_name: '模型名称',
       base_model: '基础模型',
       search_placeholder: '请输入关键词',

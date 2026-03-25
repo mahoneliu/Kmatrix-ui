@@ -1872,7 +1872,11 @@ const local: App.I18n.Schema = {
         nameMaxLength: 'Name cannot exceed 50 characters',
         nameRequired: 'Please enter knowledge base name',
         addSuccess: 'Created successfully',
-        updateSuccess: 'Updated successfully'
+        updateSuccess: 'Updated successfully',
+        embeddingModel: 'Embedding Model',
+        embeddingModelPlaceholder: 'Select embedding model (cannot be modified after creation)',
+        embeddingModelEditTip: 'Embedding model cannot be changed once bound to ensure vector space consistency.',
+        embeddingModelRequired: 'Please select an embedding model in Independent Model mode'
       },
       sandbox: {
         title: 'Retrieval Test Sandbox',
@@ -2514,6 +2518,9 @@ const local: App.I18n.Schema = {
       delete_success: 'Deleted successfully',
       copy_success: 'Copied successfully',
       model: 'Model',
+      default_model: 'Default Model',
+      set_default_model: 'Set as Default Model',
+      set_default_confirm: 'Are you sure to set "{name}" as the default model for its type?',
       model_name: 'Model Name',
       base_model: 'Base Model',
       search_placeholder: 'Please enter keyword',

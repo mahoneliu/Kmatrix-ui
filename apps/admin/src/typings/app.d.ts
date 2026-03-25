@@ -1748,6 +1748,9 @@ declare namespace App {
           delete_success: string;
           copy_success: string;
           model: string;
+          default_model: string;
+          set_default_model: string;
+          set_default_confirm: string;
           model_name: string;
           base_model: string;
           search_placeholder: string;
@@ -2360,6 +2363,10 @@ declare namespace App {
             nameRequired: string;
             addSuccess: string;
             updateSuccess: string;
+            embeddingModel: string;
+            embeddingModelPlaceholder: string;
+            embeddingModelEditTip: string;
+            embeddingModelRequired: string;
           };
           sandbox: {
             title: string;

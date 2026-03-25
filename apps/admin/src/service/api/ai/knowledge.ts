@@ -18,6 +18,16 @@ export function fetchKnowledgeBaseList(params?: Api.AI.KB.KnowledgeBaseSearchPar
 }
 
 /**
+ * 获取知识库模块配置
+ */
+export function fetchKnowledgeBaseConfig() {
+  return request<{ unifiedEmbeddingModel: boolean; hasDefaultEmbeddingModel: boolean }>({
+    url: '/ai/kb/config',
+    method: 'get'
+  });
+}
+
+/**
  * 获取知识库统计信息 (全局)
  */
 export function fetchKnowledgeBaseStatistics() {

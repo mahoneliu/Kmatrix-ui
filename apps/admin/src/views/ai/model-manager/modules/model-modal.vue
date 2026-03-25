@@ -35,7 +35,8 @@ const modelForm = reactive<any>({
   config: '{}',
   temperature: 0.7,
   maxTokens: 2048,
-  modelSource: '1'
+  modelSource: '1',
+  isDefault: 0
 });
 
 const rules = computed(() => {
@@ -140,6 +141,11 @@ const modelOptions = computed(() => {
   return [];
 });
 
+// 判断模型是否被锁定（默认向量模型禁止修改关键配置）
+const isModelLocked = computed(() => {
+  return type.value === 'edit' && modelForm.modelType === '2' && modelForm.isDefault === 1;
+});
+
 async function open(modalType: 'add' | 'edit', data?: any) {
   isInitializing.value = true;
   type.value = modalType;
@@ -156,7 +162,8 @@ async function open(modalType: 'add' | 'edit', data?: any) {
       status: '0',
       config: '{}',
       temperature: 0.7,
-      maxTokens: 2048
+      maxTokens: 2048,
+      isDefault: 0
     });
 
     // 单独处理 modelSource 以设置锁定状态
@@ -277,7 +284,7 @@ defineExpose({ open });
           <!-- 基础设置表单 -->
           <div class="min-h-[580px] flex flex-col pr-3 pt-4">
             <NFormItem :label="$t('ai.model_manager.model_source')" path="modelSource">
-              <NRadioGroup v-model:value="modelForm.modelSource" :disabled="isSourceLocked">
+              <NRadioGroup v-model:value="modelForm.modelSource" :disabled="isSourceLocked || isModelLocked">
                 <NRadioButton v-for="option in aiProviderTypeOptions" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </NRadioButton>
@@ -287,6 +294,7 @@ defineExpose({ open });
               <NInput
                 v-model:value="modelForm.modelName"
                 :placeholder="$t('ai.model_manager.model_name_placeholder')"
+                :disabled="isModelLocked"
               />
             </NFormItem>
             <NFormItem :label="$t('ai.model_manager.provider.name')" path="providerId">
@@ -299,10 +307,11 @@ defineExpose({ open });
                 :placeholder="$t('ai.model_manager.select_provider')"
                 filterable
                 clearable
+                :disabled="isModelLocked"
               />
             </NFormItem>
             <NFormItem :label="$t('ai.model_manager.model_type')" path="modelType">
-              <NSelect v-model:value="modelForm.modelType" :options="aiModelTypeOptions" />
+              <NSelect v-model:value="modelForm.modelType" :options="aiModelTypeOptions" :disabled="isModelLocked" />
             </NFormItem>
             <NFormItem :label="$t('ai.model_manager.base_model')" path="modelKey">
               <NSelect
@@ -311,6 +320,7 @@ defineExpose({ open });
                 :placeholder="$t('ai.model_manager.base_model_placeholder')"
                 filterable
                 tag
+                :disabled="isModelLocked"
               />
             </NFormItem>
             <NFormItem label="API Key" path="apiKey">
@@ -320,6 +330,7 @@ defineExpose({ open });
                   :placeholder="$t('ai.model_manager.input_api_key')"
                   show-password-on="click"
                   type="password"
+                  :disabled="isModelLocked"
                 />
                 <div
                   v-if="selectedProvider?.siteUrl && modelForm.modelSource === '1'"
@@ -343,6 +354,7 @@ defineExpose({ open });
             <NFormItem label="API Base" path="apiBase">
               <NInput
                 v-model:value="modelForm.apiBase"
+                :disabled="isModelLocked"
                 :placeholder="
                   modelForm.modelSource === '1'
                     ? $t('ai.model_manager.api_base_placeholder1')
@@ -355,6 +367,18 @@ defineExpose({ open });
                 <template #checked>{{ $t('common.enable') }}</template>
                 <template #unchecked>{{ $t('common.disable') }}</template>
               </NSwitch>
+            </NFormItem>
+            <NFormItem label="设为兜底模型" path="isDefault">
+              <NSwitch v-model:value="modelForm.isDefault" :checked-value="1" :unchecked-value="0">
+                <template #checked>是</template>
+                <template #unchecked>否</template>
+              </NSwitch>
+              <NTooltip v-if="isModelLocked" trigger="hover">
+                <template #trigger>
+                  <span class="i-carbon-information ml-2 cursor-help text-gray-400" />
+                </template>
+                默认向量模型禁止修改关键配置，以保证向量空间一致性。
+              </NTooltip>
             </NFormItem>
           </div>
         </NTabPane>

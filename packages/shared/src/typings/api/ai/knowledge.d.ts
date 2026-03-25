@@ -18,6 +18,8 @@ declare namespace Api.AI.KB {
     datasetCount?: number;
     /** 文档数量 */
     documentCount?: number;
+    /** 绑定的向量模型ID */
+    embeddingModelId?: CommonType.IdType | null;
   }
 
   /** 知识库搜索参数 */

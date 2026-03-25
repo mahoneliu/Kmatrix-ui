@@ -100,5 +100,15 @@ export function copyModel(modelId: CommonType.IdType) {
   });
 }
 
+/**
+ * 设置兆底默认模型
+ */
+export function setDefaultModel(modelId: CommonType.IdType) {
+  return request<boolean>({
+    url: `/ai/model/setDefault/${modelId}`,
+    method: 'post'
+  });
+}
+
 /** 测试模型对话 API URL */
 export const TestModelChatUrl = '/ai/model/chat/test/stream';

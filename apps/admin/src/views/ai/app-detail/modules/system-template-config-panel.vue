@@ -419,7 +419,7 @@ defineExpose({
                 <NSelect
                   v-model:value="formData.modelId"
                   :options="modelOptions"
-                  :placeholder="t('common.pleaseSelect') + t('ai.app_detail.config.inference_model')"
+                  :placeholder="t('ai.app_detail.config.pleaseSelect') + t('ai.app_detail.config.inference_model')"
                   filterable
                   class="w-full"
                 />

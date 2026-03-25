@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { NButton, NForm, NFormItem, NInput, NModal, NSpace, useMessage } from 'naive-ui';
+import { NAlert, NButton, NForm, NFormItem, NInput, NModal, NSelect, NSpace, useMessage } from 'naive-ui';
 import type { FormInst, FormRules } from 'naive-ui';
-import { addKnowledgeBase, updateKnowledgeBase } from '@/service/api/ai/knowledge';
+import { addKnowledgeBase, fetchKnowledgeBaseConfig, updateKnowledgeBase } from '@/service/api/ai/knowledge';
+import { fetchModelList } from '@/service/api/ai/model';
 import { $t } from '@/locales';
 
 interface Props {
@@ -30,13 +31,44 @@ const isEdit = computed(() => Boolean(props.data?.id));
 const formData = ref<Partial<Api.AI.KB.KnowledgeBase>>({
   name: '',
   description: '',
-  permissionLevel: 'PRIVATE'
+  permissionLevel: 'PRIVATE',
+  embeddingModelId: null
 });
+
+const unifiedEmbeddingModel = ref(true);
+const modelOptions = ref<Array<{ label: string; value: number }>>([]);
+
+async function loadConfigAndModels() {
+  try {
+    const [configRes, modelRes] = await Promise.all([fetchKnowledgeBaseConfig(), fetchModelList({ modelType: '2' })]);
+    if (!configRes.error && configRes.data) {
+      unifiedEmbeddingModel.value = configRes.data.unifiedEmbeddingModel;
+    }
+    if (!modelRes.error && modelRes.data) {
+      modelOptions.value = modelRes.data.map(m => ({ label: m.modelName, value: m.modelId as number }));
+    }
+  } catch (error) {
+    console.error('Failed to load KB config or models', error);
+  }
+}
 
 const rules: FormRules = {
   name: [
     { required: true, message: $t('ai.knowledge_manager.modal.nameRequired'), trigger: 'blur' },
     { max: 50, message: $t('ai.knowledge_manager.modal.nameMaxLength'), trigger: 'blur' }
+  ],
+  embeddingModelId: [
+    {
+      required: true,
+      validator: (_rule, value) => {
+        if (!unifiedEmbeddingModel.value && !value) {
+          return new Error($t('ai.knowledge_manager.modal.embeddingModelRequired'));
+        }
+        return true;
+      },
+      trigger: ['blur', 'change'],
+      message: $t('ai.knowledge_manager.modal.embeddingModelRequired')
+    }
   ]
 };
 
@@ -44,18 +76,21 @@ watch(
   () => props.visible,
   val => {
     if (val) {
+      loadConfigAndModels();
       if (props.data) {
         formData.value = {
           id: props.data.id,
           name: props.data.name,
           description: props.data.description,
-          permissionLevel: props.data.permissionLevel || 'PRIVATE'
+          permissionLevel: props.data.permissionLevel || 'PRIVATE',
+          embeddingModelId: (props.data as any).embeddingModelId || null
         };
       } else {
         formData.value = {
           name: '',
           description: '',
-          permissionLevel: 'PRIVATE'
+          permissionLevel: 'PRIVATE',
+          embeddingModelId: null
         };
       }
     }
@@ -116,6 +151,21 @@ function handleCancel() {
           :rows="3"
           maxlength="200"
         />
+      </NFormItem>
+      <NFormItem
+        v-if="!unifiedEmbeddingModel"
+        :label="$t('ai.knowledge_manager.modal.embeddingModel')"
+        path="embeddingModelId"
+      >
+        <NSelect
+          v-model:value="formData.embeddingModelId"
+          :options="modelOptions"
+          :placeholder="$t('ai.knowledge_manager.modal.embeddingModelPlaceholder')"
+          :disabled="isEdit"
+        />
+        <NAlert v-if="isEdit" type="info" :show-icon="false" class="mt-2">
+          {{ $t('ai.knowledge_manager.modal.embeddingModelEditTip') }}
+        </NAlert>
       </NFormItem>
       <!--
  <NFormItem label="权限" path="permissionLevel">

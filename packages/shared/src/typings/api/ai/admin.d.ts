@@ -30,6 +30,7 @@ declare namespace Api.AI.Admin {
     modelSource: '1' | '2'; // 1: 公有模型, 2: 本地模型
     providerIcon?: string;
     remark: string;
+    isDefault?: number;
   }
 
   /** 模型配置 */
