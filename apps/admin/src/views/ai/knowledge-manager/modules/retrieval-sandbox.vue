@@ -539,7 +539,8 @@ function handleReset() {
 </template>
 
 <style scoped>
-.retrieval-highlight :deep(mark) {
+.retrieval-highlight :deep(mark),
+.retrieval-highlight :deep(.keyword) {
   background-color: #fef08a;
   color: inherit;
   padding: 0 2px;

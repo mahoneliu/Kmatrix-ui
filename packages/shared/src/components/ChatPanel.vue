@@ -400,182 +400,191 @@ defineExpose({
                   <SvgIcon local-icon="logo" class="text-xl text-primary" />
                 </div>
               </div>
-              <div
-                class="max-w-[90%] rounded-lg px-4 py-2"
-                :class="
-                  msg.isError
-                    ? 'bg-red-50 text-red-600 dark:bg-red-900/40 dark:text-red-400'
-                    : 'bg-gray-100 dark:bg-gray-800'
-                "
-              >
-                <!-- Thinking区域（可折叠） -->
-                <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
-                  <NCollapse
-                    :key="`thinking-${msg.id}-${msg.thinkingExpanded}`"
-                    :default-expanded-names="msg.thinkingExpanded ? ['thinking'] : []"
-                  >
-                    <NCollapseItem name="thinking">
-                      <template #header>
-                        <span class="text-xs text-gray-500 dark:text-gray-200">
-                          {{ t('ai.chat.thinking_process') }}
-                        </span>
-                      </template>
-                      <template #arrow>
-                        <SvgIcon
-                          local-icon="mdi-play"
-                          class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
-                        />
-                      </template>
-                      <div class="max-h-200px overflow-y-auto text-xs text-gray-500 italic -mt-5 dark:text-gray-200">
-                        <MarkdownRenderer :content="msg.thinkingContent" />
-                      </div>
-                    </NCollapseItem>
-                  </NCollapse>
-                </div>
-
-                <!-- Markdown渲染的回复内容 -->
-                <MarkdownRenderer
-                  :content="msg.content"
-                  :streaming="msg.streaming"
-                  :citations="msg.citations"
-                  @click-citation="handleCitationClick"
-                />
-
-                <!-- 执行详情（调试模式或开启调试开关时显示） -->
+              <div class="max-w-[90%] flex flex-col items-start gap-1">
                 <div
-                  v-if="shouldShowExecutions && msg.executions && msg.executions.length > 0"
-                  class="mt-3 border-t border-gray-200 pt-2 dark:border-gray-700"
+                  class="rounded-lg px-4 py-2"
+                  :class="
+                    msg.isError
+                      ? 'bg-red-50 text-red-600 dark:bg-red-900/40 dark:text-red-400'
+                      : 'bg-gray-100 dark:bg-gray-800'
+                  "
                 >
-                  <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
-                    <SvgIcon local-icon="mdi-clock-outline" />
-                    <span v-if="msg.durationMs">{{ t('ai.chat.time_cost') }} {{ formatDuration(msg.durationMs) }}</span>
-                    <span v-if="msg.tokens && msg.tokens.totalTokens">
-                      · {{ formatTokenCount(msg.tokens.totalTokens) }} tokens
-                    </span>
+                  <!-- Thinking区域（可折叠） -->
+                  <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
+                    <NCollapse
+                      :key="`thinking-${msg.id}-${msg.thinkingExpanded}`"
+                      :default-expanded-names="msg.thinkingExpanded ? ['thinking'] : []"
+                    >
+                      <NCollapseItem name="thinking">
+                        <template #header>
+                          <span class="text-xs text-gray-500 dark:text-gray-200">
+                            {{ t('ai.chat.thinking_process') }}
+                          </span>
+                        </template>
+                        <template #arrow>
+                          <SvgIcon
+                            local-icon="mdi-play"
+                            class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
+                          />
+                        </template>
+                        <div class="max-h-200px overflow-y-auto text-xs text-gray-500 italic -mt-5 dark:text-gray-200">
+                          <MarkdownRenderer :content="msg.thinkingContent" />
+                        </div>
+                      </NCollapseItem>
+                    </NCollapse>
                   </div>
 
-                  <NCollapse>
-                    <NCollapseItem name="execution-details">
-                      <template #header>
-                        <span class="text-xs text-gray-400">
-                          {{ t('ai.chat.execution_details') }} ({{
-                            t('ai.chat.node_count', { count: msg.executions.length })
-                          }})
-                        </span>
-                      </template>
-                      <template #arrow>
-                        <SvgIcon local-icon="mdi-play" class="text-gray-400 workflow-collapse-icon" />
-                      </template>
+                  <!-- Markdown渲染的回复内容 -->
+                  <MarkdownRenderer
+                    :content="msg.content"
+                    :streaming="msg.streaming"
+                    :citations="msg.citations"
+                    @click-citation="handleCitationClick"
+                  />
 
-                      <div class="-ml-11 -mt-2 space-y-1">
-                        <div v-for="(exec, idx) in msg.executions" :key="idx">
-                          <NCollapse>
-                            <NCollapseItem :name="`exec-${idx}`">
-                              <template #header>
-                                <div class="flex items-center gap-2 text-xs">
-                                  <div
-                                    class="h-4 w-4 flex flex-shrink-0 items-center justify-center rounded"
-                                    :style="{
-                                      backgroundColor: getNodeInfo(exec.nodeType).iconBg,
-                                      color: getNodeInfo(exec.nodeType).color
-                                    }"
-                                  >
-                                    <SvgIcon :local-icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
+                  <!-- 执行详情（调试模式或开启调试开关时显示） -->
+                  <div
+                    v-if="shouldShowExecutions && msg.executions && msg.executions.length > 0"
+                    class="mt-3 border-t border-gray-200 pt-2 dark:border-gray-700"
+                  >
+                    <div class="mb-2 flex items-center gap-2 text-xs text-gray-500">
+                      <SvgIcon local-icon="mdi-clock-outline" />
+                      <span v-if="msg.durationMs">
+                        {{ t('ai.chat.time_cost') }} {{ formatDuration(msg.durationMs) }}
+                      </span>
+                      <span v-if="msg.tokens && msg.tokens.totalTokens">
+                        · {{ formatTokenCount(msg.tokens.totalTokens) }} tokens
+                      </span>
+                    </div>
+
+                    <NCollapse>
+                      <NCollapseItem name="execution-details">
+                        <template #header>
+                          <span class="text-xs text-gray-400">
+                            {{ t('ai.chat.execution_details') }} ({{
+                              t('ai.chat.node_count', { count: msg.executions.length })
+                            }})
+                          </span>
+                        </template>
+                        <template #arrow>
+                          <SvgIcon local-icon="mdi-play" class="text-gray-400 workflow-collapse-icon" />
+                        </template>
+
+                        <div class="-ml-11 -mt-2 space-y-1">
+                          <div v-for="(exec, idx) in msg.executions" :key="idx">
+                            <NCollapse>
+                              <NCollapseItem :name="`exec-${idx}`">
+                                <template #header>
+                                  <div class="flex items-center gap-2 text-xs">
+                                    <div
+                                      class="h-4 w-4 flex flex-shrink-0 items-center justify-center rounded"
+                                      :style="{
+                                        backgroundColor: getNodeInfo(exec.nodeType).iconBg,
+                                        color: getNodeInfo(exec.nodeType).color
+                                      }"
+                                    >
+                                      <SvgIcon :local-icon="getNodeInfo(exec.nodeType).icon" class="text-12px" />
+                                    </div>
+                                    <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
+                                    <span v-if="exec.durationMs" class="text-gray-400">
+                                      {{ formatDuration(exec.durationMs) }}
+                                    </span>
+                                    <span
+                                      v-if="exec.tokenUsage && exec.tokenUsage.totalTokenCount"
+                                      class="text-gray-400"
+                                    >
+                                      · {{ formatTokenCount(exec.tokenUsage.totalTokenCount) }} tokens
+                                    </span>
                                   </div>
-                                  <span class="font-300">{{ getNodeDisplayName(exec) }}</span>
-                                  <span v-if="exec.durationMs" class="text-gray-400">
-                                    {{ formatDuration(exec.durationMs) }}
-                                  </span>
-                                  <span v-if="exec.tokenUsage && exec.tokenUsage.totalTokenCount" class="text-gray-400">
-                                    · {{ formatTokenCount(exec.tokenUsage.totalTokenCount) }} tokens
-                                  </span>
-                                </div>
-                              </template>
-                              <template #arrow>
-                                <SvgIcon local-icon="mdi-none" class="text-gray-400 workflow-collapse-icon" />
-                              </template>
+                                </template>
+                                <template #arrow>
+                                  <SvgIcon local-icon="mdi-none" class="text-gray-400 workflow-collapse-icon" />
+                                </template>
 
-                              <!-- 输入输出参数 -->
-                              <div
-                                v-if="exec.inputs || exec.outputs"
-                                class="ml-7 mt-0.5 text-gray-500 -mt-2 space-y-0.5"
-                              >
-                                <details v-if="exec.inputs" class="cursor-pointer" open>
-                                  <summary class="text-xs font-300">{{ t('common.input') }}</summary>
-                                  <pre
-                                    class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
-                                    >{{ JSON.stringify(exec.inputs, null, 2) }}</pre
-                                  >
-                                </details>
-                                <details v-if="exec.outputs" class="cursor-pointer" open>
-                                  <summary class="text-xs font-300">{{ t('common.output') }}</summary>
-                                  <pre
-                                    class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
-                                    >{{ JSON.stringify(exec.outputs, null, 2) }}</pre
-                                  >
-                                </details>
-                              </div>
-                            </NCollapseItem>
-                          </NCollapse>
+                                <!-- 输入输出参数 -->
+                                <div
+                                  v-if="exec.inputs || exec.outputs"
+                                  class="ml-7 mt-0.5 text-gray-500 -mt-2 space-y-0.5"
+                                >
+                                  <details v-if="exec.inputs" class="cursor-pointer" open>
+                                    <summary class="text-xs font-300">{{ t('common.input') }}</summary>
+                                    <pre
+                                      class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
+                                      >{{ JSON.stringify(exec.inputs, null, 2) }}</pre
+                                    >
+                                  </details>
+                                  <details v-if="exec.outputs" class="cursor-pointer" open>
+                                    <summary class="text-xs font-300">{{ t('common.output') }}</summary>
+                                    <pre
+                                      class="mt-0.5 overflow-x-auto rounded bg-gray-50 p-1 text-11px dark:bg-gray-900"
+                                      >{{ JSON.stringify(exec.outputs, null, 2) }}</pre
+                                    >
+                                  </details>
+                                </div>
+                              </NCollapseItem>
+                            </NCollapse>
+                          </div>
                         </div>
-                      </div>
-                    </NCollapseItem>
-                  </NCollapse>
+                      </NCollapseItem>
+                    </NCollapse>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <NTooltip v-if="!msg.streaming && !msg.isError">
+                    <template #trigger>
+                      <NButton
+                        circle
+                        class="opacity-0 transition-opacity group-hover:opacity-50"
+                        :class="{ 'text-primary': msg.feedbackStatus === 1 }"
+                        quaternary
+                        size="tiny"
+                        @click="handleFeedback(msg, msg.feedbackStatus === 1 ? 0 : 1)"
+                      >
+                        <template #icon>
+                          <SvgIcon :icon="msg.feedbackStatus === 1 ? 'mdi:thumb-up' : 'mdi:thumb-up-outline'" />
+                        </template>
+                      </NButton>
+                    </template>
+                    {{ msg.feedbackStatus === 1 ? t('ai.chat.cancel_like', '取消点赞') : t('ai.chat.like', '点赞') }}
+                  </NTooltip>
+
+                  <NTooltip v-if="!msg.streaming && !msg.isError">
+                    <template #trigger>
+                      <NButton
+                        circle
+                        class="opacity-0 transition-opacity group-hover:opacity-50"
+                        :class="{ 'text-primary': msg.feedbackStatus === -1 }"
+                        quaternary
+                        size="tiny"
+                        @click="handleFeedback(msg, msg.feedbackStatus === -1 ? 0 : -1)"
+                      >
+                        <template #icon>
+                          <SvgIcon :icon="msg.feedbackStatus === -1 ? 'mdi:thumb-down' : 'mdi:thumb-down-outline'" />
+                        </template>
+                      </NButton>
+                    </template>
+                    {{ msg.feedbackStatus === -1 ? t('ai.chat.cancel_dislike', '取消踩') : t('ai.chat.dislike', '踩') }}
+                  </NTooltip>
+
+                  <NTooltip>
+                    <template #trigger>
+                      <NButton
+                        circle
+                        class="opacity-0 transition-opacity group-hover:opacity-50"
+                        quaternary
+                        size="tiny"
+                        @click="handleCopyMessage(msg.content)"
+                      >
+                        <template #icon>
+                          <SvgIcon local-icon="carbon-copy" />
+                        </template>
+                      </NButton>
+                    </template>
+                    {{ t('common.copy') }}
+                  </NTooltip>
                 </div>
               </div>
-
-              <NTooltip v-if="!msg.streaming && !msg.isError">
-                <template #trigger>
-                  <NButton
-                    circle
-                    class="opacity-0 transition-opacity group-hover:opacity-50"
-                    :class="{ 'text-primary': msg.feedbackStatus === 1 }"
-                    quaternary
-                    size="tiny"
-                    @click="handleFeedback(msg, msg.feedbackStatus === 1 ? 0 : 1)"
-                  >
-                    <template #icon>
-                      <SvgIcon :icon="msg.feedbackStatus === 1 ? 'mdi:thumb-up' : 'mdi:thumb-up-outline'" />
-                    </template>
-                  </NButton>
-                </template>
-                {{ msg.feedbackStatus === 1 ? t('ai.chat.cancel_like', '取消点赞') : t('ai.chat.like', '点赞') }}
-              </NTooltip>
-
-              <NTooltip v-if="!msg.streaming && !msg.isError">
-                <template #trigger>
-                  <NButton
-                    circle
-                    class="opacity-0 transition-opacity group-hover:opacity-50"
-                    :class="{ 'text-primary': msg.feedbackStatus === -1 }"
-                    quaternary
-                    size="tiny"
-                    @click="handleFeedback(msg, msg.feedbackStatus === -1 ? 0 : -1)"
-                  >
-                    <template #icon>
-                      <SvgIcon :icon="msg.feedbackStatus === -1 ? 'mdi:thumb-down' : 'mdi:thumb-down-outline'" />
-                    </template>
-                  </NButton>
-                </template>
-                {{ msg.feedbackStatus === -1 ? t('ai.chat.cancel_dislike', '取消踩') : t('ai.chat.dislike', '踩') }}
-              </NTooltip>
-
-              <NTooltip>
-                <template #trigger>
-                  <NButton
-                    circle
-                    class="opacity-0 transition-opacity group-hover:opacity-50"
-                    quaternary
-                    size="tiny"
-                    @click="handleCopyMessage(msg.content)"
-                  >
-                    <template #icon>
-                      <SvgIcon local-icon="carbon-copy" />
-                    </template>
-                  </NButton>
-                </template>
-                {{ t('common.copy') }}
-              </NTooltip>
             </div>
           </div>
 
