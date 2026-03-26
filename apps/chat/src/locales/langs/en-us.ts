@@ -16,7 +16,11 @@ const local = {
     delete: 'Delete',
     save: 'Save',
     search: 'Search',
-    edit: 'Edit'
+    edit: 'Edit',
+    all: 'All',
+    none: 'None',
+    createSuccess: 'Create Success',
+    createFailed: 'Create Failed'
   },
   ai: {
     chat: {
@@ -44,7 +48,11 @@ const local = {
       no_sessions: 'No sessions',
       confirm_delete_session: 'Are you sure you want to delete this session?',
       clear_all_sessions: 'Clear all sessions',
-      read_stream_error: 'Unable to read response stream'
+      read_stream_error: 'Unable to read response stream',
+      like: 'Like',
+      dislike: 'Dislike',
+      cancel_like: 'Cancel Like',
+      cancel_dislike: 'Cancel Dislike'
     },
     msg: {
       rate_limit: {

@@ -17,7 +17,11 @@ const local = {
     delete: '删除',
     save: '保存',
     search: '搜索',
-    edit: '编辑'
+    edit: '编辑',
+    all: '全部',
+    none: '无',
+    createSuccess: '创建成功',
+    createFailed: '创建失败'
   },
   ai: {
     chat: {
@@ -45,7 +49,11 @@ const local = {
       no_sessions: '暂无对话',
       confirm_delete_session: '确认删除该会话吗？',
       clear_all_sessions: '清空所有会话',
-      read_stream_error: '无法读取响应流'
+      read_stream_error: '无法读取响应流',
+      like: '点赞',
+      dislike: '踩',
+      cancel_like: '取消点赞',
+      cancel_dislike: '取消踩'
     },
     msg: {
       rate_limit: {

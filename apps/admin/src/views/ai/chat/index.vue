@@ -73,7 +73,7 @@ async function getAppInfo() {
       currentExecutionVisible.value = data.enableExecutionDetail === '1';
     }
   } catch {
-    message.error(t('chat.load_app_info_fail'));
+    message.error(t('ai.chat.load_app_info_fail'));
   }
 }
 
@@ -165,7 +165,7 @@ async function loadHistory() {
       chatPanelRef.value?.setMessages(msgs);
     }
   } catch {
-    message.error(t('chat.load_history_fail'));
+    message.error(t('ai.chat.load_history_fail'));
   }
 }
 
@@ -182,14 +182,14 @@ async function handleDeleteSession(deletedSessionId: string) {
     if (deletedSessionId === 'all') {
       const { error } = await clearAdminAppHistory(appId.value);
       if (error) return;
-      message.success(t('chat.clear_history_success'));
+      message.success(t('ai.chat.clear_history_success'));
       sessionId.value = undefined;
       chatPanelRef.value?.clearMessages();
       router.push({ name: 'ai_chat', query: { appId: appId.value } });
     } else {
       const { error } = await clearAdminChatHistory(deletedSessionId);
       if (error) return;
-      message.success(t('chat.delete_session_success'));
+      message.success(t('ai.chat.delete_session_success'));
 
       if (deletedSessionId === sessionId.value) {
         sessionId.value = undefined;
@@ -199,7 +199,7 @@ async function handleDeleteSession(deletedSessionId: string) {
 
     await loadSessions();
   } catch {
-    message.error(t('chat.op_fail'));
+    message.error(t('ai.chat.op_fail'));
   }
 }
 
@@ -234,7 +234,7 @@ async function handleSubmitFeedback(msg: ChatMessage, status: number) {
     await submitAdminChatFeedback(msg.id, status);
     msg.feedbackStatus = status; // 乐观更新
   } catch (err: any) {
-    message.error(err.message || t('chat.op_fail'));
+    message.error(err.message || t('ai.chat.op_fail'));
   }
 }
 
@@ -324,7 +324,7 @@ onMounted(async () => {
                     </template>
                   </NButton>
                 </template>
-                {{ t('chat.expand_sidebar') }}
+                {{ t('ai.chat.expand_sidebar') }}
               </NTooltip>
             </div>
           </div>
@@ -353,7 +353,7 @@ onMounted(async () => {
                   </template>
                 </NButton>
               </template>
-              {{ t('chat.new_chat') }}
+              {{ t('ai.chat.new_chat') }}
             </NTooltip>
           </div>
         </div>
@@ -366,7 +366,7 @@ onMounted(async () => {
             class="flex flex-shrink-0 items-center justify-between border-b border-gray-200 border-solid px-4 py-2 dark:border-gray-700"
           >
             <div class="flex items-center gap-2">
-              <span class="text-base font-medium">{{ appInfo?.appName || t('chat.chat_title') }}</span>
+              <span class="text-base font-medium">{{ appInfo?.appName || t('ai.chat.chat_title') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <NTooltip>
@@ -377,7 +377,7 @@ onMounted(async () => {
                     </template>
                   </NButton>
                 </template>
-                {{ t('chat.new_chat') }}
+                {{ t('ai.chat.new_chat') }}
               </NTooltip>
             </div>
           </div>

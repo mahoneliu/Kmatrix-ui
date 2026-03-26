@@ -110,7 +110,11 @@ const local: App.I18n.Schema = {
     publishSuccess: '发布成功',
     publishFailed: '发布失败',
     generateSuccess: '生成成功',
-    generateFail: '生成失败'
+    generateFail: '生成失败',
+    all: '全部',
+    none: '无',
+    createSuccess: '创建成功',
+    createFailed: '创建失败'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -450,6 +454,7 @@ const local: App.I18n.Schema = {
       timeout: '超时'
     }
   },
+
   page: {
     login: {
       common: {
@@ -1626,6 +1631,45 @@ const local: App.I18n.Schema = {
     unpin: '取消固定'
   },
   ai: {
+    chat: {
+      new_chat: '新建对话',
+      expand_sidebar: '展开侧边栏',
+      load_app_info_fail: '加载应用信息失败',
+      load_history_fail: '加载历史消息失败',
+      clear_history_success: '已清空所有会话',
+      delete_session_success: '已删除会话',
+      op_fail: '操作失败',
+      chat_title: '对话',
+      chat_failed: '对话失败',
+      thinking_process: '思考过程',
+      time_cost: '耗时',
+      execution_details: '执行详情',
+      node_count: '节点数',
+      ai_thinking: 'AI 思考中...',
+      ai_responding: 'AI 回复中...',
+      input_placeholder: '输入消息, 输入 / 选择变量, Shift+Enter 换行',
+      close_execution_details: '收起执行详情',
+      open_execution_details: '查看执行详情',
+      citation_details: '引用详情',
+      similarity: '相似度',
+      chunk_id: '分段 ID',
+      unknown_document: '未知文档',
+      title_required: '标题不能为空',
+      title_update_success: '更新标题成功',
+      title_update_fail: '更新标题失败',
+      history: '历史记录',
+      clear_all: '清空所有',
+      no_sessions: '暂无会话',
+      recent_sessions_tip: '近期会话',
+      read_stream_error: '读取流失败',
+      debug: '调试',
+      debug_tip1: '调试模式下，你可以实时看到工作流的执行过程和每个节点的输出。',
+      debug_tip2: '调试模式下的对话不会被保存到历史记录中。',
+      like: '点赞',
+      dislike: '点踩',
+      cancel_like: '取消点赞',
+      cancel_dislike: '取消点踩'
+    },
     msg: {
       rate_limit: {
         request_exceeded: '请求频率超限，请稍后再试',
@@ -2249,41 +2293,6 @@ const local: App.I18n.Schema = {
         alert_role: 'AI 模型会根据分段内容生成相关问题,每行一个问题返回;',
         alert_adjustment: '生成效果依赖于所选模型和提示词,用户可自行调整至最佳效果。'
       }
-    },
-    chat: {
-      new_chat: '新建对话',
-      expand_sidebar: '展开侧边栏',
-      load_app_info_fail: '加载应用信息失败',
-      load_history_fail: '加载历史消息失败',
-      clear_history_success: '已清空所有会话',
-      delete_session_success: '已删除会话',
-      op_fail: '操作失败',
-      chat_title: '对话',
-      chat_failed: '对话失败',
-      thinking_process: '思考过程',
-      time_cost: '耗时',
-      execution_details: '执行详情',
-      node_count: '{count}个节点',
-      ai_thinking: 'AI正在思考...',
-      ai_responding: 'AI正在回复...',
-      input_placeholder: "请输入问题，或输入 {'@'} 调用技能... (Enter发送)",
-      close_execution_details: '关闭执行详情',
-      open_execution_details: '开启执行详情',
-      citation_details: '引用详情',
-      similarity: '相似度',
-      chunk_id: '片段ID',
-      unknown_document: '未知文档',
-      title_required: '标题不能为空',
-      title_update_success: '标题已更新',
-      title_update_fail: '更新标题失败',
-      history: '历史记录',
-      clear_all: '清空全部',
-      no_sessions: '暂无对话',
-      recent_sessions_tip: '只显示最近20条会话记录',
-      read_stream_error: '无法读取响应流',
-      debug: '调试',
-      debug_tip1: '调试使用最新未发布版本，临时对话，数据不入库。',
-      debug_tip2: '修改工作流保存即生效，无需重新打开窗口。'
     },
     document_upload: {
       step1: {

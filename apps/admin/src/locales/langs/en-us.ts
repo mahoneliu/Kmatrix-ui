@@ -110,7 +110,11 @@ const local: App.I18n.Schema = {
     publishSuccess: 'Publish Success',
     publishFailed: 'Publish Failed',
     generateSuccess: 'Generate Success',
-    generateFail: 'Generate Fail'
+    generateFail: 'Generate Fail',
+    all: 'All',
+    none: 'None',
+    createSuccess: 'Create Success',
+    createFailed: 'Create Failed'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -454,6 +458,7 @@ const local: App.I18n.Schema = {
       timeout: 'Timeout'
     }
   },
+
   page: {
     login: {
       common: {
@@ -1636,6 +1641,46 @@ const local: App.I18n.Schema = {
   },
 
   ai: {
+    chat: {
+      new_chat: 'New Chat',
+      expand_sidebar: 'Expand Sidebar',
+      load_app_info_fail: 'Failed to load app information',
+      load_history_fail: 'Failed to load history messages',
+      clear_history_success: 'All sessions cleared',
+      delete_session_success: 'Session deleted',
+      op_fail: 'Operation failed',
+      chat_title: 'Chat',
+      chat_failed: 'Chat failed',
+      thinking_process: 'Thinking Process',
+      time_cost: 'Time Cost',
+      execution_details: 'Execution Details',
+      node_count: 'Node Count',
+      ai_thinking: 'AI Thinking...',
+      ai_responding: 'AI Responding...',
+      input_placeholder: 'Input message, type / to select variables, Shift+Enter for new line',
+      close_execution_details: 'Collapse execution details',
+      open_execution_details: 'View execution details',
+      citation_details: 'Citation Details',
+      similarity: 'Similarity',
+      chunk_id: 'Chunk ID',
+      unknown_document: 'Unknown Document',
+      title_required: 'Title required',
+      title_update_success: 'Title updated',
+      title_update_fail: 'Failed to update title',
+      history: 'History',
+      clear_all: 'Clear all',
+      no_sessions: 'No sessions',
+      recent_sessions_tip: 'Recent sessions',
+      read_stream_error: 'Failed to read stream',
+      debug: 'Debug',
+      debug_tip1:
+        'In debug mode, you can see the execution process of the workflow and the output of each node in real-time.',
+      debug_tip2: 'Conversations in debug mode will not be saved to history.',
+      like: 'Like',
+      dislike: 'Dislike',
+      cancel_like: 'Cancel Like',
+      cancel_dislike: 'Cancel Dislike'
+    },
     msg: {
       rate_limit: {
         request_exceeded: 'Request frequency exceeded, please try again later',
@@ -2266,41 +2311,6 @@ const local: App.I18n.Schema = {
         alert_adjustment:
           'The generation quality depends on the selected model and prompt. Users can adjust them for the best results.'
       }
-    },
-    chat: {
-      new_chat: 'New Chat',
-      expand_sidebar: 'Expand Sidebar',
-      load_app_info_fail: 'Failed to load app info',
-      load_history_fail: 'Failed to load history messages',
-      clear_history_success: 'All sessions cleared',
-      delete_session_success: 'Session deleted',
-      op_fail: 'Operation failed',
-      chat_title: 'Chat',
-      chat_failed: 'Chat failed',
-      thinking_process: 'Thinking Process',
-      time_cost: 'Time Cost',
-      execution_details: 'Execution Details',
-      node_count: '{count} nodes',
-      ai_thinking: 'AI is thinking...',
-      ai_responding: 'AI is responding...',
-      input_placeholder: "Please enter your question, or type {'@'} to invoke a skill... (Enter to send)",
-      close_execution_details: 'Close execution details',
-      open_execution_details: 'Open execution details',
-      citation_details: 'Citation Details',
-      similarity: 'Similarity',
-      chunk_id: 'Chunk ID',
-      unknown_document: 'Unknown Document',
-      title_required: 'Title is required',
-      title_update_success: 'Title updated',
-      title_update_fail: 'Failed to update title',
-      history: 'History',
-      clear_all: 'Clear All',
-      no_sessions: 'No sessions',
-      recent_sessions_tip: 'Only the last 20 sessions are shown',
-      read_stream_error: 'Unable to read response stream',
-      debug: 'Debug',
-      debug_tip1: 'Debug uses the latest unreleased version, temporary dialogue, data is not stored in the database.',
-      debug_tip2: 'Modifying the workflow and saving it will take effect immediately, no need to reopen the window.'
     },
     document_upload: {
       step1: {

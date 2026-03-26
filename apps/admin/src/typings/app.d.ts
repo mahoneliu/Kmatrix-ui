@@ -437,6 +437,10 @@ declare namespace App {
         publishFailed: string;
         generateSuccess: string;
         generateFail: string;
+        all: string;
+        none: string;
+        createSuccess: string;
+        createFailed: string;
       };
       request: {
         logout: string;
@@ -1722,6 +1726,10 @@ declare namespace App {
           debug: string;
           debug_tip1: string;
           debug_tip2: string;
+          like: string;
+          dislike: string;
+          cancel_like: string;
+          cancel_dislike: string;
         };
         model_manager: {
           test: {
