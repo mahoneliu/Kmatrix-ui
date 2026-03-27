@@ -214,6 +214,14 @@ async function handleAbort() {
       }
     }
 
+    // 清理 token（移除引号和 Bearer 前缀）
+    if (token) {
+      token = token.trim().replace(/^["']|["']$/g, '');
+      if (token.startsWith('Bearer ')) {
+        token = token.substring(7);
+      }
+    }
+
     // 同时通知后端中止请求（不使用 isAdmin 路由，统一使用 /ai/chat/abort）
     await abortRequest(currentRequestId.value, token || undefined, false);
     message.success(t('ai.chat.abort_success', '已中断'));
@@ -1037,7 +1045,7 @@ defineExpose({
           </NButton>
           <NButton v-else circle size="small" type="error" @click="handleAbort">
             <template #icon>
-              <SvgIcon local-icon="mdi-stop-circle-outline" class="text-xl" />
+              <SvgIcon local-icon="mdi-stop-circle" class="text-xl" />
             </template>
           </NButton>
         </div>
