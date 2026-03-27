@@ -116,6 +116,27 @@ async function handleUpdateTitle(id: string, title: string) {
   await updateAdminSessionTitle(id, title);
 }
 
+/**
+ * 汇总执行统计信息
+ */
+function calculateExecutionStats(executions: any[]) {
+  return executions.reduce(
+    (acc: any, exec: any) => {
+      acc.durationMs += exec.durationMs || 0;
+      if (exec.tokenUsage) {
+        acc.tokens.inputTokens += exec.tokenUsage.inputTokenCount || 0;
+        acc.tokens.outputTokens += exec.tokenUsage.outputTokenCount || 0;
+        acc.tokens.totalTokens += exec.tokenUsage.totalTokenCount || 0;
+      }
+      return acc;
+    },
+    {
+      durationMs: 0,
+      tokens: { inputTokens: 0, outputTokens: 0, totalTokens: 0 }
+    }
+  );
+}
+
 // 加载历史消息
 async function loadHistory() {
   if (!sessionId.value) return;
@@ -126,26 +147,11 @@ async function loadHistory() {
     if (data) {
       // 转换消息格式
       const msgs: ChatMessage[] = data.map((item: any, index: number) => {
-        let durationMs = item.durationMs;
-        let tokens = item.tokens;
+        let { durationMs, tokens } = item;
 
         // 如果没有直接返回统计信息，但有执行记录，则进行汇总计算
         if ((!durationMs || !tokens) && item.executions?.length > 0) {
-          const stats = item.executions.reduce(
-            (acc: any, exec: any) => {
-              acc.durationMs += exec.durationMs || 0;
-              if (exec.tokenUsage) {
-                acc.tokens.inputTokens += exec.tokenUsage.inputTokenCount || 0;
-                acc.tokens.outputTokens += exec.tokenUsage.outputTokenCount || 0;
-                acc.tokens.totalTokens += exec.tokenUsage.totalTokenCount || 0;
-              }
-              return acc;
-            },
-            {
-              durationMs: 0,
-              tokens: { inputTokens: 0, outputTokens: 0, totalTokens: 0 }
-            }
-          );
+          const stats = calculateExecutionStats(item.executions);
 
           if (!durationMs) durationMs = stats.durationMs;
           if (!tokens && stats.tokens.totalTokens > 0) tokens = stats.tokens;
@@ -395,6 +401,7 @@ onMounted(async () => {
             :is-admin="!route.query.token"
             :get-node-definition="nodeDefinitionStore.getNodeDefinition"
             :available-skills="availableSkills"
+            :capabilities="appInfo?.capabilities"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
             @session-update="handleSessionUpdate"

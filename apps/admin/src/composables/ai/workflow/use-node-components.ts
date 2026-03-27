@@ -36,6 +36,9 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     TOOL: markRaw(ToolNode),
     SKILL: markRaw(SkillNode),
     LOOP: markRaw(LoopNode),
+    FILE_STORAGE: markRaw(BaseNode),
+    AUDIO_ASR: markRaw(BaseNode),
+    IMAGE_OCR: markRaw(BaseNode),
     APP_INFO: markRaw(AppInfoComp)
   };
 

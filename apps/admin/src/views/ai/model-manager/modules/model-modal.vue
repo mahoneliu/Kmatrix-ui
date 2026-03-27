@@ -36,7 +36,8 @@ const modelForm = reactive<any>({
   temperature: 0.7,
   maxTokens: 2048,
   modelSource: '1',
-  isDefault: 0
+  isDefault: 0,
+  abilities: []
 });
 
 const rules = computed(() => {
@@ -163,7 +164,8 @@ async function open(modalType: 'add' | 'edit', data?: any) {
       config: '{}',
       temperature: 0.7,
       maxTokens: 2048,
-      isDefault: 0
+      isDefault: 0,
+      abilities: []
     });
 
     // 单独处理 modelSource 以设置锁定状态
@@ -194,6 +196,15 @@ async function open(modalType: 'add' | 'edit', data?: any) {
       } catch {
         // ignore
       }
+    }
+    if (editData.abilities && typeof editData.abilities === 'string') {
+      try {
+        editData.abilities = JSON.parse(editData.abilities);
+      } catch {
+        editData.abilities = [];
+      }
+    } else if (!editData.abilities) {
+      editData.abilities = [];
     }
     Object.assign(modelForm, editData);
   }
@@ -379,6 +390,15 @@ defineExpose({ open });
                 </template>
                 默认向量模型禁止修改关键配置，以保证向量空间一致性。
               </NTooltip>
+            </NFormItem>
+            <NFormItem label="多模态能力 (能力标签)" path="abilities">
+              <NCheckboxGroup v-model:value="modelForm.abilities">
+                <NSpace item-style="display: flex;">
+                  <NCheckbox value="vision" label="视觉 (Vision/Image-in)" />
+                  <NCheckbox value="audio" label="语音 (Audio-in)" />
+                  <!-- 避免前端与后端的类型差异，通常只勾选vision和audio以配合基础大模型本身能力 -->
+                </NSpace>
+              </NCheckboxGroup>
             </NFormItem>
           </div>
         </NTabPane>

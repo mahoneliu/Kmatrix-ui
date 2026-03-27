@@ -430,7 +430,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
       </NDropdown>
       <!-- 折叠按钮 -->
       <span
-        v-if="$slots.default"
         class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
         @click="toggleCollapse"
       >
@@ -440,7 +439,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
     <!--头部以下的主体div-->
     <div class="pb-1 pl-4 pr-4">
-      <!-- 节点内容插槽 -->
+      <!-- 节点内容插槽（业务配置）-->
       <div
         v-if="!collapsed && $slots.default"
         class="nodrag mt-2 b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
@@ -456,7 +455,10 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           :check-handle-highlight="checkHandleHighlight"
           :get-handle-style="getHandleStyle"
         />
+      </div>
 
+      <!-- 参数配置区（不依赖 slot，任何节点都能展示） -->
+      <div v-if="!collapsed" class="nodrag mt-2 text-3 c-gray-5 dark:c-gray-4">
         <NCollapse v-if="isAiNode" class="pt-3">
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
@@ -465,16 +467,15 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
         </NCollapse>
 
-        <NCollapse class="pb-2 pt-3">
+        <NCollapse
+          v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+          class="pb-2 pt-3"
+        >
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
           </template>
           <!-- 统一的参数绑定面板 -->
-          <NCollapseItem
-            v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
-            :title="$t('ai.workflow_node.node_param')"
-            name="params"
-          >
+          <NCollapseItem :title="$t('ai.workflow_node.node_param')" name="params">
             <ParamBindingPanel
               v-model:bindings="paramBindings"
               v-model:custom-input-params="customInputParams"

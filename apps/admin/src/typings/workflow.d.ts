@@ -20,7 +20,10 @@ declare namespace Workflow {
     | 'KNOWLEDGE_RETRIEVAL'
     | 'TOOL'
     | 'SKILL'
-    | 'LOOP';
+    | 'LOOP'
+    | 'FILE_STORAGE'
+    | 'AUDIO_ASR'
+    | 'IMAGE_OCR';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';

@@ -12,6 +12,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AbortButton: typeof import('./../components/ai/chat/AbortButton.vue')['default']
     AiConfigPanel: typeof import('./../components/ai/Nodes/add-in/ai-config-panel.vue')['default']
     AppInfoNode: typeof import('./../components/ai/Nodes/appInfo-node.vue')['default']
     AppProvider: typeof import('./../components/common/app-provider.vue')['default']
@@ -106,6 +107,7 @@ declare module 'vue' {
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
+    NCheckboxGroup: typeof import('naive-ui')['NCheckboxGroup']
     NCode: typeof import('naive-ui')['NCode']
     NCollapse: typeof import('naive-ui')['NCollapse']
     NCollapseItem: typeof import('naive-ui')['NCollapseItem']
@@ -201,6 +203,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const AbortButton: typeof import('./../components/ai/chat/AbortButton.vue')['default']
   const AiConfigPanel: typeof import('./../components/ai/Nodes/add-in/ai-config-panel.vue')['default']
   const AppInfoNode: typeof import('./../components/ai/Nodes/appInfo-node.vue')['default']
   const AppProvider: typeof import('./../components/common/app-provider.vue')['default']
@@ -295,6 +298,7 @@ declare global {
   const NButton: typeof import('naive-ui')['NButton']
   const NCard: typeof import('naive-ui')['NCard']
   const NCheckbox: typeof import('naive-ui')['NCheckbox']
+  const NCheckboxGroup: typeof import('naive-ui')['NCheckboxGroup']
   const NCode: typeof import('naive-ui')['NCode']
   const NCollapse: typeof import('naive-ui')['NCollapse']
   const NCollapseItem: typeof import('naive-ui')['NCollapseItem']

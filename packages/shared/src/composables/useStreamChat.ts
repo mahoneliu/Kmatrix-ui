@@ -95,6 +95,9 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
   const baseURL = import.meta.env.VITE_APP_BASE_API || '';
 
+  // AbortController for stream cancellation
+  let abortController: AbortController | null = null;
+
   /**
    * 处理SSE事件流
    */
@@ -258,6 +261,24 @@ export function useStreamChat(options: UseStreamChatOptions) {
   }
 
   /**
+   * 中止当前流式请求
+   */
+  function abortStream() {
+    if (abortController) {
+      abortController.abort();
+      abortController = null;
+    }
+    isStreaming.value = false;
+  }
+
+  /**
+   * 生成唯一的请求ID
+   */
+  function generateRequestId(): string {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
    * 流式对话
    */
   async function streamChat(params: StreamChatParams) {
@@ -267,6 +288,12 @@ export function useStreamChat(options: UseStreamChatOptions) {
     currentNodeName.value = null;
     // 清空上一次的执行详情
     currentExecutions.value = [];
+
+    // 生成唯一的请求ID
+    const requestId = generateRequestId();
+
+    // 创建 AbortController 用于中止请求
+    abortController = new AbortController();
 
     // 添加用户消息
     const userMsg: ChatMessage = {
@@ -325,8 +352,9 @@ export function useStreamChat(options: UseStreamChatOptions) {
       const response = await fetch(`${baseURL}${apiEndpoint}`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(params),
-        credentials: 'include' // 确保 Cookie 被发送（包括 Authorization Cookie）
+        body: JSON.stringify({ ...params, requestId }),
+        credentials: 'include', // 确保 Cookie 被发送（包括 Authorization Cookie）
+        signal: abortController.signal
       });
 
       if (!response.ok) {
@@ -451,13 +479,21 @@ export function useStreamChat(options: UseStreamChatOptions) {
       if (errorMsg.startsWith('ai.msg.rate_limit.')) {
         errorMsg = t(errorMsg, { 0: '' }).trim(); // 后端可能带参数，这里简单处理
       }
-      aiMsg.content = `${t('ai.chat.chat_failed')}: ${errorMsg}`;
-      aiMsg.isError = true;
-      if (onError) {
-        onError(errorMsg);
+
+      // 如果是中止错误，不显示错误消息
+      if (error.name === 'AbortError') {
+        aiMsg.content = t('ai.chat.abort_success', '已中断');
+        aiMsg.isError = false;
+      } else {
+        aiMsg.content = `${t('ai.chat.chat_failed')}: ${errorMsg}`;
+        aiMsg.isError = true;
+        if (onError) {
+          onError(errorMsg);
+        }
       }
     } finally {
       isStreaming.value = false;
+      abortController = null;
     }
   }
 
@@ -468,6 +504,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
     currentExecutions,
     statistics,
     streamChat,
-    clearMessages
+    clearMessages,
+    generateRequestId,
+    abortStream
   };
 }

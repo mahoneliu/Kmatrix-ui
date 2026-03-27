@@ -56,6 +56,9 @@ const NODE_CONFIG_RULES: Record<
   CONDITION: [],
   LOOP: [],
   TOOL: [],
+  FILE_STORAGE: [],
+  AUDIO_ASR: [],
+  IMAGE_OCR: [],
   SKILL: [{ field: 'skillId', label: '执行技能' }]
 };
 

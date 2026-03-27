@@ -1730,6 +1730,36 @@ declare namespace App {
           dislike: string;
           cancel_like: string;
           cancel_dislike: string;
+          upload_image: string;
+          upload_audio: string;
+          upload_fail: string;
+          upload_error: string;
+          abort: string;
+          abort_success: string;
+          abort_failed: string;
+          resume_session: string;
+          resumable_sessions: string;
+          no_resumable_sessions: string;
+          load_resumable_failed: string;
+          resume_success: string;
+          resume_failed: string;
+          abort_time: string;
+          abort_reason: string;
+          resume: string;
+          abortSuccess: string;
+          abortFailed: string;
+          aborted: string;
+          resumeSession: string;
+          resumeSessionTitle: string;
+          skipResume: string;
+          abortReason: string;
+          systemException: string;
+          userAbort: string;
+          networkError: string;
+          exceptionType: string;
+          exceptionMessage: string;
+          abortTime: string;
+          messageCount: string;
         };
         model_manager: {
           test: {

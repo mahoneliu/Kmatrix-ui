@@ -4,12 +4,15 @@ import {
   NButton,
   NCollapse,
   NCollapseItem,
+  NImage,
   NInput,
   NModal,
   NScrollbar,
   NSpin,
   NTag,
   NTooltip,
+  NUpload,
+  NUploadTrigger,
   useMessage
 } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
@@ -17,6 +20,8 @@ import { SvgIcon } from '@sa/materials';
 import { type ChatMessage, type Citation, type NodeExecution, useStreamChat } from '../composables/useStreamChat';
 import { getNodeIconBackground } from '../utils/color';
 import { copyToClipboard } from '../utils/clipboard';
+import { abortRequest, uploadFile } from '../api/chat';
+import { baseURL } from '../api/request';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 
 /** 可用技能条目（由父组件传入） */
@@ -48,6 +53,8 @@ interface Props {
   isAdmin?: boolean;
   /** 可用技能列表（由父组件按需传入，为空则不显示 Skill 提示） */
   availableSkills?: AvailableSkill[];
+  /** 应用能力聚合（例如：vision, audio, image-ocr等） */
+  capabilities?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -58,7 +65,8 @@ const props = withDefaults(defineProps<Props>(), {
   hasExecutionDetailPermission: false,
   getNodeDefinition: undefined,
   isAdmin: false,
-  availableSkills: () => []
+  availableSkills: () => [],
+  capabilities: () => []
 });
 
 const emit = defineEmits<{
@@ -109,13 +117,21 @@ watch(showExecutionInfo, val => {
 const scrollbarRef = ref();
 
 // 使用 useStreamChat composable
-const { messages, isStreaming, streamChat, clearMessages } = useStreamChat({
+const { messages, isStreaming, streamChat, clearMessages, generateRequestId, abortStream } = useStreamChat({
   apiEndpoint: props.isAdmin ? '/ai/admin/chat/stream' : '/ai/chat/stream',
   token: props.token,
   onError: error => {
     message.error(`对话失败: ${error}`);
   }
 });
+
+// 当前请求ID
+const currentRequestId = ref<string>('');
+
+// Resume 相关状态
+const showResumeDialog = ref(false);
+const resumableSessions = ref<any[]>([]);
+const isLoadingResumable = ref(false);
 
 // 流式输出期间自动滚动到底部
 watch(isStreaming, streaming => {
@@ -126,6 +142,218 @@ watch(isStreaming, streaming => {
 
 // 输入消息
 const userInput = ref('');
+
+// 附件管理
+interface AttachedFile {
+  type: 'image' | 'audio' | 'file';
+  ossId: string;
+  url: string;
+  name: string;
+}
+const attachedFiles = ref<AttachedFile[]>([]);
+const isUploading = ref(false);
+
+async function customUploadRequest({ file, onFinish, onError }: any) {
+  try {
+    isUploading.value = true;
+    const res = await uploadFile(file.file, props.token, props.isAdmin);
+    if (res.data) {
+      let fileType: 'image' | 'audio' | 'file' = 'file';
+      if (file.file.type.startsWith('image')) {
+        fileType = 'image';
+      } else if (file.file.type.startsWith('audio')) {
+        fileType = 'audio';
+      }
+
+      attachedFiles.value.push({
+        type: fileType,
+        ossId: String(res.data.ossId),
+        url: res.data.url,
+        name: file.file.name
+      });
+      onFinish();
+    } else {
+      onError();
+      message.error(res.error?.message || t('ai.chat.upload_fail', '上传失败'));
+    }
+  } catch {
+    onError();
+    message.error(t('ai.chat.upload_error', '上传异常'));
+  } finally {
+    isUploading.value = false;
+  }
+}
+
+function removeAttachedFile(index: number) {
+  attachedFiles.value.splice(index, 1);
+}
+
+/**
+ * 处理中断请求
+ */
+async function handleAbort() {
+  if (!currentRequestId.value) {
+    message.error(t('ai.chat.abort_failed', '中断失败'));
+    return;
+  }
+
+  try {
+    // 立即停止前端流式处理
+    abortStream();
+
+    // 获取 token
+    let token = props.token || localStorage.getItem('RY_token') || '';
+    if (!token) {
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'Authorization') {
+          token = decodeURIComponent(value);
+          break;
+        }
+      }
+    }
+
+    // 同时通知后端中止请求（不使用 isAdmin 路由，统一使用 /ai/chat/abort）
+    await abortRequest(currentRequestId.value, token || undefined, false);
+    message.success(t('ai.chat.abort_success', '已中断'));
+  } catch (error: any) {
+    message.error(t('ai.chat.abort_failed', '中断失败'));
+    console.error('Abort request failed:', error);
+  }
+}
+
+/**
+ * 加载可恢复的会话列表
+ */
+async function loadResumableSessions() {
+  if (!props.appId) return;
+
+  try {
+    isLoadingResumable.value = true;
+
+    // 获取 token
+    let token = props.token || localStorage.getItem('RY_token') || '';
+    if (!token) {
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'Authorization') {
+          token = decodeURIComponent(value);
+          break;
+        }
+      }
+    }
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      token = token.trim().replace(/^["']|["']$/g, '');
+      headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseURL}/ai/chat/resumable-sessions/${props.appId}`, {
+      method: 'GET',
+      headers,
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      resumableSessions.value = data.data || [];
+      if (resumableSessions.value.length > 0) {
+        showResumeDialog.value = true;
+      } else {
+        message.info(t('ai.chat.no_resumable_sessions', '没有可恢复的会话'));
+      }
+    } else {
+      const errorData = await response.json();
+      message.error(errorData.msg || t('ai.chat.load_resumable_failed', '加载可恢复会话失败'));
+    }
+  } catch (error) {
+    console.error('Failed to load resumable sessions:', error);
+    message.error(t('ai.chat.load_resumable_failed', '加载可恢复会话失败'));
+  } finally {
+    isLoadingResumable.value = false;
+  }
+}
+
+/**
+ * 恢复会话
+ */
+async function handleResumeSession(sessionId: string) {
+  try {
+    // 获取 token
+    let token = props.token || localStorage.getItem('RY_token') || '';
+    if (!token) {
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'Authorization') {
+          token = decodeURIComponent(value);
+          break;
+        }
+      }
+    }
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      token = token.trim().replace(/^["']|["']$/g, '');
+      headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseURL}/ai/chat/resume-session/${sessionId}`, {
+      method: 'POST',
+      headers,
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      await response.json();
+      message.success(t('ai.chat.resume_success', '会话已恢复'));
+      showResumeDialog.value = false;
+      emit('sessionChange', sessionId);
+    } else {
+      const errorData = await response.json();
+      message.error(errorData.msg || t('ai.chat.resume_failed', '恢复失败'));
+    }
+  } catch (error) {
+    message.error(t('ai.chat.resume_failed', '恢复失败'));
+    console.error('Resume session failed:', error);
+  }
+}
+
+function parseUserMsg(content: string) {
+  try {
+    if (content.trim().startsWith('[') && content.trim().endsWith(']')) {
+      const arr = JSON.parse(content);
+      if (Array.isArray(arr)) return arr;
+    }
+  } catch {
+    // fallback
+  }
+  return [{ type: 'text', text: content }];
+}
+
+/**
+ * 格式化时间戳
+ */
+function formatTimestamp(timestamp: string | null | undefined): string {
+  if (!timestamp) return '';
+  try {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return timestamp;
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  } catch {
+    return timestamp;
+  }
+}
 
 // 初始化开场白
 function initPrologue() {
@@ -142,8 +370,19 @@ function initPrologue() {
 // 滚动到底部
 function scrollToBottom() {
   nextTick(() => {
-    scrollbarRef.value?.scrollTo({ top: 99999, behavior: 'smooth' });
+    scrollbarRef.value?.scrollTo({ top: 999999, behavior: 'smooth' });
   });
+}
+
+/** 获取文件的完整访问路径 */
+function getFileUrl(url: string) {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('https') || url.startsWith('data:')) {
+    return url;
+  }
+  const base = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${base}${path}`;
 }
 
 // 组件挂载时加载节点定义
@@ -192,29 +431,45 @@ function selectSkill(skill: AvailableSkill) {
 
 // 发送消息
 async function handleSend() {
-  if (!userInput.value.trim() || isStreaming.value) return;
+  if (!userInput.value.trim() && attachedFiles.value.length === 0) return;
+  if (isStreaming.value || isUploading.value) return;
 
-  let userMsg = userInput.value.trim();
+  // 生成新的请求ID
+  currentRequestId.value = generateRequestId();
 
-  // 检查是否直接输入了完整技能名称 (如果输入的是 @Name 或直接是 Name 且在可用列表中)
-  const cleanMsg = userMsg.startsWith('@') ? userMsg.substring(1) : userMsg;
+  let userMsgToProcess = userInput.value.trim();
+  let userMsgDisplay = userMsgToProcess;
+
+  // 如果触发了技能补充
+  const cleanMsg = userMsgDisplay.startsWith('@') ? userMsgDisplay.substring(1) : userMsgDisplay;
   const matchedSkill = props.availableSkills.find(s => s.skillName === cleanMsg);
 
   if (matchedSkill) {
-    // 如果匹配到完整技能名，可以在 prompt 前面加一个指令，强导 LLM 调用该工具/技能
-    // 或者直接告知 LLM 用户的目的是执行该技能
-    userMsg = `[Direct Execution] Use skill: ${matchedSkill.skillName}\nUser Instruction: ${userMsg}`;
+    userMsgDisplay = `[Direct Execution] Use skill: ${matchedSkill.skillName}\nUser Instruction: ${userMsgDisplay}`;
+    userMsgToProcess = userMsgDisplay;
+  }
+
+  if (attachedFiles.value.length > 0) {
+    const jsonArr: any[] = [];
+    if (userMsgDisplay) {
+      jsonArr.push({ type: 'text', text: userMsgDisplay });
+    }
+    for (const f of attachedFiles.value) {
+      jsonArr.push({ type: f.type, ossId: f.ossId, url: f.url });
+    }
+    userMsgToProcess = JSON.stringify(jsonArr);
   }
 
   userInput.value = '';
+  attachedFiles.value = [];
   isSearchingSkills.value = false;
 
-  emit('messageSent', userMsg);
+  emit('messageSent', userMsgDisplay);
 
   await streamChat({
     appId: props.appId,
     sessionId: props.sessionId,
-    message: userMsg,
+    message: userMsgToProcess,
     debug: props.mode === 'debug',
     showExecutionInfo: showExecutionInfo.value,
     onDone: newSessionId => {
@@ -369,10 +624,25 @@ defineExpose({
       <NScrollbar ref="scrollbarRef" class="h-full">
         <div class="p-4">
           <div v-for="msg in messages" :key="msg.id" class="group mb-4">
-            <!-- 用户消息 -->
             <div v-if="msg.role === 'user'" class="flex flex-row-reverse items-start gap-2">
               <div class="max-w-[70%] rounded-lg bg-blue-500 px-4 py-2 text-white">
-                <div class="whitespace-pre-wrap break-words">{{ msg.content }}</div>
+                <div class="whitespace-pre-wrap break-words">
+                  <template v-for="(part, idx) in parseUserMsg(msg.content)" :key="idx">
+                    <span v-if="part.type === 'text'">{{ part.text }}</span>
+                    <NImage
+                      v-else-if="part.type === 'image'"
+                      :src="part.url"
+                      class="my-2 block max-h-[200px] max-w-[200px] border border-white/20 rounded"
+                    />
+                    <div
+                      v-else-if="part.type === 'audio'"
+                      class="my-1 inline-flex items-center gap-1 rounded bg-black/10 px-2 py-1 text-xs"
+                    >
+                      <SvgIcon local-icon="mdi-microphone" />
+                      语音片段 ({{ part.ossId }})
+                    </div>
+                  </template>
+                </div>
               </div>
               <NTooltip>
                 <template #trigger>
@@ -634,6 +904,36 @@ defineExpose({
       <div
         class="relative border border-gray-200 rounded-2xl bg-white p-3 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] transition-all duration-300 dark:border-gray-700 focus-within:border-primary-300 dark:bg-gray-800 focus-within:shadow-[0_4px_16px_0_rgba(0,0,0,0.1)] dark:focus-within:border-primary-700"
       >
+        <!-- 附件预览区 -->
+        <div
+          v-if="attachedFiles.length > 0"
+          class="mb-2 flex flex-wrap gap-2 border-b border-gray-100 pb-2 dark:border-gray-700"
+        >
+          <div v-for="(file, index) in attachedFiles" :key="index" class="group relative mt-1">
+            <template v-if="file.type === 'image'">
+              <NImage
+                :src="getFileUrl(file.url)"
+                class="h-14 w-14 border border-gray-200 rounded object-cover dark:border-gray-600"
+              />
+            </template>
+            <template v-else-if="file.type === 'audio'">
+              <div
+                class="h-14 w-14 flex flex-col items-center justify-center border border-blue-100 rounded bg-blue-50 text-blue-500 dark:border-blue-800 dark:bg-blue-900/30"
+              >
+                <SvgIcon local-icon="mdi-microphone" class="mb-1 text-xl" />
+                <span class="w-12 truncate px-1 text-center text-[10px]">{{ file.name }}</span>
+              </div>
+            </template>
+            <!-- 删除按钮 -->
+            <div
+              class="absolute h-5 w-5 flex cursor-pointer items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity -right-2 -top-2 group-hover:opacity-100"
+              @click="removeAttachedFile(index)"
+            >
+              <SvgIcon local-icon="mdi-close" class="text-xs" />
+            </div>
+          </div>
+        </div>
+
         <NInput
           v-model:value="userInput"
           :autosize="{ minRows: 2, maxRows: 6 }"
@@ -644,8 +944,53 @@ defineExpose({
           type="textarea"
           @keydown="handleKeyDown"
         />
+
         <div class="flex items-center justify-between px-2 pb-1 pt-1">
           <div class="flex items-center gap-2">
+            <!-- 上传图片按钮 -->
+            <NUpload
+              v-if="
+                capabilities?.includes('vision') ||
+                capabilities?.includes('image-ocr') ||
+                capabilities?.includes('file-storage')
+              "
+              :abstract="true"
+              accept="image/*"
+              :show-file-list="false"
+              :custom-request="customUploadRequest"
+            >
+              <NUploadTrigger #="{ handleClick }" :abstract="true">
+                <NTooltip>
+                  <template #trigger>
+                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleClick">
+                      <template #icon><SvgIcon icon="mdi:image-outline" /></template>
+                    </NButton>
+                  </template>
+                  {{ t('ai.chat.upload_image', '上传图片') }}
+                </NTooltip>
+              </NUploadTrigger>
+            </NUpload>
+
+            <!-- 上传语音按钮 -->
+            <NUpload
+              v-if="capabilities?.includes('audio') || capabilities?.includes('audio-asr')"
+              :abstract="true"
+              accept="audio/*"
+              :show-file-list="false"
+              :custom-request="customUploadRequest"
+            >
+              <NUploadTrigger #="{ handleClick }" :abstract="true">
+                <NTooltip>
+                  <template #trigger>
+                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleClick">
+                      <template #icon><SvgIcon icon="mdi:microphone-outline" /></template>
+                    </NButton>
+                  </template>
+                  {{ t('ai.chat.upload_audio', '上传录音') }}
+                </NTooltip>
+              </NUploadTrigger>
+            </NUpload>
+
             <!-- 执行详情开关（仅正式对话模式且App启用且有权限时显示） -->
             <NTooltip v-if="mode === 'chat' && enableExecutionDetail && hasExecutionDetailPermission">
               <template #trigger>
@@ -662,10 +1007,23 @@ defineExpose({
               </template>
               {{ showExecutionInfo ? t('ai.chat.close_execution_details') : t('ai.chat.open_execution_details') }}
             </NTooltip>
+
+            <!-- 恢复会话按钮 -->
+            <NTooltip>
+              <template #trigger>
+                <NButton quaternary size="small" :loading="isLoadingResumable" @click="loadResumableSessions">
+                  <template #icon>
+                    <SvgIcon local-icon="mdi-history" />
+                  </template>
+                </NButton>
+              </template>
+              {{ t('ai.chat.resume_session', '恢复会话') }}
+            </NTooltip>
           </div>
           <NButton
-            :disabled="!userInput.trim() || isStreaming"
-            :loading="isStreaming"
+            v-if="!isStreaming"
+            :disabled="(!userInput.trim() && attachedFiles.length === 0) || isUploading"
+            :loading="isUploading"
             circle
             quaternary
             size="small"
@@ -673,7 +1031,13 @@ defineExpose({
             @click="handleSend"
           >
             <template #icon>
-              <SvgIcon local-icon="carbon-send-alt" class="text-xl" />
+              <NSpin v-if="isUploading" size="small" />
+              <SvgIcon v-else local-icon="carbon-send-alt" class="text-xl" />
+            </template>
+          </NButton>
+          <NButton v-else circle size="small" type="error" @click="handleAbort">
+            <template #icon>
+              <SvgIcon local-icon="mdi-stop-circle-outline" class="text-xl" />
             </template>
           </NButton>
         </div>
@@ -697,6 +1061,39 @@ defineExpose({
         <div class="rounded bg-gray-50 p-4 text-sm leading-relaxed dark:bg-gray-800">
           <div class="whitespace-pre-wrap">{{ currentCitation.content }}</div>
         </div>
+      </div>
+    </NModal>
+
+    <!-- 可恢复会话弹窗 -->
+    <NModal
+      v-model:show="showResumeDialog"
+      class="w-600px"
+      preset="card"
+      :title="t('ai.chat.resumable_sessions', '可恢复的会话')"
+      :loading="isLoadingResumable"
+    >
+      <div v-if="resumableSessions.length > 0" class="space-y-3">
+        <div
+          v-for="session in resumableSessions"
+          :key="session.sessionId"
+          class="flex items-center justify-between border border-gray-200 rounded p-3 dark:border-gray-700"
+        >
+          <div class="flex-1">
+            <div class="font-medium">{{ session.title }}</div>
+            <div class="text-xs text-gray-500">
+              {{ t('ai.chat.abort_time', '中断时间') }}: {{ formatTimestamp(session.abortTimestamp) }}
+            </div>
+            <div v-if="session.abortReason" class="text-xs text-gray-500">
+              {{ t('ai.chat.abort_reason', '中断原因') }}: {{ session.abortReason }}
+            </div>
+          </div>
+          <NButton type="primary" size="small" @click="handleResumeSession(session.sessionId)">
+            {{ t('ai.chat.resume', '恢复') }}
+          </NButton>
+        </div>
+      </div>
+      <div v-else class="text-center text-gray-500">
+        {{ t('ai.chat.no_resumable_sessions', '没有可恢复的会话') }}
       </div>
     </NModal>
   </div>

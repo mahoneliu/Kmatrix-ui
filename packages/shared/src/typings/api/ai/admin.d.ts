@@ -89,6 +89,7 @@ declare namespace Api.AI.Admin {
     updateBy: string;
     updateByName: string;
     updateTime: string;
+    capabilities?: string[];
   }
 
   /** 搜索参数 */

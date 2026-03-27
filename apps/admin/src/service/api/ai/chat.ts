@@ -101,3 +101,140 @@ export function submitAdminChatFeedback(messageId: string, status: number) {
     data: { messageId, feedbackStatus: status }
   });
 }
+
+/**
+ * 中止请求
+ */
+export function abortRequest(requestId: string) {
+  return request<{
+    requestId: string;
+    status: string;
+    partialContent: string;
+    abortedAt: string;
+  }>({
+    url: `${ADMIN_CHAT_BASE}/abort`,
+    method: 'post',
+    data: { requestId }
+  });
+}
+
+/**
+ * 获取可恢复的会话列表
+ */
+export function getResumableSessions(appId?: CommonType.IdType) {
+  return request<any[]>({
+    url: `${ADMIN_CHAT_BASE}/sessions/resumable`,
+    method: 'get',
+    params: appId ? { appId } : undefined
+  });
+}
+
+/**
+ * 恢复会话
+ */
+export function resumeSessionApi(sessionId: CommonType.IdType, resumeToken?: string) {
+  return request<{
+    sessionId: string;
+    messages: Api.AI.Chat.Message[];
+    resumedAt: string;
+  }>({
+    url: `${ADMIN_CHAT_BASE}/sessions/resume`,
+    method: 'post',
+    data: { sessionId, resumeToken }
+  });
+}
+
+/**
+ * 清除中断状态
+ */
+export function clearAbortStatusApi(sessionId: CommonType.IdType) {
+  return request<any>({
+    url: `${ADMIN_CHAT_BASE}/sessions/clear-abort`,
+    method: 'post',
+    data: { sessionId }
+  });
+}
+
+/**
+ * 发送消息（支持流式响应）请求参数
+ */
+export interface StreamRequestOptions {
+  sessionId: CommonType.IdType;
+  content: string;
+  requestId: string;
+  signal?: AbortSignal;
+  onChunk?: (chunk: string) => void;
+}
+
+/**
+ * 解析并处理单条 SSE 数据
+ */
+function handleSSELine(line: string, onChunk?: (chunk: string) => void) {
+  if (!line.startsWith('data: ')) return;
+
+  const data = line.slice(6);
+  if (!data) return;
+
+  try {
+    const parsed = JSON.parse(data);
+    if (parsed.type === 'chunk' && parsed.content) {
+      onChunk?.(parsed.content);
+    }
+  } catch (e) {
+    console.error('Failed to parse SSE data:', e);
+  }
+}
+
+/**
+ * 发送消息（支持流式响应）
+ */
+export async function sendMessageWithStream(options: StreamRequestOptions) {
+  const { sessionId, content, requestId, signal, onChunk } = options;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const url = `${baseUrl}${ADMIN_CHAT_BASE}/send`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, content, requestId }),
+      signal
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Response body is not readable');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      // eslint-disable-next-line no-await-in-loop
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      lines.forEach(line => handleSSELine(line, onChunk));
+    }
+
+    if (buffer) {
+      handleSSELine(buffer, onChunk);
+    }
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.log('Request was aborted');
+      return { success: false, aborted: true };
+    }
+    throw error;
+  }
+}

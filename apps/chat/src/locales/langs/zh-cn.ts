@@ -53,7 +53,23 @@ const local = {
       like: '点赞',
       dislike: '踩',
       cancel_like: '取消点赞',
-      cancel_dislike: '取消踩'
+      cancel_dislike: '取消踩',
+      abort: '中止',
+      abort_success: '已中断',
+      abort_failed: '中断失败',
+      upload_image: '上传图片',
+      upload_audio: '上传录音',
+      upload_fail: '上传失败',
+      upload_error: '上传异常',
+      resume_session: '恢复会话',
+      resumable_sessions: '可恢复的会话',
+      no_resumable_sessions: '没有可恢复的会话',
+      load_resumable_failed: '加载可恢复会话失败',
+      resume_success: '会话已恢复',
+      resume_failed: '恢复失败',
+      abort_time: '中断时间',
+      abort_reason: '中断原因',
+      resume: '恢复'
     },
     msg: {
       rate_limit: {

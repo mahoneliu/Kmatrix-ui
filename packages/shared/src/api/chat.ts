@@ -137,3 +137,37 @@ export function submitChatFeedback(messageId: string, status: number, token?: st
     headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
+
+/**
+ * 文件上传 (跨工作流通用OSS)
+ */
+export function uploadFile(file: File, token?: string, isAdmin?: boolean) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const baseUrl = isAdmin ? '/ai/admin/chat' : CHAT_API_BASE;
+  return request<any>({
+    url: `${baseUrl}/attachment/upload`,
+    method: 'post',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    timeout: 10 * 60 * 1000
+  });
+}
+
+/**
+ * 中止请求
+ */
+export function abortRequest(requestId: string, token?: string, isAdmin?: boolean) {
+  const baseUrl = isAdmin ? '/ai/admin/chat' : CHAT_API_BASE;
+  return request<{
+    requestId: string;
+    status: string;
+    partialContent: string;
+    abortedAt: string;
+  }>({
+    url: `${baseUrl}/abort`,
+    method: 'post',
+    data: { requestId },
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}

@@ -97,6 +97,7 @@ async function loadSessions() {
 // 应用信息
 const appTitle = ref('');
 const prologue = ref('');
+const capabilities = ref<string[]>([]);
 
 async function loadAppInfo() {
   if (!embedParams.appToken) return;
@@ -105,6 +106,7 @@ async function loadAppInfo() {
     if (data) {
       appTitle.value = data.appName;
       prologue.value = data.prologue || '';
+      capabilities.value = data.capabilities || [];
     }
   } catch {
     // ignore
@@ -332,6 +334,7 @@ onMounted(async () => {
             :prologue="prologue"
             :has-execution-detail-permission="true"
             :available-skills="availableSkills"
+            :capabilities="capabilities"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
             @submit-feedback="handleSubmitFeedback"

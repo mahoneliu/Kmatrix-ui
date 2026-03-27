@@ -52,7 +52,23 @@ const local = {
       like: 'Like',
       dislike: 'Dislike',
       cancel_like: 'Cancel Like',
-      cancel_dislike: 'Cancel Dislike'
+      cancel_dislike: 'Cancel Dislike',
+      abort: 'Abort',
+      abort_success: 'Aborted',
+      abort_failed: 'Abort failed',
+      upload_image: 'Upload Image',
+      upload_audio: 'Upload Audio',
+      upload_fail: 'Upload failed',
+      upload_error: 'Upload error',
+      resume_session: 'Resume Session',
+      resumable_sessions: 'Resumable Sessions',
+      no_resumable_sessions: 'No resumable sessions',
+      load_resumable_failed: 'Failed to load resumable sessions',
+      resume_success: 'Session resumed',
+      resume_failed: 'Failed to resume session',
+      abort_time: 'Abort Time',
+      abort_reason: 'Abort Reason',
+      resume: 'Resume'
     },
     msg: {
       rate_limit: {
