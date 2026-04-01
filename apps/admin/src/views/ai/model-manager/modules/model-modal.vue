@@ -396,6 +396,7 @@ defineExpose({ open });
                 <NSpace item-style="display: flex;">
                   <NCheckbox value="vision" label="视觉 (Vision/Image-in)" />
                   <NCheckbox value="audio" label="语音 (Audio-in)" />
+                  <NCheckbox value="video" label="视频 (Video-in)" />
                   <!-- 避免前端与后端的类型差异，通常只勾选vision和audio以配合基础大模型本身能力 -->
                 </NSpace>
               </NCheckboxGroup>

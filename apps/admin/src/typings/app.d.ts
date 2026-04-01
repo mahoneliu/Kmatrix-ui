@@ -1346,6 +1346,7 @@ declare namespace App {
             local: string;
           };
           model_type: {
+            multi_modal: string;
             llm: string;
             vector: string;
             rerank: string;

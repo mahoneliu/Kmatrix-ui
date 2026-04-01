@@ -47,8 +47,8 @@ async function loadConfigAndModels() {
     if (!modelRes.error && modelRes.data) {
       modelOptions.value = modelRes.data.map(m => ({ label: m.modelName, value: m.modelId as number }));
     }
-  } catch (error) {
-    console.error('Failed to load KB config or models', error);
+  } catch {
+    // Failed to load KB config or models
   }
 }
 

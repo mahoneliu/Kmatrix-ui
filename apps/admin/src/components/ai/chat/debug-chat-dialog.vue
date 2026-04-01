@@ -5,6 +5,7 @@ import { ChatPanel } from '@km/shared';
 import { fetchGetAllSkillList } from '@/service/api/ai/skill';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useAiModelStore } from '@/store/modules/ai/ai-model';
 
 interface AvailableSkill {
   skillId: string;
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 
 const nodeDefinitionStore = useNodeDefinitionStore();
 const workflowStore = useWorkflowStore();
+const aiModelStore = useAiModelStore();
 
 function getNodeDefinition(nodeType: string) {
   return nodeDefinitionStore.getNodeDefinition(nodeType);
@@ -42,14 +44,45 @@ async function loadSkills() {
         spec: item.spec || ''
       }));
     }
-  } catch (error) {
-    console.error('Failed to load skills:', error);
+  } catch {
+    // Failed to load skills
   }
 }
 
 onMounted(async () => {
-  await nodeDefinitionStore.loadNodeDefinitions();
-  await loadSkills();
+  await Promise.all([nodeDefinitionStore.loadNodeDefinitions(), aiModelStore.loadModels(), loadSkills()]);
+});
+
+// 计算当前应用模型的能力 (Multimodal Capabilities)
+const capabilities = computed(() => {
+  const caps = new Set<string>();
+
+  // 遍历所有工作流节点收集多模态能力
+  workflowStore.nodes.forEach(node => {
+    // 获取每个节点的 modelId（无论是 APP_INFO、大模型节点，还是图像识别节点）
+    const modelId = node.data?.config?.modelId;
+    if (modelId) {
+      const model = aiModelStore.getModelById(modelId);
+      if (model?.abilities) {
+        let abilitiesArr: string[] = [];
+        // 后端 KmModelVo 中 abilities 是 List<String>，前端对应 string[]
+        if (Array.isArray(model.abilities)) {
+          abilitiesArr = model.abilities.map(s => String(s).trim().toLowerCase());
+        } else if (typeof (model.abilities as unknown) === 'string') {
+          // 防御性：如果是逗号分隔的字符串
+          abilitiesArr = (model.abilities as unknown as string).split(',').map((s: string) => s.trim().toLowerCase());
+        }
+        abilitiesArr.forEach(a => caps.add(a));
+      }
+
+      // 隐式补充由 modelType 带来的能力
+      if (model?.modelType === '4') caps.add('audio');
+      if (model?.modelType === '5') caps.add('vision');
+      if (model?.modelType === '6') caps.add('video');
+    }
+  });
+
+  return Array.from(caps);
 });
 
 // 窗口状态
@@ -152,6 +185,7 @@ watch(
         :app-name="appName"
         :get-node-definition="getNodeDefinition"
         :available-skills="skills"
+        :capabilities="capabilities"
         class="flex-1 overflow-hidden"
         @node-start="id => workflowStore.setRunningNodeId(id)"
         @node-end="() => workflowStore.setRunningNodeId(null)"

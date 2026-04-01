@@ -82,8 +82,8 @@ async function loadModelsAndConfig() {
     if (!modelRes.error && modelRes.data) {
       models.value = modelRes.data;
     }
-  } catch (error) {
-    console.error('Failed to load KB config or models', error);
+  } catch {
+    // Failed to load KB config or models
   }
 }
 

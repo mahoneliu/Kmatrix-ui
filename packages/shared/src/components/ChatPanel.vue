@@ -92,15 +92,13 @@ const { t } = useI18n();
 // const { hasAuth } = useAuth();
 
 // 执行详情查看权限
-const hasExecutionDetailPermission = computed(() => props.isAdmin || props.hasExecutionDetailPermission);
+const canSeeExecutionDetail = computed(() => props.isAdmin || props.hasExecutionDetailPermission);
 
 // 执行详情开关（正式对话模式下可切换）
-const showExecutionInfo = ref(
-  props.mode === 'debug' || (props.enableExecutionDetail && hasExecutionDetailPermission.value)
-);
+const showExecutionInfo = ref(props.mode === 'debug' || (props.enableExecutionDetail && canSeeExecutionDetail.value));
 
 watch(
-  () => [props.enableExecutionDetail, hasExecutionDetailPermission.value],
+  () => [props.enableExecutionDetail, canSeeExecutionDetail.value],
   ([enable, hasPermission]) => {
     // 只有在正式对话模式下才同步
     if (props.mode === 'chat') {
@@ -146,7 +144,8 @@ const userInput = ref('');
 // 附件管理
 interface AttachedFile {
   type: 'image' | 'audio' | 'file';
-  ossId: string;
+  id: string; // 对应临时文件 ID
+  ossId?: string | null; // 对应的 OSS ID (如果有)
   url: string;
   name: string;
 }
@@ -167,7 +166,8 @@ async function customUploadRequest({ file, onFinish, onError }: any) {
 
       attachedFiles.value.push({
         type: fileType,
-        ossId: String(res.data.ossId),
+        id: String(res.data.id),
+        ossId: res.data.ossId ? String(res.data.ossId) : null,
         url: res.data.url,
         name: file.file.name
       });
@@ -225,9 +225,8 @@ async function handleAbort() {
     // 同时通知后端中止请求（不使用 isAdmin 路由，统一使用 /ai/chat/abort）
     await abortRequest(currentRequestId.value, token || undefined, false);
     message.success(t('ai.chat.abort_success', '已中断'));
-  } catch (error: any) {
+  } catch {
     message.error(t('ai.chat.abort_failed', '中断失败'));
-    console.error('Abort request failed:', error);
   }
 }
 
@@ -277,8 +276,7 @@ async function loadResumableSessions() {
       const errorData = await response.json();
       message.error(errorData.msg || t('ai.chat.load_resumable_failed', '加载可恢复会话失败'));
     }
-  } catch (error) {
-    console.error('Failed to load resumable sessions:', error);
+  } catch {
     message.error(t('ai.chat.load_resumable_failed', '加载可恢复会话失败'));
   } finally {
     isLoadingResumable.value = false;
@@ -324,9 +322,8 @@ async function handleResumeSession(sessionId: string) {
       const errorData = await response.json();
       message.error(errorData.msg || t('ai.chat.resume_failed', '恢复失败'));
     }
-  } catch (error) {
+  } catch {
     message.error(t('ai.chat.resume_failed', '恢复失败'));
-    console.error('Resume session failed:', error);
   }
 }
 
@@ -463,7 +460,7 @@ async function handleSend() {
       jsonArr.push({ type: 'text', text: userMsgDisplay });
     }
     for (const f of attachedFiles.value) {
-      jsonArr.push({ type: f.type, ossId: f.ossId, url: f.url });
+      jsonArr.push({ type: f.type, ossId: f.ossId, tempFileId: f.id, url: f.url });
     }
     userMsgToProcess = JSON.stringify(jsonArr);
   }
@@ -967,16 +964,17 @@ defineExpose({
               :show-file-list="false"
               :custom-request="customUploadRequest"
             >
-              <NUploadTrigger #="{ handleClick }" :abstract="true">
-                <NTooltip>
-                  <template #trigger>
-                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleClick">
+              <NTooltip>
+                <template #trigger>
+                  <NUploadTrigger v-slot="{ handleClick: handleUpload }" :abstract="true">
+                    <!-- eslint-disable-next-line vue/no-undef-properties -->
+                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleUpload">
                       <template #icon><SvgIcon icon="mdi:image-outline" /></template>
                     </NButton>
-                  </template>
-                  {{ t('ai.chat.upload_image', '上传图片') }}
-                </NTooltip>
-              </NUploadTrigger>
+                  </NUploadTrigger>
+                </template>
+                {{ t('ai.chat.upload_image', '上传图片') }}
+              </NTooltip>
             </NUpload>
 
             <!-- 上传语音按钮 -->
@@ -987,20 +985,21 @@ defineExpose({
               :show-file-list="false"
               :custom-request="customUploadRequest"
             >
-              <NUploadTrigger #="{ handleClick }" :abstract="true">
-                <NTooltip>
-                  <template #trigger>
-                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleClick">
+              <NTooltip>
+                <template #trigger>
+                  <NUploadTrigger v-slot="{ handleClick: handleUpload }" :abstract="true">
+                    <!-- eslint-disable-next-line vue/no-undef-properties -->
+                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleUpload">
                       <template #icon><SvgIcon icon="mdi:microphone-outline" /></template>
                     </NButton>
-                  </template>
-                  {{ t('ai.chat.upload_audio', '上传录音') }}
-                </NTooltip>
-              </NUploadTrigger>
+                  </NUploadTrigger>
+                </template>
+                {{ t('ai.chat.upload_audio', '上传录音') }}
+              </NTooltip>
             </NUpload>
 
             <!-- 执行详情开关（仅正式对话模式且App启用且有权限时显示） -->
-            <NTooltip v-if="mode === 'chat' && enableExecutionDetail && hasExecutionDetailPermission">
+            <NTooltip v-if="mode === 'chat' && enableExecutionDetail && canSeeExecutionDetail">
               <template #trigger>
                 <NButton
                   :type="showExecutionInfo ? 'primary' : 'default'"

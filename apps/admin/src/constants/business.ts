@@ -148,6 +148,7 @@ export const aiProviderTypeOptions = transformRecordToOption(aiProviderTypeRecor
 
 /** ai model type */
 export const aiModelTypeRecord: Record<string, string> = {
+  '0': $t('ai.common.model_type.multi_modal'),
   '1': $t('ai.common.model_type.llm'),
   '2': $t('ai.common.model_type.vector'),
   '3': $t('ai.common.model_type.rerank'),

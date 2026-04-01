@@ -112,7 +112,7 @@ export function deleteTemplate(templateIds: CommonType.IdType[]) {
  */
 export function createAppFromTemplate(templateId: CommonType.IdType, appName: string) {
   return request<number>({
-    url: `/ai/workflow-template/createApp/${templateId}`,
+    url: `/ai/app/createFromTemplate/${templateId}`,
     method: 'post',
     data: { appName }
   });

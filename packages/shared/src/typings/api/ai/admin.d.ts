@@ -20,7 +20,7 @@ declare namespace Api.AI.Admin {
     modelId: CommonType.IdType;
     providerId: CommonType.IdType;
     modelName: string;
-    modelType: '1' | '2'; // 1: 语言模型, 2: 向量模型
+    modelType: '0' | '1' | '2' | '3' | '4' | '5' | '6'; // 0: 多模态, 1: 语言模型, 2: 向量模型, 3: 重排序, 4: 语音, 5: 图像, 6: 视频
     modelKey: string;
     apiKey: string;
     apiBase: string;
@@ -31,6 +31,7 @@ declare namespace Api.AI.Admin {
     providerIcon?: string;
     remark: string;
     isDefault?: number;
+    abilities?: string[];
   }
 
   /** 模型配置 */

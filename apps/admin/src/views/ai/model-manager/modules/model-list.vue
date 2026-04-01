@@ -128,6 +128,7 @@ async function handleSetDefault(item: Api.AI.Admin.Model) {
 }
 
 const modelTypeTagMap: Record<string, import('naive-ui').TagProps['type']> = {
+  '0': 'primary', // Multi-modal
   '1': 'primary', // LLM
   '2': 'success', // Embedding
   '3': 'warning', // Rerank
@@ -135,6 +136,29 @@ const modelTypeTagMap: Record<string, import('naive-ui').TagProps['type']> = {
   '5': 'info', // Image
   '6': 'default' // Video
 };
+
+/**
+ * 获取模型的多模态能力支持情况
+ * @param item 模型对象
+ */
+function getModelAbilities(item: any) {
+  let abilities: string[] = [];
+  try {
+    if (typeof item.abilities === 'string' && item.abilities) {
+      abilities = JSON.parse(item.abilities);
+    } else if (Array.isArray(item.abilities)) {
+      abilities = item.abilities;
+    }
+  } catch {
+    abilities = [];
+  }
+
+  return {
+    vision: abilities.includes('vision') || item.modelType === '5',
+    audio: abilities.includes('audio') || item.modelType === '4',
+    video: abilities.includes('video') || item.modelType === '6'
+  };
+}
 </script>
 
 <template>
@@ -144,7 +168,7 @@ const modelTypeTagMap: Record<string, import('naive-ui').TagProps['type']> = {
       size="small"
       :title="$t('ai.model_manager.model')"
       class="h-full card-wrapper"
-      content-class="flex flex-col h-full overflow-hidden"
+      content-class="flex-1 flex flex-col overflow-hidden"
     >
       <template #header-extra>
         <div class="flex items-center gap-3">
@@ -172,7 +196,7 @@ const modelTypeTagMap: Record<string, import('naive-ui').TagProps['type']> = {
         </div>
       </template>
 
-      <NSpin :show="loading" class="min-h-0 flex-1">
+      <NSpin :show="loading" class="flex-1 overflow-hidden" content-class="h-full flex flex-col">
         <NScrollbar class="h-full" content-class="p-4">
           <NEmpty
             v-if="filteredModels.length === 0"
@@ -271,6 +295,34 @@ const modelTypeTagMap: Record<string, import('naive-ui').TagProps['type']> = {
                         <NTag bordered size="small" type="default">
                           {{ aiProviderTypeRecord[item.modelSource] }}
                         </NTag>
+
+                        <!-- 多模态能力图标展示 -->
+                        <div class="ml-auto flex items-center gap-1.5 text-gray-400">
+                          <NTooltip v-if="getModelAbilities(item).vision" trigger="hover">
+                            <template #trigger>
+                              <span class="inline-flex cursor-help text-16px transition-colors hover:text-primary">
+                                <SvgIcon icon="carbon:view" />
+                              </span>
+                            </template>
+                            视觉 (Vision/Image)
+                          </NTooltip>
+                          <NTooltip v-if="getModelAbilities(item).audio" trigger="hover">
+                            <template #trigger>
+                              <span class="inline-flex cursor-help text-16px transition-colors hover:text-primary">
+                                <SvgIcon icon="carbon:microphone" />
+                              </span>
+                            </template>
+                            语音 (Audio/Speech)
+                          </NTooltip>
+                          <NTooltip v-if="getModelAbilities(item).video" trigger="hover">
+                            <template #trigger>
+                              <span class="inline-flex cursor-help text-16px transition-colors hover:text-primary">
+                                <SvgIcon icon="carbon:video" />
+                              </span>
+                            </template>
+                            视频 (Video)
+                          </NTooltip>
+                        </div>
                       </div>
                     </div>
                   </div>

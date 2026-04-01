@@ -180,8 +180,8 @@ function handleSSELine(line: string, onChunk?: (chunk: string) => void) {
     if (parsed.type === 'chunk' && parsed.content) {
       onChunk?.(parsed.content);
     }
-  } catch (e) {
-    console.error('Failed to parse SSE data:', e);
+  } catch {
+    // Failed to parse SSE data
   }
 }
 
@@ -232,7 +232,6 @@ export async function sendMessageWithStream(options: StreamRequestOptions) {
     return { success: true };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      console.log('Request was aborted');
       return { success: false, aborted: true };
     }
     throw error;

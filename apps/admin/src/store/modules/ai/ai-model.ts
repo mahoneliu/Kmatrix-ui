@@ -35,7 +35,7 @@ export const useAiModelStore = defineStore('ai-model', () => {
     }
 
     loading.value = true;
-    loadingPromise = fetchModelList({ modelType: '1', status: '0' })
+    loadingPromise = fetchModelList({ status: '0' })
       .then(res => {
         if (res.data) {
           models.value = res.data;
@@ -59,17 +59,20 @@ export const useAiModelStore = defineStore('ai-model', () => {
    * 获取模型选项(用于 NSelect)
    */
   function getModelOptions() {
-    return models.value.map(m => ({
-      label: m.modelName,
-      value: m.modelId
-    }));
+    return [...models.value]
+      .sort((a, b) => Number(a.modelType) - Number(b.modelType))
+      .map(m => ({
+        label: m.modelName,
+        value: m.modelId,
+        original: m
+      }));
   }
 
   /**
    * 根据 ID 获取模型
    */
   function getModelById(modelId: CommonType.IdType) {
-    return models.value.find(m => m.modelId === modelId);
+    return models.value.find(m => String(m.modelId) === String(modelId));
   }
 
   /**

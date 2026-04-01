@@ -166,8 +166,8 @@ export const useChatStore = defineStore('chat', () => {
       // 这里会由 API 服务调用
       // const response = await getResumableSessions();
       // resumableSessions.value = response.data;
-    } catch (error) {
-      console.error('Failed to fetch resumable sessions:', error);
+    } catch {
+      // Failed to fetch resumable sessions
     }
   }
 
@@ -180,8 +180,8 @@ export const useChatStore = defineStore('chat', () => {
       // 这里会由 API 服务调用
       // const response = await resumeSessionApi(sessionId);
       // 恢复消息历史等
-    } catch (error) {
-      console.error('Failed to resume session:', error);
+    } catch {
+      // Failed to resume session
     } finally {
       isResuming.value = false;
     }
@@ -195,8 +195,8 @@ export const useChatStore = defineStore('chat', () => {
       // 这里会由 API 服务调用
       // await clearAbortStatusApi(sessionId);
       resumableSessions.value = resumableSessions.value.filter(s => s.sessionId !== sessionId);
-    } catch (error) {
-      console.error('Failed to clear abort status:', error);
+    } catch {
+      // Failed to clear abort status
     }
   }
 

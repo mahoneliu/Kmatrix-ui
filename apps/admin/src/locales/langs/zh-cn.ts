@@ -1716,6 +1716,7 @@ const local: App.I18n.Schema = {
         local: '本地'
       },
       model_type: {
+        multi_modal: '多模态模型',
         llm: '语言模型',
         vector: '向量模型',
         rerank: '多路召回',

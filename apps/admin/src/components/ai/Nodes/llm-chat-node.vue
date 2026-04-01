@@ -20,7 +20,8 @@ const formModel = reactive({
   mcpServerIds: [] as string[],
   builtinToolIds: [] as string[],
   skillIds: [] as string[],
-  enableToolTrace: false
+  enableToolTrace: false,
+  enableMultimodal: false
 });
 
 // MCP Server 和工具下拉选项
@@ -41,6 +42,7 @@ function initData() {
     formModel.builtinToolIds = (config.builtinToolIds as string[]) || [];
     formModel.skillIds = (config.skillIds as string[]) || [];
     formModel.enableToolTrace = config.enableToolTrace || false;
+    formModel.enableMultimodal = config.enableMultimodal || false;
     userPrompt.value = config.userPrompt || $t('ai.workflow_node.default_user_prompt');
   }
 }
@@ -56,7 +58,8 @@ watch(
       JSON.stringify(newValue.mcpServerIds) !== JSON.stringify(currentConfig?.mcpServerIds) ||
       JSON.stringify(newValue.builtinToolIds) !== JSON.stringify(currentConfig?.builtinToolIds) ||
       JSON.stringify(newValue.skillIds) !== JSON.stringify(currentConfig?.skillIds) ||
-      newValue.enableToolTrace !== currentConfig?.enableToolTrace
+      newValue.enableToolTrace !== currentConfig?.enableToolTrace ||
+      newValue.enableMultimodal !== currentConfig?.enableMultimodal
     ) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
     }
@@ -93,6 +96,9 @@ watch(
       }
       if (config.enableToolTrace !== formModel.enableToolTrace) {
         formModel.enableToolTrace = config.enableToolTrace || false;
+      }
+      if (config.enableMultimodal !== formModel.enableMultimodal) {
+        formModel.enableMultimodal = config.enableMultimodal || false;
       }
       if (config.userPrompt !== userPrompt.value) {
         userPrompt.value = config.userPrompt || '';
@@ -178,6 +184,22 @@ function handleConfigChange() {
                   </NTooltip>
                 </div>
                 <NSwitch v-model:value="formModel.historyEnabled" size="small" />
+              </div>
+            </div>
+
+            <!-- 多模态开关 -->
+            <div class="workflow-config-item">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <label class="workflow-label">启用多模态 (视觉/音频)</label>
+                  <NTooltip>
+                    <template #trigger>
+                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
+                    </template>
+                    开启后，大模型将能读取传入的图片或音频附件进行多模态分析
+                  </NTooltip>
+                </div>
+                <NSwitch v-model:value="formModel.enableMultimodal" size="small" />
               </div>
             </div>
 

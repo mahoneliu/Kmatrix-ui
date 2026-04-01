@@ -1727,6 +1727,7 @@ const local: App.I18n.Schema = {
         local: 'Local'
       },
       model_type: {
+        multi_modal: 'Multi Modal Model',
         llm: 'Language Model',
         vector: 'Vector Model',
         rerank: 'Rerank Model',
