@@ -23,7 +23,9 @@ declare namespace Workflow {
     | 'LOOP'
     | 'FILE_STORAGE'
     | 'AUDIO_ASR'
-    | 'IMAGE_OCR';
+    | 'IMAGE_OCR'
+    | 'FILE_PARSE'
+    | 'DATASET_STORAGE';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -327,6 +329,20 @@ declare namespace Workflow {
     dataSourceId: CommonType.IdType;
     /** 最大返回行数 (默认100) */
     maxRows?: number;
+  }
+
+  /** 文件存储节点配置 */
+  interface FileStorageConfig extends NodeConfigFormData {
+    /** 目标知识库ID */
+    kbId?: number;
+    /** 目标数据集ID（需为 WORKFLOW_FILE 类型） */
+    datasetId?: number;
+  }
+
+  /** 文件解析节点配置 */
+  interface FileParseConfig extends NodeConfigFormData {
+    /** 解析方式 */
+    processType?: 'GENERIC_FILE' | 'QA_PAIR' | 'ONLINE_DOC' | 'WEB_LINK' | 'WORKFLOW_FILE';
   }
 
   /** 知识检索节点配置 */

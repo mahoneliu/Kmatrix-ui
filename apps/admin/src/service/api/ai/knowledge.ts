@@ -521,6 +521,17 @@ export function embeddingDocument(id: CommonType.IdType, option: 'UNEMBEDDED_ONL
   });
 }
 
+/**
+ * 重试工作流处理（针对 WORKFLOW_FILE 类型数据集中处理失败的文档）
+ * 将文档状态重置为「待处理(0)」并清理已生成的切片，等待调度器重新触发工作流
+ */
+export function retryWorkflowDocument(id: CommonType.IdType) {
+  return request<any>({
+    url: `/ai/document/retry/${id}`,
+    method: 'put'
+  });
+}
+
 // ========== 检索 API ==========
 
 /**

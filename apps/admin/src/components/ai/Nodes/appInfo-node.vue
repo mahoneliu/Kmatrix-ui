@@ -272,7 +272,6 @@ onMounted(() => {
             <div class="workflow-config-item">
               <label class="workflow-label">
                 {{ $t('ai.workflow_public.select_model') }}
-                <span class="workflow-label-required">*</span>
               </label>
               <ModelSelector v-model:model-value="formModel.modelId" class="workflow-input" />
             </div>

@@ -9,9 +9,11 @@ import DbQueryNode from '@/components/ai/Nodes/db-query-node.vue';
 import SqlGenerateNode from '@/components/ai/Nodes/sql-generate-node.vue';
 import SqlExecuteNode from '@/components/ai/Nodes/sql-execute-node.vue';
 import KnowledgeRetrievalNode from '@/components/ai/Nodes/knowledge-retrieval-node.vue';
+import FileStorageNode from '@/components/ai/Nodes/file-storage-node.vue';
 import ToolNode from '@/components/ai/Nodes/tool-node.vue';
 import SkillNode from '@/components/ai/Nodes/skill-node.vue';
 import LoopNode from '@/components/ai/Nodes/loop-node.vue';
+import FileParseNode from '@/components/ai/Nodes/file-parse-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
 
@@ -36,9 +38,11 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     TOOL: markRaw(ToolNode),
     SKILL: markRaw(SkillNode),
     LOOP: markRaw(LoopNode),
-    FILE_STORAGE: markRaw(BaseNode),
+    FILE_STORAGE: markRaw(FileStorageNode),
     AUDIO_ASR: markRaw(BaseNode),
     IMAGE_OCR: markRaw(BaseNode),
+    FILE_PARSE: markRaw(FileParseNode),
+    DATASET_STORAGE: markRaw(BaseNode),
     APP_INFO: markRaw(AppInfoComp)
   };
 

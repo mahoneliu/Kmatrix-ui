@@ -42,20 +42,24 @@ declare namespace Api.AI.KB {
     updateTime?: string;
     /** 文档数量 */
     documentCount?: number;
-    /** 处理类型: GENERIC_FILE, QA_PAIR, ONLINE_DOC, WEB_LINK */
-    processType?: 'GENERIC_FILE' | 'QA_PAIR' | 'ONLINE_DOC' | 'WEB_LINK';
+    /** 处理类型: GENERIC_FILE, QA_PAIR, ONLINE_DOC, WEB_LINK, WORKFLOW_FILE */
+    processType?: 'GENERIC_FILE' | 'QA_PAIR' | 'ONLINE_DOC' | 'WEB_LINK' | 'WORKFLOW_FILE';
+    /** 关联的工作流应用ID（仅工作流处理类型使用） */
+    workflowId?: CommonType.IdType | null;
+    /** 最大并行处理文档数（仅工作流处理类型使用，默认1） */
+    maxConcurrency?: number;
     /** 是否系统预设数据集 */
     isSystem?: boolean;
     /** 数据来源类型 */
     sourceType?: 'FILE_UPLOAD' | 'TEXT_INPUT' | 'WEB_CRAWL';
-    /** 最小分块大小 (token) */
-    minChunkSize?: number;
-    /** 最大分块大小 (token) */
-    maxChunkSize?: number;
-    /** 分块重叠大小 (token) */
-    chunkOverlap?: number;
     /** 支持的文件格式 (逗号分隔, *表示全部) */
     allowedFileTypes?: string;
+    /** 最小分块大小 */
+    minChunkSize?: number;
+    /** 最大分块大小 */
+    maxChunkSize?: number;
+    /** 分块重叠大小 */
+    chunkOverlap?: number;
     /** 子块大小 (token) */
     childChunkSize?: number;
     /** 子块重叠大小 (token) */

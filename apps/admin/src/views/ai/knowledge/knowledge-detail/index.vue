@@ -1,0 +1,495 @@
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import {
+  NButton,
+  NCard,
+  NDropdown,
+  NEmpty,
+  NList,
+  NListItem,
+  NPopover,
+  NTabPane,
+  NTabs,
+  useDialog,
+  useMessage
+} from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
+import {
+  batchCreateWebLinkDocument,
+  createOnlineDocument,
+  deleteDataset,
+  fetchDatasetsByKbId,
+  fetchKnowledgeBaseConfig,
+  fetchKnowledgeBaseDetail,
+  fetchKnowledgeBaseDetailStatistics
+} from '@/service/api/ai/knowledge';
+import { fetchModelList } from '@/service/api/ai/model';
+import { $t } from '@/locales';
+import RetrievalSandbox from '../knowledge-manager/modules/retrieval-sandbox.vue';
+import DatasetModal from './modules/dataset-modal.vue';
+import OnlineDocModal from './modules/online-doc-modal.vue';
+import WebLinkModal from './modules/web-link-modal.vue';
+import DocumentTable from './modules/document-table.vue';
+import QuestionTable from './modules/question-table.vue';
+
+const route = useRoute();
+const message = useMessage();
+const dialog = useDialog();
+
+const kbId = computed(() => route.query.kbId as string);
+
+const kb = ref<Api.AI.KB.KnowledgeBase | null>(null);
+const stats = ref<Api.AI.KB.Statistics | null>(null);
+const datasets = ref<Api.AI.KB.Dataset[]>([]);
+const selectedDatasetId = ref<CommonType.IdType | null>(null);
+
+const loading = ref(false);
+const datasetModalVisible = ref(false);
+const editingDataset = ref<Api.AI.KB.Dataset | null>(null);
+const sandboxVisible = ref(false);
+
+// 在线文档和网页链接模态框
+const onlineDocModalVisible = ref(false);
+const webLinkModalVisible = ref(false);
+// const chunkManagerModalVisible = ref(false);
+
+const tableRef = ref<any>(null);
+const questionTableRef = ref<any>(null);
+const activeTab = ref('documents');
+
+async function loadKnowledgeBase() {
+  if (!kbId.value) return;
+  try {
+    const { data } = await fetchKnowledgeBaseDetail(kbId.value);
+    kb.value = data;
+  } catch {
+    message.error($t('ai.knowledge_detail.index.loadKBFail'));
+  }
+}
+
+async function loadStats() {
+  if (!kbId.value) return;
+  try {
+    const { data } = await fetchKnowledgeBaseDetailStatistics(kbId.value);
+    stats.value = data;
+  } catch {
+    // ignore
+  }
+}
+
+const unifiedEmbeddingModel = ref(true);
+const models = ref<Api.AI.Admin.Model[]>([]);
+
+async function loadModelsAndConfig() {
+  try {
+    const [configRes, modelRes] = await Promise.all([fetchKnowledgeBaseConfig(), fetchModelList({ modelType: '2' })]);
+    if (!configRes.error && configRes.data) {
+      unifiedEmbeddingModel.value = configRes.data.unifiedEmbeddingModel;
+    }
+    if (!modelRes.error && modelRes.data) {
+      models.value = modelRes.data;
+    }
+  } catch {
+    // Failed to load KB config or models
+  }
+}
+
+function getEmbeddingModelDisplay(kbObj: Api.AI.KB.KnowledgeBase | null) {
+  if (unifiedEmbeddingModel.value) {
+    const defaultModel = models.value.find(m => m.isDefault === 1);
+    return defaultModel ? defaultModel.modelName : '全局统一向量模型';
+  }
+  if (!kbObj || !kbObj.embeddingModelId) return '未绑定模型';
+  const model = models.value.find(m => m.modelId === kbObj.embeddingModelId);
+  return model ? model.modelName : '未知模型';
+}
+
+async function loadDatasets() {
+  if (!kbId.value) return;
+  loading.value = true;
+  try {
+    const { data } = await fetchDatasetsByKbId(kbId.value);
+    datasets.value = data || [];
+    // 默认选中第一个
+    if (datasets.value.length > 0 && !selectedDatasetId.value) {
+      selectedDatasetId.value = datasets.value[0].id!;
+    }
+  } finally {
+    loading.value = false;
+  }
+}
+
+function handleAddDataset() {
+  editingDataset.value = null;
+  datasetModalVisible.value = true;
+}
+
+function handleEditDataset(ds: Api.AI.KB.Dataset) {
+  editingDataset.value = ds;
+  datasetModalVisible.value = true;
+}
+
+async function handleDeleteDataset(ds: Api.AI.KB.Dataset) {
+  if (!ds.id) return;
+  dialog.warning({
+    title: $t('ai.knowledge_detail.index.confirmDelete'),
+    content: $t('ai.knowledge_detail.index.deleteDatasetConfirm', { name: ds.name }),
+    positiveText: $t('ai.knowledge_detail.index.confirmDelete'),
+    negativeText: $t('common.cancel'),
+    onPositiveClick: async () => {
+      const { error } = await deleteDataset([ds.id!]);
+      if (!error) {
+        message.success($t('ai.knowledge_detail.index.deleteSuccess'));
+        if (selectedDatasetId.value === ds.id) {
+          selectedDatasetId.value = null;
+        }
+        loadDatasets();
+      }
+    }
+  });
+}
+
+function onDatasetModalClose(success: boolean) {
+  datasetModalVisible.value = false;
+  if (success) {
+    loadDatasets();
+  }
+}
+
+// 在线文档处理
+async function handleSaveOnlineDoc(data: { title: string; content: string }) {
+  if (!selectedDatasetId.value) return;
+
+  try {
+    await createOnlineDocument(selectedDatasetId.value, data.title, data.content);
+    message.success($t('ai.knowledge_detail.index.onlineDocSaveSuccess'));
+    tableRef.value?.getData();
+  } catch {
+    message.error($t('ai.knowledge_detail.index.saveFail'));
+  }
+}
+
+// 网页链接处理
+async function handleSubmitWebLink(data: { urls: string[] }) {
+  if (!selectedDatasetId.value) return;
+
+  try {
+    // 批量添加网页链接
+    await batchCreateWebLinkDocument(selectedDatasetId.value!, data.urls);
+    message.success($t('ai.knowledge_detail.index.addWebLinkSuccess', { count: data.urls.length }));
+    tableRef.value?.getData();
+  } catch {
+    message.error($t('ai.knowledge_detail.index.addFail'));
+  }
+}
+
+// 获取当前选中的数据集
+const selectedDataset = computed(() => {
+  return datasets.value.find(ds => ds.id === selectedDatasetId.value);
+});
+
+function getDatasetIcon(type?: string) {
+  switch (type) {
+    case 'QA_PAIR':
+      return 'mdi:frequently-asked-questions';
+    case 'ONLINE_DOC':
+      return 'mdi:text-box-multiple';
+    case 'WEB_LINK':
+      return 'mdi:web';
+    case 'GENERIC_FILE':
+    default:
+      return 'mdi:folder';
+  }
+}
+
+function getProcessTypeLabel(type?: string) {
+  switch (type) {
+    case 'QA_PAIR':
+      return $t('ai.knowledge_detail.index.processType.QA_PAIR');
+    case 'ONLINE_DOC':
+      return $t('ai.knowledge_detail.index.processType.ONLINE_DOC');
+    case 'WEB_LINK':
+      return $t('ai.knowledge_detail.index.processType.WEB_LINK');
+    case 'WORKFLOW_FILE':
+      return $t('ai.knowledge_detail.index.processType.WORKFLOW_FILE');
+    case 'GENERIC_FILE':
+      return $t('ai.knowledge_detail.index.processType.GENERIC_FILE');
+    default:
+      return type || $t('ai.knowledge_detail.index.processType.UNKNOWN');
+  }
+}
+
+onMounted(() => {
+  loadModelsAndConfig();
+  loadKnowledgeBase();
+  loadStats();
+  loadDatasets();
+});
+</script>
+
+<template>
+  <div class="h-0 flex flex-col flex-1">
+    <!-- 头部 -->
+    <div :bordered="false" size="small" class="mb-2">
+      <div class="flex flex-wrap items-center justify-between gap-y-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-xl text-primary">
+            <SvgIcon local-icon="mdi-book-open-variant" />
+          </div>
+          <div class="flex flex-col">
+            <h1 class="text-xl text-gray-700 font-bold">{{ kb?.name }}</h1>
+            <p class="text-sm text-gray-500">{{ kb?.description }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pr-4 text-gray-500 lg:gap-x-10">
+          <NButton type="info" size="small" ghost @click="sandboxVisible = true">
+            <template #icon>
+              <SvgIcon local-icon="mdi-flask" />
+            </template>
+            {{ $t('ai.knowledge_detail.index.retrievalTest') }}
+          </NButton>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_manager.modal.embeddingModel') }}</span>
+            <div class="max-w-28 flex items-center gap-1 truncate text-sm text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-brain" class="text-info" />
+              <span>{{ getEmbeddingModelDisplay(kb) }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.question') }}</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-frequently-asked-questions" class="text-purple-500" />
+              <span>{{ stats?.questionCount || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.chunk') }}</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-vector-square" class="text-orange-500" />
+              <span>{{ stats?.totalChunks || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.document') }}</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-file-document-outline" class="text-green-500" />
+              <span>{{ stats?.totalDocuments || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.processing') }}</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-clock-outline" class="text-blue-500" />
+              <span>{{ stats?.processingDocs || 0 }}</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs text-gray-400">{{ $t('ai.knowledge_detail.index.stats.failed') }}</span>
+            <div class="flex items-center gap-1 text-lg text-gray-700 font-bold">
+              <SvgIcon local-icon="mdi-alert-circle-outline" class="text-red-500" />
+              <span>{{ stats?.errorDocs || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="h-full min-h-0 flex flex-1 overflow-hidden">
+      <NTabs
+        v-model:value="activeTab"
+        type="line"
+        pane-style="height: 100%; display: flex; flex-direction: column;"
+        class="h-full min-h-0 flex flex-col flex-1"
+        pane-class="flex-1 overflow-hidden h-full"
+      >
+        <NTabPane
+          name="documents"
+          :tab="$t('ai.knowledge_detail.index.tabs.documents')"
+          class="h-full min-h-0 flex flex-col flex-1"
+        >
+          <div class="h-full min-h-0 flex flex-1 gap-4 overflow-hidden">
+            <!-- 左侧数据集列表 -->
+            <NCard :bordered="false" size="small" class="w-55 shrink-0 card-wrapper">
+              <template #header>
+                <div class="flex items-center gap-1">
+                  <span>{{ $t('ai.knowledge_detail.index.dataset.title') }}</span>
+                  <NPopover trigger="hover" :title="$t('ai.knowledge_detail.index.dataset.title')" placement="right">
+                    <template #trigger>
+                      <div class="flex cursor-help items-center text-gray-400 hover:text-primary">
+                        <SvgIcon local-icon="mdi-help-circle-outline" class="text-base" />
+                      </div>
+                    </template>
+                    <div class="w-64">
+                      <p>{{ $t('ai.knowledge_detail.index.dataset.desc1') }}</p>
+                      <p class="mt-1">{{ $t('ai.knowledge_detail.index.dataset.desc2') }}</p>
+                    </div>
+                  </NPopover>
+                </div>
+              </template>
+              <template #header-extra>
+                <NButton
+                  ghost
+                  class="hover:(bg-primary bg-opacity-20)"
+                  size="tiny"
+                  :title="$t('ai.knowledge_detail.index.dataset.add')"
+                  @click="handleAddDataset"
+                >
+                  <template #icon>
+                    <SvgIcon local-icon="mdi-plus" />
+                  </template>
+                </NButton>
+              </template>
+
+              <NList v-if="datasets.length > 0" hoverable clickable>
+                <NListItem
+                  v-for="ds in datasets"
+                  :key="ds.id"
+                  class="dataset-item group"
+                  :class="{ 'dataset-item--active': selectedDatasetId === ds.id }"
+                  @click="selectedDatasetId = ds.id ?? null"
+                >
+                  <div class="flex flex-col gap-0.5 py-0.5">
+                    <!-- 顶部：图标+名称，右上角系统标识 -->
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="flex items-center gap-2 overflow-hidden">
+                        <!-- 处理方式图标 + popover -->
+                        <NPopover trigger="hover" placement="right">
+                          <template #trigger>
+                            <div
+                              class="h-6 w-6 flex shrink-0 cursor-pointer items-center justify-center rounded-lg bg-primary/5 transition-all group-hover:bg-primary/10"
+                            >
+                              <SvgIcon
+                                :icon="getDatasetIcon(ds.processType)"
+                                class="text-lg text-primary transition-transform group-hover:scale-110"
+                              />
+                            </div>
+                          </template>
+                          <span class="text-xs">{{ getProcessTypeLabel(ds.processType) }}</span>
+                        </NPopover>
+                        <span class="truncate text-sm font-medium">{{ ds.name }}</span>
+                      </div>
+                      <!-- 右上角：系统小图标 -->
+                      <NTooltip v-if="ds.isSystem" trigger="hover" placement="top">
+                        <template #trigger>
+                          <SvgIcon local-icon="mdi-shield-check-outline" class="shrink-0 text-base text-success" />
+                        </template>
+                        {{ $t('ai.knowledge_detail.index.dataset.system') }}
+                      </NTooltip>
+                    </div>
+
+                    <!-- 底部：文档数 + 操作菜单 -->
+                    <div class="flex items-center justify-between pl-1 pt-0.5">
+                      <span v-if="(ds.documentCount ?? 0) > 0" class="text-xs text-gray-400">
+                        {{ $t('ai.knowledge_detail.index.dataset.docCount', { count: ds.documentCount }) }}
+                      </span>
+                      <span v-else />
+                      <NDropdown
+                        :options="[
+                          { label: $t('ai.knowledge_detail.index.dataset.edit'), key: 'edit' },
+                          { label: $t('ai.knowledge_detail.index.dataset.delete'), key: 'delete' }
+                        ]"
+                        trigger="hover"
+                        @select="
+                          key => {
+                            if (key === 'edit') handleEditDataset(ds);
+                            else if (key === 'delete') handleDeleteDataset(ds);
+                          }
+                        "
+                      >
+                        <NButton
+                          quaternary
+                          size="tiny"
+                          class="opacity-0 transition-opacity group-hover:opacity-100"
+                          @click.stop
+                        >
+                          <SvgIcon local-icon="mdi-dots-horizontal" />
+                        </NButton>
+                      </NDropdown>
+                    </div>
+                  </div>
+                </NListItem>
+              </NList>
+              <NEmpty v-else :description="$t('ai.knowledge_detail.index.dataset.empty')" />
+            </NCard>
+
+            <!-- 右侧内容区域 -->
+            <div v-if="selectedDatasetId" class="h-full flex flex-col flex-1 overflow-hidden card-wrapper">
+              <DocumentTable
+                ref="tableRef"
+                class="h-full flex flex-col flex-1"
+                :kb-id="kbId"
+                :dataset-id="selectedDatasetId"
+                :process-type="selectedDataset?.processType"
+                :dataset="selectedDataset"
+                @add-online-doc="onlineDocModalVisible = true"
+                @add-web-link="webLinkModalVisible = true"
+                @edit-dataset="handleEditDataset(selectedDataset!)"
+              />
+            </div>
+            <NCard v-else :bordered="false" size="small" class="flex-1 card-wrapper">
+              <NEmpty :description="$t('ai.knowledge_detail.index.dataset.pleaseSelect')" class="h-full flex-center" />
+            </NCard>
+          </div>
+        </NTabPane>
+        <NTabPane name="questions" :tab="$t('ai.knowledge_detail.index.tabs.questions')" class="h-full">
+          <QuestionTable ref="questionTableRef" :kb-id="kbId" />
+        </NTabPane>
+      </NTabs>
+    </div>
+
+    <DatasetModal
+      v-model:visible="datasetModalVisible"
+      :kb-id="kbId"
+      :data="editingDataset"
+      @success="onDatasetModalClose(true)"
+      @cancel="onDatasetModalClose(false)"
+    />
+
+    <OnlineDocModal
+      v-model:visible="onlineDocModalVisible"
+      :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
+      @save="handleSaveOnlineDoc"
+    />
+
+    <WebLinkModal
+      v-model:visible="webLinkModalVisible"
+      :dataset-id="selectedDatasetId ? Number(selectedDatasetId) : undefined"
+      @submit="handleSubmitWebLink"
+    />
+
+    <RetrievalSandbox v-model:visible="sandboxVisible" :kb-id="kb?.id" :fixed-kb="true" />
+  </div>
+</template>
+
+<style scoped>
+.n-list.n-list--bordered .n-list-item,
+.n-list.n-list--hoverable .n-list-item {
+  padding: 6px 5px;
+}
+
+.dataset-item {
+  border: 1px solid #e0e0e6;
+  border-radius: 6px;
+  margin-top: 8px;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.n-list.n-list--hoverable .dataset-item:hover {
+  border-color: #2080f0;
+}
+
+.dataset-item--active {
+  border-color: #2080f0 !important;
+  border: 1px solid;
+  background-color: #e0e0e6;
+}
+
+:deep(.n-list .n-list__divider) {
+  display: none;
+}
+</style>

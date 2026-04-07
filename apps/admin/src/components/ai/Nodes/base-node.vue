@@ -5,7 +5,6 @@ import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
 import { SvgIcon } from '@sa/materials';
-import { AI_NODE_TYPES } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/ai/node-params';
 import { getNodeTypeInfo } from '@/utils/ai/node-registry';
@@ -132,9 +131,8 @@ const nodeConfig = computed(() => {
   return getNodeTypeInfo(props.data.nodeType);
 });
 
-// 是否为AI节点（需要显示AI配置面板）
 const isAiNode = computed(() => {
-  return AI_NODE_TYPES.includes(props.data.nodeType as Workflow.NodeType);
+  return nodeConfig.value?.requireAiConfig === '1';
 });
 
 // 是否允许自定义参数

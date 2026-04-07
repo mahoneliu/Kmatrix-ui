@@ -22,7 +22,7 @@ const customRoutes: any = [
       {
         name: 'ai_document-upload_step1',
         path: '/document-upload/step1',
-        component: 'view.ai_document-upload_step1',
+        component: 'view.ai_knowledge_document-upload_step1',
         meta: {
           title: '我要自定义分块',
           hideInMenu: true,
@@ -33,7 +33,7 @@ const customRoutes: any = [
       {
         name: 'ai_document-upload_step2',
         path: '/document-upload/step2',
-        component: 'view.ai_document-upload_step2',
+        component: 'view.ai_knowledge_document-upload_step2',
         meta: {
           title: '自定义分块第二步',
           hideInMenu: true,

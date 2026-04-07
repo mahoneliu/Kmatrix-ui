@@ -304,10 +304,10 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    '403': '无权限',
+    '404': '页面不存在',
+    '500': '服务器错误',
     login: '登录',
-    403: '无权限',
-    404: '页面不存在',
-    500: '服务器错误',
     'iframe-page': '外链页面',
     home: '首页',
     system: '系统管理',
@@ -344,29 +344,34 @@ const local: App.I18n.Schema = {
     tool_gen: '代码生成',
     about: '关于',
     ai: 'AI 管理',
-    'ai_model-manager': '模型管理',
-    'ai_app-manager': '应用管理',
+    'ai_model_model-manager': '模型管理',
+    'ai_model_mcp-manager': 'MCP服务',
+    'ai_model_tool-manager': '工具管理',
+    'ai_model_skill-manager': '技能管理',
+    'ai_knowledge_knowledge-manager': '知识库管理',
+    'ai_knowledge_knowledge-detail': '知识库详情',
+    'ai_knowledge_chunk-manager': '分块管理',
+    'ai_knowledge_document-upload': '文档上传',
+    'ai_knowledge_document-upload_step1': '文档上传-第一步',
+    'ai_knowledge_document-upload_step2': '文档上传-第二步',
+    'ai_workflow_workflow-template': '工作流模板',
+    'ai_workflow_node-definition': '节点定义',
+    'ai_workflow_template-editor': '模板编排',
+    'ai_workflow_datasource-manager': '数据源管理',
+    'ai_app_app-manager': '应用管理',
+    'ai_app_app-detail': '应用详情',
+    ai_app_chat: 'AI对话',
+    'ai_app_rate-limit': '限流配置',
+    ai_model: '大模型',
+    ai_knowledge: '知识库',
+    ai_app: '应用管理',
     ai_workflow: '工作流编排',
-    'ai_node-definition': '节点定义管理',
-    'ai_datasource-manager': '数据源管理',
-    'ai_app-detail': 'App详情',
-    'ai_knowledge-manager': '知识库管理',
-    'ai_knowledge-detail': '知识库详情',
-    ai_chat: 'AI对话',
-    'ai_workflow-template': '工作流模板',
-    'ai_template-editor': '模板编辑器',
-    'ai_chunk-manager': '分块管理',
-    'ai_mcp-manager': 'MCP 管理',
-    'ai_tool-manager': '工具管理',
-    'ai_document-upload': '文档上传',
-    'ai_document-upload_step1': '文档上传-第一步',
-    'ai_document-upload_step2': '文档上传-第二步',
-    'ai_skill-manager': '技能管理',
-    'ai_rate-limit': '频率限制',
+    ai_workflow_editor: '工作流编排',
     ai_ai_model: '大模型',
     ai_ai_knowledge: '知识库',
     ai_ai_workflow: '工作流',
-    ai_ai_app: '应用管理'
+    ai_ai_app: '应用管理',
+    'ai_workflow_connection-rule-manager': '连接规则管理'
   },
   menu: {
     system_tenant: '租户管理',
@@ -458,7 +463,6 @@ const local: App.I18n.Schema = {
       timeout: '超时'
     }
   },
-
   page: {
     login: {
       common: {
@@ -1535,7 +1539,8 @@ const local: App.I18n.Schema = {
     },
     about: {
       title: '关于',
-      introduction: `KMatrix 是基于Ruoyi_Vue_Plus/Langchain4j/Langgraph为核心的AI工作流编排平台和知识库，为开发者提供了完整的AI应用开发解决方案。`,
+      introduction:
+        'KMatrix 是基于Ruoyi_Vue_Plus/Langchain4j/Langgraph为核心的AI工作流编排平台和知识库，为开发者提供了完整的AI应用开发解决方案。',
       projectInfo: {
         title: '项目信息',
         version: '版本',
@@ -1675,6 +1680,7 @@ const local: App.I18n.Schema = {
       cancel_dislike: '取消点踩',
       upload_image: '上传图片',
       upload_audio: '上传录音',
+      upload_file: '上传文件',
       upload_fail: '上传失败',
       upload_error: '上传异常',
       abort: '中断',
@@ -1716,13 +1722,13 @@ const local: App.I18n.Schema = {
         local: '本地'
       },
       model_type: {
-        multi_modal: '多模态模型',
-        llm: '语言模型',
-        vector: '向量模型',
+        multi_modal: '多模态',
+        llm: '语言',
+        vector: '向量',
         rerank: '多路召回',
-        speech: '语音模型',
-        image: '图像模型',
-        video: '视频模型'
+        speech: '语音',
+        image: '图像',
+        video: '视频'
       },
       app_type: {
         fixed_template: '固定模板',
@@ -1998,6 +2004,7 @@ const local: App.I18n.Schema = {
           ONLINE_DOC: '在线文档',
           WEB_LINK: '网页链接',
           GENERIC_FILE: '通用文件',
+          WORKFLOW_FILE: '工作流处理',
           UNKNOWN: '未知'
         },
         stats: {
@@ -2022,7 +2029,8 @@ const local: App.I18n.Schema = {
           empty: '暂无数据集',
           edit: '编辑',
           delete: '删除',
-          pleaseSelect: '请先选择或创建数据集'
+          pleaseSelect: '请先选择或创建数据集',
+          processMode: '处理方式'
         }
       },
       document: {
@@ -2057,7 +2065,11 @@ const local: App.I18n.Schema = {
         uploadQA: '上传QA对',
         addOnlineDoc: '添加在线文档',
         addWebLink: '添加网页链接',
+        uploadWorkflow: '上传文件',
         addDoc: '添加文档',
+        actionRetry: '重试处理',
+        retrySuccess: '已重置为待处理状态，等待工作流调度',
+        retryFail: '重试失败',
         customChunk: '我要自定义分块',
         dragUpload: '点击或拖拽文件到此处上传',
         qaFormatTip: 'QA对支持 Excel(.xlsx/.xls) 和 CSV 文件，第一列为问题，第二列为答案',
@@ -2069,7 +2081,11 @@ const local: App.I18n.Schema = {
         documentPromptTip:
           '提示词中的 {data} 为分段内容的占位符，执行时替换为分段内容发送给 AI 模型；\nAI 模型根据分段内容生成相关问题，每行一个问题返回；\n生成效果依赖于所选模型和提示词，用户可自行调整至最佳效果。',
         documentPromptText:
-          '请根据以下参考文本，识别 3-5 个潜在的用户问题。\n仅输出问题，每行一个。不要对它们进行编号。\n参考文本：\n{data}'
+          '请根据以下参考文本，识别 3-5 个潜在的用户问题。\n仅输出问题，每行一个。不要对它们进行编号。\n参考文本：\n{data}',
+        workflowAppRequired: '数据集尚未关联工作流应用，请先编辑数据集并选择合适的应用。',
+        workflowAppUnpublished: '关联的工作流应用尚未发布，请先前往应用管理发布该应用。',
+        workflowAppInvalidType: '关联的应用类型不正确（需为文件处理类型），请重新编辑数据集。',
+        goToEdit: '去编辑'
       },
       datasetModal: {
         editDataset: '编辑数据集',
@@ -2094,8 +2110,16 @@ const local: App.I18n.Schema = {
           GENERIC_FILE: '通用文件 (PDF/Word/TXT)',
           QA_PAIR: 'QA问答对 (Excel/CSV)',
           ONLINE_DOC: '在线文档',
-          WEB_LINK: '网页链接'
+          WEB_LINK: '网页链接',
+          WORKFLOW_FILE: '工作流处理'
         },
+        workflowId: '关联应用',
+        workflowIdPlaceholder: '选择用于处理文档的工作流应用（需 useType=fileProcess）',
+        workflowIdRequired: '请选择关联的工作流应用',
+        workflowIdTip: '工作流将接收 documentId 作为输入，处理完成后通过「数据集存储节点」写入知识库',
+        goToAppManager: '去创建',
+        maxConcurrency: '最大并行数',
+        maxConcurrencyPlaceholder: '同一时刻最多并行处理的文档数量（默认1）',
         sourceType: '来源类型',
         sourceTypePlaceholder: '选择数据来源类型',
         sourceTypeOptions: {
@@ -2404,6 +2428,10 @@ const local: App.I18n.Schema = {
       fixed_template: '固定模板',
       create_from_template: '从模板创建',
       search_placeholder: '请输入应用名称',
+      use_type: '应用类型',
+      use_type_placeholder: '请选择应用类型',
+      use_type_chat: '对话应用',
+      use_type_file: '文件处理',
       app_name: '应用名称',
       app_name_placeholder: '请输入应用名称',
       app_desc: '应用描述',
@@ -2415,6 +2443,7 @@ const local: App.I18n.Schema = {
       status_published: '已发布',
       status_unpublished: '未发布',
       workflow_config: '工作流配置',
+      edit_app: '编辑应用',
       go_to_chat: '去对话',
       template_select: {
         title: '从模版创建应用',
@@ -2802,6 +2831,9 @@ const local: App.I18n.Schema = {
       hybrid_retrieval: '混合检索',
       retrieval_config: '检索配置',
       knowledge_base: '知识库',
+      dataset: '数据集(文件处理方式)',
+      select_dataset: '选择数据集（仅工作流处理类型）',
+      select_knowledge_base_first: '请先选择知识库',
       retrieval_mode: '检索模式',
       return_count: '返回数量 (Top K)',
       enable_rerank: '启用重排序 (Rerank)',
@@ -2813,11 +2845,12 @@ const local: App.I18n.Schema = {
       param_type_object: '对象',
       param_type_array: '数组',
       param_type_datetime: '时间',
-      node_category_basic: '基础节点',
-      node_category_ai: 'AI 节点',
-      node_category_logic: '逻辑节点',
-      node_category_database: '数据库节点',
-      node_category_action: '动作节点',
+      node_category_basic: '基础',
+      node_category_ai: 'AI',
+      node_category_logic: '逻辑',
+      node_category_database: '数据库',
+      node_category_action: '动作',
+      node_category_fileprocessing: '文件处理',
       op_eq: '等于 (==)',
       op_ne: '不等于 (!=)',
       op_gt: '大于 (>)',
@@ -2865,7 +2898,8 @@ const local: App.I18n.Schema = {
       and_n_more: '{summary} 等{count}项',
       system_prompt: '系统提示词',
       no_limit: '不限制',
-      default_user_prompt: "已知信息：${'{'}chatContext{'}'}\n问题：${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
+      // eslint-disable-next-line no-template-curly-in-string
+      default_user_prompt: "已知信息：${'{'}chatContext{'}'}\n问题：${'{'}userInput{'}'}",
       unknown: '未知',
       start: '开始',
       end: '结束',
@@ -2887,7 +2921,14 @@ const local: App.I18n.Schema = {
       continue_when_met: '{varName} {op} {val} 满足时循环',
       loop_when: '{summary} 时循环',
       max_iterations_label: '最大迭代次数',
-      exit_or_end: '跳出或结束 (Exit)'
+      exit_or_end: '跳出或结束 (Exit)',
+      parse_config: '解析配置',
+      process_type: '解析方式',
+      process_type_desc: '选择特定解析 Handler 处理文件。默认根据关联数据集自动识别。',
+      process_type_generic: '通用文件解析',
+      process_type_qa: 'QA 对解析',
+      process_type_online: '在线文档解析',
+      process_type_web: '网页链接解析'
     },
     workflow_public: {
       select_model: '选择模型',
@@ -3016,7 +3057,8 @@ const local: App.I18n.Schema = {
         transportTypeRequired: '请选择传输协议',
         serverNamePlaceholder: '请输入 MCP Server 名称',
         descriptionPlaceholder: '请输入描述信息',
-        serverConfigPlaceholder: '请输入 JSON 格式的 Server 配置，如：{"url": "http://...","headers": {}}'
+        serverConfigPlaceholder:
+          "请输入 JSON 格式的 Server 配置，如：{' {'}\"url\": \"http://...\",\"headers\": {' {'}{' }'}{' }'}"
       }
     },
     builtinTool: {
@@ -3066,6 +3108,15 @@ const local: App.I18n.Schema = {
         codePlaceholder: '在此编写 Python 代码...',
         schemaPlaceholder: '请输入 JSON Schema 格式的输入参数定义'
       }
+    },
+    connection_rule: {
+      matrix_view: '矩阵视图',
+      list_view: '列表视图',
+      source_node: '源节点',
+      target_node: '目标节点',
+      allowed: '是否允许',
+      source_node_required: '请输入源节点类型',
+      target_node_required: '请输入目标节点类型'
     }
   },
   datatable: {

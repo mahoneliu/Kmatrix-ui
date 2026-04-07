@@ -59,6 +59,14 @@ const capabilities = computed(() => {
 
   // 遍历所有工作流节点收集多模态能力
   workflowStore.nodes.forEach(node => {
+    const nodeType = node.data?.nodeType as string | undefined;
+
+    // 根据节点类型直接补充对应能力
+    if (nodeType === 'FILE_STORAGE') caps.add('file-storage');
+    if (nodeType === 'FILE_PARSE') caps.add('file-parse');
+    if (nodeType === 'AUDIO_ASR') caps.add('audio-asr');
+    if (nodeType === 'IMAGE_OCR') caps.add('image-ocr');
+
     // 获取每个节点的 modelId（无论是 APP_INFO、大模型节点，还是图像识别节点）
     const modelId = node.data?.config?.modelId;
     if (modelId) {

@@ -1579,6 +1579,10 @@ declare namespace App {
           fixed_template: string;
           create_from_template: string;
           search_placeholder: string;
+          use_type: string;
+          use_type_placeholder: string;
+          use_type_chat: string;
+          use_type_file: string;
           app_name: string;
           app_name_placeholder: string;
           app_desc: string;
@@ -1590,6 +1594,7 @@ declare namespace App {
           status_published: string;
           status_unpublished: string;
           workflow_config: string;
+          edit_app: string;
           go_to_chat: string;
           template_select: {
             title: string;
@@ -1733,6 +1738,7 @@ declare namespace App {
           cancel_dislike: string;
           upload_image: string;
           upload_audio: string;
+          upload_file: string;
           upload_fail: string;
           upload_error: string;
           abort: string;
@@ -2028,6 +2034,7 @@ declare namespace App {
           node_category_logic: string;
           node_category_database: string;
           node_category_action: string;
+          node_category_fileprocessing: string;
           op_eq: string;
           op_ne: string;
           op_gt: string;
@@ -2161,6 +2168,9 @@ declare namespace App {
           hybrid_retrieval: string;
           retrieval_config: string;
           knowledge_base: string;
+          dataset: string;
+          select_dataset: string;
+          select_knowledge_base_first: string;
           retrieval_mode: string;
           return_count: string;
           enable_rerank: string;
@@ -2187,6 +2197,13 @@ declare namespace App {
           loop_when: string;
           max_iterations_label: string;
           exit_or_end: string;
+          parse_config: string;
+          process_type: string;
+          process_type_desc: string;
+          process_type_generic: string;
+          process_type_qa: string;
+          process_type_online: string;
+          process_type_web: string;
         };
         workflow_public: {
           select_model: string;
@@ -2461,6 +2478,7 @@ declare namespace App {
               ONLINE_DOC: string;
               WEB_LINK: string;
               GENERIC_FILE: string;
+              WORKFLOW_FILE: string;
               UNKNOWN: string;
             };
             stats: {
@@ -2486,6 +2504,7 @@ declare namespace App {
               edit: string;
               delete: string;
               pleaseSelect: string;
+              processMode: string;
             };
           };
           document: {
@@ -2520,7 +2539,11 @@ declare namespace App {
             uploadQA: string;
             addOnlineDoc: string;
             addWebLink: string;
+            uploadWorkflow: string;
             addDoc: string;
+            actionRetry: string;
+            retrySuccess: string;
+            retryFail: string;
             customChunk: string;
             dragUpload: string;
             qaFormatTip: string;
@@ -2531,6 +2554,10 @@ declare namespace App {
             batchGenerateQuestion: string;
             documentPromptTip: string;
             documentPromptText: string;
+            workflowAppRequired: string;
+            workflowAppUnpublished: string;
+            workflowAppInvalidType: string;
+            goToEdit: string;
           };
           datasetModal: {
             editDataset: string;
@@ -2556,7 +2583,15 @@ declare namespace App {
               QA_PAIR: string;
               ONLINE_DOC: string;
               WEB_LINK: string;
+              WORKFLOW_FILE: string;
             };
+            workflowId: string;
+            workflowIdPlaceholder: string;
+            workflowIdRequired: string;
+            workflowIdTip: string;
+            goToAppManager: string;
+            maxConcurrency: string;
+            maxConcurrencyPlaceholder: string;
             sourceType: string;
             sourceTypePlaceholder: string;
             sourceTypeOptions: {
@@ -2761,6 +2796,15 @@ declare namespace App {
             codePlaceholder: string;
             schemaPlaceholder: string;
           };
+        };
+        connection_rule: {
+          matrix_view: string;
+          list_view: string;
+          source_node: string;
+          target_node: string;
+          allowed: string;
+          source_node_required: string;
+          target_node_required: string;
         };
       };
       datatable: {

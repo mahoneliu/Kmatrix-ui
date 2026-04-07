@@ -42,6 +42,8 @@ declare namespace Api.AI.Workflow {
     allowCustomInputParams?: string;
     /** 是否允许自定义输出参数 (0否/1是) */
     allowCustomOutputParams?: string;
+    /** 是否需要AI大模型高级配置选项 (0否/1是) */
+    requireAiConfig?: string;
     /** 输入参数定义 */
     inputParams?: NodeParamDefinition[];
     /** 输出参数定义 */

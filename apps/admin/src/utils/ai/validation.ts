@@ -59,6 +59,8 @@ const NODE_CONFIG_RULES: Record<
   FILE_STORAGE: [],
   AUDIO_ASR: [],
   IMAGE_OCR: [],
+  FILE_PARSE: [],
+  DATASET_STORAGE: [],
   SKILL: [{ field: 'skillId', label: '执行技能' }]
 };
 

@@ -19,7 +19,9 @@ const fallbackConnectionRules: Record<string, string[]> = {
     'KNOWLEDGE_RETRIEVAL',
     'FILE_STORAGE',
     'AUDIO_ASR',
-    'IMAGE_OCR'
+    'IMAGE_OCR',
+    'FILE_PARSE',
+    'DATASET_STORAGE'
   ],
   LLM_CHAT: ['END', 'LLM_CHAT', 'CONDITION', 'FIXED_RESPONSE', 'DB_QUERY', 'KNOWLEDGE_RETRIEVAL'],
   INTENT_CLASSIFIER: ['LLM_CHAT', 'CONDITION', 'FIXED_RESPONSE', 'END', 'DB_QUERY', 'KNOWLEDGE_RETRIEVAL'],
@@ -31,6 +33,8 @@ const fallbackConnectionRules: Record<string, string[]> = {
   AUDIO_ASR: ['LLM_CHAT', 'CONDITION', 'END'],
   IMAGE_OCR: ['LLM_CHAT', 'CONDITION', 'END'],
   END: [],
+  FILE_PARSE: ['DATASET_STORAGE', 'END'],
+  DATASET_STORAGE: ['END'],
   APP_INFO: []
 };
 
@@ -40,13 +44,23 @@ const fallbackConnectionRules: Record<string, string[]> = {
 export function isValidConnection(sourceType: Workflow.NodeType, targetType: Workflow.NodeType): boolean {
   const nodeDefinitionStore = useNodeDefinitionStore();
 
-  // 优先使用后端的动态规则
-  if (nodeDefinitionStore.connectionRules && Object.keys(nodeDefinitionStore.connectionRules).length > 0) {
-    const allowedTargets = nodeDefinitionStore.connectionRules[sourceType] || [];
+  const mode = nodeDefinitionStore.connectionRuleMode;
+  const rules = nodeDefinitionStore.connectionRules;
+
+  // 黑名单模式：默认全部允许，只有在禁止列表里才拒绝
+  // 即使没有任何禁止规则（空 map），也应该全部放行
+  if (mode === 'blacklist') {
+    const deniedTargets = rules[sourceType] || [];
+    return !(deniedTargets as string[]).includes(targetType);
+  }
+
+  // 白名单模式：必须在允许列表里才放行
+  if (rules && Object.keys(rules).length > 0) {
+    const allowedTargets = rules[sourceType] || [];
     return (allowedTargets as string[]).includes(targetType);
   }
 
-  // 兜底规则
+  // 白名单兜底规则
   const allowedTargets = fallbackConnectionRules[sourceType] || [];
   return allowedTargets.includes(targetType);
 }

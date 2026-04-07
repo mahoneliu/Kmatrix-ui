@@ -58,6 +58,7 @@ const local = {
       abort_failed: 'Abort failed',
       upload_image: 'Upload Image',
       upload_audio: 'Upload Audio',
+      upload_file: 'Upload File',
       upload_fail: 'Upload failed',
       upload_error: 'Upload error',
       resume_session: 'Resume Session',

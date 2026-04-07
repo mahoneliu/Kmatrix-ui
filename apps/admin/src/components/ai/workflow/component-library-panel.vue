@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { NPopover, NTabPane, NTabs } from 'naive-ui';
-import { NODE_CATEGORY_LIST } from '@/constants/workflow';
 import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
 import { isValidConnection } from '@/utils/ai/connection-rules';
 import { getNodeIconBackground } from '@/utils/color';
@@ -35,6 +34,11 @@ onMounted(async () => {
 // 获取所有可用的节点类型(排除系统节点) - 使用 computed 确保响应式
 const availableNodeTypes = computed(() => {
   const allNodes = nodeDefinitionStore.getAllNodeTypes();
+  // 显式读取响应式数据，确保 computed 追踪到依赖，切换模式后自动重新计算
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const unusedRules = nodeDefinitionStore.connectionRules;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const unusedMode = nodeDefinitionStore.connectionRuleMode;
   let filteredNodes = allNodes.filter(n => n.isSystem !== '1');
 
   // 如果有源节点，过滤掉不允许连接的节点
@@ -45,18 +49,27 @@ const availableNodeTypes = computed(() => {
   return filteredNodes;
 });
 
-// 定义分类配置
-const categories = NODE_CATEGORY_LIST;
+// 动态提取并组织类别
+const nodeTypesByCategory = computed(() => {
+  const allNodes = availableNodeTypes.value;
+  // 提取所有可用的类别标识
+  const categoryKeys = Array.from(new Set(allNodes.map(n => n.category).filter(Boolean))) as string[];
 
-// 按分类组织节点类型
-const nodeTypesByCategory = computed(() =>
-  categories.value
-    .map(category => ({
-      ...category,
-      nodes: availableNodeTypes.value.filter(n => n.category === category.key)
-    }))
-    .filter(category => category.nodes.length > 0)
-);
+  return categoryKeys
+    .map(key => {
+      // 尝试获取翻译，如果没有则使用首字母大写的原名
+      const tKey = `ai.workflow_node.node_category_${key.toLowerCase()}`;
+      const translated = $t(tKey as any);
+      const label = translated !== tKey ? translated : key.charAt(0).toUpperCase() + key.slice(1);
+
+      return {
+        key,
+        label,
+        nodes: allNodes.filter(n => n.category === key)
+      };
+    })
+    .filter(category => category.nodes.length > 0);
+});
 
 // 处理鼠标按下，检测拖拽或点击
 function handleMouseDown(e: MouseEvent, nodeType: Workflow.NodeType) {
@@ -109,7 +122,7 @@ function handleToolDragStart(data: {
 </script>
 
 <template>
-  <div class="h-160 w-80 flex flex-col rounded-2 bg-container shadow-lg">
+  <div class="h-140 w-80 flex flex-col rounded-2 bg-container shadow-lg">
     <NTabs
       type="line"
       animated

@@ -65,6 +65,7 @@ declare namespace Api.AI.Admin {
     description: string;
     icon: string;
     appType: '1' | '2'; // 1: 固定模板, 2: 自定义工作流
+    useType?: string; // 1: 对话引用, 2: 数据集处理流水线
     status: '0' | '1'; // 0: 草稿, 1: 发布
     prologue: string;
     /** 是否启用执行详情（0禁用 1启用） */
@@ -98,6 +99,7 @@ declare namespace Api.AI.Admin {
     appName?: string;
     appType?: string;
     status?: string;
+    useType?: string;
     pageNum?: number;
     pageSize?: number;
   }

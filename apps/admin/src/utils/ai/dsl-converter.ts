@@ -5,8 +5,6 @@
  * @date 2026-01-04
  */
 
-import { NODE_TYPE_MAPPING, NODE_TYPE_REVERSE_MAPPING } from './node-registry';
-
 /**
  * 将 Vue Flow Graph 数据转换为后端 DSL 格式
  * @param graphData Vue Flow 画布数据
@@ -52,7 +50,7 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
 
     return {
       id: node.id,
-      type: NODE_TYPE_MAPPING[node.data?.nodeType as Workflow.NodeType] || node.data?.nodeType || '',
+      type: node.data?.nodeType || '',
       name: node.data?.nodeLabel || node.id,
       config,
       inputs,
@@ -92,7 +90,7 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
 export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
   // 转换节点
   const nodes = dsl.nodes.map((node, index) => {
-    const nodeType = NODE_TYPE_REVERSE_MAPPING[node.type] || 'LLM_CHAT';
+    const nodeType = (node.type || 'LLM_CHAT') as Workflow.NodeType;
 
     // 从 inputs 恢复 paramBindings
     const paramBindings: Workflow.ParamBinding[] = [];
@@ -194,7 +192,7 @@ function extractSourceHandleFromCondition(condition: string, sourceNode: Workflo
     return condition.substring('__HANDLE__:'.length);
   }
 
-  const nodeType = NODE_TYPE_REVERSE_MAPPING[sourceNode.type] || sourceNode.type;
+  const nodeType = sourceNode.type;
 
   // 意图分类器节点: 从条件反推 sourceHandle
   if (nodeType === 'INTENT_CLASSIFIER') {

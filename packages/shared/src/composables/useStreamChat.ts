@@ -109,7 +109,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
     onThinking?: (content: string) => void;
     onCitation?: (citations: Citation[]) => void;
     onComplete?: (content: string) => void;
-    onDone?: (data: any) => void;
+    onDone?: (data: any) => void | Promise<void>;
     onNodeStart?: (nodeId: string) => void;
     onNodeEnd?: (nodeId: string) => void;
     onSessionUpdate?: (data: any) => void;
@@ -134,7 +134,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
     let currentEvent = '';
     let currentDataBuffer: string[] = [];
 
-    const emitEvent = () => {
+    const emitEvent = async () => {
       if (currentDataBuffer.length === 0 && !currentEvent) return;
 
       const data = currentDataBuffer.join('\n');
@@ -200,11 +200,11 @@ export function useStreamChat(options: UseStreamChatOptions) {
             statistics.value.durationMs = completeData.durationMs;
           }
           if (onDone) {
-            onDone(completeData);
+            await onDone(completeData);
           }
         } catch {
           if (onDone) {
-            onDone({ sessionId: data });
+            await onDone({ sessionId: data });
           }
         }
       } else if (data) {
@@ -221,7 +221,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
         const { done, value } = await reader.read();
         if (done) {
           // Flush remaining if any (though usually stream ends with newline)
-          emitEvent();
+          await emitEvent();
           break;
         }
 
@@ -233,7 +233,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
           const trimmedLine = line.trim();
           if (trimmedLine === '') {
             // Empty line triggers dispatch
-            emitEvent();
+            await emitEvent();
             continue;
           }
 
@@ -294,6 +294,9 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
     // 创建 AbortController 用于中止请求
     abortController = new AbortController();
+
+    // 打字机动画 Promise（workflow_complete 模式下使用）
+    let typingPromise: Promise<void> | null = null;
 
     // 添加用户消息
     const userMsg: ChatMessage = {
@@ -411,11 +414,31 @@ export function useStreamChat(options: UseStreamChatOptions) {
           // 只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充
           // 若已有流式内容（打字机效果），则不覆盖，避免整段文字突然替换已有内容
           if (data.length > 0 && !aiMsg.content) {
-            aiMsg.content = data;
-            triggerRef(messages);
+            // 模拟打字机效果：按字符逐步输出，完成后 resolve
+            typingPromise = new Promise<void>(resolve => {
+              let i = 0;
+              const chunkSize = 4;
+              function typeNext() {
+                if (i >= data.length) {
+                  resolve();
+                  return;
+                }
+                const end = Math.min(i + chunkSize, data.length);
+                aiMsg.content += data.slice(i, end);
+                triggerRef(messages);
+                i = end;
+                requestAnimationFrame(typeNext);
+              }
+              typeNext();
+            });
           }
         },
-        onDone: data => {
+        onDone: async data => {
+          // 等待打字机动画完成后再标记 streaming=false
+          if (typingPromise) {
+            await typingPromise;
+            typingPromise = null;
+          }
           // 标记流式结束
           aiMsg.streaming = false;
           // 折叠thinking区域

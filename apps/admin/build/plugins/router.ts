@@ -32,13 +32,13 @@ export function setupElegantRouter() {
         '403',
         '404',
         '500',
-        'ai_chat',
+        'ai_app_chat',
         'ai_workflow',
-        'ai_app-detail',
-        'ai_template-editor',
-        'ai_document-upload',
-        'ai_document-upload_step1',
-        'ai_document-upload_step2'
+        'ai_app_app-detail',
+        'ai_workflow_template-editor',
+        'ai_knowledge_document-upload',
+        'ai_knowledge_document-upload_step1',
+        'ai_knowledge_document-upload_step2'
       ];
 
       const meta: Partial<RouteMeta> = {

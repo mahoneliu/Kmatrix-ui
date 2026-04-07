@@ -19,8 +19,9 @@
     "commit:zh": "sa git-commit -l=zh-cn",
     "dev:admin": "pnpm --filter @km/admin dev",
     "dev:chat": "pnpm --filter @km/chat dev",
-    "lint": "eslint . --fix",
-    "prepare": "simple-git-hooks",
+    "i18n:manage": "tsx scripts/i18n-manage.ts",
+    "lint": "eslint . --cache --fix",
+    "prepare": "npx husky install",
     "release": "sa release",
     "typecheck": "pnpm -r run typecheck",
     "update-pkg": "sa update-pkg"
@@ -35,7 +36,6 @@
     "eslint-plugin-vue": "10.6.2",
     "kolorist": "1.8.0",
     "naive-ui": "2.43.2",
-    "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
     "unplugin-icons": "22.5.0",
     "vite": "7.2.6",
@@ -44,8 +44,7 @@
     "vue-router": "4.6.3",
     "vue-tsc": "3.1.5"
   },
-  "simple-git-hooks": {
-    "commit-msg": "pnpm sa git-commit-verify",
-    "pre-commit": "pnpm typecheck && pnpm lint && git diff --exit-code"
+  "lint-staged": {
+    "*.{js,ts,vue}": "eslint --fix"
   }
 }

@@ -59,6 +59,7 @@ const local = {
       abort_failed: '中断失败',
       upload_image: '上传图片',
       upload_audio: '上传录音',
+      upload_file: '上传文件',
       upload_fail: '上传失败',
       upload_error: '上传异常',
       resume_session: '恢复会话',

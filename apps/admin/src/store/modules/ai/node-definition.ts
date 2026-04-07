@@ -1,13 +1,17 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { fetchConnectionRules, fetchNodeDefinitions } from '@/service/api/ai/node';
+import { fetchConnectionMode } from '@/service/api/ai/connection-rule';
 
 export const useNodeDefinitionStore = defineStore('node-definition', () => {
   // 节点定义列表
   const nodeDefinitions = ref<Api.AI.Workflow.KmNodeDefinitionBo[]>([]);
 
-  // 节点连接规则映射表
+  // 节点连接规则映射表（白名单模式=允许列表，黑名单模式=禁止列表）
   const connectionRules = ref<Record<string, string[]>>({});
+
+  // 当前连接模式
+  const connectionRuleMode = ref<'whitelist' | 'blacklist'>('whitelist');
 
   // 加载状态
   const loading = ref(false);
@@ -44,6 +48,13 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
         rulesData = connRulesResult;
       }
       connectionRules.value = rulesData || {};
+
+      // 加载连接模式
+      const modeResult = await fetchConnectionMode();
+      const modeData = (modeResult as any)?.data;
+      if (modeData?.mode) {
+        connectionRuleMode.value = modeData.mode;
+      }
 
       loaded.value = true;
 
@@ -92,7 +103,8 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
       nodeColor: def.nodeColor,
       category: def.category,
       description: def.description,
-      isSystem: def.isSystem
+      isSystem: def.isSystem,
+      requireAiConfig: def.requireAiConfig
     }));
 
     return result;
@@ -141,9 +153,32 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
     loading.value = false;
   }
 
+  /**
+   * 仅重新加载连接规则（不重置节点定义，用于切换连接模式后实时生效）
+   */
+  async function reloadConnectionRules() {
+    try {
+      const [connRulesResult, modeResult] = await Promise.all([fetchConnectionRules(), fetchConnectionMode()]);
+      let rulesData: any;
+      if (connRulesResult && typeof connRulesResult === 'object' && 'data' in connRulesResult) {
+        rulesData = (connRulesResult as any).data;
+      } else {
+        rulesData = connRulesResult;
+      }
+      connectionRules.value = rulesData || {};
+      const modeData = (modeResult as any)?.data;
+      if (modeData?.mode) {
+        connectionRuleMode.value = modeData.mode;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   return {
     nodeDefinitions,
     connectionRules,
+    connectionRuleMode,
     loading,
     loaded,
     loadNodeDefinitions,
@@ -151,6 +186,7 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
     getAllNodeTypes,
     getNodeInputParams,
     getNodeOutputParams,
-    reset
+    reset,
+    reloadConnectionRules
   };
 });

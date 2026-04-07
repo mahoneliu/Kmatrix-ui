@@ -25,7 +25,7 @@ const modelId = ref<string | null>(null);
 const temperature = ref<number>(0.7);
 const maxTokens = ref<number | null>(null);
 const systemPrompt = ref<string>('');
-const streamOutput = ref<boolean>(false);
+const streamOutput = ref<boolean>(true);
 
 // 初始化配置从nodeData
 watch(
@@ -36,7 +36,7 @@ watch(
     temperature.value = config.temperature ?? 0.7;
     maxTokens.value = config.maxTokens ?? null;
     systemPrompt.value = config.systemPrompt ?? '';
-    streamOutput.value = config.streamOutput ?? false;
+    streamOutput.value = config.streamOutput ?? true;
   },
   { immediate: true, deep: true }
 );

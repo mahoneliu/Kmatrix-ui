@@ -91,21 +91,7 @@ const renderLabel = (option: any): VNodeChild => {
 
   const tagsAndIcons: any[] = [];
 
-  // 类型标签
-  tagsAndIcons.push(
-    h(
-      NTag,
-      {
-        size: 'small',
-        type: modelTypeTagMap[m.modelType] || 'info',
-        bordered: true,
-        style: 'margin-left: 8px; font-size: 10px; transform: scale(0.9); flex-shrink: 0;'
-      },
-      { default: () => aiModelTypeRecord[m.modelType] || m.modelType }
-    )
-  );
-
-  // 能力图标
+  // 1. 能力图标 (排在左侧)
   if (abilities.vision) {
     tagsAndIcons.push(
       h(
@@ -155,13 +141,30 @@ const renderLabel = (option: any): VNodeChild => {
     );
   }
 
+  // 2. 类型标签 (排在最右侧)
+  tagsAndIcons.push(
+    h(
+      NTag,
+      {
+        size: 'small',
+        type: modelTypeTagMap[m.modelType] || 'info',
+        bordered: true,
+        style: 'margin-left: 8px; font-size: 10px; transform: scale(0.9); flex-shrink: 0;'
+      },
+      { default: () => aiModelTypeRecord[m.modelType] || m.modelType }
+    )
+  );
+
   return h('div', { style: 'display: flex; align-items: center; justify-content: space-between; width: 100%' }, [
     h(
       'span',
-      { style: 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;', title: option.label },
+      {
+        style: 'flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+        title: option.label
+      },
       option.label
     ),
-    h('div', { style: 'display: flex; align-items: center; flex-shrink: 0;' }, tagsAndIcons)
+    h('div', { style: 'display: flex; align-items: center; flex-shrink: 0; margin-left: 12px;' }, tagsAndIcons)
   ]);
 };
 </script>
@@ -187,9 +190,19 @@ const renderLabel = (option: any): VNodeChild => {
 :deep(.n-base-selection-placeholder) {
   font-size: 11px !important;
 }
+</style>
 
+<style>
 /* 下拉菜单渲染在 body 下，不能使用 scoped */
 .model-selector-menu .n-base-select-option {
   font-size: 11px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.model-selector-menu .n-base-select-option .n-base-select-option__content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
 }
 </style>

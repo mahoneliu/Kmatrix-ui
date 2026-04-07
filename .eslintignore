@@ -1,0 +1,14 @@
+node_modules/
+dist/
+public/
+*.min.js
+.vscode/
+.idea/
+.changeset/
+temp/
+# 打包产物
+apps/**/dist/
+packages/**/dist/
+# 自动生成的图标数据等
+icons_report.json
+lint_output.txt

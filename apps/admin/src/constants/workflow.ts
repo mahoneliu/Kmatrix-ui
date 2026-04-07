@@ -5,18 +5,6 @@ import { computed } from 'vue';
 import { $t } from '@/locales';
 
 /**
- * 参数来源类型颜色映射
- * 用于 ParamTag 和 ParamSelector 组件中统一显示参数来源的颜色
- */
-// export const PARAM_SOURCE_COLORS: Record<string, string> = {
-//   app: '#0066CC', // 绿色 - 应用参数
-//   interface: '#008A7B', // 蓝色 - 接口参数
-//   session: '#7B4AD9', // 橙色 - 会话参数
-//   node: '#1750a4ff', // 紫色 - 节点输出(默认,仅在节点未定义颜色时使用)
-//   global: '#1750a4ff' // 紫色 - 节点输出(默认,仅在节点未定义颜色时使用)
-// };
-
-/**
  * 全局参数颜色映射
  * 用于 ParamTag 和 ParamSelector 组件中统一显示参数来源的颜色
  */
@@ -60,21 +48,9 @@ export const NODE_CATEGORIES = computed<Record<string, string>>(() => ({
   ai: $t('ai.workflow_node.node_category_ai'),
   logic: $t('ai.workflow_node.node_category_logic'),
   database: $t('ai.workflow_node.node_category_database'),
-  action: $t('ai.workflow_node.node_category_action')
+  action: $t('ai.workflow_node.node_category_action'),
+  fileProcessing: $t('ai.workflow_node.node_category_fileprocessing')
 }));
-
-/**
- * AI节点类型列表
- * 这些节点需要在BaseNode中统一显示AI参数配置（温度、maxTokens、流式输出等）
- */
-export const AI_NODE_TYPES: Workflow.NodeType[] = [
-  'LLM_CHAT',
-  'DB_QUERY',
-  'SQL_GENERATE',
-  'INTENT_CLASSIFIER',
-  'AUDIO_ASR',
-  'IMAGE_OCR'
-];
 
 /**
  * 节点分类选项(用于表单)
@@ -83,16 +59,6 @@ export const NODE_CATEGORY_OPTIONS = computed(() =>
   Object.entries(NODE_CATEGORIES.value).map(([value, label]) => ({
     label,
     value
-  }))
-);
-
-/**
- * 节点分类列表(用于展示，保留顺序)
- */
-export const NODE_CATEGORY_LIST = computed(() =>
-  Object.entries(NODE_CATEGORIES.value).map(([key, label]) => ({
-    key,
-    label
   }))
 );
 

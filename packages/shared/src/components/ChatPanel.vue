@@ -460,7 +460,7 @@ async function handleSend() {
       jsonArr.push({ type: 'text', text: userMsgDisplay });
     }
     for (const f of attachedFiles.value) {
-      jsonArr.push({ type: f.type, ossId: f.ossId, tempFileId: f.id, url: f.url });
+      jsonArr.push({ type: f.type, ossId: f.ossId, tempFileId: f.id, url: f.url, name: f.name });
     }
     userMsgToProcess = JSON.stringify(jsonArr);
   }
@@ -557,6 +557,50 @@ const shouldShowExecutions = computed(() => {
   return props.mode === 'debug' || showExecutionInfo.value;
 });
 
+// 是否显示上传按钮（任意一种能力存在即显示）
+const showUploadButton = computed(() => {
+  return ['vision', 'image-ocr', 'audio', 'audio-asr', 'file-storage', 'file-parse'].some(cap =>
+    props.capabilities?.includes(cap)
+  );
+});
+
+// 根据能力动态计算 accept
+const uploadAccept = computed(() => {
+  const accepts: string[] = [];
+  if (props.capabilities?.includes('vision') || props.capabilities?.includes('image-ocr')) {
+    accepts.push('image/*');
+  }
+  if (props.capabilities?.includes('audio') || props.capabilities?.includes('audio-asr')) {
+    accepts.push('audio/*');
+  }
+  if (props.capabilities?.includes('file-storage') || props.capabilities?.includes('file-parse')) {
+    accepts.push('.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.json,.xml,.md');
+  }
+  return accepts.length > 0 ? accepts.join(',') : undefined;
+});
+
+// 图标：仅图片能力时用图片图标，否则用回形针
+const uploadIcon = computed(() => {
+  const hasImageOnly =
+    (props.capabilities?.includes('vision') || props.capabilities?.includes('image-ocr')) &&
+    !props.capabilities?.includes('audio') &&
+    !props.capabilities?.includes('audio-asr') &&
+    !props.capabilities?.includes('file-storage') &&
+    !props.capabilities?.includes('file-parse');
+  return hasImageOnly ? 'mdi:image-outline' : 'mdi:paperclip';
+});
+
+// tooltip 文字
+const uploadTooltip = computed(() => {
+  const hasImageOnly =
+    (props.capabilities?.includes('vision') || props.capabilities?.includes('image-ocr')) &&
+    !props.capabilities?.includes('audio') &&
+    !props.capabilities?.includes('audio-asr') &&
+    !props.capabilities?.includes('file-storage') &&
+    !props.capabilities?.includes('file-parse');
+  return hasImageOnly ? t('ai.chat.upload_image', '上传图片') : t('ai.chat.upload_file', '上传附件');
+});
+
 // ------------------------------------
 
 // 监听 props 变化
@@ -645,6 +689,13 @@ defineExpose({
                     >
                       <SvgIcon local-icon="mdi-microphone" />
                       语音片段 ({{ part.ossId }})
+                    </div>
+                    <div
+                      v-else-if="part.type === 'file'"
+                      class="my-1 inline-flex items-center gap-1 rounded bg-black/10 px-2 py-1 text-xs"
+                    >
+                      <SvgIcon icon="mdi:file-document-outline" />
+                      {{ part.name || part.ossId }}
                     </div>
                   </template>
                 </div>
@@ -929,7 +980,14 @@ defineExpose({
                 <span class="w-12 truncate px-1 text-center text-[10px]">{{ file.name }}</span>
               </div>
             </template>
-            <!-- 删除按钮 -->
+            <template v-else>
+              <div
+                class="h-14 w-14 flex flex-col items-center justify-center border border-gray-200 rounded bg-gray-50 text-gray-500 dark:border-gray-600 dark:bg-gray-800"
+              >
+                <SvgIcon icon="mdi:file-document-outline" class="mb-1 text-xl" />
+                <span class="w-12 truncate px-1 text-center text-[10px]">{{ file.name }}</span>
+              </div>
+            </template>
             <div
               class="absolute h-5 w-5 flex cursor-pointer items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity -right-2 -top-2 group-hover:opacity-100"
               @click="removeAttachedFile(index)"
@@ -952,15 +1010,11 @@ defineExpose({
 
         <div class="flex items-center justify-between px-2 pb-1 pt-1">
           <div class="flex items-center gap-2">
-            <!-- 上传图片按钮 -->
+            <!-- 统一上传按钮 -->
             <NUpload
-              v-if="
-                capabilities?.includes('vision') ||
-                capabilities?.includes('image-ocr') ||
-                capabilities?.includes('file-storage')
-              "
+              v-if="showUploadButton"
               :abstract="true"
-              accept="image/*"
+              :accept="uploadAccept"
               :show-file-list="false"
               :custom-request="customUploadRequest"
             >
@@ -969,32 +1023,11 @@ defineExpose({
                   <NUploadTrigger v-slot="{ handleClick: handleUpload }" :abstract="true">
                     <!-- eslint-disable-next-line vue/no-undef-properties -->
                     <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleUpload">
-                      <template #icon><SvgIcon icon="mdi:image-outline" /></template>
+                      <template #icon><SvgIcon :icon="uploadIcon" /></template>
                     </NButton>
                   </NUploadTrigger>
                 </template>
-                {{ t('ai.chat.upload_image', '上传图片') }}
-              </NTooltip>
-            </NUpload>
-
-            <!-- 上传语音按钮 -->
-            <NUpload
-              v-if="capabilities?.includes('audio') || capabilities?.includes('audio-asr')"
-              :abstract="true"
-              accept="audio/*"
-              :show-file-list="false"
-              :custom-request="customUploadRequest"
-            >
-              <NTooltip>
-                <template #trigger>
-                  <NUploadTrigger v-slot="{ handleClick: handleUpload }" :abstract="true">
-                    <!-- eslint-disable-next-line vue/no-undef-properties -->
-                    <NButton quaternary size="small" :disabled="isUploading || isStreaming" @click="handleUpload">
-                      <template #icon><SvgIcon icon="mdi:microphone-outline" /></template>
-                    </NButton>
-                  </NUploadTrigger>
-                </template>
-                {{ t('ai.chat.upload_audio', '上传录音') }}
+                {{ uploadTooltip }}
               </NTooltip>
             </NUpload>
 

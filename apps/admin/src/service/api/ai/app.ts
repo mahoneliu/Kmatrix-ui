@@ -101,3 +101,14 @@ export function fetchPublishHistory(appId: CommonType.IdType) {
     method: 'get'
   });
 }
+
+/**
+ * 获取文件处理类型的应用列表（useType=2），用于工作流数据集绑定
+ */
+export function fetchFileProcessApps() {
+  return request<App.Service.Response<Api.AI.Admin.App>>({
+    url: '/ai/app/list',
+    method: 'get',
+    params: { useType: '2', pageNum: 1, pageSize: 200 }
+  });
+}

@@ -308,10 +308,10 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    '403': 'No Permission',
+    '404': 'Page Not Found',
+    '500': 'Server Error',
     login: 'Login',
-    403: 'No Permission',
-    404: 'Page Not Found',
-    500: 'Server Error',
     'iframe-page': 'Iframe',
     home: 'Home',
     system: 'System Management',
@@ -348,29 +348,34 @@ const local: App.I18n.Schema = {
     tool_gen: 'Code Generation',
     about: 'About',
     ai: 'AI Management',
-    'ai_model-manager': 'Model Manager',
-    'ai_app-manager': 'App Manager',
+    'ai_model_model-manager': 'Model Manager',
+    'ai_model_mcp-manager': 'MCP Service',
+    'ai_model_tool-manager': 'Tool Manager',
+    'ai_model_skill-manager': 'Skill Manager',
+    'ai_knowledge_knowledge-manager': 'Knowledge Manager',
+    'ai_knowledge_knowledge-detail': 'Knowledge Detail',
+    'ai_knowledge_chunk-manager': 'Chunk Manager',
+    'ai_knowledge_document-upload': 'Document Upload',
+    'ai_knowledge_document-upload_step1': 'Document Upload Step 1',
+    'ai_knowledge_document-upload_step2': 'Document Upload Step 2',
+    'ai_workflow_workflow-template': 'Workflow Template',
+    'ai_workflow_node-definition': 'Node Definition',
+    'ai_workflow_template-editor': 'Template Editor',
+    'ai_workflow_datasource-manager': 'Datasource Manager',
+    'ai_app_app-manager': 'App Manager',
+    'ai_app_app-detail': 'App Detail',
+    ai_app_chat: 'AI Chat',
+    'ai_app_rate-limit': 'Rate Limit',
+    ai_model: 'Model',
+    ai_knowledge: 'Knowledge',
+    ai_app: 'App Management',
     ai_workflow: 'Workflow',
-    'ai_workflow-template': 'Workflow Template',
-    'ai_node-definition': 'Node Definition',
-    'ai_datasource-manager': 'Data Source',
-    'ai_app-detail': 'App Detail',
-    'ai_knowledge-manager': 'Knowledge Base Manager',
-    'ai_knowledge-detail': 'Knowledge Base Detail',
-    ai_chat: 'AI Chat',
-    'ai_template-editor': 'Template Editor',
-    'ai_chunk-manager': 'Chunk Management',
-    'ai_mcp-manager': 'MCP Management',
-    'ai_tool-manager': 'Tool Management',
-    'ai_document-upload': 'Document Upload',
-    'ai_document-upload_step1': 'Document Upload Step 1',
-    'ai_document-upload_step2': 'Document Upload - Step 2',
-    'ai_skill-manager': 'Skill Management',
-    'ai_rate-limit': 'Rate Limit',
+    ai_workflow_editor: 'Workflow Editor',
     ai_ai_model: 'Model',
     ai_ai_knowledge: 'Knowledge',
     ai_ai_workflow: 'Workflow',
-    ai_ai_app: 'App Management'
+    ai_ai_app: 'App Management',
+    'ai_workflow_connection-rule-manager': 'Connection Rule Management'
   },
   menu: {
     system_tenant: 'Tenant Management',
@@ -462,7 +467,6 @@ const local: App.I18n.Schema = {
       timeout: 'Timeout'
     }
   },
-
   page: {
     login: {
       common: {
@@ -1544,7 +1548,8 @@ const local: App.I18n.Schema = {
     },
     about: {
       title: 'About',
-      introduction: `KMatrix is a core AI workflow orchestration platform and knowledge base based on Ruoyi_Vue_Plus/Langchain4j/Langgraph, providing developers with a complete AI application development solution.`,
+      introduction:
+        'KMatrix is a core AI workflow orchestration platform and knowledge base based on Ruoyi_Vue_Plus/Langchain4j/Langgraph, providing developers with a complete AI application development solution.',
       projectInfo: {
         title: 'Project Info',
         version: 'Version',
@@ -1643,7 +1648,6 @@ const local: App.I18n.Schema = {
     pin: 'Pin',
     unpin: 'Unpin'
   },
-
   ai: {
     chat: {
       new_chat: 'New Chat',
@@ -1686,6 +1690,7 @@ const local: App.I18n.Schema = {
       cancel_dislike: 'Cancel Dislike',
       upload_image: 'Upload Image',
       upload_audio: 'Upload Audio',
+      upload_file: 'Upload File',
       upload_fail: 'Upload failed',
       upload_error: 'Upload error',
       abort: 'Abort',
@@ -2012,6 +2017,7 @@ const local: App.I18n.Schema = {
           ONLINE_DOC: 'Online Document',
           WEB_LINK: 'Web Link',
           GENERIC_FILE: 'Generic File',
+          WORKFLOW_FILE: 'Workflow Processing',
           UNKNOWN: 'Unknown'
         },
         stats: {
@@ -2036,7 +2042,8 @@ const local: App.I18n.Schema = {
           empty: 'No datasets',
           edit: 'Edit',
           delete: 'Delete',
-          pleaseSelect: 'Please select or create a dataset'
+          pleaseSelect: 'Please select or create a dataset',
+          processMode: 'Process Mode'
         }
       },
       document: {
@@ -2071,7 +2078,11 @@ const local: App.I18n.Schema = {
         uploadQA: 'Upload QA Pairs',
         addOnlineDoc: 'Add Online Document',
         addWebLink: 'Add Web Link',
+        uploadWorkflow: 'Upload File',
         addDoc: 'Add Document',
+        actionRetry: 'Retry Processing',
+        retrySuccess: 'Reset to pending, waiting for workflow scheduling',
+        retryFail: 'Retry failed',
         customChunk: 'Custom Chunking',
         dragUpload: 'Click or drag files here to upload',
         qaFormatTip: 'QA pairs support Excel(.xlsx/.xls) and CSV files, first column for questions, second for answers',
@@ -2083,7 +2094,14 @@ const local: App.I18n.Schema = {
         documentPromptTip:
           'The {code} in the prompt is a placeholder for the segment content, which will be replaced with the segment content and sent to the AI model during execution;\nThe AI model generates related questions based on the segment content, returning one question per line;\nThe generation quality depends on the selected model and prompt, users can adjust for best results.',
         documentPromptText:
-          'Based on the following reference text, identify 3-5 potential user questions.\nOnly output questions, one per line. Do not number them.\nReference text:\n{data}'
+          'Based on the following reference text, identify 3-5 potential user questions.\nOnly output questions, one per line. Do not number them.\nReference text:\n{data}',
+        workflowAppRequired:
+          'The dataset is not yet associated with a workflow app. Please edit the dataset and select an appropriate app.',
+        workflowAppUnpublished:
+          'The associated workflow app is not yet published. Please go to App Management to publish it.',
+        workflowAppInvalidType:
+          'The associated app type is incorrect (should be "File Processing"). Please re-edit the dataset.',
+        goToEdit: 'Go to Edit'
       },
       datasetModal: {
         editDataset: 'Edit Dataset',
@@ -2108,8 +2126,17 @@ const local: App.I18n.Schema = {
           GENERIC_FILE: 'Generic File (PDF/Word/TXT)',
           QA_PAIR: 'QA Pair (Excel/CSV)',
           ONLINE_DOC: 'Online Document',
-          WEB_LINK: 'Web Link'
+          WEB_LINK: 'Web Link',
+          WORKFLOW_FILE: 'Workflow Processing'
         },
+        workflowId: 'Linked App',
+        workflowIdPlaceholder: 'Select a workflow app for document processing (useType=fileProcess)',
+        workflowIdRequired: 'Please select a workflow app',
+        workflowIdTip:
+          'The workflow receives documentId as input and writes to the knowledge base via the Dataset Storage Node',
+        goToAppManager: 'Create New',
+        maxConcurrency: 'Max Concurrency',
+        maxConcurrencyPlaceholder: 'Max concurrent documents (default: 1)',
         sourceType: 'Source Type',
         sourceTypePlaceholder: 'Select data source type',
         sourceTypeOptions: {
@@ -2422,6 +2449,10 @@ const local: App.I18n.Schema = {
       fixed_template: 'Fixed Template',
       create_from_template: 'Create from Template',
       search_placeholder: 'Enter app name',
+      use_type: 'Use Type',
+      use_type_placeholder: 'Select Use Type',
+      use_type_chat: 'Chat App',
+      use_type_file: 'File Processing',
       app_name: 'App Name',
       app_name_placeholder: 'Enter app name',
       app_desc: 'App Description',
@@ -2433,6 +2464,7 @@ const local: App.I18n.Schema = {
       status_published: 'Published',
       status_unpublished: 'Unpublished',
       workflow_config: 'Workflow Config',
+      edit_app: 'Edit App',
       go_to_chat: 'Go to Chat',
       template_select: {
         title: 'Create App from Template',
@@ -2826,6 +2858,9 @@ const local: App.I18n.Schema = {
       hybrid_retrieval: 'Hybrid Retrieval',
       retrieval_config: 'Retrieval Configuration',
       knowledge_base: 'Knowledge Base',
+      dataset: 'Dataset',
+      select_dataset: 'Select Dataset (Workflow Processing type only)',
+      select_knowledge_base_first: 'Please select knowledge base first',
       retrieval_mode: 'Retrieval Mode',
       return_count: 'Return Count (Top K)',
       enable_rerank: 'Enable Rerank',
@@ -2837,11 +2872,12 @@ const local: App.I18n.Schema = {
       param_type_object: 'Object',
       param_type_array: 'Array',
       param_type_datetime: 'Datetime',
-      node_category_basic: 'Basic Node',
-      node_category_ai: 'AI Node',
-      node_category_logic: 'Logic Node',
-      node_category_database: 'Database Node',
-      node_category_action: 'Action Node',
+      node_category_basic: 'Basic',
+      node_category_ai: 'AI',
+      node_category_logic: 'Logic',
+      node_category_database: 'Database',
+      node_category_action: 'Action',
+      node_category_fileprocessing: 'File Processing',
       op_eq: 'Equal (==)',
       op_ne: 'Not Equal (!=)',
       op_gt: 'Greater Than (>)',
@@ -2889,7 +2925,8 @@ const local: App.I18n.Schema = {
       and_n_more: '{summary} and {count} more',
       system_prompt: 'System Prompt',
       no_limit: 'No limit',
-      default_user_prompt: "Known Information: ${'{'}chatContext{'}'}\nQuestion: ${'{'}userInput{'}'}", // eslint-disable-line no-template-curly-in-string
+      // eslint-disable-next-line no-template-curly-in-string
+      default_user_prompt: "Known Information: ${'{'}chatContext{'}'}\nQuestion: ${'{'}userInput{'}'}",
       unknown: 'Unknown',
       start: 'Start',
       end: 'End',
@@ -2912,7 +2949,15 @@ const local: App.I18n.Schema = {
       continue_when_met: 'Loop when {varName} {op} {val} is met',
       loop_when: 'Loop when {summary}',
       max_iterations_label: 'Max Iterations',
-      exit_or_end: 'Exit / End'
+      exit_or_end: 'Exit / End',
+      parse_config: 'Parse Configuration',
+      process_type: 'Parsing Type',
+      process_type_desc:
+        'Select a specific parsing Handler to process the file. Defaults to auto-identification based on the associated dataset.',
+      process_type_generic: 'Generic File Parsing',
+      process_type_qa: 'QA Pair Parsing',
+      process_type_online: 'Online Document Parsing',
+      process_type_web: 'Web Link Parsing'
     },
     workflow_public: {
       select_model: 'Select Model',
@@ -3042,7 +3087,8 @@ const local: App.I18n.Schema = {
         transportTypeRequired: 'Please select Transport Protocol',
         serverNamePlaceholder: 'Enter MCP Server Name',
         descriptionPlaceholder: 'Enter description',
-        serverConfigPlaceholder: 'Enter Server Config in JSON format, e.g.: {"url": "http://...","headers": {}}'
+        serverConfigPlaceholder:
+          "Enter Server Config in JSON format, e.g.: {' {'}\"url\": \"http://...\",\"headers\": {' {'}{' }'}{' }'}"
       }
     },
     builtinTool: {
@@ -3093,6 +3139,15 @@ const local: App.I18n.Schema = {
         codePlaceholder: 'Write Python code here...',
         schemaPlaceholder: 'Enter input parameter definition in JSON Schema format'
       }
+    },
+    connection_rule: {
+      matrix_view: 'Matrix View',
+      list_view: 'List View',
+      source_node: 'Source Node',
+      target_node: 'Target Node',
+      allowed: 'Allowed',
+      source_node_required: 'Please enter source node type',
+      target_node_required: 'Please enter target node type'
     }
   },
   datatable: {
