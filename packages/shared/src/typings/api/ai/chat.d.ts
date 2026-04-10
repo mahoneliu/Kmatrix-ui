@@ -50,6 +50,8 @@ declare namespace Api.AI.Chat {
     message: string;
     /** 是否流式返回 */
     stream?: boolean;
+    /** 自定义参数 */
+    customParams?: Record<string, any>;
   }
 
   /** 会话信息 */

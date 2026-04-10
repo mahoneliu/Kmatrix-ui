@@ -55,6 +55,8 @@ interface Props {
   availableSkills?: AvailableSkill[];
   /** 应用能力聚合（例如：vision, audio, image-ocr等） */
   capabilities?: string[];
+  /** 自定义参数，会传递到后端API */
+  customParams?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -477,6 +479,7 @@ async function handleSend() {
     message: userMsgToProcess,
     debug: props.mode === 'debug',
     showExecutionInfo: showExecutionInfo.value,
+    customParams: props.customParams,
     onDone: newSessionId => {
       if (newSessionId && newSessionId !== props.sessionId) {
         emit('sessionChange', newSessionId);
