@@ -28,6 +28,7 @@ import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation'
 import AppOperateModal from '@/views/ai/app/app-manager/modules/app-operate-modal.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
+import UiSettingPanel from './modules/ui-setting-panel.vue';
 
 // const SvgIcon = resolveComponent('SvgIcon');
 
@@ -42,6 +43,8 @@ const appInfo = ref<Api.AI.Admin.App | null>(null);
 const tokenList = ref<any[]>([]);
 const loading = ref(false);
 const showConfigPanel = ref(true);
+/** 对话界面 / 欢迎页配置折叠 */
+const showUiWelcomePanel = ref(true);
 
 // 调试对话窗口
 const showDebugDialog = ref(false);
@@ -352,7 +355,8 @@ async function handlePublish() {
           appName: appInfo.value?.appName,
           description: appInfo.value?.description,
           icon: appInfo.value?.icon,
-          prologue: appInfo.value?.prologue
+          prologue: appInfo.value?.prologue,
+          uiSetting: appInfo.value?.uiSetting
         });
         if (saveError) return;
 
@@ -602,6 +606,29 @@ onMounted(async () => {
           />
         </NCollapseTransition>
       </div>
+    </NCard>
+
+    <!-- 对话界面 / 欢迎页 -->
+    <NCard v-if="appInfo" class="mb-4" size="small">
+      <template #header>
+        <div
+          class="flex cursor-pointer select-none items-center justify-between"
+          @click="showUiWelcomePanel = !showUiWelcomePanel"
+        >
+          <div class="flex items-center gap-2">
+            <SvgIcon :icon="showUiWelcomePanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
+            <span class="text-sm font-medium">{{ $t('ai.app_detail.ui_setting.card_title') }}</span>
+          </div>
+        </div>
+      </template>
+      <NCollapseTransition :show="showUiWelcomePanel">
+        <UiSettingPanel
+          :app-id="appId"
+          :app-name="appInfo.appName"
+          :ui-setting="appInfo.uiSetting"
+          @update="loadAppInfo"
+        />
+      </NCollapseTransition>
     </NCard>
 
     <!-- 监控统计卡片 -->

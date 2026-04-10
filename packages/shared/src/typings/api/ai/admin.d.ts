@@ -58,6 +58,25 @@ declare namespace Api.AI.Admin {
     showProcess: boolean;
   }
 
+  /** 对话界面 / 欢迎页 UI 配置（与后端 AppUiSetting 一致） */
+  interface AppUiSetting {
+    enabled?: boolean;
+    hero?: {
+      title?: string;
+      subtitle?: string;
+      imageUrl?: string;
+    };
+    features?: Array<{
+      icon?: string;
+      title?: string;
+      description?: string;
+      /** 点击卡片时填入输入框的提示词；未填时回退为 title / description */
+      inputPrompt?: string;
+    }>;
+    suggestedQuestions?: string[];
+    hidePrologueBubble?: boolean;
+  }
+
   /** AI 应用 */
   interface App {
     appId?: CommonType.IdType;
@@ -82,6 +101,8 @@ declare namespace Api.AI.Admin {
     graphData?: string; // 工作流画布数据 (JSON)
     dslData?: string; // 工作流 DSL 数据 (JSON)
     parameters?: any; // 应用参数配置 (全局/接口/会话)
+    /** 对话界面 / 欢迎页等前端 UI 配置 */
+    uiSetting?: AppUiSetting;
     modelId: CommonType.IdType;
     knowledgeIds?: string; // 用于前端传参
     remark: string;
