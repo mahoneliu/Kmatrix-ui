@@ -159,7 +159,7 @@ function selectVariable(value: string) {
 
 // 渲染分组标题
 function renderGroupLabel(group: (typeof groupedOptions.value)[0]) {
-  return h('div', { class: 'flex items-center gap-2 px-3 py-2 text-xs font-500 c-gray-6' }, [
+  return h('div', { class: 'flex items-center gap-2 px-3 py-2 text-xs font-500 dark:text-gray-300' }, [
     h(
       'div',
       {
@@ -180,7 +180,7 @@ function renderOption(option: { label: string; value: string }) {
   return h(
     'div',
     {
-      class: 'cursor-pointer px-4 py-2 text-xs hover:bg-gray-1 transition-colors',
+      class: 'cursor-pointer px-4 py-2 text-xs hover:bg-gray-1 dark:hover:bg-dark-700 transition-colors',
       onClick: () => selectVariable(option.value)
     },
     option.label
@@ -210,7 +210,9 @@ function renderOption(option: { label: string; value: string }) {
       />
     </template>
 
-    <div class="variable-mention-dropdown max-h-80 w-96 overflow-y-auto rounded-2 bg-white shadow-lg">
+    <div
+      class="variable-mention-dropdown max-h-80 w-96 overflow-y-auto rounded-2 bg-white shadow-lg dark:border-dark-700 dark:bg-dark-2"
+    >
       <div v-if="filteredGroups.length === 0" class="py-4 text-center text-xs c-gray-4">
         {{ $t('ai.workflow_node.no_matching_variables') }}
       </div>
@@ -224,6 +226,30 @@ function renderOption(option: { label: string; value: string }) {
 
 <style scoped>
 .variable-mention-dropdown {
-  border: 1px solid #e5e7eb;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.variable-mention-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.variable-mention-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.variable-mention-dropdown::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
+}
+
+:deep(.dark) .variable-mention-dropdown,
+.variable-mention-dropdown.dark {
+  scrollbar-color: #4b5563 transparent;
+}
+
+:deep(.dark) .variable-mention-dropdown::-webkit-scrollbar-thumb,
+.variable-mention-dropdown.dark::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
 }
 </style>
