@@ -5,6 +5,8 @@ import { SvgIcon } from '@sa/materials';
 import { NODE_CATEGORY_OPTIONS } from '@/constants/workflow';
 import { deleteNodeDefinitions, fetchNodeDefinitionList, refreshNodeDefinitionCache } from '@/service/api/ai/node';
 import { useAppStore } from '@/store/modules/app';
+import { useNodeDefinitionStore } from '@/store/modules/ai/node-definition';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import NodeOperateDrawer from './modules/node-operate-drawer.vue';
@@ -14,6 +16,8 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const nodeDefinitionStore = useNodeDefinitionStore();
+const { hasAuth } = useAuth();
 
 const searchParams = reactive({
   pageNum: 1,
@@ -176,8 +180,11 @@ async function handleBatchDelete() {
 async function handleRefreshCache() {
   const { error } = await refreshNodeDefinitionCache();
   if (!error) {
+    nodeDefinitionStore.reset();
     window.$message?.success($t('common.refreshCacheSuccess') || '刷新缓存成功');
     getData();
+  } else {
+    window.$message?.error($t('common.refreshCacheFailed') || '刷新缓存失败');
   }
 }
 </script>
@@ -228,7 +235,7 @@ async function handleRefreshCache() {
     >
       <template #header-extra>
         <NSpace>
-          <NButton @click="handleRefreshCache">
+          <NButton v-if="hasAuth('ai:workflow:node:edit')" @click="handleRefreshCache">
             <icon-ic-round-refresh class="mr-4px text-20px" />
             {{ $t('common.refreshCache') || '刷新缓存' }}
           </NButton>

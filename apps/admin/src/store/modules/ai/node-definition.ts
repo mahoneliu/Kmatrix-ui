@@ -22,8 +22,8 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
   /**
    * 加载节点定义
    */
-  async function loadNodeDefinitions() {
-    if (loaded.value) {
+  async function loadNodeDefinitions(force = false) {
+    if (loaded.value && !force) {
       return nodeDefinitions.value;
     }
 

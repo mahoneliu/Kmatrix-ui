@@ -158,7 +158,7 @@ useUnsavedChangesGuard(handleAutoSave);
 
 onMounted(async () => {
   try {
-    await nodeDefinitionStore.loadNodeDefinitions();
+    await nodeDefinitionStore.loadNodeDefinitions(true);
     workflowStore.clearWorkflow();
     await loadWorkflow();
   } catch {

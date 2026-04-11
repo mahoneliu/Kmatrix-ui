@@ -116,7 +116,8 @@ const local: App.I18n.Schema = {
     createSuccess: 'Create Success',
     createFailed: 'Create Failed',
     refreshCache: 'Refresh Cache',
-    refreshCacheSuccess: 'Refresh Cache Success'
+    refreshCacheSuccess: 'Refresh Cache Success',
+    refreshCacheFailed: 'Refresh Cache Failed'
   },
   request: {
     logout: 'Logout user after request failed',

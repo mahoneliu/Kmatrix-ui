@@ -116,7 +116,8 @@ const local: App.I18n.Schema = {
     createSuccess: '创建成功',
     createFailed: '创建失败',
     refreshCache: '刷新缓存',
-    refreshCacheSuccess: '刷新缓存成功'
+    refreshCacheSuccess: '刷新缓存成功',
+    refreshCacheFailed: '刷新缓存失败'
   },
   request: {
     logout: '请求失败后登出用户',

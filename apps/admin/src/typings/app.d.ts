@@ -443,6 +443,7 @@ declare namespace App {
         createFailed: string;
         refreshCache: string;
         refreshCacheSuccess: string;
+        refreshCacheFailed: string;
       };
       request: {
         logout: string;
@@ -780,6 +781,7 @@ declare namespace App {
             createTime: string;
             refreshCache: string;
             refreshCacheSuccess: string;
+            refreshCacheFailed: string;
             form: {
               configId: FormMsg;
               configName: FormMsg;
@@ -838,8 +840,9 @@ declare namespace App {
             status: string;
             remark: string;
             createTime: string;
-            refreshCacheSuccess: string;
             refreshCache: string;
+            refreshCacheSuccess: string;
+            refreshCacheFailed: string;
             confirmDeleteDictType: string;
             data: {
               title: string;
