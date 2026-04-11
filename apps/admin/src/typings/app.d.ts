@@ -441,6 +441,8 @@ declare namespace App {
         none: string;
         createSuccess: string;
         createFailed: string;
+        refreshCache: string;
+        refreshCacheSuccess: string;
       };
       request: {
         logout: string;
@@ -2187,6 +2189,8 @@ declare namespace App {
           skill_select_placeholder: string;
           enable_tool_trace: string;
           enable_tool_trace_desc: string;
+          enable_multimodal: string;
+          enable_multimodal_desc: string;
           providedBy: string;
           mcpService: string;
           builtinTool: string;

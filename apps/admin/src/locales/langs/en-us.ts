@@ -114,7 +114,9 @@ const local: App.I18n.Schema = {
     all: 'All',
     none: 'None',
     createSuccess: 'Create Success',
-    createFailed: 'Create Failed'
+    createFailed: 'Create Failed',
+    refreshCache: 'Refresh Cache',
+    refreshCacheSuccess: 'Refresh Cache Success'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -2940,6 +2942,8 @@ const local: App.I18n.Schema = {
       enable_tool_trace: 'Output Tool Execution Trace',
       enable_tool_trace_desc:
         'When enabled, the request parameters and return results of tool calls will be pushed to the frontend via SSE stream for debugging',
+      enable_multimodal: 'Enable Multimodal (Vision/Audio)',
+      enable_multimodal_desc: 'When enabled, the LLM can read and analyze attached images or audio files',
       providedBy: 'Provided by {type}',
       mcpService: 'MCP Service',
       builtinTool: 'Built-in Tool',

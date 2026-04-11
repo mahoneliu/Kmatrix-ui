@@ -3,7 +3,7 @@ import { h, reactive } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { NODE_CATEGORY_OPTIONS } from '@/constants/workflow';
-import { deleteNodeDefinitions, fetchNodeDefinitionList } from '@/service/api/ai/node';
+import { deleteNodeDefinitions, fetchNodeDefinitionList, refreshNodeDefinitionCache } from '@/service/api/ai/node';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
@@ -172,6 +172,14 @@ async function handleBatchDelete() {
   const { error } = await deleteNodeDefinitions(checkedRowKeys.value);
   if (!error) onBatchDeleted();
 }
+
+async function handleRefreshCache() {
+  const { error } = await refreshNodeDefinitionCache();
+  if (!error) {
+    window.$message?.success($t('common.refreshCacheSuccess') || '刷新缓存成功');
+    getData();
+  }
+}
 </script>
 
 <template>
@@ -220,6 +228,10 @@ async function handleBatchDelete() {
     >
       <template #header-extra>
         <NSpace>
+          <NButton @click="handleRefreshCache">
+            <icon-ic-round-refresh class="mr-4px text-20px" />
+            {{ $t('common.refreshCache') || '刷新缓存' }}
+          </NButton>
           <NButton type="primary" @click="handleAdd">
             <icon-ic-round-plus class="mr-4px text-20px" />
             {{ $t('common.add') }}

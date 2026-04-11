@@ -124,10 +124,19 @@ export function updateNodeDefinition(data: Api.AI.Workflow.KmNodeDefinitionBo) {
 
 /**
  * 删除节点定义（支持批量）
+ *
+ * @param nodeDefIds 节点定义ID数组
+ * @returns 操作结果
  */
 export function deleteNodeDefinitions(nodeDefIds: CommonType.IdType[]) {
-  return request({
-    url: `/ai/workflow/node/definition/${nodeDefIds.join(',')}`,
-    method: 'delete'
-  });
+  return request({ url: `/ai/workflow/node/definition/${nodeDefIds.join(',')}`, method: 'delete' });
+}
+
+/**
+ * 刷新节点定义全局缓存
+ *
+ * @returns 操作结果
+ */
+export function refreshNodeDefinitionCache() {
+  return request({ url: '/ai/workflow/node/definition/refreshCache', method: 'post' });
 }

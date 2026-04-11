@@ -114,7 +114,9 @@ const local: App.I18n.Schema = {
     all: '全部',
     none: '无',
     createSuccess: '创建成功',
-    createFailed: '创建失败'
+    createFailed: '创建失败',
+    refreshCache: '刷新缓存',
+    refreshCacheSuccess: '刷新缓存成功'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -2912,6 +2914,8 @@ const local: App.I18n.Schema = {
       skill_select_placeholder: '选择要使用的自定义技能（可多选）',
       enable_tool_trace: '输出工具执行过程',
       enable_tool_trace_desc: '开启后，工具调用的请求参数与返回结果将通过 SSE 流式推送到前端，用于调试',
+      enable_multimodal: '启用多模态 (视觉/音频)',
+      enable_multimodal_desc: '开启后，大模型将能读取传入的图片或音频附件进行多模态分析',
       providedBy: '由 {type} 提供',
       mcpService: 'MCP服务',
       builtinTool: '内置工具',

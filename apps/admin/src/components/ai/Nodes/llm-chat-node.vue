@@ -171,6 +171,22 @@ function handleConfigChange() {
               />
             </div>
 
+            <!-- 多模态开关 -->
+            <div class="workflow-config-item">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <label class="workflow-label">{{ $t('ai.workflow_node.enable_multimodal') }}</label>
+                  <NTooltip>
+                    <template #trigger>
+                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
+                    </template>
+                    {{ $t('ai.workflow_node.enable_multimodal_desc') }}
+                  </NTooltip>
+                </div>
+                <NSwitch v-model:value="formModel.enableMultimodal" size="small" />
+              </div>
+            </div>
+
             <!-- 历史对话配置 -->
             <div class="workflow-config-item">
               <div class="flex items-center justify-between">
@@ -184,22 +200,6 @@ function handleConfigChange() {
                   </NTooltip>
                 </div>
                 <NSwitch v-model:value="formModel.historyEnabled" size="small" />
-              </div>
-            </div>
-
-            <!-- 多模态开关 -->
-            <div class="workflow-config-item">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <label class="workflow-label">启用多模态 (视觉/音频)</label>
-                  <NTooltip>
-                    <template #trigger>
-                      <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-12px text-gray-400" />
-                    </template>
-                    开启后，大模型将能读取传入的图片或音频附件进行多模态分析
-                  </NTooltip>
-                </div>
-                <NSwitch v-model:value="formModel.enableMultimodal" size="small" />
               </div>
             </div>
 
