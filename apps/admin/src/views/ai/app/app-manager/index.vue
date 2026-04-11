@@ -8,8 +8,6 @@ import {
   NCollapse,
   NCollapseItem,
   NDropdown,
-  NGrid,
-  NGridItem,
   NInput,
   NPagination,
   NScrollbar,
@@ -245,8 +243,8 @@ onMounted(() => {
       </template>
 
       <NScrollbar class="h-full" content-class="p-4">
-        <NGrid :cols="3" responsive="screen" x-gap="16" y-gap="16">
-          <NGridItem v-for="item in appList" :key="item.appId">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+          <div v-for="item in appList" :key="item.appId">
             <NCard
               :bordered="false"
               class="group relative h-full cursor-pointer rounded-lg shadow-[0_4px_10px_0_rgba(0,0,0,0.1)] transition-all duration-300 !border !border-gray-300 !border-solid dark:bg-white/5 hover:shadow-[0_6px_16px_0_rgba(0,0,0,0.15)] dark:!border-gray-700"
@@ -324,8 +322,8 @@ onMounted(() => {
                 </NDropdown>
               </div>
             </NCard>
-          </NGridItem>
-        </NGrid>
+          </div>
+        </div>
       </NScrollbar>
 
       <div v-if="appList.length > 0" class="flex justify-end border-t border-gray-100 p-4 dark:border-gray-800">

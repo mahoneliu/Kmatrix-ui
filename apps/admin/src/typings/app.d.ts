@@ -1636,9 +1636,14 @@ declare namespace App {
           go_to_config: string;
           embed: {
             title: string;
+            quick: string;
+            advanced: string;
+            advanced_desc: string;
+            advanced_tip: string;
             fullscreen: string;
             mobile: string;
             float: string;
+            code: string;
             copy_code_tip: string;
           };
           monitor: {
@@ -1689,6 +1694,7 @@ declare namespace App {
           ui_setting: {
             card_title: string;
             tab_form: string;
+            landing_page_config: string;
             tab_json: string;
             enabled: string;
             hide_prologue: string;

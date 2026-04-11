@@ -26,8 +26,11 @@ export function graphToDsl(graphData: any, workflowName: string): Workflow.Workf
           // 节点参数: ${nodeId.paramName}
           inputs[binding.paramKey] = `\${${binding.sourceKey}.${binding.sourceParam}}`;
         } else if (binding.sourceType === 'global') {
-          // 全局参数: ${global.key}
-          inputs[binding.paramKey] = `\${global.${binding.sourceKey}}`;
+          // interface/app/session 参数: 使用 ${interface.key}、${app.key}、${session.key} 格式
+          // sourceKey 即为命名空间 (interface/app/session)，binding.sourceParam 为参数 key
+          const namespace = binding.sourceKey;
+          const paramKey = binding.sourceParam || binding.sourceKey;
+          inputs[binding.paramKey] = `\${${namespace}.${paramKey}}`;
         }
       });
     }
@@ -101,20 +104,29 @@ export function dslToGraph(dsl: Workflow.WorkflowDSL): Workflow.GraphData {
           const parts = expression.split('.');
 
           if (parts.length === 2) {
-            if (parts[0] === 'global') {
-              // 全局参数: global.key
+            const [ns, param] = parts;
+            if (ns === 'global') {
+              // 旧格式兼容: ${global.key}
               paramBindings.push({
                 paramKey,
                 sourceType: 'global',
-                sourceKey: parts[1]
+                sourceKey: param
+              });
+            } else if (['interface', 'app', 'session'].includes(ns)) {
+              // 新格式: ${interface.key}、${app.key}、${session.key}
+              paramBindings.push({
+                paramKey,
+                sourceType: 'global',
+                sourceKey: ns,
+                sourceParam: param
               });
             } else {
-              // 节点参数: nodeId.paramName
+              // 节点参数: ${nodeId.paramName}
               paramBindings.push({
                 paramKey,
                 sourceType: 'node',
-                sourceKey: parts[0],
-                sourceParam: parts[1]
+                sourceKey: ns,
+                sourceParam: param
               });
             }
           }

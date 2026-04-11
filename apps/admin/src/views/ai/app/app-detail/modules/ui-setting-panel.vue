@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { SvgIcon } from '@sa/materials';
 import type { UploadCustomRequestOptions } from 'naive-ui';
 import {
   NButton,
@@ -9,15 +8,18 @@ import {
   NImage,
   NInput,
   NP,
+  NRadioButton,
+  NRadioGroup,
   NSwitch,
   NTabPane,
   NTabs,
   NUpload,
   useMessage
 } from 'naive-ui';
+import { SvgIcon } from '@sa/materials';
 import { useI18n } from 'vue-i18n';
 import { updateApp } from '@/service/api/ai/app';
-import { fetchUploadFile } from '@/service/api/system/oss';
+import { fetchAiUploadFile } from '@/service/api/ai/storage';
 
 interface Props {
   appId: string;
@@ -141,9 +143,9 @@ function moveFeature(index: number, delta: -1 | 1) {
   const list = [...(form.value.features || [])];
   const j = index + delta;
   if (j < 0 || j >= list.length) return;
-  const t = list[index]!;
+  const temp = list[index]!;
   list[index] = list[j]!;
-  list[j] = t;
+  list[j] = temp;
   form.value.features = list;
 }
 
@@ -170,7 +172,7 @@ async function handleHeroImageUpload(options: UploadCustomRequestOptions) {
   }
   heroUploading.value = true;
   try {
-    const { data, error } = await fetchUploadFile(raw);
+    const { data, error } = await fetchAiUploadFile(raw);
     if (error || !data?.url) {
       message.error(t('ai.app_detail.ui_setting.hero_upload_failed'));
       options.onError();
@@ -243,9 +245,26 @@ async function handleSave() {
 </script>
 
 <template>
-  <div class="ui-setting-panel">
+  <div class="ui-setting-panel relative">
+    <div class="absolute right-0 top-0 z-50">
+      <NRadioGroup v-model:value="activeTab" size="small">
+        <NRadioButton value="form">
+          <div class="flex items-center gap-1">
+            <SvgIcon local-icon="mdi-format-list-bulleted" />
+            <span>{{ t('ai.app_detail.ui_setting.tab_form') }}</span>
+          </div>
+        </NRadioButton>
+        <NRadioButton value="json">
+          <div class="flex items-center gap-1">
+            <SvgIcon local-icon="mdi-code-json" />
+            <span>{{ t('ai.app_detail.ui_setting.tab_json') }}</span>
+          </div>
+        </NRadioButton>
+      </NRadioGroup>
+    </div>
+
     <NTabs v-model:value="activeTab" type="line" size="small">
-      <NTabPane name="form" :tab="t('ai.app_detail.ui_setting.tab_form')">
+      <NTabPane name="form" :tab="t('ai.app_detail.ui_setting.landing_page_config')">
         <div class="mt-3 space-y-4">
           <NFormItem :label="t('ai.app_detail.ui_setting.enabled')" label-placement="left" :show-feedback="false">
             <NSwitch v-model:value="form.enabled" />
@@ -260,12 +279,17 @@ async function handleSave() {
               <NInput v-model:value="form.hero!.title" :placeholder="t('ai.app_detail.ui_setting.hero_title_ph')" />
             </NFormItem>
             <NFormItem :label="t('ai.app_detail.ui_setting.hero_subtitle')" label-placement="top">
-              <NInput v-model:value="form.hero!.subtitle" :placeholder="t('ai.app_detail.ui_setting.hero_subtitle_ph')" />
+              <NInput
+                v-model:value="form.hero!.subtitle"
+                :placeholder="t('ai.app_detail.ui_setting.hero_subtitle_ph')"
+              />
             </NFormItem>
             <NFormItem :label="t('ai.app_detail.ui_setting.hero_image')" label-placement="top">
               <div class="space-y-3">
                 <div v-if="hasHeroImage" class="flex flex-wrap items-start gap-3">
-                  <div class="relative overflow-hidden border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800">
+                  <div
+                    class="relative overflow-hidden border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+                  >
                     <NImage
                       width="200"
                       height="120"
@@ -303,7 +327,7 @@ async function handleSave() {
                       {{ t('ai.app_detail.ui_setting.hero_upload') }}
                     </NButton>
                   </NUpload>
-                  <NP depth="3" class="!mt-0 text-xs">
+                  <NP depth="3" class="text-xs !mt-0">
                     {{ t('ai.app_detail.ui_setting.hero_upload_tip') }}
                   </NP>
                 </div>
@@ -315,7 +339,7 @@ async function handleSave() {
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <div class="text-sm font-medium">{{ t('ai.app_detail.ui_setting.features') }}</div>
-                <NP depth="3" class="!mt-0.5 text-xs">
+                <NP depth="3" class="text-xs !mt-0.5">
                   {{ t('ai.app_detail.ui_setting.features_hint') }}
                 </NP>
               </div>
@@ -323,7 +347,10 @@ async function handleSave() {
                 {{ t('ai.app_detail.ui_setting.add_feature') }}
               </NButton>
             </div>
-            <div v-if="!form.features?.length" class="border border-dashed border-gray-200 rounded-lg py-8 text-center text-xs text-gray-400 dark:border-gray-600">
+            <div
+              v-if="!form.features?.length"
+              class="border border-gray-200 rounded-lg border-dashed py-8 text-center text-xs text-gray-400 dark:border-gray-600"
+            >
               {{ t('ai.app_detail.ui_setting.features_empty') }}
             </div>
             <div v-else class="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -396,7 +423,11 @@ async function handleSave() {
                   </button>
                 </div>
 
-                <NFormItem :label="t('ai.app_detail.ui_setting.feature_icon_custom')" label-placement="top" :show-feedback="false">
+                <NFormItem
+                  :label="t('ai.app_detail.ui_setting.feature_icon_custom')"
+                  label-placement="top"
+                  :show-feedback="false"
+                >
                   <NInput
                     v-model:value="f.icon"
                     size="small"
@@ -404,7 +435,11 @@ async function handleSave() {
                   />
                 </NFormItem>
                 <NFormItem :label="t('ai.app_detail.ui_setting.feature_title')" label-placement="top">
-                  <NInput v-model:value="f.title" size="small" :placeholder="t('ai.app_detail.ui_setting.feature_title_ph')" />
+                  <NInput
+                    v-model:value="f.title"
+                    size="small"
+                    :placeholder="t('ai.app_detail.ui_setting.feature_title_ph')"
+                  />
                 </NFormItem>
                 <NFormItem :label="t('ai.app_detail.ui_setting.feature_desc')" label-placement="top">
                   <NInput
@@ -432,7 +467,7 @@ async function handleSave() {
             <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
               <span class="text-sm font-medium">{{ t('ai.app_detail.ui_setting.suggested_questions') }}</span>
             </div>
-            <NP depth="3" class="!mb-3 text-xs">
+            <NP depth="3" class="text-xs !mb-3">
               {{ t('ai.app_detail.ui_setting.suggested_questions_hint', { n: MAX_SUGGESTED_QUESTIONS }) }}
             </NP>
             <NDynamicInput
@@ -449,13 +484,22 @@ async function handleSave() {
       </NTabPane>
 
       <NTabPane name="json" :tab="t('ai.app_detail.ui_setting.tab_json')">
-        <NInput
-          v-model:value="jsonText"
-          class="mt-3 font-mono text-xs"
-          type="textarea"
-          :autosize="{ minRows: 16, maxRows: 28 }"
-          :placeholder="t('ai.app_detail.ui_setting.json_placeholder')"
-        />
+        <template #tab>
+          <div class="flex items-center gap-1">
+            <SvgIcon local-icon="mdi-code-json" />
+            <span>{{ t('ai.app_detail.ui_setting.tab_json') }}</span>
+          </div>
+        </template>
+        <div class="pt-3">
+          <NInput
+            v-model:value="jsonText"
+            class="text-xs font-mono"
+            type="textarea"
+            :autosize="{ minRows: 16, maxRows: 28 }"
+            :placeholder="t('ai.app_detail.ui_setting.json_placeholder')"
+            @update:value="parseJsonToForm"
+          />
+        </div>
       </NTabPane>
     </NTabs>
 

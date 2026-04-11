@@ -132,7 +132,7 @@
   // 构造最终的聊天 URL
   const finalChatUrl = `${chatUrl}?appToken=${appToken}&appId=${appId}&primaryColor=${encodeURIComponent(
     primaryColor
-  )}&theme=${theme}&mode=float&customParams=${customParamsJson}`;
+  )}&theme=${theme}&mode=float&customParams=${encodeURIComponent(customParamsJson || '')}`;
 
   iframe.src = finalChatUrl;
   iframe.allow = 'microphone;clipboard-write';

@@ -2508,9 +2508,16 @@ const local: App.I18n.Schema = {
       go_to_config: 'Go to Configuration',
       embed: {
         title: 'Embed in Third Party Page',
+        quick: 'Quick Embed',
+        advanced: 'Advanced Embed',
+        advanced_desc:
+          'Load through configuration objects, providing stronger customization and better readability, supporting custom parameters (customParams), suitable for developers to integrate into existing systems.',
+        advanced_tip:
+          'Note: To use custom parameters (customParams), ensure that you have configured the corresponding "Custom Interface Parameters" in the appinfo node of the workflow, and ensure that the parameter names are consistent, otherwise the parameters will not be recognized by the workflow engine.',
         fullscreen: 'Fullscreen Mode',
         mobile: 'Mobile Mode',
         float: 'Float Mode',
+        code: 'Embed Code',
         copy_code_tip: 'Copy the code below to embed'
       },
       monitor: {
@@ -2561,6 +2568,7 @@ const local: App.I18n.Schema = {
       ui_setting: {
         card_title: 'Chat UI / Welcome',
         tab_form: 'Form',
+        landing_page_config: 'Chat Welcome Page Config',
         tab_json: 'JSON',
         enabled: 'Enable welcome / extended UI',
         hide_prologue: 'Hide prologue bubble (use with ChatPanel)',

@@ -53,9 +53,7 @@ const features = computed(() =>
   (props.uiSetting.features ?? []).filter(f => f?.title?.trim() || f?.description?.trim() || f?.icon?.trim())
 );
 
-const questions = computed(() =>
-  (props.uiSetting.suggestedQuestions ?? []).map(q => String(q).trim()).filter(Boolean)
-);
+const questions = computed(() => (props.uiSetting.suggestedQuestions ?? []).map(q => String(q).trim()).filter(Boolean));
 
 function onFeatureClick(f: NonNullable<Api.AI.Admin.AppUiSetting['features']>[0]) {
   const prompt = f.inputPrompt?.trim();
@@ -69,7 +67,7 @@ function onQuestionClick(q: string) {
 </script>
 
 <template>
-  <div class="chat-welcome-screen mx-auto w-full max-w-2xl shrink-0 px-2 py-4">
+  <div class="chat-welcome-screen mx-auto max-w-2xl w-full shrink-0 px-2 py-4">
     <!-- 头部 -->
     <div class="mb-8 text-center">
       <div v-if="heroImageSrc" class="mb-4 flex justify-center">
@@ -91,12 +89,12 @@ function onQuestionClick(q: string) {
     </div>
 
     <!-- 功能卡片：固定一行两个（与常见 2×2 欢迎区一致） -->
-    <div v-if="features.length > 0" class="mb-8 grid grid-cols-2 gap-2.5 sm:gap-3">
+    <div v-if="features.length > 0" class="grid grid-cols-2 mb-8 gap-2.5 sm:gap-3">
       <button
         v-for="(f, idx) in features"
         :key="idx"
         type="button"
-        class="min-w-0 border border-gray-100 rounded-xl bg-white p-3 text-left shadow-sm transition-colors sm:p-4 hover:border-primary/30 hover:shadow dark:border-gray-700 dark:bg-gray-900/40"
+        class="min-w-0 border border-gray-100 rounded-xl bg-white p-3 text-left shadow-sm transition-colors dark:border-gray-700 hover:border-primary/30 dark:bg-gray-900/40 sm:p-4 hover:shadow"
         @click="onFeatureClick(f)"
       >
         <div class="flex items-start gap-3">
@@ -128,7 +126,7 @@ function onQuestionClick(q: string) {
           v-for="(q, i) in questions"
           :key="i"
           type="button"
-          class="max-w-full min-h-10 w-fit shrink-0 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-left text-sm text-gray-800 leading-snug shadow-sm transition-colors hover:border-primary/35 hover:bg-gray-50/90 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-primary/45 dark:hover:bg-gray-800"
+          class="max-w-full min-h-10 w-fit shrink-0 border border-gray-200 rounded-full bg-white px-4 py-2.5 text-left text-sm text-gray-800 leading-snug shadow-sm transition-colors dark:border-gray-600 hover:border-primary/35 dark:bg-gray-900 hover:bg-gray-50/90 dark:text-gray-100 dark:hover:border-primary/45 dark:hover:bg-gray-800"
           @click="onQuestionClick(q)"
         >
           <span class="block whitespace-normal break-words">{{ q }}</span>

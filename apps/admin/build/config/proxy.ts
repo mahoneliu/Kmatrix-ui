@@ -33,6 +33,17 @@ export function createViteProxy(env: Env.ImportMeta, enable: boolean) {
     };
   }
 
+  // AI 统一文件存储静态资源代理（本地存储模式）
+  // 后端 localPrefix 配置的路径无 /dev-api 前缀，需单独代理以支持 dev server 下图片预览
+  if (baseURL) {
+    proxy['/ai/storage/file'] = {
+      target: baseURL,
+      changeOrigin: true,
+      ws: false
+      // 不做 rewrite，保持原始路径透传
+    };
+  }
+
   return proxy;
 }
 

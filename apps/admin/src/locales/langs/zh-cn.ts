@@ -2485,9 +2485,16 @@ const local: App.I18n.Schema = {
       go_to_config: '去配置',
       embed: {
         title: '嵌入第三方页面',
+        quick: '快速嵌入',
+        advanced: '高级嵌入',
+        advanced_desc:
+          '通过配置对象加载，提供更强的自定义能力和更好的可读性，支持自定义参数（customParams），适合开发者集成到现有系统中。',
+        advanced_tip:
+          '注意：若要使用自定义参数（customParams），请确保在工作流的 appinfo 节点中通过“自定义接口参数”进行配置，并确保参数名一致，否则参数将无法被工作流引擎识别。',
         fullscreen: '全屏模式',
         mobile: '移动端模式',
         float: '浮窗模式',
+        code: '嵌入代码',
         copy_code_tip: '复制以下代码进行嵌入'
       },
       monitor: {
@@ -2538,6 +2545,7 @@ const local: App.I18n.Schema = {
       ui_setting: {
         card_title: '对话界面 / 欢迎页',
         tab_form: '表单',
+        landing_page_config: '对话欢迎页配置',
         tab_json: 'JSON',
         enabled: '启用欢迎页等扩展 UI',
         hide_prologue: '隐藏开场白气泡（与下方配置配合）',

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, h, onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
@@ -10,8 +10,6 @@ import {
   NGridItem,
   NInput,
   NInputGroup,
-  NModal,
-  NSelect,
   NSwitch,
   NTooltip,
   useDialog,
@@ -20,17 +18,16 @@ import {
 import { useI18n } from 'vue-i18n';
 import { SvgIcon } from '@sa/materials';
 import { copyToClipboard } from '@km/shared';
-import { fetchAppDetail, fetchAppStatistics, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
+import { fetchAppDetail, publishApp, updateApp, updatePublicAccess } from '@/service/api/ai/app';
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
-import { useEcharts } from '@/hooks/common/echarts';
 import { graphToDsl, validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
 import AppOperateModal from '@/views/ai/app/app-manager/modules/app-operate-modal.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
 import UiSettingPanel from './modules/ui-setting-panel.vue';
-
-// const SvgIcon = resolveComponent('SvgIcon');
+import AppEmbedModal from './modules/app-embed-modal.vue';
+import AppMonitorPanel from './modules/app-monitor-panel.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -42,9 +39,24 @@ const appId = ref<string>(route.query.appId as string);
 const appInfo = ref<Api.AI.Admin.App | null>(null);
 const tokenList = ref<any[]>([]);
 const loading = ref(false);
-const showConfigPanel = ref(true);
+/** 应用配置折叠 */
+const showConfigPanel = ref(false);
 /** 对话界面 / 欢迎页配置折叠 */
-const showUiWelcomePanel = ref(true);
+const showUiWelcomePanel = ref(false);
+
+function toggleConfigPanel() {
+  showConfigPanel.value = !showConfigPanel.value;
+  if (showConfigPanel.value) {
+    showUiWelcomePanel.value = false;
+  }
+}
+
+function toggleUiWelcomePanel() {
+  showUiWelcomePanel.value = !showUiWelcomePanel.value;
+  if (showUiWelcomePanel.value) {
+    showConfigPanel.value = false;
+  }
+}
 
 // 调试对话窗口
 const showDebugDialog = ref(false);
@@ -69,91 +81,6 @@ const publicAccessEnabled = computed({
       message.error(t('common.updateFailed'));
     }
   }
-});
-
-// 监控统计时间范围
-const statsPeriod = ref('all');
-const statsPeriodOptions = computed<CommonType.Option<string>[]>(() => [
-  { label: t('ai.app_detail.monitor.period_all'), value: 'all' },
-  { label: t('ai.app_detail.monitor.period_7d'), value: '7d' },
-  { label: t('ai.app_detail.monitor.period_30d'), value: '30d' },
-  { label: t('ai.app_detail.monitor.period_90d'), value: '90d' }
-]);
-
-// 统计数据
-const statsData = ref<Api.AI.Admin.AppStatistics>({
-  userCount: 0,
-  userCountDelta: 0,
-  questionCount: 0,
-  tokensTotal: 0,
-  satisfaction: { like: 0, dislike: 0 },
-  userTrend: {},
-  questionTrend: {}
-});
-
-// 图表 DOM
-const userChartRef = ref<HTMLElement | null>(null);
-const questionChartRef = ref<HTMLElement | null>(null);
-
-// 初始化 ECharts
-const { domRef: userDom, updateOptions: updateUserChart } = useEcharts(() => ({
-  tooltip: { trigger: 'axis' },
-  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-  xAxis: { type: 'category', boundaryGap: false, data: [] as string[] },
-  yAxis: { type: 'value' },
-  series: [
-    { name: t('ai.app_detail.monitor.user_count'), type: 'line', smooth: true, areaStyle: {}, data: [] as number[] }
-  ]
-}));
-
-const { domRef: questionDom, updateOptions: updateQuestionChart } = useEcharts(() => ({
-  tooltip: { trigger: 'axis' },
-  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-  xAxis: { type: 'category', boundaryGap: false, data: [] as string[] },
-  yAxis: { type: 'value' },
-  series: [
-    {
-      name: t('ai.app_detail.monitor.question_count'),
-      type: 'line',
-      smooth: true,
-      areaStyle: {},
-      color: '#f97316',
-      data: [] as number[]
-    }
-  ]
-}));
-
-// 加载统计数据
-async function loadStats() {
-  try {
-    const { data } = await fetchAppStatistics(appId.value, statsPeriod.value);
-    if (data) {
-      statsData.value = data;
-      // 更新图表
-      const dates = Object.keys(data.userTrend).sort();
-      const userValues = dates.map(d => data.userTrend[d]);
-      const questionValues = dates.map(d => data.questionTrend[d]);
-
-      updateUserChart(opts => {
-        opts.xAxis.data = dates;
-        opts.series[0].data = userValues;
-        return opts;
-      });
-
-      updateQuestionChart(opts => {
-        opts.xAxis.data = dates;
-        opts.series[0].data = questionValues;
-        return opts;
-      });
-    }
-  } catch {
-    // ignore
-  }
-}
-
-// 监听周期变化
-watch(statsPeriod, () => {
-  loadStats();
 });
 
 // 计算公开访问链接
@@ -205,11 +132,6 @@ async function handleRefreshToken(tokenId: string) {
     message.error(t('common.refreshFailed'));
   }
 }
-
-// 复制到剪贴板
-// 复制到剪贴板
-// 复制到剪贴板
-// 使用 shared 库中的 copyToClipboard，无需在此重复定义
 
 // 跳转去对话
 function handleGoToChat() {
@@ -377,49 +299,12 @@ function handleDebug() {
   showDebugDialog.value = true;
 }
 
-// 嵌入第三方弹窗
+// 嵌入模式弹窗
 const showEmbedModal = ref(false);
-
-// 嵌入代码 - 全屏模式
-const embedFullscreenCode = computed(() => {
+const currentAppToken = computed(() => {
   if (!tokenList.value.length) return '';
   const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
-  if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
-  return `<iframe
-  src="${chatAppUrl}/?appToken=${token.token}&appId=${appId.value}"
-  style="width: 100%; height: 100%;"
-  frameborder="0"
-  allow="microphone">
-</iframe>`;
-});
-
-// 嵌入代码 - 移动端模式
-const embedMobileCode = computed(() => {
-  if (!tokenList.value.length) return '';
-  const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
-  if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
-  return `<iframe
-  src="${chatAppUrl}/?appToken=${token.token}&appId=${appId.value}&mode=mobile"
-  style="width: 100%; height: 100%;"
-  frameborder="0"
-  allow="microphone">
-</iframe>`;
-});
-
-// 嵌入代码 - 浮窗模式
-const embedFloatCode = computed(() => {
-  if (!tokenList.value.length) return '';
-  const token = tokenList.value.find(item => item.status === '1') || tokenList.value[0];
-  if (!token?.token) return '';
-  const chatAppUrl = import.meta.env.VITE_CHAT_APP_URL || `${window.location.origin}/chat`;
-  const scriptEnd = '<' + '/script>'; // eslint-disable-line no-useless-concat
-  return `<script
-  async
-  defer
-  src="${chatAppUrl}/loader.js?appToken=${token.token}&appId=${appId.value}">
-${scriptEnd}`;
+  return token?.token || '';
 });
 
 // 运行菜单选项
@@ -492,10 +377,6 @@ function onModalClose(_id?: any, _type?: any) {
 onMounted(async () => {
   await loadAppInfo();
   await loadTokenList();
-  // chart refs binding
-  userDom.value = userChartRef.value;
-  questionDom.value = questionChartRef.value;
-  await loadStats();
 });
 </script>
 
@@ -538,7 +419,7 @@ onMounted(async () => {
           <!-- 操作按钮组 -->
           <div class="mt-4 flex flex-wrap items-center gap-2">
             <!-- 系统模版应用配置按钮（放在最左边） -->
-            <NButton v-if="isSystemTemplateApp" size="small" @click="showConfigPanel = !showConfigPanel">
+            <NButton v-if="isSystemTemplateApp" size="small" @click="toggleConfigPanel">
               <template #icon>
                 <SvgIcon :icon="showConfigPanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
               </template>
@@ -550,6 +431,14 @@ onMounted(async () => {
                 <SvgIcon local-icon="mdi-settings" />
               </template>
               {{ $t('ai.app_detail.workflow_settings') }}
+            </NButton>
+
+            <!-- 对话界面 / 欢迎页配置按钮 -->
+            <NButton v-if="appInfo" size="small" @click="toggleUiWelcomePanel">
+              <template #icon>
+                <SvgIcon :icon="showUiWelcomePanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
+              </template>
+              {{ $t('ai.app_detail.ui_setting.card_title') }}
             </NButton>
 
             <!-- 调试按钮 -->
@@ -590,230 +479,50 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 系统模版应用配置面板 -->
-      <div v-if="isSystemTemplateApp" class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
-        <NCollapseTransition :show="showConfigPanel">
-          <SystemTemplateConfigPanel
-            v-if="appInfo"
-            ref="systemTemplateConfigRef"
-            :app-id="appId"
-            :app-name="appInfo.appName"
-            :model-id="appInfo.modelId"
-            :knowledge-ids="appInfo.knowledgeIds"
-            :model-setting="appInfo.modelSetting"
-            :graph-data="appInfo.graphData"
-            @update="loadAppInfo"
-          />
-        </NCollapseTransition>
+      <!-- 配置面板区域 -->
+      <div
+        v-if="(isSystemTemplateApp && showConfigPanel) || showUiWelcomePanel"
+        class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700"
+      >
+        <NGrid :cols="1" x-gap="16" responsive="screen">
+          <!-- 系统模版应用配置面板 -->
+          <NGridItem v-if="isSystemTemplateApp">
+            <NCollapseTransition :show="showConfigPanel">
+              <SystemTemplateConfigPanel
+                v-if="appInfo"
+                ref="systemTemplateConfigRef"
+                :app-id="appId"
+                :app-name="appInfo.appName"
+                :model-id="appInfo.modelId"
+                :knowledge-ids="appInfo.knowledgeIds"
+                :model-setting="appInfo.modelSetting"
+                :graph-data="appInfo.graphData"
+                @update="loadAppInfo"
+              />
+            </NCollapseTransition>
+          </NGridItem>
+
+          <!-- 对话界面 / 欢迎页配置面板 -->
+          <NGridItem>
+            <NCollapseTransition :show="showUiWelcomePanel">
+              <UiSettingPanel
+                v-if="appInfo"
+                :app-id="appId"
+                :app-name="appInfo.appName"
+                :ui-setting="appInfo.uiSetting"
+                @update="loadAppInfo"
+              />
+            </NCollapseTransition>
+          </NGridItem>
+        </NGrid>
       </div>
     </NCard>
 
-    <!-- 对话界面 / 欢迎页 -->
-    <NCard v-if="appInfo" class="mb-4" size="small">
-      <template #header>
-        <div
-          class="flex cursor-pointer select-none items-center justify-between"
-          @click="showUiWelcomePanel = !showUiWelcomePanel"
-        >
-          <div class="flex items-center gap-2">
-            <SvgIcon :icon="showUiWelcomePanel ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
-            <span class="text-sm font-medium">{{ $t('ai.app_detail.ui_setting.card_title') }}</span>
-          </div>
-        </div>
-      </template>
-      <NCollapseTransition :show="showUiWelcomePanel">
-        <UiSettingPanel
-          :app-id="appId"
-          :app-name="appInfo.appName"
-          :ui-setting="appInfo.uiSetting"
-          @update="loadAppInfo"
-        />
-      </NCollapseTransition>
-    </NCard>
-
-    <!-- 监控统计卡片 -->
-    <NCard size="small">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1">
-            <div class="h-1 w-1 rounded-full bg-primary" />
-            <span class="text-sm font-medium">{{ $t('ai.app_detail.monitor.title') }}</span>
-          </div>
-          <NSelect v-model:value="statsPeriod" :options="statsPeriodOptions" size="small" class="w-28" />
-        </div>
-      </template>
-
-      <!-- 统计数字 -->
-      <NGrid :cols="4" :x-gap="16" class="mb-6">
-        <NGridItem>
-          <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-            <div class="h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-500">
-              <SvgIcon local-icon="mdi-account-group" class="text-xl" />
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.user_count') }}</div>
-              <div class="flex items-baseline gap-1">
-                <span class="text-xl font-bold">{{ statsData.userCount }}</span>
-                <span v-if="statsData.userCountDelta > 0" class="text-xs text-success">
-                  +{{ statsData.userCountDelta }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </NGridItem>
-        <NGridItem>
-          <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-            <div class="h-10 w-10 flex items-center justify-center rounded-full bg-orange-100 text-orange-500">
-              <SvgIcon local-icon="mdi-message-text" class="text-xl" />
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.question_count') }}</div>
-              <span class="text-xl font-bold">{{ statsData.questionCount }}</span>
-            </div>
-          </div>
-        </NGridItem>
-        <NGridItem>
-          <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-            <div class="h-10 w-10 flex items-center justify-center rounded-full bg-green-100 text-green-500">
-              <SvgIcon local-icon="mdi-key-variant" class="text-xl" />
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.tokens_total') }}</div>
-              <span class="text-xl font-bold">{{ statsData.tokensTotal }}</span>
-            </div>
-          </div>
-        </NGridItem>
-        <NGridItem>
-          <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-            <div class="h-10 w-10 flex items-center justify-center rounded-full bg-pink-100 text-pink-500">
-              <SvgIcon local-icon="mdi-emoticon-happy" class="text-xl" />
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">{{ $t('ai.app_detail.monitor.satisfaction') }}</div>
-              <div class="flex items-center gap-2">
-                <span class="text-success">👍 {{ statsData.satisfaction.like }}</span>
-                <span class="text-error">👎 {{ statsData.satisfaction.dislike }}</span>
-              </div>
-            </div>
-          </div>
-        </NGridItem>
-      </NGrid>
-
-      <!-- 图表占位 -->
-      <NGrid :cols="2" :x-gap="16">
-        <NGridItem>
-          <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-            <div class="mb-2 text-sm font-medium">{{ $t('ai.app_detail.monitor.user_count') }}</div>
-            <div ref="userChartRef" class="h-48 w-full"></div>
-          </div>
-        </NGridItem>
-        <NGridItem>
-          <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-            <div class="mb-2 text-sm font-medium">{{ $t('ai.app_detail.monitor.question_count') }}</div>
-            <div ref="questionChartRef" class="h-48 w-full"></div>
-          </div>
-        </NGridItem>
-      </NGrid>
-    </NCard>
+    <!-- 监控统计区域 -->
+    <AppMonitorPanel v-if="appId" :app-id="appId" />
     <AppOperateModal v-model:visible="modalVisible" :app-type="appType" @success="id => onModalClose(id, appType)" />
     <DebugChatDialog v-model:visible="showDebugDialog" :app-id="appId" :app-name="appInfo?.appName || ''" />
 
-    <!-- 嵌入第三方弹窗 -->
-    <NModal
-      v-model:show="showEmbedModal"
-      preset="card"
-      :title="$t('ai.app_detail.embed.title')"
-      class="w-240"
-      :bordered="false"
-    >
-      <div class="grid grid-cols-3 gap-4">
-        <!-- 全屏模式 -->
-        <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.fullscreen') }}</div>
-          <div
-            class="mb-4 h-24 flex items-center justify-center rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b dark:from-blue-900 dark:to-blue-800"
-          >
-            <div class="h-16 w-28 rounded bg-white shadow-sm dark:bg-gray-700">
-              <div class="h-2 rounded-t bg-primary/20" />
-              <div class="p-2 space-y-1">
-                <div class="h-1.5 w-12 rounded bg-gray-200 dark:bg-gray-600" />
-                <div class="h-1.5 w-16 rounded bg-gray-200 dark:bg-gray-600" />
-              </div>
-            </div>
-          </div>
-          <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
-            <NButton
-              text
-              size="tiny"
-              @click="copyToClipboard(embedFullscreenCode, $t('ai.app_detail.fullscreen_code'))"
-            >
-              <template #icon>
-                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
-              </template>
-            </NButton>
-          </div>
-          <div class="rounded bg-gray-50 p-2 text-xs dark:bg-gray-800">
-            <pre class="whitespace-pre-wrap break-all text-gray-600 dark:text-gray-300">{{ embedFullscreenCode }}</pre>
-          </div>
-        </div>
-
-        <!-- 移动端模式 -->
-        <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.mobile') }}</div>
-          <div
-            class="mb-4 h-24 flex items-center justify-center rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b dark:from-blue-900 dark:to-blue-800"
-          >
-            <div class="h-20 w-12 rounded-lg bg-white shadow-sm dark:bg-gray-700">
-              <div class="h-1.5 rounded-t bg-primary/20" />
-              <div class="p-1.5 space-y-1">
-                <div class="h-1 w-6 rounded bg-gray-200 dark:bg-gray-600" />
-                <div class="h-1 w-8 rounded bg-gray-200 dark:bg-gray-600" />
-              </div>
-            </div>
-          </div>
-          <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
-            <NButton text size="tiny" @click="copyToClipboard(embedMobileCode, $t('ai.app_detail.mobile_code'))">
-              <template #icon>
-                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
-              </template>
-            </NButton>
-          </div>
-          <div class="rounded bg-gray-50 p-2 text-xs dark:bg-gray-800">
-            <pre class="whitespace-pre-wrap break-all text-gray-600 dark:text-gray-300">{{ embedMobileCode }}</pre>
-          </div>
-        </div>
-
-        <!-- 浮窗模式 -->
-        <div class="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
-          <div class="mb-3 text-base font-medium">{{ $t('ai.app_detail.embed.float') }}</div>
-          <div
-            class="mb-4 h-24 flex items-end justify-end rounded-lg from-blue-100 to-blue-50 bg-gradient-to-b p-2 dark:from-blue-900 dark:to-blue-800"
-          >
-            <div class="h-14 w-14 rounded-lg bg-white p-1 shadow-sm dark:bg-gray-700">
-              <div class="h-1.5 rounded-t bg-primary/20" />
-              <div class="p-1 space-y-0.5">
-                <div class="h-0.5 w-6 rounded bg-gray-200 dark:bg-gray-600" />
-                <div class="h-0.5 w-8 rounded bg-gray-200 dark:bg-gray-600" />
-              </div>
-            </div>
-          </div>
-          <div class="mb-2 flex items-center justify-between">
-            <span class="text-xs text-gray-500">{{ $t('ai.app_detail.embed.copy_code_tip') }}</span>
-            <NButton text size="tiny" @click="copyToClipboard(embedFloatCode, $t('ai.app_detail.float_code'))">
-              <template #icon>
-                <SvgIcon local-icon="mdi-content-copy" class="text-xs" />
-              </template>
-            </NButton>
-          </div>
-          <div class="rounded bg-gray-50 p-2 text-xs dark:bg-gray-800">
-            <pre class="whitespace-pre-wrap break-all text-gray-600 dark:text-gray-300">{{ embedFloatCode }}</pre>
-          </div>
-        </div>
-      </div>
-    </NModal>
+    <AppEmbedModal v-model:show="showEmbedModal" :app-id="appId" :app-token="currentAppToken" />
   </div>
 </template>
-
-<style scoped></style>

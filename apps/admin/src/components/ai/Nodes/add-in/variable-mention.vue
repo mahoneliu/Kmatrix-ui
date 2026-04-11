@@ -75,7 +75,10 @@ const groupedOptions = computed(() => {
     }
 
     const options = source.params.map(param => {
-      const value = source.type === 'global' ? `\${${param.key}}` : `\${${source.sourceKey}.${param.key}}`;
+      // 接口/应用/会话参数需生成带前缀格式 ${interface.key}，真正的全局参数才用裸 ${key}
+      const isNamespacedGlobal = ['interface', 'app', 'session'].includes(source.sourceKey);
+      const value =
+        source.type === 'node' || isNamespacedGlobal ? `\${${source.sourceKey}.${param.key}}` : `\${${param.key}}`;
       return {
         label: `${param.label} - ${param.type}`,
         value
