@@ -13,11 +13,22 @@ setupIconifyOffline();
 // 解析 URL 参数
 function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
+  const customParamsStr = params.get('customParams');
+  let customParams: Record<string, any> = {};
+  try {
+    if (customParamsStr) {
+      customParams = JSON.parse(decodeURIComponent(customParamsStr));
+    }
+  } catch (e) {
+    console.error('[KMatrix Embed] Failed to parse customParams:', e);
+  }
+
   return {
     appToken: params.get('appToken') || '',
     appId: params.get('appId') || '',
     primaryColor: params.get('primaryColor') || '#18a058',
-    theme: params.get('theme') || 'light'
+    theme: params.get('theme') || 'light',
+    customParams
   };
 }
 

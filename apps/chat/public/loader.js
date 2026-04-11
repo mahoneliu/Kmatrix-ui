@@ -26,6 +26,9 @@
   const primaryColor = scriptUrl.searchParams.get('primaryColor') || '#394befff';
   const theme = scriptUrl.searchParams.get('theme') || 'light';
 
+  // 解析自定义参数 (customParams 为 JSON 字符串)
+  const customParamsJson = scriptUrl.searchParams.get('customParams');
+
   if (!appToken || !appId) {
     // eslint-disable-next-line no-console
     console.error('[KMatrix Embed] Missing appToken or appId in script URL');
@@ -129,7 +132,7 @@
   // 构造最终的聊天 URL
   const finalChatUrl = `${chatUrl}?appToken=${appToken}&appId=${appId}&primaryColor=${encodeURIComponent(
     primaryColor
-  )}&theme=${theme}&mode=float`;
+  )}&theme=${theme}&mode=float&customParams=${customParamsJson}`;
 
   iframe.src = finalChatUrl;
   iframe.allow = 'microphone;clipboard-write';

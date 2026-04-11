@@ -61,6 +61,8 @@ interface Props {
   logo?: string;
   /** 对话欢迎页配置（来自应用 ui_setting；启用且无用户消息时展示） */
   uiSetting?: Api.AI.Admin.AppUiSetting;
+  /** 自定义参数，会传递到后端API */
+  customParams?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -532,6 +534,7 @@ async function handleSend() {
     message: userMsgToProcess,
     debug: props.mode === 'debug',
     showExecutionInfo: showExecutionInfo.value,
+    customParams: props.customParams,
     onDone: newSessionId => {
       if (newSessionId && newSessionId !== props.sessionId) {
         emit('sessionChange', newSessionId);

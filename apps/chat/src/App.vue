@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, watch } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
 import { NButton, NConfigProvider, NDrawer, NDrawerContent, NMessageProvider, NTooltip, darkTheme } from 'naive-ui';
 import {
   type ChatMessage,
@@ -22,14 +22,19 @@ interface EmbedParams {
   appId: string;
   primaryColor: string;
   theme: string;
+  customParams: Record<string, any>; // 自定义参数
 }
 
 const embedParams = inject<EmbedParams>('embedParams', {
   appToken: '',
   appId: '',
   primaryColor: '#18a058',
-  theme: 'light'
+  theme: 'light',
+  customParams: {}
 });
+
+// 直接使用 embedParams 中的 customParams
+const customParams = computed(() => embedParams.customParams);
 
 // 会话相关
 const sessionId = ref<string | undefined>();
@@ -339,6 +344,7 @@ onMounted(async () => {
             :has-execution-detail-permission="true"
             :available-skills="availableSkills"
             :capabilities="capabilities"
+            :custom-params="customParams"
             class="flex-1 overflow-hidden"
             @session-change="handleSessionChange"
             @submit-feedback="handleSubmitFeedback"

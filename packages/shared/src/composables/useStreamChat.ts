@@ -62,6 +62,8 @@ export interface StreamChatParams {
   debug?: boolean;
   /** 是否显示执行信息（正式对话模式下可选） */
   showExecutionInfo?: boolean;
+  /** 自定义参数，会传递到后端API */
+  customParams?: Record<string, any>;
   /** 会话完成回调 */
   onDone?: (sessionId?: string) => void;
   /** 节点开始执行回调 */
