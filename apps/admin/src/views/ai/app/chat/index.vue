@@ -193,6 +193,7 @@ onMounted(async () => {
         :app-id="appId"
         :session-id="sessionId"
         :prologue="appInfo?.prologue"
+        :ui-setting="appInfo?.uiSetting"
         :capabilities="appInfo?.capabilities || []"
         :enable-execution-detail="appInfo?.enableExecutionDetail === '1'"
         :has-execution-detail-permission="true"

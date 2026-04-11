@@ -5,6 +5,7 @@ import './typings/common.d.ts';
 
 // Components
 export { default as ChatPanel } from './components/ChatPanel.vue';
+export { default as ChatWelcomeScreen } from './components/ChatWelcomeScreen.vue';
 export { default as MarkdownRenderer } from './components/MarkdownRenderer.vue';
 export { default as SessionList } from './components/SessionList.vue';
 // SvgIcon removed

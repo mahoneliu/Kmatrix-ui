@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import type { CSSProperties } from 'vue';
 import {
   NButton,
   NCollapse,
@@ -23,6 +24,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { abortRequest, uploadFile } from '../api/chat';
 import { baseURL } from '../api/request';
 import MarkdownRenderer from './MarkdownRenderer.vue';
+import ChatWelcomeScreen from './ChatWelcomeScreen.vue';
 
 /** 可用技能条目（由父组件传入） */
 export interface AvailableSkill {
@@ -55,6 +57,10 @@ interface Props {
   availableSkills?: AvailableSkill[];
   /** 应用能力聚合（例如：vision, audio, image-ocr等） */
   capabilities?: string[];
+  /** 品牌 Logo URL（欢迎页无头图时展示） */
+  logo?: string;
+  /** 对话欢迎页配置（来自应用 ui_setting；启用且无用户消息时展示） */
+  uiSetting?: Api.AI.Admin.AppUiSetting;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -66,7 +72,9 @@ const props = withDefaults(defineProps<Props>(), {
   getNodeDefinition: undefined,
   isAdmin: false,
   availableSkills: () => [],
-  capabilities: () => []
+  capabilities: () => [],
+  logo: undefined,
+  uiSetting: undefined
 });
 
 const emit = defineEmits<{
@@ -360,17 +368,64 @@ function formatTimestamp(timestamp: string | null | undefined): string {
   }
 }
 
+/** 是否跳过开场白气泡（欢迎页接管 或 显式隐藏） */
+function shouldSkipPrologueBubble() {
+  return Boolean(props.uiSetting?.enabled || props.uiSetting?.hidePrologueBubble);
+}
+
 // 初始化开场白
 function initPrologue() {
-  if (props.prologue && messages.value.length === 0) {
-    messages.value.push({
-      id: 'prologue',
-      role: 'assistant',
-      content: props.prologue,
-      timestamp: new Date().toISOString()
-    });
+  if (shouldSkipPrologueBubble() || !props.prologue || messages.value.length !== 0) {
+    return;
   }
+  messages.value.push({
+    id: 'prologue',
+    role: 'assistant',
+    content: props.prologue,
+    timestamp: new Date().toISOString()
+  });
 }
+
+/** 开启欢迎配置且当前无任何消息时展示（新会话/清空后；有历史或开场白气泡则不占满主区域） */
+const showWelcomeScreen = computed(() => {
+  if (!props.uiSetting?.enabled) return false;
+  return messages.value.length === 0;
+});
+
+/**
+ * 欢迎页：让 Naive Scrollbar 的内容层占满滚动视口并在上下左右居中
+ */
+const scrollbarContentClass = computed(() => (showWelcomeScreen.value ? 'w-full' : undefined));
+
+const scrollbarContentStyle = computed((): CSSProperties | undefined =>
+  showWelcomeScreen.value
+    ? {
+        minHeight: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        boxSizing: 'border-box'
+      }
+    : undefined
+);
+
+function onWelcomeSelectQuestion(text: string) {
+  userInput.value = text;
+}
+
+watch(
+  () => props.uiSetting,
+  () => {
+    if (shouldSkipPrologueBubble()) {
+      messages.value = messages.value.filter(m => m.id !== 'prologue');
+    } else if (props.prologue && messages.value.length === 0) {
+      initPrologue();
+    }
+  },
+  { deep: true }
+);
 
 // 滚动到底部
 function scrollToBottom() {
@@ -670,8 +725,16 @@ defineExpose({
   <div class="chat-panel h-full flex flex-col">
     <!-- 消息列表 -->
     <div class="flex-1 overflow-hidden">
-      <NScrollbar ref="scrollbarRef" class="h-full">
-        <div class="p-4">
+      <NScrollbar
+        ref="scrollbarRef"
+        class="h-full"
+        :content-class="scrollbarContentClass"
+        :content-style="scrollbarContentStyle"
+      >
+        <div v-if="showWelcomeScreen && uiSetting">
+          <ChatWelcomeScreen :ui-setting="uiSetting" :logo="logo" @select-question="onWelcomeSelectQuestion" />
+        </div>
+        <div v-else class="p-4">
           <div v-for="msg in messages" :key="msg.id" class="group mb-4">
             <div v-if="msg.role === 'user'" class="flex flex-row-reverse items-start gap-2">
               <div class="max-w-[70%] rounded-lg bg-blue-500 px-4 py-2 text-white">

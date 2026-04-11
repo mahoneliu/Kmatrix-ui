@@ -98,6 +98,7 @@ async function loadSessions() {
 const appTitle = ref('');
 const prologue = ref('');
 const capabilities = ref<string[]>([]);
+const uiSetting = ref<Api.AI.Admin.AppUiSetting | undefined>();
 
 async function loadAppInfo() {
   if (!embedParams.appToken) return;
@@ -107,6 +108,7 @@ async function loadAppInfo() {
       appTitle.value = data.appName;
       prologue.value = data.prologue || '';
       capabilities.value = data.capabilities || [];
+      uiSetting.value = data.uiSetting;
     }
   } catch {
     // ignore
@@ -332,6 +334,8 @@ onMounted(async () => {
             :session-id="sessionId"
             :token="embedParams.appToken"
             :prologue="prologue"
+            :ui-setting="uiSetting"
+            :logo="logoImg"
             :has-execution-detail-permission="true"
             :available-skills="availableSkills"
             :capabilities="capabilities"
