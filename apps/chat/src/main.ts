@@ -17,7 +17,7 @@ function getUrlParams() {
   let customParams: Record<string, any> = {};
   try {
     if (customParamsStr) {
-      customParams = JSON.parse(customParamsStr);
+      customParams = JSON.parse(decodeURIComponent(customParamsStr));
     }
   } catch (e) {
     console.error('[KMatrix Embed] Failed to parse customParams:', e);
