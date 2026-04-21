@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
 const modelForm = reactive<any>({
   modelId: undefined,
   modelName: '',
-  modelKey: '',
+  modelKey: null,
   modelType: '1',
   apiKey: '',
   apiBase: '',
@@ -86,7 +86,7 @@ watch(
     if (isInitializing.value) return;
     if (newVal !== oldVal) {
       modelForm.providerId = undefined;
-      modelForm.modelKey = '';
+      modelForm.modelKey = null;
     }
   }
 );
@@ -97,7 +97,7 @@ watch(
   () => {
     if (isInitializing.value) return;
     // 当模型类型改变时,清空已选择的基础模型
-    modelForm.modelKey = '';
+    modelForm.modelKey = null;
   }
 );
 
@@ -107,7 +107,7 @@ watch(
   () => {
     if (isInitializing.value) return;
     // 当供应商改变时,清空已选择的基础模型
-    modelForm.modelKey = '';
+    modelForm.modelKey = null;
   }
 );
 
@@ -156,7 +156,7 @@ async function open(modalType: 'add' | 'edit', data?: any) {
     Object.assign(modelForm, {
       modelId: undefined,
       modelName: '',
-      modelKey: '',
+      modelKey: null,
       modelType: '1',
       apiKey: '',
       apiBase: '',

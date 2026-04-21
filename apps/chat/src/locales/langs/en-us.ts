@@ -69,7 +69,8 @@ const local = {
       resume_failed: 'Failed to resume session',
       abort_time: 'Abort Time',
       abort_reason: 'Abort Reason',
-      resume: 'Resume'
+      resume: 'Resume',
+      recent_sessions_tip: 'Recent Sessions (Max 20)'
     },
     msg: {
       rate_limit: {

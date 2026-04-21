@@ -730,7 +730,8 @@ const local: App.I18n.Schema = {
           }
         },
         addConfig: '新增参数配置',
-        editConfig: '编辑参数配置'
+        editConfig: '编辑参数配置',
+        refreshCacheFailed: ''
       },
       dept: {
         empty: '暂无部门信息',
@@ -882,7 +883,8 @@ const local: App.I18n.Schema = {
         editDictType: '编辑字典类型',
         exportDictType: '导出字典类型',
         refreshDictType: '刷新列表',
-        dictTypeIsEmpty: '暂无字典类型'
+        dictTypeIsEmpty: '暂无字典类型',
+        refreshCacheFailed: ''
       },
       menu: {
         title: '菜单列表',
@@ -2663,7 +2665,7 @@ const local: App.I18n.Schema = {
       model_source: '模型来源',
       model_name_placeholder: '如：千问Max，方便记忆',
       model_type: '模型类型',
-      base_model_placeholder: '选择基础模型或直接输入',
+      base_model_placeholder: '选择基础模型或直接输入并回车',
       no_api_key_tip: '没有 API Key？前往',
       official_website: '官网',
       get: '获取',

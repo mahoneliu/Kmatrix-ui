@@ -70,7 +70,8 @@ const local = {
       resume_failed: '恢复失败',
       abort_time: '中断时间',
       abort_reason: '中断原因',
-      resume: '恢复'
+      resume: '恢复',
+      recent_sessions_tip: '最近的会话只展示20条'
     },
     msg: {
       rate_limit: {

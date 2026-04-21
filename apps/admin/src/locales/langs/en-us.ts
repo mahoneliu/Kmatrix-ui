@@ -734,7 +734,8 @@ const local: App.I18n.Schema = {
           }
         },
         addConfig: 'Add Config',
-        editConfig: 'Edit Config'
+        editConfig: 'Edit Config',
+        refreshCacheFailed: ''
       },
       dept: {
         empty: 'No department information',
@@ -886,7 +887,8 @@ const local: App.I18n.Schema = {
         editDictType: 'Edit Dictionary Type',
         exportDictType: 'Export Dictionary Type',
         refreshDictType: 'Refresh Dictionary Type',
-        dictTypeIsEmpty: 'Dictionary type is empty'
+        dictTypeIsEmpty: 'Dictionary type is empty',
+        refreshCacheFailed: ''
       },
       menu: {
         title: 'Menu List',
@@ -2687,7 +2689,7 @@ const local: App.I18n.Schema = {
       model_source: 'Model Source',
       model_name_placeholder: 'e.g. Qwen-Max, for easy memory',
       model_type: 'Model Type',
-      base_model_placeholder: 'Select or input base model',
+      base_model_placeholder: 'Select or input base model and press enter',
       no_api_key_tip: 'No API Key? Go to',
       official_website: 'Official Website',
       get: 'to get',
