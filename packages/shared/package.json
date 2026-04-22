@@ -23,9 +23,12 @@
   },
   "dependencies": {
     "@sa/axios": "workspace:*",
+    "@sa/materials": "workspace:*",
     "@sa/utils": "workspace:*",
+    "colord": "^2.9.3",
     "naive-ui": "2.43.2",
     "vue": "3.5.25",
+    "vue-i18n": "^9.14.2",
     "vue-router": "4.6.3"
   }
 }
