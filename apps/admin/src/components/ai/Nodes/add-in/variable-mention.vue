@@ -130,6 +130,12 @@ function handleInput(value: string) {
   }
 }
 
+// 处理滚轮事件，阻止冒泡到全局缩放
+function handleWheel(e: WheelEvent) {
+  // 阻止事件冒泡，避免触发全局的放大缩小功能
+  e.stopPropagation();
+}
+
 // 选择变量
 function selectVariable(value: string) {
   const textarea = textareaRef.value?.textareaElRef;
@@ -207,6 +213,7 @@ function renderOption(option: { label: string; value: string }) {
         :placeholder="placeholder"
         size="small"
         @update:value="handleInput"
+        @wheel="handleWheel"
       />
     </template>
 
