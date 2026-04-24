@@ -2361,8 +2361,8 @@ const local: App.I18n.Schema = {
     document_upload: {
       step1: {
         title: '上传文件 - 选择文件',
-        tip1: '1、文件上传前，建议规范文件的分段标识',
-        tip2: '2、每次最多上传 50 个文件, 每个文件不超过 100 MB',
+        tip1: '文件上传前，建议规范文件的分段标识',
+        tip2: '每次最多上传 50 个文件, 每个文件不超过 100 MB',
         upload_dragger_text: '点击或拖拽文件到此处上传或',
         upload_folder_btn: '点击上传文件夹',
         upload_limit_tip: '支持 TXT, PDF, DOCX, MD 等常见格式',
@@ -2975,7 +2975,7 @@ const local: App.I18n.Schema = {
       enable_tool_trace: '输出工具执行过程',
       enable_tool_trace_desc: '开启后，工具调用的请求参数与返回结果将通过 SSE 流式推送到前端，用于调试',
       enable_multimodal: '启用多模态 (视觉/音频)',
-      enable_multimodal_desc: '开启后，大模型将能读取传入的图片或音频附件进行多模态分析',
+      enable_multimodal_desc: '开启后，大模型将能读取传入的图片、音频、PDF或视频附件进行多模态分析',
       providedBy: '由 {type} 提供',
       mcpService: 'MCP服务',
       builtinTool: '内置工具',

@@ -21,7 +21,8 @@ const fallbackConnectionRules: Record<string, string[]> = {
     'AUDIO_ASR',
     'IMAGE_OCR',
     'FILE_PARSE',
-    'DATASET_STORAGE'
+    'DATASET_STORAGE',
+    'MCP_RESOURCE'
   ],
   LLM_CHAT: ['END', 'LLM_CHAT', 'CONDITION', 'FIXED_RESPONSE', 'DB_QUERY', 'KNOWLEDGE_RETRIEVAL'],
   INTENT_CLASSIFIER: ['LLM_CHAT', 'CONDITION', 'FIXED_RESPONSE', 'END', 'DB_QUERY', 'KNOWLEDGE_RETRIEVAL'],
@@ -35,6 +36,7 @@ const fallbackConnectionRules: Record<string, string[]> = {
   END: [],
   FILE_PARSE: ['DATASET_STORAGE', 'END'],
   DATASET_STORAGE: ['END'],
+  MCP_RESOURCE: ['LLM_CHAT', 'CONDITION', 'END'],
   APP_INFO: []
 };
 

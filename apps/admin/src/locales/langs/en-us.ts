@@ -2382,8 +2382,8 @@ const local: App.I18n.Schema = {
     document_upload: {
       step1: {
         title: 'Upload Files - Select Files',
-        tip1: '1. Before uploading, it is recommended to standardize segment markers in the file',
-        tip2: '2. Upload up to 50 files at a time, each no larger than 100 MB',
+        tip1: 'Before uploading, it is recommended to standardize segment markers in the file',
+        tip2: 'Upload up to 50 files at a time, each no larger than 100 MB',
         upload_dragger_text: 'Click or drag files here to upload or',
         upload_folder_btn: 'Click to upload folder',
         upload_limit_tip: 'Supports TXT, PDF, DOCX, MD and other common formats',
@@ -3004,7 +3004,7 @@ const local: App.I18n.Schema = {
       enable_tool_trace_desc:
         'When enabled, the request parameters and return results of tool calls will be pushed to the frontend via SSE stream for debugging',
       enable_multimodal: 'Enable Multimodal (Vision/Audio)',
-      enable_multimodal_desc: 'When enabled, the LLM can read and analyze attached images or audio files',
+      enable_multimodal_desc: 'When enabled, the LLM can read and analyze attached images, audio, PDF, or video files',
       providedBy: 'Provided by {type}',
       mcpService: 'MCP Service',
       builtinTool: 'Built-in Tool',

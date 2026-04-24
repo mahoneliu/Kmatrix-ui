@@ -14,6 +14,7 @@ import ToolNode from '@/components/ai/Nodes/tool-node.vue';
 import SkillNode from '@/components/ai/Nodes/skill-node.vue';
 import LoopNode from '@/components/ai/Nodes/loop-node.vue';
 import FileParseNode from '@/components/ai/Nodes/file-parse-node.vue';
+import McpResourceNode from '@/components/ai/Nodes/mcp-resource-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
 
@@ -43,6 +44,7 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     IMAGE_OCR: markRaw(BaseNode),
     FILE_PARSE: markRaw(FileParseNode),
     DATASET_STORAGE: markRaw(BaseNode),
+    MCP_RESOURCE: markRaw(McpResourceNode),
     APP_INFO: markRaw(AppInfoComp)
   };
 

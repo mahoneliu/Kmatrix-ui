@@ -58,3 +58,13 @@ export function deleteMcpServer(serverIds: CommonType.IdType[]) {
     method: 'delete'
   });
 }
+
+/**
+ * 查询 MCP Server 提供的资源列表
+ */
+export function fetchMcpServerResources(serverId: CommonType.IdType) {
+  return request<any[]>({
+    url: `/ai/mcp-server/${serverId}/resources`,
+    method: 'get'
+  });
+}

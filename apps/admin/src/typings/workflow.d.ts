@@ -25,7 +25,8 @@ declare namespace Workflow {
     | 'AUDIO_ASR'
     | 'IMAGE_OCR'
     | 'FILE_PARSE'
-    | 'DATASET_STORAGE';
+    | 'DATASET_STORAGE'
+    | 'MCP_RESOURCE';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';

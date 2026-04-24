@@ -61,7 +61,11 @@ const NODE_CONFIG_RULES: Record<
   IMAGE_OCR: [],
   FILE_PARSE: [],
   DATASET_STORAGE: [],
-  SKILL: [{ field: 'skillId', label: '执行技能' }]
+  SKILL: [{ field: 'skillId', label: '执行技能' }],
+  MCP_RESOURCE: [
+    { field: 'serverId', label: 'MCP Server ID' },
+    { field: 'uri', label: '资源 URI' }
+  ]
 };
 
 /**
