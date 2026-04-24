@@ -65,11 +65,11 @@ export function fetchSessionList(appId: CommonType.IdType, token?: string) {
 }
 
 /**
- * 获取可用技能列表
+ * 获取可用技能列表（调用 execution 模块的公共接口）
  */
 export function fetchAvailableSkills(token?: string) {
   return request<any[]>({
-    url: `${CHAT_API_BASE}/skills`,
+    url: '/ai/skill/active',
     method: 'get',
     headers: token ? { Authorization: `Bearer ${token}` } : {}
   });

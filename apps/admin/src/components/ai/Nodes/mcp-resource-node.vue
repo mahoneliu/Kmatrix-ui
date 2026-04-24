@@ -51,8 +51,8 @@ async function loadServers() {
         value: server.serverId
       }));
     }
-  } catch {
-    // console.error('加载 MCP Server 列表失败', error);
+  } catch (error) {
+    console.error('Failed to load MCP Server list', error);
   }
 }
 
@@ -72,12 +72,10 @@ async function loadResources(serverId: number) {
         label: resource.name || resource.uri,
         value: resource.uri
       }));
-    } else {
-      resourceOptions.value = [];
     }
-  } catch {
+  } catch (error) {
     resourceOptions.value = [];
-    // console.error('加载 MCP Server 资源失败', error);
+    console.error('Failed to load MCP Server resources', error);
   } finally {
     loadingResources.value = false;
   }
@@ -143,13 +141,13 @@ onMounted(() => {
           <div class="workflow-config-section">
             <div class="workflow-config-item">
               <label class="workflow-label">
-                MCP Server
+                {{ $t('ai.mcp.mcp_server') }}
                 <span class="workflow-label-required">*</span>
               </label>
               <NSelect
                 v-model:value="formModel.serverId"
                 :options="serverOptions"
-                placeholder="请选择 MCP Server"
+                :placeholder="$t('ai.mcp.mcp_server_placeholder')"
                 size="small"
                 filterable
                 @update:value="handleServerChange"
@@ -158,14 +156,14 @@ onMounted(() => {
 
             <div class="mt-3 workflow-config-item">
               <label class="workflow-label">
-                资源 URI
+                {{ $t('ai.mcp.resource_uri') }}
                 <span class="workflow-label-required">*</span>
               </label>
               <NSelect
                 v-model:value="formModel.uri"
                 :options="resourceOptions"
                 :loading="loadingResources"
-                placeholder="请选择资源或手动输入"
+                :placeholder="$t('ai.mcp.resource_uri_placeholder')"
                 size="small"
                 filterable
                 tag

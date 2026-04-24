@@ -3154,7 +3154,11 @@ const local: App.I18n.Schema = {
         descriptionPlaceholder: 'Enter description',
         serverConfigPlaceholder:
           "Enter Server Config in JSON format, e.g.: {' {'}\"url\": \"http://...\",\"headers\": {' {'}{' }'}{' }'}"
-      }
+      },
+      mcp_server: 'MCP Server',
+      mcp_server_placeholder: 'Please select MCP Server',
+      resource_uri: 'Resource URI',
+      resource_uri_placeholder: 'Please select resource or enter manually'
     },
     builtinTool: {
       listTitle: 'Built-in Tool List',

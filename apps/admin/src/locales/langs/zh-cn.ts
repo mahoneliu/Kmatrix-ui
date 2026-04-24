@@ -3123,7 +3123,11 @@ const local: App.I18n.Schema = {
         descriptionPlaceholder: '请输入描述信息',
         serverConfigPlaceholder:
           "请输入 JSON 格式的 Server 配置，如：{' {'}\"url\": \"http://...\",\"headers\": {' {'}{' }'}{' }'}"
-      }
+      },
+      mcp_server: 'MCP Server',
+      mcp_server_placeholder: '请选择 MCP Server',
+      resource_uri: '资源 URI',
+      resource_uri_placeholder: '请选择资源或手动输入'
     },
     builtinTool: {
       listTitle: '内置工具列表',

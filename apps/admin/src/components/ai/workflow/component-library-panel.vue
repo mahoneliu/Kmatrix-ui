@@ -122,7 +122,7 @@ function handleToolDragStart(data: {
 </script>
 
 <template>
-  <div class="h-140 w-80 flex flex-col rounded-2 bg-container shadow-lg">
+  <div class="h-[40rem] w-80 flex flex-col rounded-2 bg-container shadow-lg">
     <NTabs
       type="line"
       animated

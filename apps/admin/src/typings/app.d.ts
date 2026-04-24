@@ -2811,6 +2811,10 @@ declare namespace App {
             descriptionPlaceholder: string;
             serverConfigPlaceholder: string;
           };
+          mcp_server: string;
+          mcp_server_placeholder: string;
+          resource_uri: string;
+          resource_uri_placeholder: string;
         };
         builtinTool: {
           listTitle: string;
