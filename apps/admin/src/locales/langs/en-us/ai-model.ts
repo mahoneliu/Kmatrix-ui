@@ -85,38 +85,6 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   save: 'Save'
 };
 
-const mcp: App.I18n.Schema['ai']['mcp'] = {
-  listTitle: 'MCP Server List',
-  addTitle: 'Add MCP Server',
-  editTitle: 'Edit MCP Server',
-  serverName: 'Server Name',
-  description: 'Description',
-  transportType: 'Transport Protocol',
-  serverConfig: 'Server Config (JSON)',
-  status: 'Status',
-  searchPlaceholder: 'Search by Server Name',
-  formMode: 'Form Mode',
-  jsonMode: 'JSON Mode',
-  form: {
-    serverNameRequired: 'Please enter Server Name',
-    transportTypeRequired: 'Please select Transport Protocol',
-    serverNamePlaceholder: 'Enter MCP Server name',
-    descriptionPlaceholder: 'Enter description',
-    serverConfigPlaceholder: 'Enter Server configuration in JSON format, e.g. {"url": "http://...","headers": {}}',
-    jsonFormatError: 'JSON Format Error',
-    formatJson: 'Format JSON',
-    parseAndFill: 'Parse and Fill Form',
-    jsonParseSuccess: 'JSON Parse Success',
-    jsonParseError: 'JSON Parse Error',
-    jsonRequired: 'Please enter JSON config',
-    noServerConfig: 'Please fill in Server configuration'
-  },
-  mcp_server: 'MCP Server',
-  mcp_server_placeholder: 'Please select MCP Server',
-  resource_uri: 'Resource URI',
-  resource_uri_placeholder: 'Select resource or enter manually'
-};
-
 const builtinTool: App.I18n.Schema['ai']['builtinTool'] = {
   listTitle: 'Built-in Tool List',
   addTitle: 'Add Built-in Tool',
@@ -168,6 +136,5 @@ const builtinTool: App.I18n.Schema['ai']['builtinTool'] = {
 
 export default {
   model_manager,
-  mcp,
   builtinTool
 };

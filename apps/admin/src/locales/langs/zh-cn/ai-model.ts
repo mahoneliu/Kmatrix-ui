@@ -85,38 +85,6 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   save: '保存'
 };
 
-const mcp: App.I18n.Schema['ai']['mcp'] = {
-  listTitle: 'MCP Server 列表',
-  addTitle: '新增 MCP Server',
-  editTitle: '编辑 MCP Server',
-  serverName: 'Server 名称',
-  description: '描述',
-  transportType: '传输协议',
-  serverConfig: 'Server 配置（JSON）',
-  status: '状态',
-  searchPlaceholder: '请输入 Server 名称搜索',
-  formMode: '表单模式',
-  jsonMode: 'JSON 模式',
-  form: {
-    serverNameRequired: '请输入 Server 名称',
-    transportTypeRequired: '请选择传输协议',
-    serverNamePlaceholder: '请输入 MCP Server 名称',
-    descriptionPlaceholder: '请输入描述信息',
-    serverConfigPlaceholder: '请输入 JSON 格式的 Server 配置，如：{"url": "http://...","headers": {}}',
-    jsonFormatError: 'JSON 格式错误',
-    formatJson: '格式化 JSON',
-    parseAndFill: '解析并填充表单',
-    jsonParseSuccess: 'JSON 解析成功',
-    jsonParseError: 'JSON 解析失败',
-    jsonRequired: '请输入 JSON 配置',
-    noServerConfig: '请填写 Server 配置'
-  },
-  mcp_server: 'MCP Server',
-  mcp_server_placeholder: '请选择 MCP Server',
-  resource_uri: '资源 URI',
-  resource_uri_placeholder: '请选择资源或手动输入'
-};
-
 const builtinTool: App.I18n.Schema['ai']['builtinTool'] = {
   listTitle: '内置工具列表',
   addTitle: '新增内置工具',
@@ -168,6 +136,5 @@ const builtinTool: App.I18n.Schema['ai']['builtinTool'] = {
 
 export default {
   model_manager,
-  mcp,
   builtinTool
 };

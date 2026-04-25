@@ -5,6 +5,8 @@ import aiChat from './ai-chat';
 import aiKnowledge from './ai-knowledge';
 import aiWorkflow from './ai-workflow';
 import aiModel from './ai-model';
+import aiApp from './ai-app';
+import aiExecutor from './ai-executor';
 
 const { ai_rateLimit, ...aiChatFinal } = aiChat;
 const { nodeDefinition, ...aiWorkflowFinal } = aiWorkflow;
@@ -21,7 +23,9 @@ const local: App.I18n.Schema = {
     ...aiChatFinal,
     ...aiKnowledge,
     ...aiWorkflowFinal,
-    ...aiModel
+    ...aiModel,
+    ...aiApp,
+    ...aiExecutor
   }
 };
 

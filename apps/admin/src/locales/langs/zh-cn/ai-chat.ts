@@ -102,34 +102,6 @@ const common: App.I18n.Schema['ai']['common'] = {
   }
 };
 
-const skill: App.I18n.Schema['ai']['skill'] = {
-  label: '技能',
-  info: '技能信息',
-  add: '新增技能',
-  edit: '编辑技能',
-  listTitle: '技能列表',
-  name: '技能名称',
-  description: '技能描述',
-  toolBindings: '工具绑定',
-  inputSchema: '输入参数(Schema)',
-  outputSchema: '输出参数(Schema)',
-  providedBySkillConfig: '由技能配置提供',
-  noAvailableToolsOrSkills: '暂无可用的工具或技能',
-  confirmDelete: '确认删除该技能？',
-  confirmBatchDelete: '确认删除选中的技能？',
-  placeholder: {
-    name: '请输入技能名称 (用作大模型 Function name, 建议英文)',
-    nameSearch: '请输入技能名称',
-    description: '请输入技能描述 (提供给大模型参考)',
-    toolBindings: '请输入绑定的工具 JSON 配置',
-    inputSchema: 'JSON Schema 格式',
-    statusSearch: '请选择状态'
-  },
-  tip: {
-    jsonBinding: '暂用 JSON 格式绑定工具：[{"type":"builtin","id":1}, {"type":"mcp","id":2}]'
-  }
-};
-
 const datasource: App.I18n.Schema['ai']['datasource'] = {
   name: '名称',
   type: '类型',
@@ -255,7 +227,6 @@ export default {
   chat,
   msg,
   common,
-  skill,
   datasource,
   ai_rateLimit
 };

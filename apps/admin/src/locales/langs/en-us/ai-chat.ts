@@ -102,34 +102,6 @@ const common: App.I18n.Schema['ai']['common'] = {
   }
 };
 
-const skill: App.I18n.Schema['ai']['skill'] = {
-  label: 'Skill',
-  info: 'Skill Info',
-  add: 'Add Skill',
-  edit: 'Edit Skill',
-  listTitle: 'Skill List',
-  name: 'Skill Name',
-  description: 'Description',
-  toolBindings: 'Tool Bindings',
-  inputSchema: 'Input Schema',
-  outputSchema: 'Output Schema',
-  providedBySkillConfig: 'Provided by Skill Config',
-  noAvailableToolsOrSkills: 'No available tools or skills',
-  confirmDelete: 'Are you sure to delete this skill?',
-  confirmBatchDelete: 'Are you sure to delete selected skills?',
-  placeholder: {
-    name: 'Skill name (Used as LLM Function name, English recommended)',
-    nameSearch: 'Enter skill name',
-    description: 'Skill description (for LLM reference)',
-    toolBindings: 'Enter tool JSON config',
-    inputSchema: 'JSON Schema format',
-    statusSearch: 'Select status'
-  },
-  tip: {
-    jsonBinding: 'Temporary JSON format: [{"type":"builtin","id":1}, {"type":"mcp","id":2}]'
-  }
-};
-
 const datasource: App.I18n.Schema['ai']['datasource'] = {
   name: 'Name',
   type: 'Type',
@@ -255,7 +227,6 @@ export default {
   chat,
   msg,
   common,
-  skill,
   datasource,
   ai_rateLimit
 };
