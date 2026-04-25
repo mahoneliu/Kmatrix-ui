@@ -85,56 +85,6 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   save: 'Save'
 };
 
-const builtinTool: App.I18n.Schema['ai']['builtinTool'] = {
-  listTitle: 'Built-in Tool List',
-  addTitle: 'Add Built-in Tool',
-  editTitle: 'Edit Built-in Tool',
-  toolName: 'Tool Name (English ID)',
-  description: 'Description',
-  pythonCode: 'Python Script',
-  inputSchema: 'Input Schema',
-  initParamsTab: 'Init Params',
-  inputSchemaTab: 'Input Schema',
-  outputSchemaTab: 'Output Schema',
-  status: 'Status',
-  searchPlaceholder: 'Search by tool name',
-  securityWarningTitle: 'Security Warning',
-  securityWarning:
-    'Python scripts execute with server permissions. Ensure code source is trusted. Avoid high-risk operations (file deletion, network access) or have admins review before publishing.',
-  paramEditor: {
-    defaultTitle: 'Parameter',
-    addParam: 'Add {title}',
-    editParam: 'Edit {title}',
-    name: 'Parameter Name',
-    namePlaceholder: 'English ID, e.g. query',
-    displayName: 'Display Name',
-    displayNamePlaceholder: 'Enter display name (optional)',
-    type: 'Data Type',
-    required: 'Required',
-    description: 'Description',
-    descriptionPlaceholder: 'Detailed explanation for LLM understanding',
-    defaultValue: 'Default Value',
-    defaultValuePlaceholder: 'Enter default value (optional)',
-    nameRequired: 'Please enter parameter name',
-    namePattern: 'Letters, numbers, underscores only, starting with letter/underscore',
-    deleteConfirm: 'Are you sure you want to delete this parameter?',
-    typeString: 'String',
-    typeNumber: 'Number',
-    typeBoolean: 'Boolean',
-    typeObject: 'Object',
-    typeArray: 'Array'
-  },
-  form: {
-    toolNameRequired: 'Please enter tool name',
-    toolNamePattern: 'Lowercase letters, numbers, underscores only, starting with letter',
-    toolNamePlaceholder: 'lowercase, e.g. search_tool (LLM function name)',
-    descriptionPlaceholder: 'Describe tool function for LLM to decide when to call',
-    codePlaceholder: 'Write Python code here...',
-    schemaPlaceholder: 'Enter input parameter definition in JSON Schema format'
-  }
-};
-
 export default {
-  model_manager,
-  builtinTool
+  model_manager
 };
