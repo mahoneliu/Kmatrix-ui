@@ -405,6 +405,8 @@ declare namespace App {
         clear: string;
         noSelectRecord: string;
         copy: string;
+        copySuccess: string;
+        copyFailed: string;
         name: string;
         type: string;
         description: string;
@@ -2804,12 +2806,21 @@ declare namespace App {
           serverConfig: string;
           status: string;
           searchPlaceholder: string;
+          formMode: string;
+          jsonMode: string;
           form: {
             serverNameRequired: string;
             transportTypeRequired: string;
             serverNamePlaceholder: string;
             descriptionPlaceholder: string;
             serverConfigPlaceholder: string;
+            jsonFormatError: string;
+            formatJson: string;
+            parseAndFill: string;
+            jsonParseSuccess: string;
+            jsonParseError: string;
+            jsonRequired: string;
+            noServerConfig: string;
           };
           mcp_server: string;
           mcp_server_placeholder: string;

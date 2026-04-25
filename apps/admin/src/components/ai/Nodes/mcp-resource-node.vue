@@ -18,13 +18,13 @@ const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
 
 // 下拉选项数据
-const serverOptions = ref<{ label: string; value: number }[]>([]);
+const serverOptions = ref<{ label: string; value: CommonType.IdType }[]>([]);
 const resourceOptions = ref<{ label: string; value: string }[]>([]);
 const loadingResources = ref(false);
 
 // 局部表单数据
 const formModel = reactive({
-  serverId: null as number | null,
+  serverId: null as CommonType.IdType | null,
   uri: ''
 });
 
@@ -57,7 +57,7 @@ async function loadServers() {
 }
 
 // 加载指定 Server 的资源列表
-async function loadResources(serverId: number) {
+async function loadResources(serverId: CommonType.IdType) {
   if (!serverId) {
     resourceOptions.value = [];
     return;
@@ -114,7 +114,7 @@ watch(
 );
 
 // 监听 serverId 变化，重置 uri 并加载新的资源
-function handleServerChange(serverId: number | null) {
+function handleServerChange(serverId: CommonType.IdType | null) {
   formModel.uri = '';
   if (serverId) {
     loadResources(serverId);
