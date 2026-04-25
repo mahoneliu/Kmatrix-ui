@@ -295,7 +295,7 @@ function handleClose() {
             <NInput
               v-model:value="form.description"
               type="textarea"
-              :rows="2"
+              :rows="4"
               :placeholder="$t('ai.mcp.form.descriptionPlaceholder')"
             />
           </NFormItem>
@@ -313,7 +313,7 @@ function handleClose() {
               <NInput
                 v-model:value="form.serverConfig"
                 type="textarea"
-                :rows="6"
+                :rows="8"
                 placeholder='JSON 格式，如：&#10;{&#10;  "url": "https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/mcp",&#10;  "headers": {&#10;    "Authorization": "Bearer your-api-key"&#10;  }&#10;}'
                 font-size="13px"
               />
@@ -368,7 +368,7 @@ function handleClose() {
           <NInput
             v-model:value="jsonText"
             type="textarea"
-            :rows="14"
+            :rows="24"
             placeholder='粘贴云端 MCP JSON 配置，或查看当前配置的 JSON 导出&#10;&#10;支持两种格式：&#10;&#10;1. 标准 MCP 配置（带 mcpServers 包装）:&#10;{&#10;  "mcpServers": {&#10;    "WebSearch": {&#10;      "type": "streamableHttp",&#10;      "baseUrl": "https://...",&#10;      "headers": { "Authorization": "Bearer xxx" }&#10;    }&#10;  }&#10;}&#10;&#10;2. 单个服务配置:&#10;{&#10;  "type": "streamableHttp",&#10;  "baseUrl": "https://...",&#10;  "headers": { "Authorization": "Bearer xxx" }&#10;}'
             font-size="13px"
           />

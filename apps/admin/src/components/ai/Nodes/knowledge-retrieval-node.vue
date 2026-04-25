@@ -6,16 +6,15 @@
  * @author Mahone
  * @date 2026-01-29
  */
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NSlider, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchAllKnowledgeBases } from '@/service/api/ai/knowledge';
-import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
-const workflowStore = useWorkflowStore();
 
 // 知识库选项
 const kbOptions = ref<{ label: string; value: number }[]>([]);
@@ -28,13 +27,13 @@ const modeOptions = [
   { label: $t('ai.workflow_node.hybrid_retrieval'), value: 'HYBRID' }
 ];
 
-// 局部表单数据
-const formModel = reactive<Workflow.KnowledgeRetrievalConfig>({
-  kbIds: [],
-  datasetIds: [],
+// 使用通用 AI 节点配置 composable
+const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
+  kbIds: [] as number[],
+  datasetIds: [] as number[],
   topK: 5,
   threshold: 0.5,
-  mode: 'VECTOR',
+  mode: 'VECTOR' as 'VECTOR' | 'KEYWORD' | 'HYBRID',
   enableRerank: true,
   emptyResponse: ''
 });
@@ -51,72 +50,11 @@ async function loadKnowledgeBases() {
       }));
     }
   } catch {
-    // console.error('Failed to load knowledge bases:', e);
+    // ignore
   } finally {
     kbLoading.value = false;
   }
 }
-
-// 初始化数据
-function initData() {
-  const config = props.data.config as Workflow.KnowledgeRetrievalConfig | undefined;
-  if (config) {
-    formModel.kbIds = config.kbIds || [];
-    formModel.datasetIds = config.datasetIds || [];
-    formModel.topK = config.topK || 5;
-    formModel.threshold = config.threshold || 0.5;
-    formModel.mode = config.mode || 'VECTOR';
-    formModel.enableRerank = config.enableRerank || false;
-    formModel.emptyResponse = config.emptyResponse || '';
-  }
-}
-
-// 监听局部表单变化，同步到 Store
-watch(
-  formModel,
-  newValue => {
-    const currentConfig = props.data.config as Workflow.KnowledgeRetrievalConfig | undefined;
-    if (
-      JSON.stringify(newValue.kbIds) !== JSON.stringify(currentConfig?.kbIds) ||
-      JSON.stringify(newValue.datasetIds) !== JSON.stringify(currentConfig?.datasetIds) ||
-      newValue.topK !== currentConfig?.topK ||
-      newValue.threshold !== currentConfig?.threshold ||
-      newValue.mode !== currentConfig?.mode ||
-      newValue.enableRerank !== currentConfig?.enableRerank ||
-      newValue.emptyResponse !== currentConfig?.emptyResponse
-    ) {
-      workflowStore.updateNodeConfig(props.id, { ...newValue });
-    }
-  },
-  { deep: true }
-);
-
-// 监听外部配置变化
-watch(
-  () => props.data.config,
-  newConfig => {
-    const config = newConfig as Workflow.KnowledgeRetrievalConfig | undefined;
-    if (config) {
-      if (
-        JSON.stringify(config.kbIds) !== JSON.stringify(formModel.kbIds) ||
-        JSON.stringify(config.datasetIds) !== JSON.stringify(formModel.datasetIds) ||
-        config.topK !== formModel.topK ||
-        config.threshold !== formModel.threshold ||
-        config.mode !== formModel.mode ||
-        config.enableRerank !== formModel.enableRerank
-      ) {
-        formModel.kbIds = config.kbIds || [];
-        formModel.datasetIds = config.datasetIds || [];
-        formModel.topK = config.topK || 5;
-        formModel.threshold = config.threshold || 0.5;
-        formModel.mode = config.mode || 'VECTOR';
-        formModel.enableRerank = config.enableRerank || false;
-        formModel.emptyResponse = config.emptyResponse || '';
-      }
-    }
-  },
-  { deep: true }
-);
 
 onMounted(() => {
   initData();

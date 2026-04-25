@@ -104,7 +104,8 @@ export const useNodeDefinitionStore = defineStore('node-definition', () => {
       category: def.category,
       description: def.description,
       isSystem: def.isSystem,
-      requireAiConfig: def.requireAiConfig
+      requireAiConfig: def.requireAiConfig,
+      requireDialogConfig: def.requireDialogConfig
     }));
 
     return result;

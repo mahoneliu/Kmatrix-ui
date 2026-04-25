@@ -6,72 +6,25 @@
  * @author Mahone
  * @date 2026-01-24
  */
-import { onMounted, reactive, watch } from 'vue';
+import { onMounted } from 'vue';
 import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
-import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
+import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
-const workflowStore = useWorkflowStore();
 
 // 使用 composable 统一管理数据源
 const { dataSourceOptions, loadDataSources } = useDataSource();
 
-// 局部表单数据 (移除 modelId)
-const formModel = reactive({
+// 使用通用 AI 节点配置 composable
+const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   dataSourceId: null as any,
   tableWhitelist: '',
   tableBlacklist: ''
 });
-
-// 初始化数据
-function initData() {
-  const config = props.data.config as Workflow.SqlGenerateNodeConfig | undefined;
-  if (config) {
-    formModel.dataSourceId = (config.dataSourceId || null) as any;
-    formModel.tableWhitelist = config.tableWhitelist || '';
-    formModel.tableBlacklist = config.tableBlacklist || '';
-  }
-}
-
-// 监听局部表单变化，同步到 Store
-watch(
-  formModel,
-  newValue => {
-    const currentConfig = props.data.config as Workflow.SqlGenerateNodeConfig | undefined;
-    if (
-      newValue.dataSourceId !== currentConfig?.dataSourceId ||
-      newValue.tableWhitelist !== currentConfig?.tableWhitelist ||
-      newValue.tableBlacklist !== currentConfig?.tableBlacklist
-    ) {
-      workflowStore.updateNodeConfig(props.id, { ...newValue });
-    }
-  },
-  { deep: true }
-);
-
-// 监听外部配置变化
-watch(
-  () => props.data.config,
-  newConfig => {
-    const config = newConfig as Workflow.SqlGenerateNodeConfig | undefined;
-    if (config) {
-      if (
-        config.dataSourceId !== formModel.dataSourceId ||
-        config.tableWhitelist !== formModel.tableWhitelist ||
-        config.tableBlacklist !== formModel.tableBlacklist
-      ) {
-        formModel.dataSourceId = (config.dataSourceId || null) as any;
-        formModel.tableWhitelist = config.tableWhitelist || '';
-        formModel.tableBlacklist = config.tableBlacklist || '';
-      }
-    }
-  },
-  { deep: true }
-);
 
 onMounted(() => {
   initData();

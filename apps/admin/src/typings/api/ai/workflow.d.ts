@@ -44,6 +44,8 @@ declare namespace Api.AI.Workflow {
     allowCustomOutputParams?: string;
     /** 是否需要AI大模型高级配置选项 (0否/1是) */
     requireAiConfig?: string;
+    /** 是否需要对话配置（用户提示词/历史对话/多模态）(0否/1是) */
+    requireDialogConfig?: string;
     /** 输入参数定义 */
     inputParams?: NodeParamDefinition[];
     /** 输出参数定义 */

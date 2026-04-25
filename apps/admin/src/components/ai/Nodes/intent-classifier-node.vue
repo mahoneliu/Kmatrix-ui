@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted } from 'vue';
 import { NButton, NInput } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
@@ -14,46 +15,17 @@ const emit = defineEmits<{
 
 const workflowStore = useWorkflowStore();
 
-// 本地配置状态 (仅保留意图列表)
-const localConfig = ref<{ intents: string[] }>({
-  intents: props.data.config?.intents || []
+// 使用通用 AI 节点配置 composable 管理意图列表
+const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, { intents: [] as string[] });
+
+onMounted(() => {
+  initData();
 });
-
-// 监听 props 变化同步到本地
-watch(
-  () => props.data.config,
-  newVal => {
-    if (!newVal) return;
-    // 仅比较意图列表
-    const isSame = JSON.stringify(newVal.intents) === JSON.stringify(localConfig.value.intents);
-
-    if (!isSame) {
-      localConfig.value = {
-        intents: [...(newVal.intents || [])]
-      };
-    }
-  },
-  { deep: true, immediate: true }
-);
-
-// 监听本地配置变化,同步到 Store
-watch(
-  localConfig,
-  newVal => {
-    const isSame = JSON.stringify(newVal.intents) === JSON.stringify(props.data.config?.intents);
-
-    if (!isSame) {
-      // 仅更新 intents 字段，避免覆盖 modelId 等其他配置
-      workflowStore.updateNodeConfig(props.id, { intents: JSON.parse(JSON.stringify(newVal.intents)) });
-    }
-  },
-  { deep: true }
-);
 
 // 添加意图
 function addIntent() {
-  const newIndex = localConfig.value.intents.length + 1;
-  localConfig.value.intents.push(`意图${newIndex}`);
+  const newIndex = formModel.intents.length + 1;
+  formModel.intents.push(`意图${newIndex}`);
 }
 
 // 删除意图
@@ -63,7 +35,7 @@ function removeIntent(index: number) {
   workflowStore.edges = workflowStore.edges.filter(e => !(e.source === props.id && e.sourceHandle === handleId));
 
   // 删除意图配置
-  localConfig.value.intents.splice(index, 1);
+  formModel.intents.splice(index, 1);
 }
 
 // 处理 Handle 点击
@@ -99,13 +71,13 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
           </NButton>
         </div>
         <div
-          v-for="(intent, index) in localConfig.intents"
+          v-for="(intent, index) in formModel.intents"
           :key="index"
           class="relative flex items-center justify-between gap-2"
         >
           <!-- 意图名称输入 -->
           <NInput
-            v-model:value="localConfig.intents[index]"
+            v-model:value="formModel.intents[index]"
             :placeholder="$t('ai.workflow_node.intent_name')"
             size="small"
             class="mr-2 flex-1"

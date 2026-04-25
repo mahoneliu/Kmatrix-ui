@@ -378,6 +378,18 @@ declare namespace Workflow {
     streamOutput?: boolean;
   }
 
+  /** 对话配置接口（LLM 对话类节点共用） */
+  interface DialogConfig {
+    /** 用户提示词 */
+    userPrompt?: string;
+    /** 是否启用多模态 */
+    enableMultimodal?: boolean;
+    /** 是否启用历史对话 */
+    historyEnabled?: boolean;
+    /** 历史对话条数限制 */
+    historyLimit?: number;
+  }
+
   // ========== 参数配置相关类型 ==========
 
   /** 参数数据类型 */

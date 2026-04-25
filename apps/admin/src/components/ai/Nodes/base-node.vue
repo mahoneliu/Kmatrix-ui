@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, h, onMounted, ref, watch } from 'vue';
-import { NCollapse, NCollapseItem, NDropdown, NInput, NModal } from 'naive-ui';
+import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NTooltip } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
@@ -13,6 +13,7 @@ import { $t } from '@/locales';
 
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/param-binding-panel.vue'));
 const AiConfigPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/ai-config-panel.vue'));
+const DialogConfigPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/dialog-config-panel.vue'));
 
 interface Props extends NodeProps {
   id: string;
@@ -71,6 +72,9 @@ const shouldHighlightSourceHandle = computed(() => checkHandleHighlight(null, 's
 
 // 默认 Target Handle 高亮状态
 const shouldHighlightTargetHandle = computed(() => checkHandleHighlight(null, 'target'));
+
+// 节点是否被悬停
+const isHovered = computed(() => workflowStore.hoveredNodeId === props.id);
 
 // 动态计算 Handle 样式（用于高亮颜色同步，以及常态颜色显示）
 function getHandleStyle(highlighted: boolean) {
@@ -133,6 +137,11 @@ const nodeConfig = computed(() => {
 
 const isAiNode = computed(() => {
   return nodeConfig.value?.requireAiConfig === '1';
+});
+
+// 是否需要对话配置（用户提示词、多模态、历史对话）
+const isDialogNode = computed(() => {
+  return nodeConfig.value?.requireDialogConfig === '1';
 });
 
 // 是否允许自定义参数
@@ -275,14 +284,19 @@ const menuOptions: DropdownOption[] = [
 const statusClass = computed(() => {
   const classes = [];
   if (props.selected) classes.push('selected');
+  if (isHovered.value) classes.push('hovered');
   return classes.join(' ');
 });
 
 // 计算边框样式
-const outlineStyle = computed(() => ({
-  outline: props.selected ? `1.5px solid ${props.data.nodeColor}` : '0.5px solid gray',
-  outlineOffset: '-1px'
-}));
+const outlineStyle = computed(() => {
+  const isHighlighted = props.selected || isHovered.value;
+  return {
+    outline: isHighlighted ? `2px solid ${props.data.nodeColor}` : '1px solid rgba(0,0,0,0.1)',
+    outlineOffset: '-1px',
+    boxShadow: isHovered.value && !props.selected ? `0 0 0 3px ${props.data.nodeColor}20` : undefined
+  };
+});
 
 function handleClick() {
   emit('nodeClick', props.id);
@@ -465,6 +479,14 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
         </NCollapse>
 
+        <!-- 对话配置（仅对话类AI节点显示） -->
+        <NCollapse v-if="isDialogNode" class="pt-3">
+          <template #arrow>
+            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+          </template>
+          <DialogConfigPanel :node-id="id" :node-data="data" />
+        </NCollapse>
+
         <NCollapse
           v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
           class="pb-2 pt-3"
@@ -538,13 +560,15 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 </template>
 
 <style scoped>
-/* 禁用所有过渡动画，确保悬停效果是瞬间的 */
+/* 启用过渡动画，确保悬停效果顺滑 */
 .workflow-node {
-  transition: none !important;
+  transition:
+    outline 0.2s ease,
+    box-shadow 0.2s ease !important;
 }
 
 .workflow-node * {
-  transition: none !important;
+  transition: all 0.2s ease;
 }
 
 :deep(.n-base-selection-label),
