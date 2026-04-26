@@ -26,6 +26,7 @@ declare namespace Workflow {
     | 'IMAGE_OCR'
     | 'FILE_PARSE'
     | 'DATASET_STORAGE'
+    | 'SESSION_VARIABLE_ASSIGN'
     | 'MCP_RESOURCE'
     | 'PARAMETER_EXTRACTOR';
 
@@ -500,4 +501,27 @@ declare namespace Workflow {
   //   /** 输出参数定义 */
   //   outputParams: ParamDefinition[];
   // }
+
+  // ========== 会话变量赋值节点 ==========
+
+  /** 会话变量赋值操作模式 */
+  type SessionVarAssignMode = 'overwrite' | 'clear' | 'set';
+
+  /** 单条会话变量赋值配置 */
+  interface SessionVarAssignment {
+    /** 目标会话变量名（对应 AppInfo.sessionParams 中的 key） */
+    variableName: string;
+    /** 操作模式 */
+    mode: SessionVarAssignMode;
+    /** 源数据（overwrite/set 时有效）：变量引用字符串或固定值 */
+    sourceValue?: string;
+    /** 源数据绑定（overwrite 时使用变量引用） */
+    sourceBinding?: ParamBinding;
+  }
+
+  /** 会话变量赋值节点配置 */
+  interface SessionVariableAssignConfig extends NodeConfigFormData {
+    /** 赋值列表 */
+    assignments: SessionVarAssignment[];
+  }
 }

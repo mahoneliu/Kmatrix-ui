@@ -2268,6 +2268,17 @@ declare namespace App {
           process_type_qa: string;
           process_type_online: string;
           process_type_web: string;
+          session_variable_assign: string;
+          variable: string;
+          assign_mode: string;
+          assign_mode_overwrite: string;
+          assign_mode_clear: string;
+          assign_mode_set: string;
+          add_variable: string;
+          source_data: string;
+          select_session_variable: string;
+          no_session_variable_defined: string;
+          fixed_value: string;
           parameter_extractor: {
             param_definitions: string;
             param_name: string;

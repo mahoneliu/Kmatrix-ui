@@ -18,6 +18,9 @@ import McpResourceNode from '@/components/ai/Nodes/mcp-resource-node.vue';
 import ParameterExtractorNode from '@/components/ai/Nodes/parameter-extractor-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
+const SessionVariableAssignNode = defineAsyncComponent(
+  () => import('@/components/ai/Nodes/session-variable-assign-node.vue')
+);
 
 /**
  * 节点组件映射 composable
@@ -47,7 +50,8 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     DATASET_STORAGE: markRaw(BaseNode),
     MCP_RESOURCE: markRaw(McpResourceNode),
     PARAMETER_EXTRACTOR: markRaw(ParameterExtractorNode),
-    APP_INFO: markRaw(AppInfoComp)
+    APP_INFO: markRaw(AppInfoComp),
+    SESSION_VARIABLE_ASSIGN: markRaw(SessionVariableAssignNode)
   };
 
   function getNodeComponent(nodeType: Workflow.NodeType): Component {

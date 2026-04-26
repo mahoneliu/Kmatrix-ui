@@ -366,7 +366,18 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
     add_param: 'Add Parameter',
     extraction_instructions: 'Extraction Instructions',
     instructions_placeholder: 'Describe how to extract parameters, examples improve accuracy'
-  }
+  },
+  session_variable_assign: 'Session Variable Assign',
+  variable: 'Variable',
+  assign_mode: 'Mode',
+  assign_mode_overwrite: 'Overwrite',
+  assign_mode_clear: 'Clear',
+  assign_mode_set: 'Set',
+  add_variable: 'Add Variable',
+  source_data: 'Set param...',
+  select_session_variable: 'Select session variable...',
+  no_session_variable_defined: 'No session variables defined. Please configure session params in AppInfo node first.',
+  fixed_value: 'Fixed Value'
 };
 
 const workflow_public: App.I18n.Schema['ai']['workflow_public'] = {
