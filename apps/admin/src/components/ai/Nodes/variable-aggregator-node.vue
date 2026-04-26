@@ -12,6 +12,7 @@ import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { getAvailableParamsForNode } from '@/utils/ai/param-resolver';
+import { getTagBackground } from '@/utils/color';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
