@@ -26,7 +26,8 @@ declare namespace Workflow {
     | 'IMAGE_OCR'
     | 'FILE_PARSE'
     | 'DATASET_STORAGE'
-    | 'MCP_RESOURCE';
+    | 'MCP_RESOURCE'
+    | 'PARAMETER_EXTRACTOR';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -56,6 +57,8 @@ declare namespace Workflow {
     customInputParams?: ParamDefinition[];
     /** 自定义输出参数 */
     customOutputParams?: ParamDefinition[];
+    /** 是否使用抽屉模式展示表单 */
+    drawerMode?: boolean;
   }
 
   /** 边数据结构 */
@@ -362,6 +365,28 @@ declare namespace Workflow {
     enableRerank?: boolean;
     /** 空结果时的预设回复 */
     emptyResponse?: string;
+  }
+
+  /** 参数提取器节点 - 单个参数定义 */
+  interface ExtractorParamDef {
+    /** 参数名称（输出 JSON 的 key） */
+    name: string;
+    /** 数据类型 */
+    type: ParamDataType;
+    /** 描述（帮助 LLM 理解要提取的内容） */
+    description?: string;
+    /** 是否必填 */
+    required: boolean;
+  }
+
+  /** 参数提取器节点配置 */
+  interface ParameterExtractorConfig extends NodeConfigFormData {
+    /** 模型 ID */
+    modelId: CommonType.IdType;
+    /** 参数定义列表 */
+    parameters: ExtractorParamDef[];
+    /** 提取指令 */
+    extractionInstructions?: string;
   }
 
   /** AI配置通用接口 */

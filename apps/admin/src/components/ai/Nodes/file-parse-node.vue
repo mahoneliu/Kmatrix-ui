@@ -72,7 +72,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="file-parse-node">
-    <div class="w-93">
+    <div class="w-full">
       <div class="workflow-config-section">
         <div class="workflow-config-item">
           <div class="mb-1 flex-y-center gap-1">

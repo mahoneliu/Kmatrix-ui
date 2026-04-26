@@ -19,6 +19,7 @@ import ComponentLibraryModal from '@/components/ai/workflow/component-library-mo
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
 import WorkflowSaveStatus from '@/components/ai/workflow/workflow-save-status.vue';
 import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
+import NodeDrawer from '@/components/ai/workflow/node-drawer.vue';
 import { useTemplatePersistence } from './composables/use-template-persistence';
 
 import '@vue-flow/core/dist/style.css';
@@ -143,6 +144,8 @@ onMounted(async () => {
         />
       </div>
       <div v-if="showHandlePanel" class="fixed inset-0 z-999" @click="handleSourceHandleClose" />
+      <!-- 节点抽屉 -->
+      <NodeDrawer />
     </div>
 
     <!-- 左上角标题 -->

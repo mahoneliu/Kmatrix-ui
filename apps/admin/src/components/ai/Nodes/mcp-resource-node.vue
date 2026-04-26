@@ -131,7 +131,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="mcp-resource-node">
-    <div class="w-85">
+    <div class="w-full">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />

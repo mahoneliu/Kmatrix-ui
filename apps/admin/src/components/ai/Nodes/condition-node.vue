@@ -177,7 +177,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     :no-content-padding="true"
     class="condition-node"
   >
-    <div class="w-93">
+    <div class="w-full">
       <!-- 条件分支列表 -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">

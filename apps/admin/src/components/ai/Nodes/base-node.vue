@@ -11,6 +11,14 @@ import { getNodeTypeInfo } from '@/utils/ai/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
 import { $t } from '@/locales';
 
+/** 摘要条目 */
+export interface SummaryItem {
+  /** 标签 */
+  label: string;
+  /** 值 */
+  value: string;
+}
+
 const ParamBindingPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/param-binding-panel.vue'));
 const AiConfigPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/ai-config-panel.vue'));
 const DialogConfigPanel = defineAsyncComponent(() => import('@/components/ai/Nodes/add-in/dialog-config-panel.vue'));
@@ -19,6 +27,14 @@ interface Props extends NodeProps {
   id: string;
   data: Workflow.NodeData;
   selected: boolean;
+  /** 摘要条目（抽屉模式下在节点卡片内展示） */
+  summaryItems?: SummaryItem[];
+  /** 是否在抽屉中渲染（隐藏节点外壳，只渲染内容） */
+  drawerMode?: boolean;
+  /** 是否隐藏默认输出 Handle */
+  hideSourceHandle?: boolean;
+  /** 是否去除内容区内边距 */
+  noContentPadding?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -31,6 +47,14 @@ const emit = defineEmits<{
 }>();
 
 const workflowStore = useWorkflowStore();
+
+// 全局抽屉模式（画布级别）
+const isDrawerMode = computed(() => workflowStore.globalDrawerMode);
+
+function openDrawer(e: Event) {
+  e.stopPropagation();
+  workflowStore.openNodeDrawer(props.id);
+}
 
 // 检查连接状态
 const hasSourceConnection = computed(() => {
@@ -49,20 +73,17 @@ function checkHandleHighlight(handleId: string | null, type: 'source' | 'target'
   if (!hovered) return false;
 
   return workflowStore.edges.some(e => {
-    // 如果是 Source Handle
     if (type === 'source') {
       return (
         e.source === props.id &&
-        (e.sourceHandle === handleId || (!e.sourceHandle && !handleId)) && // ID匹配
-        (e.target === hovered || props.id === hovered) // 连接到悬停节点或自身被悬停
+        (e.sourceHandle === handleId || (!e.sourceHandle && !handleId)) &&
+        (e.target === hovered || props.id === hovered)
       );
     }
-    // 如果是 Target Handle
-
     return (
       e.target === props.id &&
-      (e.targetHandle === handleId || (!e.targetHandle && !handleId)) && // ID匹配
-      (e.source === hovered || props.id === hovered) // 来自悬停节点或自身被悬停
+      (e.targetHandle === handleId || (!e.targetHandle && !handleId)) &&
+      (e.source === hovered || props.id === hovered)
     );
   });
 }
@@ -76,21 +97,15 @@ const shouldHighlightTargetHandle = computed(() => checkHandleHighlight(null, 't
 // 节点是否被悬停
 const isHovered = computed(() => workflowStore.hoveredNodeId === props.id);
 
-// 动态计算 Handle 样式（用于高亮颜色同步，以及常态颜色显示）
+// 动态计算 Handle 样式
 function getHandleStyle(highlighted: boolean) {
   const baseStyle = {
     backgroundColor: props.data.nodeColor,
     borderColor: '#fff',
     zIndex: 10
   };
-
-  if (!highlighted) {
-    return baseStyle;
-  }
-
-  return {
-    ...baseStyle
-  };
+  if (!highlighted) return baseStyle;
+  return { ...baseStyle };
 }
 
 // 折叠状态
@@ -109,16 +124,12 @@ const inputParams = computed(() => {
 const outputParams = computed(() => {
   if (!props.data.nodeType) return [];
   const params = getNodeOutputParams(props.data.nodeType);
-
-  // 对于具有动态架构输出的节点（如 TOOL），将解析到的特有出参合并为只读输出
   let extraOutputs: any[] = [];
   if (props.data.nodeType === 'TOOL' && props.data.config?.tool?.outputs) {
     extraOutputs = props.data.config.tool.outputs;
   } else if (props.data.nodeType === 'SKILL' && props.data.config?.outputs) {
     extraOutputs = props.data.config.outputs;
   }
-
-  // 转换为完整的 ParamDefinition 格式
   return [...params, ...extraOutputs].map(p => ({
     key: p.key,
     label: p.label,
@@ -135,16 +146,8 @@ const nodeConfig = computed(() => {
   return getNodeTypeInfo(props.data.nodeType);
 });
 
-const isAiNode = computed(() => {
-  return nodeConfig.value?.requireAiConfig === '1';
-});
-
-// 是否需要对话配置（用户提示词、多模态、历史对话）
-const isDialogNode = computed(() => {
-  return nodeConfig.value?.requireDialogConfig === '1';
-});
-
-// 是否允许自定义参数
+const isAiNode = computed(() => nodeConfig.value?.requireAiConfig === '1');
+const isDialogNode = computed(() => nodeConfig.value?.requireDialogConfig === '1');
 const allowCustomInput = computed(() => nodeConfig.value?.allowCustomInputParams === '1');
 const allowCustomOutput = computed(() => nodeConfig.value?.allowCustomOutputParams === '1');
 
@@ -152,38 +155,26 @@ const allowCustomOutput = computed(() => nodeConfig.value?.allowCustomOutputPara
 const customInputParams = ref<Workflow.ParamDefinition[]>([]);
 const customOutputParams = ref<Workflow.ParamDefinition[]>([]);
 
-// 初始化自定义参数
 watch(
   () => props.data,
   newData => {
     const oldInputKeys = new Set(customInputParams.value.map(p => p.key));
     const oldOutputKeys = new Set(customOutputParams.value.map(p => p.key));
-
     customInputParams.value = newData.customInputParams || [];
     customOutputParams.value = newData.customOutputParams || [];
-
-    // 检测删除的参数
     const newInputKeys = new Set(customInputParams.value.map(p => p.key));
     const newOutputKeys = new Set(customOutputParams.value.map(p => p.key));
-
     const deletedInputKeys = [...oldInputKeys].filter(key => !newInputKeys.has(key));
     const deletedOutputKeys = [...oldOutputKeys].filter(key => !newOutputKeys.has(key));
-
-    // 如果有参数被删除,清理相关的参数绑定
     if (deletedInputKeys.length > 0 || deletedOutputKeys.length > 0) {
       paramBindings.value = paramBindings.value.filter(binding => {
-        // 删除绑定到已删除输入参数的绑定关系
-        if (deletedInputKeys.includes(binding.paramKey)) {
-          return false;
-        }
-        // 删除来源是已删除输出参数的绑定关系
+        if (deletedInputKeys.includes(binding.paramKey)) return false;
         if (
           binding.sourceType === 'node' &&
           binding.sourceKey === props.id &&
           deletedOutputKeys.includes(binding.sourceParam || '')
-        ) {
+        )
           return false;
-        }
         return true;
       });
     }
@@ -191,18 +182,15 @@ watch(
   { immediate: true, deep: true }
 );
 
-// 监听并同步自定义参数到 Store
 watch(
   [customInputParams, customOutputParams],
   ([newInputs, newOutputs]) => {
-    // 只有当有实质变化时才更新，防止循环更新
     if (
       JSON.stringify(newInputs) !== JSON.stringify(props.data.customInputParams) ||
       JSON.stringify(newOutputs) !== JSON.stringify(props.data.customOutputParams)
     ) {
       const node = workflowStore.nodes.find(n => n.id === props.id);
       if (node) {
-        // 直接传入需要更新的字段,避免展开 props.data 导致的覆盖问题
         workflowStore.updateNode(props.id, {
           customInputParams: newInputs,
           customOutputParams: newOutputs
@@ -213,40 +201,30 @@ watch(
   { deep: true }
 );
 
-// 初始化参数绑定
 onMounted(() => {
   paramBindings.value = props.data.paramBindings || [];
 });
 
-// 监听全局折叠事件
 watch(
   () => workflowStore.collapseAllNodes,
   newValue => {
-    if (newValue !== null) {
-      collapsed.value = newValue;
-    }
+    if (newValue !== null) collapsed.value = newValue;
   }
 );
 
-// 监听参数绑定变化,同步到 store
 watch(
   paramBindings,
   newBindings => {
     const node = workflowStore.nodes.find(n => n.id === props.id);
     if (node) {
-      // 只有当绑定真正变化时才更新
       if (JSON.stringify(newBindings) !== JSON.stringify(props.data.paramBindings)) {
-        // 直接传入需要更新的字段,避免展开 props.data 导致的覆盖问题
-        workflowStore.updateNode(props.id, {
-          paramBindings: newBindings
-        });
+        workflowStore.updateNode(props.id, { paramBindings: newBindings });
       }
     }
   },
   { deep: true }
 );
 
-// 监听外部参数绑定变化
 watch(
   () => props.data.paramBindings,
   newBindings => {
@@ -257,9 +235,12 @@ watch(
   { deep: true }
 );
 
-// Handle 显示状态（用于延时隐藏）
+// Handle 显示状态
 const showHandles = ref(false);
 let handleHideTimer: number | null = null;
+
+// 浮动操作栏显示状态（hover 或 selected）
+const showFloatingActions = computed(() => showHandles.value || props.selected);
 
 // 菜单选项
 const menuOptions: DropdownOption[] = [
@@ -300,6 +281,10 @@ const outlineStyle = computed(() => {
 
 function handleClick() {
   emit('nodeClick', props.id);
+  // 抽屉模式下点击节点打开抽屉
+  if (isDrawerMode.value) {
+    workflowStore.openNodeDrawer(props.id);
+  }
 }
 
 function toggleCollapse(e: Event) {
@@ -317,7 +302,6 @@ function handleMenuSelect(key: string) {
   }
 }
 
-// 检查 Handle 是否连接
 function isHandleConnected(handleId: string) {
   return workflowStore.edges.some(e => e.source === props.id && e.sourceHandle === handleId);
 }
@@ -327,7 +311,6 @@ function handleSourceHandleClick(e: MouseEvent) {
   emit('sourceHandleClick', e, props.id);
 }
 
-// 鼠标进入节点
 function handleMouseEnter() {
   if (handleHideTimer) {
     clearTimeout(handleHideTimer);
@@ -336,7 +319,6 @@ function handleMouseEnter() {
   showHandles.value = true;
 }
 
-// 鼠标离开节点
 function handleMouseLeave() {
   if (hasSourceConnection.value) {
     showHandles.value = false;
@@ -346,6 +328,7 @@ function handleMouseLeave() {
     showHandles.value = false;
   }, 1000);
 }
+
 // 重命名相关
 const showRenameModal = ref(false);
 const newLabel = ref('');
@@ -360,211 +343,349 @@ function confirmRename() {
     showRenameModal.value = false;
     return;
   }
-
   const node = workflowStore.nodes.find(n => n.id === props.id);
   if (node) {
-    workflowStore.updateNode(props.id, {
-      ...props.data,
-      nodeLabel: newLabel.value
-    });
+    workflowStore.updateNode(props.id, { ...props.data, nodeLabel: newLabel.value });
   }
   showRenameModal.value = false;
 }
 
-// 处理AI配置更新
 function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
   const currentConfig = props.data.config || {};
-  workflowStore.updateNode(props.id, {
-    config: { ...currentConfig, ...aiConfig }
-  });
+  workflowStore.updateNode(props.id, { config: { ...currentConfig, ...aiConfig } });
 }
 </script>
 
 <template>
+  <!-- 抽屉模式：只渲染内容，不渲染节点外壳 -->
+  <template v-if="drawerMode">
+    <div v-if="$slots.default" class="nodrag text-3 c-gray-5 dark:c-gray-4">
+      <slot
+        :show-handles="false"
+        :has-source-connection="hasSourceConnection"
+        :is-handle-connected="isHandleConnected"
+        :param-bindings="paramBindings"
+        :input-params="inputParams"
+        :output-params="outputParams"
+        :check-handle-highlight="checkHandleHighlight"
+        :get-handle-style="getHandleStyle"
+      />
+    </div>
+    <NCollapse v-if="isAiNode" class="pt-3">
+      <template #arrow>
+        <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+      </template>
+      <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
+    </NCollapse>
+    <NCollapse v-if="isDialogNode" class="pt-3">
+      <template #arrow>
+        <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+      </template>
+      <DialogConfigPanel :node-id="id" :node-data="data" />
+    </NCollapse>
+    <NCollapse
+      v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+      class="pb-2 pt-3"
+    >
+      <template #arrow>
+        <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+      </template>
+      <NCollapseItem :title="$t('ai.workflow_node.node_param')" name="params">
+        <ParamBindingPanel
+          v-model:bindings="paramBindings"
+          v-model:custom-input-params="customInputParams"
+          v-model:custom-output-params="customOutputParams"
+          :node-id="id"
+          :node-data="data"
+          :input-params="inputParams"
+          :output-params="outputParams"
+          :allow-custom-input="allowCustomInput"
+          :allow-custom-output="allowCustomOutput"
+        />
+      </NCollapseItem>
+    </NCollapse>
+  </template>
+
+  <!-- 正常节点模式：外层 wrapper 用于定位浮动操作栏 -->
   <div
-    class="workflow-node min-w-45 cursor-pointer rounded-2 bg-white shadow-sm dark:bg-dark-2 hover:shadow-lg"
-    :class="[statusClass, { 'handles-visible': showHandles || selected }]"
-    :style="outlineStyle"
-    @click="handleClick"
+    v-else
+    class="workflow-node-wrapper"
+    :class="{ 'drawer-mode': isDrawerMode }"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
-    <!-- 输入连接点 (左侧) -->
-    <Handle
-      v-if="data.nodeType !== 'START' && data.nodeType !== 'APP_INFO'"
-      :position="Position.Left"
-      type="target"
-      :connectable-start="false"
-      :connectable-end="true"
-      class="custom-handle custom-handle-target"
-      :class="{ highlighted: shouldHighlightTargetHandle }"
-      :style="getHandleStyle(shouldHighlightTargetHandle)"
-    />
-
-    <!-- 节点头部 -->
-    <div
-      class="relative flex cursor-move items-center gap-2 overflow-hidden rounded-t-2 px-4 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
-      :style="{
-        background: headerGradient
-      }"
-    >
+    <!-- 浮动操作栏：节点右上角外部，hover 或 selected 时显示 -->
+    <Transition name="floating-actions">
       <div
-        class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1 -ml-2"
-        :style="{ backgroundColor: iconBackgroundColor, color: data.nodeColor }"
-      >
-        <SvgIcon v-if="data.nodeIcon" :local-icon="data.nodeIcon" />
-        <SvgIcon v-else local-icon="mdi-file-document-outline" />
-      </div>
-
-      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-4 font-bold">{{ data.nodeLabel }}</span>
-      <NTooltip v-if="data.description" trigger="hover">
-        <template #trigger>
-          <span class="inline-flex items-center">
-            <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
-          </span>
-        </template>
-        {{ data.description }}
-      </NTooltip>
-      <!-- 操作菜单 -->
-      <NDropdown
-        v-if="!['START', 'APP_INFO', 'END'].includes(data.nodeType)"
-        :options="menuOptions"
-        trigger="hover"
-        placement="bottom-end"
-        @select="handleMenuSelect"
-      >
-        <span
-          class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
-          @click.stop
-        >
-          <SvgIcon local-icon="mdi-dots-horizontal" class="text-4 c-gray-5" />
-        </span>
-      </NDropdown>
-      <!-- 折叠按钮 -->
-      <span
-        class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
-        @click="toggleCollapse"
-      >
-        <SvgIcon :local-icon="collapsed ? 'mdi-chevron-up' : 'mdi-chevron-down'" class="text-4 c-gray-5" />
-      </span>
-    </div>
-
-    <!--头部以下的主体div-->
-    <div class="pb-1 pl-4 pr-4">
-      <!-- 节点内容插槽（业务配置）-->
-      <div
-        v-if="!collapsed && $slots.default"
-        class="nodrag mt-2 b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
-      >
-        <!-- 业务配置插槽 -->
-        <slot
-          :show-handles="showHandles"
-          :has-source-connection="hasSourceConnection"
-          :is-handle-connected="isHandleConnected"
-          :param-bindings="paramBindings"
-          :input-params="inputParams"
-          :output-params="outputParams"
-          :check-handle-highlight="checkHandleHighlight"
-          :get-handle-style="getHandleStyle"
-        />
-      </div>
-
-      <!-- 参数配置区（不依赖 slot，任何节点都能展示） -->
-      <div v-if="!collapsed" class="nodrag mt-2 text-3 c-gray-5 dark:c-gray-4">
-        <NCollapse v-if="isAiNode" class="pt-3">
-          <template #arrow>
-            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
-          </template>
-          <!-- AI模型配置面板（仅AI节点显示） -->
-          <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
-        </NCollapse>
-
-        <!-- 对话配置（仅对话类AI节点显示） -->
-        <NCollapse v-if="isDialogNode" class="pt-3">
-          <template #arrow>
-            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
-          </template>
-          <DialogConfigPanel :node-id="id" :node-data="data" />
-        </NCollapse>
-
-        <NCollapse
-          v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
-          class="pb-2 pt-3"
-        >
-          <template #arrow>
-            <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
-          </template>
-          <!-- 统一的参数绑定面板 -->
-          <NCollapseItem :title="$t('ai.workflow_node.node_param')" name="params">
-            <ParamBindingPanel
-              v-model:bindings="paramBindings"
-              v-model:custom-input-params="customInputParams"
-              v-model:custom-output-params="customOutputParams"
-              :node-id="id"
-              :node-data="data"
-              :input-params="inputParams"
-              :output-params="outputParams"
-              :allow-custom-input="allowCustomInput"
-              :allow-custom-output="allowCustomOutput"
-            />
-          </NCollapseItem>
-        </NCollapse>
-      </div>
-
-      <!-- 状态指示器 -->
-      <div
-        v-if="data.status && data.status !== 'idle'"
-        class="absolute h-6 w-6 flex items-center justify-center rounded-full bg-white shadow-md -right-2 -top-2 dark:bg-dark-2"
-      >
-        <div v-if="data.status === 'running'" class="i-mdi:loading animate-spin c-blue-5" />
-        <div v-else-if="data.status === 'success'" class="i-mdi:check-circle c-green-5" />
-        <div v-else-if="data.status === 'error'" class="i-mdi:alert-circle c-red-5" />
-      </div>
-
-      <!-- 输出连接点 (右侧) -->
-      <Handle
-        v-if="!['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)"
-        :position="Position.Right"
-        type="source"
-        class="custom-handle custom-handle-source"
-        :class="[
-          { 'show-plus': !hasSourceConnection },
-          { 'handles-visible': showHandles || selected },
-          { highlighted: shouldHighlightSourceHandle }
-        ]"
-        :style="getHandleStyle(shouldHighlightSourceHandle)"
-        @click="handleSourceHandleClick"
-      />
-      <!-- 重命名弹窗 -->
-      <NModal
-        v-model:show="showRenameModal"
-        preset="dialog"
-        :title="$t('ai.workflow_node.rename_node')"
-        positive-text="确认"
-        :negative-text="$t('common.cancel')"
-        @positive-click="confirmRename"
-        @negative-click="showRenameModal = false"
+        v-if="showFloatingActions && !['START', 'APP_INFO', 'END'].includes(data.nodeType)"
+        class="node-floating-actions nodrag"
         @click.stop
       >
-        <div class="py-4" @click.stop>
-          <NInput
-            v-model:value="newLabel"
-            :placeholder="$t('ai.workflow_template.please_input_node_name')"
-            autofocus
-            @keyup.enter="confirmRename"
-          />
+        <!-- 描述信息（原头部 ! 图标移至此处） -->
+        <NTooltip v-if="data.description" trigger="hover" placement="top">
+          <template #trigger>
+            <span class="floating-action-btn">
+              <SvgIcon local-icon="mdi-information-outline" class="text-3.5 c-gray-4" />
+            </span>
+          </template>
+          {{ data.description }}
+        </NTooltip>
+        <!-- 更多操作 -->
+        <NDropdown :options="menuOptions" trigger="click" placement="bottom-end" @select="handleMenuSelect">
+          <span class="floating-action-btn">
+            <SvgIcon local-icon="mdi-dots-horizontal" class="text-3.5 c-gray-6" />
+          </span>
+        </NDropdown>
+      </div>
+    </Transition>
+
+    <!-- 节点卡片 -->
+    <div
+      class="workflow-node min-w-45 cursor-pointer rounded-2 bg-white shadow-sm dark:bg-dark-2 hover:shadow-lg"
+      :class="[statusClass, { 'handles-visible': showHandles || selected }]"
+      :style="outlineStyle"
+      @click="handleClick"
+    >
+      <!-- 输入连接点 (左侧) -->
+      <Handle
+        v-if="data.nodeType !== 'START' && data.nodeType !== 'APP_INFO'"
+        :position="Position.Left"
+        type="target"
+        :connectable-start="false"
+        :connectable-end="true"
+        class="custom-handle custom-handle-target"
+        :class="{ highlighted: shouldHighlightTargetHandle }"
+        :style="getHandleStyle(shouldHighlightTargetHandle)"
+      />
+
+      <!-- 节点头部 -->
+      <div
+        class="relative flex cursor-move items-center gap-2 overflow-hidden rounded-t-2 px-4 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
+        :style="{ background: headerGradient }"
+      >
+        <div
+          class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1 -ml-2"
+          :style="{ backgroundColor: iconBackgroundColor, color: data.nodeColor }"
+        >
+          <SvgIcon v-if="data.nodeIcon" :local-icon="data.nodeIcon" />
+          <SvgIcon v-else local-icon="mdi-file-document-outline" />
         </div>
-      </NModal>
+        <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-4 font-bold">
+          {{ data.nodeLabel }}
+        </span>
+        <!-- 折叠按钮（内嵌模式下保留） -->
+        <span
+          v-if="!isDrawerMode"
+          class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
+          @click="toggleCollapse"
+        >
+          <SvgIcon :local-icon="collapsed ? 'mdi-chevron-up' : 'mdi-chevron-down'" class="text-4 c-gray-5" />
+        </span>
+      </div>
+
+      <!-- 节点主体 -->
+      <div class="pb-1 pl-4 pr-4">
+        <!-- 抽屉模式：有摘要时展示，无摘要时不渲染任何内容 -->
+        <template v-if="isDrawerMode">
+          <div
+            v-if="summaryItems && summaryItems.length > 0"
+            class="mt-2 cursor-pointer rounded-1 bg-gray-1 px-3 py-2 text-3 dark:bg-dark-3"
+            @click="openDrawer"
+          >
+            <div v-for="item in summaryItems" :key="item.label" class="flex items-center gap-1 truncate leading-5">
+              <span class="flex-shrink-0 c-gray-4">{{ item.label }}:</span>
+              <span class="truncate c-gray-7 font-500 dark:c-gray-2">{{ item.value }}</span>
+            </div>
+            <div class="mt-1 flex items-center gap-1 text-2.5 c-gray-4">
+              <SvgIcon local-icon="mdi-pencil-outline" class="text-3" />
+              <span>点击编辑</span>
+            </div>
+          </div>
+        </template>
+
+        <!-- 内嵌模式：节点内容插槽 -->
+        <template v-else>
+          <div
+            v-if="!collapsed && $slots.default"
+            class="nodrag mt-2 b-gray-2 b-solid pt-2 text-3 c-gray-5 dark:b-dark-3 dark:c-gray-4"
+          >
+            <slot
+              :show-handles="showHandles"
+              :has-source-connection="hasSourceConnection"
+              :is-handle-connected="isHandleConnected"
+              :param-bindings="paramBindings"
+              :input-params="inputParams"
+              :output-params="outputParams"
+              :check-handle-highlight="checkHandleHighlight"
+              :get-handle-style="getHandleStyle"
+            />
+          </div>
+          <div v-if="!collapsed" class="nodrag mt-2 text-3 c-gray-5 dark:c-gray-4">
+            <NCollapse v-if="isAiNode" class="pt-3">
+              <template #arrow>
+                <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+              </template>
+              <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
+            </NCollapse>
+            <NCollapse v-if="isDialogNode" class="pt-3">
+              <template #arrow>
+                <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+              </template>
+              <DialogConfigPanel :node-id="id" :node-data="data" />
+            </NCollapse>
+            <NCollapse
+              v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+              class="pb-2 pt-3"
+            >
+              <template #arrow>
+                <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
+              </template>
+              <NCollapseItem :title="$t('ai.workflow_node.node_param')" name="params">
+                <ParamBindingPanel
+                  v-model:bindings="paramBindings"
+                  v-model:custom-input-params="customInputParams"
+                  v-model:custom-output-params="customOutputParams"
+                  :node-id="id"
+                  :node-data="data"
+                  :input-params="inputParams"
+                  :output-params="outputParams"
+                  :allow-custom-input="allowCustomInput"
+                  :allow-custom-output="allowCustomOutput"
+                />
+              </NCollapseItem>
+            </NCollapse>
+          </div>
+        </template>
+
+        <!-- 状态指示器 -->
+        <div
+          v-if="data.status && data.status !== 'idle'"
+          class="absolute h-6 w-6 flex items-center justify-center rounded-full bg-white shadow-md -right-2 -top-2 dark:bg-dark-2"
+        >
+          <div v-if="data.status === 'running'" class="i-mdi:loading animate-spin c-blue-5" />
+          <div v-else-if="data.status === 'success'" class="i-mdi:check-circle c-green-5" />
+          <div v-else-if="data.status === 'error'" class="i-mdi:alert-circle c-red-5" />
+        </div>
+
+        <!-- 输出连接点 (右侧) -->
+        <Handle
+          v-if="
+            !hideSourceHandle && !['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)
+          "
+          :position="Position.Right"
+          type="source"
+          class="custom-handle custom-handle-source"
+          :class="[
+            { 'show-plus': !hasSourceConnection },
+            { 'handles-visible': showHandles || selected },
+            { highlighted: shouldHighlightSourceHandle }
+          ]"
+          :style="getHandleStyle(shouldHighlightSourceHandle)"
+          @click="handleSourceHandleClick"
+        />
+
+        <!-- 重命名弹窗 -->
+        <NModal
+          v-model:show="showRenameModal"
+          preset="dialog"
+          :title="$t('ai.workflow_node.rename_node')"
+          positive-text="确认"
+          :negative-text="$t('common.cancel')"
+          @positive-click="confirmRename"
+          @negative-click="showRenameModal = false"
+          @click.stop
+        >
+          <div class="py-4" @click.stop>
+            <NInput
+              v-model:value="newLabel"
+              :placeholder="$t('ai.workflow_template.please_input_node_name')"
+              autofocus
+              @keyup.enter="confirmRename"
+            />
+          </div>
+        </NModal>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* 启用过渡动画，确保悬停效果顺滑 */
+/* wrapper 用于定位浮动操作栏，需要 overflow visible */
+.workflow-node-wrapper {
+  position: relative;
+}
+
+/* 浮动操作栏：节点右上角外部 */
+.node-floating-actions {
+  position: absolute;
+  top: -36px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  z-index: 20;
+}
+
+:global(.dark) .node-floating-actions {
+  background: #2d2d3f;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.floating-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.floating-action-btn:hover {
+  background: #f3f4f6;
+}
+
+:global(.dark) .floating-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 浮动操作栏出现动画 */
+.floating-actions-enter-active,
+.floating-actions-leave-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.floating-actions-enter-from,
+.floating-actions-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* 节点卡片过渡 */
 .workflow-node {
   transition:
     outline 0.2s ease,
     box-shadow 0.2s ease !important;
+}
+
+/* 抽屉模式下节点宽度缩小（约一半） */
+.workflow-node-wrapper.drawer-mode .workflow-node {
+  max-width: 220px !important;
+}
+
+/* 抽屉模式下各节点 scoped min-width 覆盖 */
+.workflow-node-wrapper.drawer-mode :deep(.workflow-node) {
+  min-width: 160px !important;
+  max-width: 220px !important;
 }
 
 .workflow-node * {
@@ -583,7 +704,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 </style>
 
 <style>
-/* 下拉菜单渲染在 body 下，不能使用 scoped */
 .n-base-select-option {
   font-size: 11px !important;
 }

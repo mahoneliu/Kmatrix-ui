@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onKeyStroke, useMagicKeys, whenever } from '@vueuse/core';
-import { NButton, NPopover, NSpace, NSwitch, useMessage } from 'naive-ui';
+import { NButton, NDropdown, NSpace, NSwitch, NTooltip, useMessage } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
@@ -25,6 +26,7 @@ import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import PublishHistoryModal from '@/components/ai/workflow/publish-history-modal.vue';
 import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
+import NodeDrawer from '@/components/ai/workflow/node-drawer.vue';
 import { useWorkflowPersistence } from './composables/use-workflow-persistence';
 
 import '@vue-flow/core/dist/style.css';
@@ -268,6 +270,70 @@ function updateNewNodeState(newId: string, oldId: string | null) {
   // 更新 lastRunningNodeId
   lastRunningNodeId.value = newId;
 }
+
+// ---- 工作流操作下拉菜单 ----
+const workflowMenuOptions = computed<DropdownOption[]>(() => [
+  {
+    key: 'save',
+    label: $t('common.save'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-content-save-outline', class: 'text-base' })
+  },
+  {
+    key: 'debug',
+    label: $t('ai.workflow.debug'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-bug-outline', class: 'text-base' })
+  },
+  {
+    key: 'publish',
+    label: $t('ai.workflow_template.publish'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-rocket-launch-outline', class: 'text-base text-indigo-500' })
+  },
+  { key: 'divider-1', type: 'divider' },
+  {
+    key: 'go-chat',
+    label: $t('ai.workflow.go_to_chat'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-chat-processing-outline', class: 'text-base' })
+  },
+  {
+    key: 'publish-history',
+    label: $t('ai.workflow.publish_history'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-history', class: 'text-base' })
+  },
+  { key: 'divider-2', type: 'divider' },
+  {
+    key: 'auto-save',
+    label: '',
+    icon: () => h(SvgIcon, { localIcon: 'mdi-content-save-cog-outline', class: 'text-base' })
+  }
+]);
+
+function renderWorkflowMenuLabel(option: DropdownOption) {
+  if (option.key === 'auto-save') {
+    return h('div', { class: 'flex items-center justify-between gap-6 w-full' }, [
+      h('span', {}, $t('ai.workflow.auto_save')),
+      h(NSwitch, {
+        value: workflowStore.autoSaveEnabled,
+        size: 'small',
+        onClick: (e: MouseEvent) => e.stopPropagation(),
+        'onUpdate:value': (v: boolean) => {
+          workflowStore.autoSaveEnabled = v;
+        }
+      })
+    ]);
+  }
+  if (option.key === 'publish') {
+    return h('span', { class: 'text-indigo-600 dark:text-indigo-400' }, String(option.label));
+  }
+  return String(option.label ?? '');
+}
+
+function handleWorkflowMenuSelect(key: string) {
+  if (key === 'save') handleSave();
+  else if (key === 'debug') handleDebug();
+  else if (key === 'publish') handlePublish();
+  else if (key === 'go-chat') handleGoToChat();
+  else if (key === 'publish-history') handlePublishHistory();
+}
 </script>
 
 <template>
@@ -312,6 +378,8 @@ function updateNewNodeState(newId: string, oldId: string | null) {
 
       <DebugChatDialog v-model:visible="showDebugDialog" :app-id="String(appId)" :app-name="debugAppName" />
       <PublishHistoryModal v-model:visible="showPublishHistory" :app-id="String(appId)" />
+      <!-- 节点抽屉 -->
+      <NodeDrawer />
 
       <div
         v-if="showHandlePanel"
@@ -349,54 +417,40 @@ function updateNewNodeState(newId: string, oldId: string | null) {
             </NButton>
           </template>
         </ComponentLibraryModal>
-        <NButton class="bg-white/90 shadow-md dark:bg-dark-2" :loading="loading" @click="handleSave">
-          <template #icon>
-            <SvgIcon local-icon="mdi-content-save-outline" />
-          </template>
-          {{ $t('common.save') }}
-        </NButton>
-        <NButton class="bg-white/90 shadow-md dark:bg-dark-2" @click="handleDebug">
-          <template #icon>
-            <SvgIcon local-icon="mdi-bug-outline" />
-          </template>
-          {{ $t('ai.workflow.debug') }}
-        </NButton>
-        <NButton type="primary" class="shadow-md" :loading="loading" @click="handlePublish">
-          {{ $t('ai.workflow_template.publish') }}
-        </NButton>
-        <NPopover trigger="hover" placement="bottom" :show-arrow="false">
+        <!-- 全局表单模式切换：抽屉模式时图标为 dock-right，内嵌模式时图标为 view-agenda -->
+        <NTooltip trigger="hover" placement="bottom">
           <template #trigger>
-            <NButton quaternary circle class="ml-1">
+            <NButton
+              class="bg-white/90 shadow-md dark:bg-dark-2"
+              :type="workflowStore.globalDrawerMode ? 'primary' : 'default'"
+              @click="workflowStore.toggleGlobalDrawerMode()"
+            >
               <template #icon>
-                <SvgIcon local-icon="mdi-dots-vertical" class="text-xl" />
+                <SvgIcon
+                  :local-icon="workflowStore.globalDrawerMode ? 'mdi-dock-right' : 'mdi-view-agenda-outline'"
+                  :style="{ color: workflowStore.globalDrawerMode ? '#fff' : undefined }"
+                  class="text-base"
+                />
               </template>
             </NButton>
           </template>
-          <div class="min-w-[160px] flex flex-col rounded-md bg-white py-1 text-sm dark:bg-dark-2">
-            <div
-              class="flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-              @click="handleGoToChat"
-            >
-              <SvgIcon local-icon="mdi-chat-processing-outline" class="text-base text-gray-500" />
-              <span>{{ $t('ai.workflow.go_to_chat') }}</span>
-            </div>
-            <div
-              class="flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-              @click="handlePublishHistory"
-            >
-              <SvgIcon local-icon="mdi-history" class="text-base text-gray-500" />
-              <span>{{ $t('ai.workflow.publish_history') }}</span>
-            </div>
-            <div class="mx-2 my-0.5 h-px bg-gray-200 dark:bg-gray-700" />
-            <div class="flex items-center justify-between px-3 py-2">
-              <div class="flex items-center gap-2">
-                <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-base text-gray-500" />
-                <span>{{ $t('ai.workflow.auto_save') }}</span>
-              </div>
-              <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
-            </div>
-          </div>
-        </NPopover>
+          {{ workflowStore.globalDrawerMode ? '抽屉模式（点击切换为内嵌）' : '内嵌模式（点击切换为抽屉）' }}
+        </NTooltip>
+        <!-- 工作流操作下拉菜单：hover 触发，扁平化列表 -->
+        <NDropdown
+          trigger="hover"
+          placement="bottom-end"
+          :options="workflowMenuOptions"
+          :render-label="renderWorkflowMenuLabel"
+          @select="handleWorkflowMenuSelect"
+        >
+          <NButton class="bg-white/90 shadow-md dark:bg-dark-2" :loading="loading">
+            <template #icon>
+              <SvgIcon local-icon="mdi-dots-horizontal" class="text-base" />
+            </template>
+            工作流
+          </NButton>
+        </NDropdown>
       </NSpace>
     </div>
   </div>

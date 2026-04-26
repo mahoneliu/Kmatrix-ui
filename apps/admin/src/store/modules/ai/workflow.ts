@@ -39,6 +39,10 @@ interface WorkflowState {
   savedInSession: boolean;
   /** 当前正在运行的节点ID (用于可视化高亮) */
   runningNodeId: string | null;
+  /** 当前在抽屉中打开的节点ID */
+  drawerNodeId: string | null;
+  /** 全局表单展示模式：true=抽屉式，false=内嵌式 */
+  globalDrawerMode: boolean;
 }
 
 export const useWorkflowStore = defineStore('workflow', {
@@ -57,7 +61,9 @@ export const useWorkflowStore = defineStore('workflow', {
     autoSaveEnabled: true,
     savedInSession: false,
     hoveredNodeId: null,
-    runningNodeId: null
+    runningNodeId: null,
+    drawerNodeId: null,
+    globalDrawerMode: true
   }),
 
   getters: {
@@ -194,6 +200,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.executionStatus = {};
       this.workflowName = $t('ai.workflow_template.new_workflow');
       this.workflowId = null;
+      this.drawerNodeId = null;
     },
 
     /** 设置工作流信息 */
@@ -242,6 +249,25 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 设置正在运行的节点ID */
     setRunningNodeId(nodeId: string | null) {
       this.runningNodeId = nodeId;
+    },
+
+    /** 打开节点抽屉 */
+    openNodeDrawer(nodeId: string) {
+      this.drawerNodeId = nodeId;
+    },
+
+    /** 关闭节点抽屉 */
+    closeNodeDrawer() {
+      this.drawerNodeId = null;
+    },
+
+    /** 切换全局表单展示模式 */
+    toggleGlobalDrawerMode() {
+      this.globalDrawerMode = !this.globalDrawerMode;
+      // 切换为内嵌模式时关闭当前抽屉
+      if (!this.globalDrawerMode) {
+        this.drawerNodeId = null;
+      }
     }
   }
 });

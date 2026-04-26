@@ -140,7 +140,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="file-storage-node">
-    <div class="w-93">
+    <div class="w-full">
       <div class="workflow-config-section">
         <!-- 知识库选择 -->
         <div class="workflow-config-item">

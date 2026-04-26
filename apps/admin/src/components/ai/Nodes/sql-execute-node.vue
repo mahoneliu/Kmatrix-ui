@@ -70,7 +70,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data" class="sql-execute-node">
-    <div class="w-80">
+    <div class="w-full">
       <NCollapse :default-expanded-names="['config']">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />

@@ -238,7 +238,7 @@ onMounted(() => {
 
 <template>
   <BaseNode v-bind="props" :data="data">
-    <div class="w-60">
+    <div class="w-full">
       <NCollapse :default-expanded-names="['basic']">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />

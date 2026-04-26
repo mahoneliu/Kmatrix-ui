@@ -2268,6 +2268,18 @@ declare namespace App {
           process_type_qa: string;
           process_type_online: string;
           process_type_web: string;
+          parameter_extractor: {
+            param_definitions: string;
+            param_name: string;
+            param_name_placeholder: string;
+            param_type: string;
+            param_description: string;
+            param_description_placeholder: string;
+            param_required: string;
+            add_param: string;
+            extraction_instructions: string;
+            instructions_placeholder: string;
+          };
         };
         workflow_public: {
           select_model: string;

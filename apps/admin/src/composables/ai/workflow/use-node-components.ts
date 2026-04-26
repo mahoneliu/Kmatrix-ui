@@ -15,6 +15,7 @@ import SkillNode from '@/components/ai/Nodes/skill-node.vue';
 import LoopNode from '@/components/ai/Nodes/loop-node.vue';
 import FileParseNode from '@/components/ai/Nodes/file-parse-node.vue';
 import McpResourceNode from '@/components/ai/Nodes/mcp-resource-node.vue';
+import ParameterExtractorNode from '@/components/ai/Nodes/parameter-extractor-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
 
@@ -45,6 +46,7 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     FILE_PARSE: markRaw(FileParseNode),
     DATASET_STORAGE: markRaw(BaseNode),
     MCP_RESOURCE: markRaw(McpResourceNode),
+    PARAMETER_EXTRACTOR: markRaw(ParameterExtractorNode),
     APP_INFO: markRaw(AppInfoComp)
   };
 

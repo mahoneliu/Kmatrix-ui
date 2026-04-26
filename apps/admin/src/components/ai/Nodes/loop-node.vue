@@ -155,7 +155,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     :no-content-padding="true"
     class="loop-node"
   >
-    <div class="w-93">
+    <div class="w-full">
       <!-- 循环配置列表 -->
       <div class="flex flex-col gap-2">
         <!-- 循环条件配置 -->

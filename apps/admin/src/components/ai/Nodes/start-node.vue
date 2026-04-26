@@ -49,7 +49,7 @@ const hasAnyParams = computed(
 
 <template>
   <BaseNode v-bind="props" :data="data">
-    <div class="w-60">
+    <div class="w-full">
       <NCollapse :default-expanded-names="['globalParams']">
         <NCollapseItem :title="$t('ai.workflow_node.global_params')" name="globalParams">
           <template #arrow>

@@ -354,7 +354,19 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   process_type_generic: 'Generic File',
   process_type_qa: 'QA Pairs',
   process_type_online: 'Online Document',
-  process_type_web: 'Web Link'
+  process_type_web: 'Web Link',
+  parameter_extractor: {
+    param_definitions: 'Parameter Definitions',
+    param_name: 'Parameter Name',
+    param_name_placeholder: 'e.g. city, date, amount',
+    param_type: 'Data Type',
+    param_description: 'Description',
+    param_description_placeholder: 'Describe what to extract, helps LLM understand',
+    param_required: 'Required',
+    add_param: 'Add Parameter',
+    extraction_instructions: 'Extraction Instructions',
+    instructions_placeholder: 'Describe how to extract parameters, examples improve accuracy'
+  }
 };
 
 const workflow_public: App.I18n.Schema['ai']['workflow_public'] = {

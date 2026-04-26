@@ -352,7 +352,19 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   process_type_generic: '通用文件',
   process_type_qa: '问答对',
   process_type_online: '在线文档',
-  process_type_web: '网页链接'
+  process_type_web: '网页链接',
+  parameter_extractor: {
+    param_definitions: '参数定义',
+    param_name: '参数名称',
+    param_name_placeholder: '如: city、date、amount',
+    param_type: '数据类型',
+    param_description: '描述',
+    param_description_placeholder: '描述该参数的含义，帮助 LLM 准确提取',
+    param_required: '必填',
+    add_param: '添加参数',
+    extraction_instructions: '提取指令',
+    instructions_placeholder: '描述如何提取参数，可提供示例以提高准确性'
+  }
 };
 
 const workflow_public: App.I18n.Schema['ai']['workflow_public'] = {
