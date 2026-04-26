@@ -273,6 +273,7 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   node_category_database: '数据库',
   node_category_action: '动作',
   node_category_fileprocessing: '文件处理',
+  node_category_tool: '工具',
   op_eq: '等于 (==)',
   op_ne: '不等于 (!=)',
   op_gt: '大于 (>)',
@@ -375,6 +376,20 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
     add_param: '添加参数',
     extraction_instructions: '提取指令',
     instructions_placeholder: '描述如何提取参数，可提供示例以提高准确性'
+  },
+  variable_aggregator: {
+    enable_grouping: '启用聚合分组',
+    enable_grouping_desc: '启用后可在单个节点中创建多个独立分组，每个分组产生单独的输出',
+    output_key: '输出键名',
+    output_key_placeholder: '如: output',
+    variables: '聚合变量',
+    no_variables: '暂无变量，点击 + 添加',
+    select_variable: '选择变量...',
+    type_mismatch: '同一分组内的变量类型不一致，请确保所有变量类型相同',
+    groups: '聚合分组',
+    add_group: '添加分组',
+    no_groups: '暂无分组，点击添加',
+    group_name_placeholder: '分组名称 (作为输出 key)'
   }
 };
 

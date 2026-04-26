@@ -12,6 +12,8 @@ import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
 import { $t } from '@/locales';
 import { DRAWER_RENDER_KEY } from '@/components/ai/workflow/drawer-context';
 
+defineOptions({ inheritAttrs: false });
+
 /** 摘要条目 */
 export interface SummaryItem {
   /** 标签 */
@@ -66,6 +68,10 @@ function openDrawer(e: Event) {
 // 检查连接状态
 const hasSourceConnection = computed(() => {
   return workflowStore.edges.some(e => e.source === props.id);
+});
+
+const hasTargetConnection = computed(() => {
+  return workflowStore.edges.some(e => e.target === props.id);
 });
 
 // 头部渐变背景
@@ -364,11 +370,12 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 </script>
 
 <template>
-  <!-- 抽屉模式：只渲染内容，不渲染节点外壳 -->
   <template v-if="isInDrawer">
-    <div class="nodrag w-full text-3 c-gray-5 dark:c-gray-4">
+    <div class="nodrag w-full text-3 c-gray-5 dark:c-gray-4" v-bind="$attrs">
       <slot
         :show-handles="false"
+        :drawer-mode="true"
+        :canvas-drawer-mode="false"
         :has-source-connection="hasSourceConnection"
         :is-handle-connected="isHandleConnected"
         :param-bindings="paramBindings"
@@ -413,11 +420,11 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
     </NCollapse>
   </template>
 
-  <!-- 正常节点模式：外层 wrapper 用于定位浮动操作栏 -->
   <div
     v-else
     class="workflow-node-wrapper"
     :class="{ 'drawer-mode': isDrawerMode }"
+    v-bind="$attrs"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
@@ -465,8 +472,8 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           type="target"
           :connectable-start="false"
           :connectable-end="true"
-          class="custom-handle custom-handle-target"
-          :class="{ highlighted: shouldHighlightTargetHandle }"
+          class="custom-handle custom-handle-target header-handle"
+          :class="[{ highlighted: shouldHighlightTargetHandle }, { connected: hasTargetConnection }]"
           :style="getHandleStyle(shouldHighlightTargetHandle)"
         />
         <div
@@ -495,11 +502,12 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           "
           :position="Position.Right"
           type="source"
-          class="custom-handle custom-handle-source"
+          class="custom-handle custom-handle-source header-handle"
           :class="[
             { 'show-plus': !hasSourceConnection },
             { 'handles-visible': showHandles || selected },
-            { highlighted: shouldHighlightSourceHandle }
+            { highlighted: shouldHighlightSourceHandle },
+            { connected: hasSourceConnection }
           ]"
           :style="getHandleStyle(shouldHighlightSourceHandle)"
           @click="handleSourceHandleClick"
@@ -526,6 +534,24 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
               </div>
             </div>
           </div>
+          <!-- 画布抽屉模式仅对有自定义 Handle 的节点渲染 slot，以保持 Handle 可连线 -->
+          <div
+            v-if="$slots.default && ['INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)"
+            class="nodrag"
+          >
+            <slot
+              :show-handles="showHandles"
+              :drawer-mode="false"
+              :canvas-drawer-mode="true"
+              :has-source-connection="hasSourceConnection"
+              :is-handle-connected="isHandleConnected"
+              :param-bindings="paramBindings"
+              :input-params="inputParams"
+              :output-params="outputParams"
+              :check-handle-highlight="checkHandleHighlight"
+              :get-handle-style="getHandleStyle"
+            />
+          </div>
         </template>
 
         <!-- 内嵌模式：节点内容插槽 -->
@@ -536,6 +562,8 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           >
             <slot
               :show-handles="showHandles"
+              :drawer-mode="false"
+              :canvas-drawer-mode="false"
               :has-source-connection="hasSourceConnection"
               :is-handle-connected="isHandleConnected"
               :param-bindings="paramBindings"
@@ -710,18 +738,15 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
   transition: all 0.2s;
 }
 
-/* Handle 定位到标题行中央，一半在边框外 */
-/* header 高度约 40px，中心在 20px；source handle 宽 20px，半径 10px */
-:deep(.custom-handle-target) {
+/* Handle 定位到标题行中央 */
+/* header 高度约 40px，中心在 20px */
+:deep(.header-handle) {
   top: 20px !important;
-  left: -5px !important;
-  transform: translateY(-50%) !important;
 }
 
-:deep(.custom-handle-source) {
-  top: 20px !important;
-  right: -10px !important;
-  transform: translateY(-50%) !important;
+/* 恢复分支类 Handle 的默认垂直居中 */
+:deep(.branch-row-handle .custom-handle) {
+  top: 50% !important;
 }
 </style>
 

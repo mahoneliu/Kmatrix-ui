@@ -170,7 +170,14 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 
 <template>
   <BaseNode
-    v-slot="{ showHandles, isHandleConnected, checkHandleHighlight, getHandleStyle }"
+    v-slot="{
+      showHandles,
+      drawerMode: inDrawer,
+      canvasDrawerMode,
+      isHandleConnected,
+      checkHandleHighlight,
+      getHandleStyle
+    }"
     v-bind="props"
     :data="data"
     :hide-source-handle="true"
@@ -178,106 +185,116 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     class="condition-node"
   >
     <div class="w-full">
-      <!-- 条件分支列表 -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
+      <div class="flex flex-col" :class="canvasDrawerMode ? 'gap-1' : 'gap-2'">
+        <!-- 标题行：画布抽屉模式下隐藏 -->
+        <div v-if="!canvasDrawerMode" class="flex items-center justify-between text-12px c-gray-5 font-600">
           <label class="flex-1 pl-1">{{ $t('ai.workflow_node.condition_branch_if_else') }}</label>
-          <div class="mr-2 flex flex-shrink-0 items-center">
-            <NButton secondary size="tiny" @click="addBranch">
-              <template #icon>
-                <SvgIcon local-icon="mdi-plus" />
-              </template>
-            </NButton>
-          </div>
+          <NButton secondary size="tiny" @click="addBranch">
+            <template #icon>
+              <SvgIcon local-icon="mdi-plus" />
+            </template>
+          </NButton>
         </div>
 
         <div
           v-for="(branch, index) in localConfig.branches"
           :key="index"
-          class="relative flex items-center justify-between gap-2 pr-4"
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
         >
-          <!-- 分支配置 Popover 包装层，确保 flex-1 生效 -->
-          <div class="min-w-0 flex-1">
-            <NPopover trigger="click" placement="bottom" raw :show-arrow="false">
-              <template #trigger>
+          <!-- 画布抽屉模式：只显示分支名称 + Handle -->
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-6">{{ branch.name }}</span>
+          </template>
+
+          <!-- 正常/抽屉面板模式：完整配置行 -->
+          <template v-else>
+            <div class="min-w-0 flex-1">
+              <NPopover trigger="click" placement="bottom" raw :show-arrow="false">
+                <template #trigger>
+                  <div class="w-full flex cursor-pointer items-center overflow-hidden">
+                    <div class="w-20 flex-shrink-0">
+                      <NInput
+                        v-model:value="branch.name"
+                        size="tiny"
+                        :placeholder="$t('ai.workflow_node.branch')"
+                        :bordered="false"
+                        class="branch-name-input"
+                        @click.stop
+                      />
+                    </div>
+                    <div class="mx-2 h-3.5 w-px flex-shrink-0 bg-gray-3"></div>
+                    <div class="min-w-0 flex-1">
+                      <span class="block truncate text-11px c-gray-6">
+                        {{ getConditionSummary(branch.condition) }}
+                      </span>
+                    </div>
+                  </div>
+                </template>
                 <div
-                  class="w-full flex cursor-pointer items-center overflow-hidden rounded-1 bg-gray-1 px-2 py-1.5 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-2"
+                  class="max-h-300 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
                 >
-                  <!-- 使用 wrapper 强制限制输入框宽度 -->
-                  <div class="w-20 flex-shrink-0">
-                    <NInput
-                      v-model:value="branch.name"
-                      size="tiny"
-                      :placeholder="$t('ai.workflow_node.branch')"
-                      :bordered="false"
-                      class="branch-name-input"
-                      @click.stop
-                    />
+                  <div class="mb-3 flex items-center justify-between">
+                    <div class="text-sm c-gray-8 font-bold dark:c-gray-1">
+                      {{ $t('ai.workflow_node.config_branch_condition') }}
+                    </div>
+                    <NButton text type="error" size="tiny" @click="removeBranch(index)">
+                      <template #icon>
+                        <SvgIcon local-icon="mdi-delete" />
+                      </template>
+                      {{ $t('ai.workflow_node.delete') }}
+                    </NButton>
                   </div>
-                  <div class="mx-2 h-3.5 w-px flex-shrink-0 bg-gray-3"></div>
-                  <!-- 确保容器具有 flex-1 和 min-w-0 以填充剩余空间 -->
-                  <div class="min-w-0 flex-1">
-                    <span class="block truncate text-11px c-gray-6">
-                      {{ getConditionSummary(branch.condition) }}
-                    </span>
-                  </div>
+                  <ConditionBuilder
+                    :node-id="id"
+                    :model-value="branch.condition"
+                    @update:model-value="val => updateBranchCondition(index, val)"
+                  />
                 </div>
-              </template>
-
-              <!-- 条件配置面板 -->
-              <div
-                class="max-h-300 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
-              >
-                <div class="mb-3 flex items-center justify-between">
-                  <div class="text-sm c-gray-8 font-bold dark:c-gray-1">
-                    {{ $t('ai.workflow_node.config_branch_condition') }}
-                  </div>
-                  <NButton text type="error" size="tiny" @click="removeBranch(index)">
-                    <template #icon>
-                      <SvgIcon local-icon="mdi-delete" />
-                    </template>
-                    {{ $t('ai.workflow_node.delete') }}
-                  </NButton>
-                </div>
-
-                <ConditionBuilder
-                  :node-id="id"
-                  :model-value="branch.condition"
-                  @update:model-value="val => updateBranchCondition(index, val)"
-                />
-              </div>
-            </NPopover>
-          </div>
-
-          <!-- 右侧操作区：包含删除按钮和输出点 -->
-          <div class="flex flex-shrink-0 items-center justify-between pr-1">
-            <NButton secondary size="tiny" @click="removeBranch(index)">
+              </NPopover>
+            </div>
+            <NButton
+              secondary
+              size="tiny"
+              class="opacity-60 !border-none !bg-transparent hover:opacity-100"
+              @click="removeBranch(index)"
+            >
               <template #icon>
                 <SvgIcon local-icon="mdi-minus" />
               </template>
             </NButton>
-            <div class="h-full flex items-center justify-center">
-              <Handle
-                :id="`condition-${index}`"
-                type="source"
-                :position="Position.Right"
-                class="custom-handle custom-handle-source"
-                :class="[
-                  { 'handles-visible': showHandles || selected },
-                  { connected: isHandleConnected(`condition-${index}`) },
-                  { highlighted: checkHandleHighlight(`condition-${index}`, 'source') }
-                ]"
-                :style="getHandleStyle(checkHandleHighlight(`condition-${index}`, 'source'))"
-                @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
-              />
-            </div>
+          </template>
+
+          <!-- Handle：仅画布模式显示 -->
+          <div v-if="!inDrawer" class="branch-row-handle">
+            <Handle
+              :id="`condition-${index}`"
+              type="source"
+              :position="Position.Right"
+              class="custom-handle custom-handle-source"
+              :class="[
+                { 'handles-visible': showHandles || selected },
+                { connected: isHandleConnected(`condition-${index}`) },
+                { highlighted: checkHandleHighlight(`condition-${index}`, 'source') }
+              ]"
+              :style="getHandleStyle(checkHandleHighlight(`condition-${index}`, 'source'))"
+              @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
+            />
           </div>
         </div>
 
         <!-- 默认/其他 分支 (ELSE) -->
-        <div v-if="localConfig.hasDefaultBranch" class="relative mt-1 flex items-center justify-between gap-1">
-          <NInput :value="$t('ai.workflow_node.default_else')" size="small" disabled class="flex-1" />
-          <div class="w-14 flex flex-shrink-0 items-center justify-end pr-1">
+        <div
+          v-if="localConfig.hasDefaultBranch"
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1.5 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
+          :class="canvasDrawerMode ? '' : 'mt-1'"
+        >
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-4">{{ $t('ai.workflow_node.default_else') }}</span>
+          </template>
+          <template v-else>
+            <div class="flex-1 truncate text-11px c-gray-4">{{ $t('ai.workflow_node.default_else') }}</div>
+          </template>
+          <div v-if="!inDrawer" class="branch-row-handle">
             <Handle
               id="default"
               type="source"

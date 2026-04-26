@@ -16,6 +16,7 @@ import LoopNode from '@/components/ai/Nodes/loop-node.vue';
 import FileParseNode from '@/components/ai/Nodes/file-parse-node.vue';
 import McpResourceNode from '@/components/ai/Nodes/mcp-resource-node.vue';
 import ParameterExtractorNode from '@/components/ai/Nodes/parameter-extractor-node.vue';
+import VariableAggregatorNode from '@/components/ai/Nodes/variable-aggregator-node.vue';
 
 const LlmChatNode = defineAsyncComponent(() => import('@/components/ai/Nodes/llm-chat-node.vue'));
 const SessionVariableAssignNode = defineAsyncComponent(
@@ -50,6 +51,7 @@ export function useNodeComponents(options?: { appInfoComponent?: Component }) {
     DATASET_STORAGE: markRaw(BaseNode),
     MCP_RESOURCE: markRaw(McpResourceNode),
     PARAMETER_EXTRACTOR: markRaw(ParameterExtractorNode),
+    VARIABLE_AGGREGATOR: markRaw(VariableAggregatorNode),
     APP_INFO: markRaw(AppInfoComp),
     SESSION_VARIABLE_ASSIGN: markRaw(SessionVariableAssignNode)
   };

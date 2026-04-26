@@ -52,7 +52,14 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
 <template>
   <!-- hide-source-handle="true" 隐藏 BaseNode 默认的输出点 -->
   <BaseNode
-    v-slot="{ showHandles, isHandleConnected, checkHandleHighlight, getHandleStyle }"
+    v-slot="{
+      showHandles,
+      drawerMode: inDrawer,
+      canvasDrawerMode,
+      isHandleConnected,
+      checkHandleHighlight,
+      getHandleStyle
+    }"
     v-bind="props"
     :data="{ ...data, localIcon: 'mdi-brain' }"
     :hide-source-handle="true"
@@ -60,39 +67,50 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
     class="intent-classifier-node"
   >
     <div class="w-full">
-      <!-- 意图列表 -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
+      <div class="flex flex-col" :class="canvasDrawerMode ? 'gap-1' : 'gap-2'">
+        <!-- 标题行：画布抽屉模式下隐藏 -->
+        <div v-if="!canvasDrawerMode" class="flex items-center justify-between text-12px c-gray-5 font-600">
           <label>{{ $t('ai.workflow_node.define_intent_branch') }}</label>
-          <NButton secondary size="tiny" class="mr-2" @click="addIntent">
+          <NButton secondary size="tiny" @click="addIntent">
             <template #icon>
               <SvgIcon local-icon="mdi-plus" />
             </template>
           </NButton>
         </div>
+
         <div
           v-for="(intent, index) in formModel.intents"
           :key="index"
-          class="relative flex items-center justify-between gap-2"
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
         >
-          <!-- 意图名称输入 -->
-          <NInput
-            v-model:value="formModel.intents[index]"
-            :placeholder="$t('ai.workflow_node.intent_name')"
-            size="small"
-            class="mr-2 flex-1"
-          />
+          <!-- 画布抽屉模式：只显示分支名称 + Handle -->
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-6">{{ intent }}</span>
+          </template>
 
-          <!-- 删除按钮 -->
-          <NButton class="workflow-btn-remove mr-3" secondary size="tiny" @click="removeIntent(index)">
-            <template #icon>
-              <SvgIcon local-icon="mdi-minus" class="workflow-btn-icon" />
-            </template>
-          </NButton>
+          <!-- 正常/抽屉面板模式：输入框 + 删除按钮 -->
+          <template v-else>
+            <NInput
+              v-model:value="formModel.intents[index]"
+              :placeholder="$t('ai.workflow_node.intent_name')"
+              size="small"
+              :bordered="false"
+              class="flex-1 !bg-transparent"
+            />
+            <NButton
+              secondary
+              size="tiny"
+              class="opacity-60 !border-none !bg-transparent hover:opacity-100"
+              @click="removeIntent(index)"
+            >
+              <template #icon>
+                <SvgIcon local-icon="mdi-minus" />
+              </template>
+            </NButton>
+          </template>
 
-          <!-- 右侧输出点 (Handle) -->
-          <!-- 使用 BaseNode 样式类 custom-handle custom-handle-source 以保持一致性 -->
-          <div class="right-1 h-full flex items-center justify-center">
+          <!-- Handle：仅画布模式（含画布抽屉模式）显示 -->
+          <div v-if="!inDrawer" class="branch-row-handle">
             <Handle
               :id="`intent-${index}`"
               type="source"
@@ -110,9 +128,17 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
         </div>
 
         <!-- 默认/其他 分支 -->
-        <div class="relative mt-1 flex items-center justify-between gap-2">
-          <NInput value="其他 (Else)" size="small" disabled class="mr-12 flex-1" />
-          <div class="right-1 h-full flex items-center justify-center pr-1">
+        <div
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1.5 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
+          :class="canvasDrawerMode ? '' : 'mt-1'"
+        >
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-4">其他 (Else)</span>
+          </template>
+          <template v-else>
+            <div class="flex-1 truncate pl-2.5 text-11px c-gray-4">其他 (Else)</div>
+          </template>
+          <div v-if="!inDrawer" class="branch-row-handle">
             <Handle
               id="else"
               type="source"

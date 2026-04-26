@@ -28,7 +28,8 @@ declare namespace Workflow {
     | 'DATASET_STORAGE'
     | 'SESSION_VARIABLE_ASSIGN'
     | 'MCP_RESOURCE'
-    | 'PARAMETER_EXTRACTOR';
+    | 'PARAMETER_EXTRACTOR'
+    | 'VARIABLE_AGGREGATOR';
 
   /** 节点执行状态 */
   type NodeStatus = 'idle' | 'running' | 'success' | 'error';
@@ -378,6 +379,36 @@ declare namespace Workflow {
     description?: string;
     /** 是否必填 */
     required: boolean;
+  }
+
+  /** 变量聚合器节点 - 单个变量引用 */
+  interface AggregatorVarRef {
+    /** 来源节点 ID（或 global/app/interface/session） */
+    sourceNodeId: string;
+    /** 来源参数键 */
+    sourceParam: string;
+    /** 数据类型 */
+    type: ParamDataType;
+  }
+
+  /** 变量聚合器节点 - 聚合分组 */
+  interface AggregatorGroup {
+    /** 分组名称（同时作为输出 key） */
+    groupName: string;
+    /** 该分组的变量引用列表 */
+    variables: AggregatorVarRef[];
+  }
+
+  /** 变量聚合器节点配置 */
+  interface VariableAggregatorConfig extends NodeConfigFormData {
+    /** 是否启用分组聚合 */
+    enableGrouping: boolean;
+    /** 单组模式下的输出键名，默认 "output" */
+    outputKey: string;
+    /** 单组模式下的变量引用列表 */
+    variables: AggregatorVarRef[];
+    /** 分组模式下的分组列表 */
+    groups: AggregatorGroup[];
   }
 
   /** 参数提取器节点配置 */

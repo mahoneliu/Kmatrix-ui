@@ -2291,6 +2291,20 @@ declare namespace App {
             extraction_instructions: string;
             instructions_placeholder: string;
           };
+          variable_aggregator: {
+            enable_grouping: string;
+            enable_grouping_desc: string;
+            output_key: string;
+            output_key_placeholder: string;
+            variables: string;
+            no_variables: string;
+            select_variable: string;
+            type_mismatch: string;
+            groups: string;
+            add_group: string;
+            no_groups: string;
+            group_name_placeholder: string;
+          };
         };
         workflow_public: {
           select_model: string;

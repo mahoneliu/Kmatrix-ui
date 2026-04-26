@@ -7,7 +7,7 @@
  * @date 2026-03-22
  */
 import { ref, watch } from 'vue';
-import { NInput, NInputNumber, NPopover } from 'naive-ui';
+import { NInputNumber, NPopover } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
@@ -148,7 +148,14 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 
 <template>
   <BaseNode
-    v-slot="{ showHandles, isHandleConnected, checkHandleHighlight, getHandleStyle }"
+    v-slot="{
+      showHandles,
+      drawerMode: inDrawer,
+      canvasDrawerMode,
+      isHandleConnected,
+      checkHandleHighlight,
+      getHandleStyle
+    }"
     v-bind="props"
     :data="data"
     :hide-source-handle="true"
@@ -157,45 +164,52 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
   >
     <div class="w-full">
       <!-- 循环配置列表 -->
-      <div class="flex flex-col gap-2">
-        <!-- 循环条件配置 -->
-        <div class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
+      <div class="flex flex-col" :class="canvasDrawerMode ? 'gap-1' : 'gap-2'">
+        <!-- 循环条件配置标题：画布抽屉模式下隐藏 -->
+        <div v-if="!canvasDrawerMode" class="flex items-center justify-between pr-3 text-12px c-gray-5 font-600">
           <label class="flex-1 pl-1">{{ $t('ai.workflow_node.continue_condition') }}</label>
         </div>
-        <div class="relative flex items-center justify-between gap-1 pr-4">
-          <div class="min-w-0 flex-1">
-            <NPopover trigger="click" placement="bottom" raw :show-arrow="false">
-              <template #trigger>
+        <div
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
+          :class="canvasDrawerMode || inDrawer ? '' : 'pr-4'"
+        >
+          <!-- 画布抽屉模式：只显示标签 + Handle -->
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-6">
+              {{ $t('ai.workflow_node.continue_condition') }}
+            </span>
+          </template>
+          <template v-else>
+            <div class="min-w-0 flex-1">
+              <NPopover trigger="click" placement="bottom" raw :show-arrow="false">
+                <template #trigger>
+                  <div class="w-full flex cursor-pointer items-center overflow-hidden">
+                    <div class="min-w-0 flex-1">
+                      <span class="block truncate text-11px c-gray-6">
+                        {{ getConditionSummary(localConfig.condition) }}
+                      </span>
+                    </div>
+                  </div>
+                </template>
                 <div
-                  class="w-full flex cursor-pointer items-center overflow-hidden rounded-1 bg-gray-1 px-2 py-1.5 dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-2"
+                  class="max-h-300 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
                 >
-                  <div class="min-w-0 flex-1">
-                    <span class="block truncate text-11px c-gray-6">
-                      {{ getConditionSummary(localConfig.condition) }}
-                    </span>
+                  <div class="mb-3 flex items-center justify-between">
+                    <div class="text-sm c-gray-8 font-bold dark:c-gray-1">
+                      {{ $t('ai.workflow_node.config_continue_condition') }}
+                    </div>
                   </div>
+                  <ConditionBuilder
+                    :node-id="id"
+                    :model-value="localConfig.condition"
+                    @update:model-value="val => (localConfig.condition = val as any)"
+                  />
                 </div>
-              </template>
-
-              <!-- 条件配置面板 -->
-              <div
-                class="max-h-300 w-120 overflow-auto border border-gray-100 rounded-2 bg-white p-4 shadow-xl dark:border-dark-3 dark:bg-dark-2"
-              >
-                <div class="mb-3 flex items-center justify-between">
-                  <div class="text-sm c-gray-8 font-bold dark:c-gray-1">
-                    {{ $t('ai.workflow_node.config_continue_condition') }}
-                  </div>
-                </div>
-                <ConditionBuilder
-                  :node-id="id"
-                  :model-value="localConfig.condition"
-                  @update:model-value="val => (localConfig.condition = val as any)"
-                />
-              </div>
-            </NPopover>
-          </div>
-          <!-- Continue 输出点 -->
-          <div class="box-border w-10 flex flex-shrink-0 items-center justify-end pr-1">
+              </NPopover>
+            </div>
+          </template>
+          <!-- Continue 输出点：仅画布模式显示 -->
+          <div v-if="!inDrawer" class="branch-row-handle">
             <Handle
               id="continue"
               type="source"
@@ -212,8 +226,8 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
           </div>
         </div>
 
-        <!-- 最大循环次数 -->
-        <div class="mt-1 flex items-center pb-1 pl-1 pr-4">
+        <!-- 最大循环次数：画布抽屉模式下隐藏 -->
+        <div v-if="!canvasDrawerMode" class="mt-1 flex items-center pb-1 pl-1 pr-4">
           <label class="w-30 text-12px c-gray-5 font-600">{{ $t('ai.workflow_node.max_iterations_label') }}</label>
           <div class="w-24">
             <NInputNumber
@@ -228,9 +242,17 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
         </div>
 
         <!-- 跳出 / 结束 分支 (Exit) -->
-        <div class="relative mt-1 flex items-center justify-between gap-1 pr-4">
-          <NInput :value="$t('ai.workflow_node.exit_or_end')" size="small" disabled class="flex-1" />
-          <div class="box-border w-10 flex flex-shrink-0 items-center justify-end pr-1">
+        <div
+          class="relative flex items-center gap-1 rounded-l-[4px] bg-gray-50 py-1.5 pl-2 pr-1 transition-colors dark:bg-dark-3 hover:bg-gray-100 dark:hover:bg-dark-4"
+          :class="[canvasDrawerMode || inDrawer ? '' : 'pr-4', canvasDrawerMode ? '' : 'mt-1']"
+        >
+          <template v-if="canvasDrawerMode">
+            <span class="flex-1 truncate py-0.5 text-11px c-gray-6">{{ $t('ai.workflow_node.exit_or_end') }}</span>
+          </template>
+          <template v-else>
+            <div class="flex-1 truncate pl-1 text-11px c-gray-4">{{ $t('ai.workflow_node.exit_or_end') }}</div>
+          </template>
+          <div v-if="!inDrawer" class="branch-row-handle">
             <Handle
               id="exit"
               type="source"

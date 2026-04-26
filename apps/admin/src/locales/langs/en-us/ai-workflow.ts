@@ -275,6 +275,7 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   node_category_database: 'Database',
   node_category_action: 'Action',
   node_category_fileprocessing: 'File Processing',
+  node_category_tool: 'Tool',
   op_eq: 'Equal (==)',
   op_ne: 'Not Equal (!=)',
   op_gt: 'Greater Than (>)',
@@ -366,6 +367,20 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
     add_param: 'Add Parameter',
     extraction_instructions: 'Extraction Instructions',
     instructions_placeholder: 'Describe how to extract parameters, examples improve accuracy'
+  },
+  variable_aggregator: {
+    enable_grouping: 'Enable Grouping',
+    enable_grouping_desc: 'Create multiple independent groups in a single node, each producing a separate output',
+    output_key: 'Output Key',
+    output_key_placeholder: 'e.g. output',
+    variables: 'Variables',
+    no_variables: 'No variables, click + to add',
+    select_variable: 'Select variable...',
+    type_mismatch: 'Variable types in the same group must match',
+    groups: 'Groups',
+    add_group: 'Add Group',
+    no_groups: 'No groups, click to add',
+    group_name_placeholder: 'Group name (used as output key)'
   },
   session_variable_assign: 'Session Variable Assign',
   variable: 'Variable',

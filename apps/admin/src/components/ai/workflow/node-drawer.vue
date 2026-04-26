@@ -100,7 +100,29 @@ provide(DRAWER_RENDER_KEY, true);
       <!-- 抽屉内容：渲染节点组件（抽屉模式下节点组件自身不渲染外壳） -->
       <div class="node-drawer-body nodrag nowheel">
         <div class="drawer-content-wrapper">
-          <component :is="nodeComponent" v-if="nodeComponent" v-bind="activeNode" :drawer-mode="true" />
+          <component
+            :is="nodeComponent"
+            v-if="nodeComponent"
+            v-bind="{
+              id: activeNode.id,
+              type: activeNode.type,
+              data: activeNode.data,
+              selected: false,
+              position: activeNode.position ?? { x: 0, y: 0 },
+              dimensions: activeNode.dimensions ?? { width: 0, height: 0 },
+              zIndex: 0,
+              connectable: false,
+              draggable: false,
+              selectable: false,
+              focusable: false,
+              isParent: false,
+              initialized: true,
+              drawerMode: true,
+              dragging: false,
+              resizing: false,
+              events: {}
+            }"
+          />
         </div>
       </div>
     </div>
