@@ -285,10 +285,27 @@ const statusClass = computed(() => {
 // 计算边框样式
 const outlineStyle = computed(() => {
   const isHighlighted = props.selected || isHovered.value;
+
+  let boxShadow;
+  if (props.selected) {
+    // 选中状态：发光投影效果
+    boxShadow = `0 0 0 3px ${props.data.nodeColor}30`;
+  } else if (isHovered.value) {
+    // 悬停状态：轻微投影
+    boxShadow = `0 0 0 1.5px ${props.data.nodeColor}20`;
+  }
+
+  let outline = '1px solid rgba(0,0,0,0.1)';
+  if (props.selected) {
+    outline = `2px solid ${props.data.nodeColor}`;
+  } else if (isHighlighted) {
+    outline = `1px solid ${props.data.nodeColor}`;
+  }
+
   return {
-    outline: isHighlighted ? `1px solid ${props.data.nodeColor}` : '1px solid rgba(0,0,0,0.1)',
+    outline,
     outlineOffset: '-1px',
-    boxShadow: isHovered.value && !props.selected ? `0 0 0 1.5px ${props.data.nodeColor}20` : undefined
+    boxShadow
   };
 });
 
