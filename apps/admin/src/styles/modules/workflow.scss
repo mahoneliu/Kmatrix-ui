@@ -25,6 +25,12 @@
   border-radius: 6px !important;
 }
 
+/* 覆盖 @vue-flow/controls 对 svg 的尺寸限制 */
+:deep(.vue-flow__controls-button svg) {
+  max-width: none !important;
+  max-height: none !important;
+}
+
 /* 工具栏图标样式 */
 :deep(.toolbar-icon) {
   width: 20px !important;

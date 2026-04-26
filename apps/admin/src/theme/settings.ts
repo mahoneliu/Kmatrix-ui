@@ -54,7 +54,7 @@ export const themeSettings: App.Theme.ThemeSetting = {
   footer: {
     visible: true,
     fixed: false,
-    height: 48,
+    height: 32,
     right: true
   },
   watermark: {

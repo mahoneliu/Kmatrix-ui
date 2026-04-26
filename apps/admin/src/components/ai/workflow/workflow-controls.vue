@@ -1,65 +1,128 @@
 <script setup lang="ts">
+import { NPopover } from 'naive-ui';
 import { ControlButton, Controls } from '@vue-flow/controls';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowHistory } from '@/composables/ai/workflow/use-workflow-history';
 import { $t } from '@/locales';
+import ComponentLibraryPanel from './component-library-panel.vue';
 
 interface Props {
-  onZoomIn: () => void;
-  onZoomOut: () => void;
   onFitView: () => void;
-  onCollapseAll: () => void;
-  onExpandAll: () => void;
   onAutoLayout: () => void;
-  onCollapseAndLayout: () => void;
+  /** 当前是否为抽屉模式 */
+  drawerMode?: boolean;
+  /** 切换抽屉/内嵌模式的回调 */
+  onToggleDrawerMode?: () => void;
+  /** 选择节点回调（组件库） */
+  onSelectNode?: (nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>) => void;
+  /** 拖拽节点回调（组件库） */
+  onDragStart?: (data: {
+    type: Workflow.NodeType;
+    x: number;
+    y: number;
+    extraData?: Partial<Workflow.NodeData>;
+  }) => void;
+  /** 是否处于页面全屏状态 */
+  isPageFullscreen?: boolean;
+  /** 切换页面全屏 */
+  onTogglePageFullscreen?: () => void;
+  /** 画布是否可交互（未锁定） */
+  isInteractive?: boolean;
+  /** 切换画布锁定状态 */
+  onToggleInteractive?: () => void;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 // 初始化历史管理
 const { undo, redo, canUndo, canRedo, historyStack, currentIndex, jumpToHistory } = useWorkflowHistory();
 
+function toggleInteractive() {
+  props.onToggleInteractive?.();
+}
+
 // 撤销
 const handleUndo = () => {
-  if (canUndo.value) {
-    undo();
-  }
+  if (canUndo.value) undo();
 };
 
 // 重做
 const handleRedo = () => {
-  if (canRedo.value) {
-    redo();
-  }
+  if (canRedo.value) redo();
 };
 
 // 跳转到历史记录
 const handleJumpToHistory = (index: number) => {
   jumpToHistory(index);
 };
+
+// 组件库弹出层（hover 触发，无需手动控制 show 状态）
+
+function handleLibrarySelect(nodeType: Workflow.NodeType, extraData?: Partial<Workflow.NodeData>) {
+  props.onSelectNode?.(nodeType, extraData);
+}
+
+function handleLibraryDragStart(data: {
+  type: Workflow.NodeType;
+  x: number;
+  y: number;
+  extraData?: Partial<Workflow.NodeData>;
+}) {
+  props.onDragStart?.(data);
+}
 </script>
 
 <template>
   <Controls
     :show-zoom="false"
     :show-fit-view="false"
-    :show-interactive="true"
+    :show-interactive="false"
     class="shadow-sm !rounded-5px !border-none !bg-[#fbfbfb] dark:!bg-dark-2"
   >
+    <!-- ── 第一组：组件库 + 抽屉切换 ── -->
+    <NPopover trigger="hover" placement="right-start" :show-arrow="false" raw :content-style="{ padding: 0 }">
+      <template #trigger>
+        <ControlButton title="组件库" class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:hover:!bg-white/10">
+          <span class="library-add-btn">
+            <SvgIcon local-icon="carbon-add" class="toolbar-icon" />
+          </span>
+        </ControlButton>
+      </template>
+      <ComponentLibraryPanel @select="handleLibrarySelect" @drag-start="handleLibraryDragStart" />
+    </NPopover>
+
     <ControlButton
-      :title="$t('ai.workflow.zoom_in')"
+      :title="drawerMode ? '抽屉模式（点击切换为内嵌）' : '内嵌模式（点击切换为抽屉）'"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
-      @click="onZoomIn"
+      :class="{ '!text-primary': drawerMode }"
+      @click="onToggleDrawerMode"
     >
-      <SvgIcon local-icon="mdi-magnify-plus-outline" class="toolbar-icon" />
+      <SvgIcon
+        :local-icon="drawerMode ? 'mdi-dock-right' : 'mdi-view-agenda-outline'"
+        class="toolbar-icon"
+        :class="{ 'text-primary': drawerMode }"
+      />
     </ControlButton>
+
+    <!-- 分隔线 -->
+    <div
+      class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
+    />
+
+    <!-- ── 第二组：全屏 + 适应视图 + 优雅布局 + 锁定 ── -->
     <ControlButton
-      :title="$t('ai.workflow.zoom_out')"
+      :title="isPageFullscreen ? '退出全屏' : '全屏'"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
-      @click="onZoomOut"
+      :class="{ '!text-primary': isPageFullscreen }"
+      @click="onTogglePageFullscreen"
     >
-      <SvgIcon local-icon="mdi-magnify-minus-outline" class="toolbar-icon" />
+      <SvgIcon
+        :local-icon="isPageFullscreen ? 'mdi-window-restore' : 'mdi-fullscreen'"
+        class="toolbar-icon"
+        :class="{ 'text-primary': isPageFullscreen }"
+      />
     </ControlButton>
+
     <ControlButton
       :title="$t('ai.workflow.fit_view')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
@@ -67,26 +130,7 @@ const handleJumpToHistory = (index: number) => {
     >
       <SvgIcon local-icon="mdi-fit-to-screen-outline" class="toolbar-icon" />
     </ControlButton>
-    <div
-      class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
-    />
-    <ControlButton
-      :title="$t('ai.workflow.collapse_all_nodes')"
-      class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
-      @click="onCollapseAll"
-    >
-      <SvgIcon local-icon="mdi-unfold-less-horizontal" class="toolbar-icon" />
-    </ControlButton>
-    <ControlButton
-      :title="$t('ai.workflow.expand_all_nodes')"
-      class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
-      @click="onExpandAll"
-    >
-      <SvgIcon local-icon="mdi-unfold-more-horizontal" class="toolbar-icon" />
-    </ControlButton>
-    <div
-      class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
-    />
+
     <ControlButton
       :title="$t('ai.workflow.elegant_layout')"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
@@ -94,19 +138,26 @@ const handleJumpToHistory = (index: number) => {
     >
       <SvgIcon local-icon="mdi-auto-fix" class="toolbar-icon" />
     </ControlButton>
+
     <ControlButton
-      :title="$t('ai.workflow.collapse_and_layout')"
+      :title="isInteractive ? '锁定画布（禁止拖拽节点）' : '解锁画布'"
       class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:!text-white dark:hover:!bg-white/10"
-      @click="onCollapseAndLayout"
+      :class="{ '!text-primary': !isInteractive }"
+      @click="toggleInteractive"
     >
-      <SvgIcon local-icon="mdi-format-align-justify" class="toolbar-icon" />
+      <SvgIcon
+        :local-icon="isInteractive ? 'mdi-pin-off-outline' : 'mdi-pin-outline'"
+        class="toolbar-icon"
+        :class="{ 'text-primary': !isInteractive }"
+      />
     </ControlButton>
 
     <!-- 分隔线 -->
     <div
       class="b-whitesmoke my-1px h-1px w-full b-1 b-solid bg-[var(--vf-controls-button-border-color)] dark:!bg-white/10"
     />
-    <!-- 撤销/重做 -->
+
+    <!-- ── 第三组：撤销 + 重做 + 操作历史 ── -->
     <ControlButton
       :title="$t('ai.workflow.undo')"
       :disabled="!canUndo"
@@ -115,6 +166,7 @@ const handleJumpToHistory = (index: number) => {
     >
       <SvgIcon local-icon="mdi-undo-variant" class="toolbar-icon" />
     </ControlButton>
+
     <ControlButton
       :title="$t('ai.workflow.redo')"
       :disabled="!canRedo"
@@ -123,10 +175,7 @@ const handleJumpToHistory = (index: number) => {
     >
       <SvgIcon local-icon="mdi-redo-variant" class="toolbar-icon" />
     </ControlButton>
-    <!-- 分隔线 -->
-    <!-- <div class="b-whitesmoke my-1px h-1px w-full b-2 b-solid bg-[var(--vf-controls-button-border-color)]" /> -->
 
-    <!-- 操作历史 -->
     <NPopover trigger="hover" placement="right-end" :show-arrow="false" class="!rounded-8px !p-0">
       <template #trigger>
         <ControlButton
@@ -187,3 +236,24 @@ const handleJumpToHistory = (index: number) => {
     </NPopover>
   </Controls>
 </template>
+
+<style scoped>
+/* 覆盖 @vue-flow/controls 对 svg 的 max-width/max-height 限制 */
+:deep(.vue-flow__controls-button svg) {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 组件库按钮：圆形彩色背景的 + 图标 */
+.library-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #f97316;
+  color: #fff;
+  flex-shrink: 0;
+}
+</style>

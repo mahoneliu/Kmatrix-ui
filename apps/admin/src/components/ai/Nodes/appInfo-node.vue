@@ -4,12 +4,14 @@ import { NButton, NCollapse, NCollapseItem, NForm, NFormItem, NInput, NModal, NS
 import type { NodeProps } from '@vue-flow/core';
 import { PARAM_TYPE_MAP, PARAM_TYPE_OPTIONS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useAiModelStore } from '@/store/modules/ai/ai-model';
 import { $t } from '@/locales';
 import ModelSelector from '@/components/ai/public/model-selector.vue';
 import BaseNode from './base-node.vue';
 
-const props = defineProps<NodeProps>();
+const props = defineProps<NodeProps & { drawerMode?: boolean }>();
 const workflowStore = useWorkflowStore();
+const aiModelStore = useAiModelStore();
 
 // 局部表单数据,避免直接与 Store 双向绑定导致的循环更新
 const formModel = reactive<Workflow.AppInfoConfig>({
@@ -231,13 +233,27 @@ watch(
   { deep: true }
 );
 
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = (props.data?.config as Workflow.AppInfoConfig) || {};
+  if (config.appName) {
+    items.push({ label: $t('ai.workflow_template.app_name'), value: config.appName });
+  }
+  if (config.modelId) {
+    const model = aiModelStore.models?.find(m => String(m.modelId) === String(config.modelId));
+    items.push({ label: $t('ai.workflow_public.model'), value: model?.modelName || String(config.modelId) });
+  }
+  return items;
+});
+
 onMounted(() => {
   initData();
 });
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems">
     <div class="w-full">
       <NCollapse :default-expanded-names="['basic']">
         <template #arrow>

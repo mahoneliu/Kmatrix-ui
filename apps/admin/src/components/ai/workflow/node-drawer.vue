@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
+import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
+import { DRAWER_RENDER_KEY } from './drawer-context';
 
 /** 抽屉最小宽度 */
 const MIN_WIDTH = 320;
@@ -12,7 +14,7 @@ const MAX_WIDTH = 900;
 const DEFAULT_WIDTH = 480;
 
 const workflowStore = useWorkflowStore();
-const { getNodeComponent } = useNodeComponents();
+const { getNodeComponent } = useNodeComponents({ appInfoComponent: AppInfoNode });
 
 const drawerWidth = ref(DEFAULT_WIDTH);
 const isDragging = ref(false);
@@ -62,6 +64,9 @@ function onResizeMouseUp() {
 watch(isOpen, open => {
   if (!open) drawerWidth.value = DEFAULT_WIDTH;
 });
+
+// 向子组件注入"当前是抽屉渲染上下文"
+provide(DRAWER_RENDER_KEY, true);
 </script>
 
 <template>

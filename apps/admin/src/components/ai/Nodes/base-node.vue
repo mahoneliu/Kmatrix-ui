@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, h, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, h, inject, onMounted, ref, watch } from 'vue';
 import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NTooltip } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
@@ -10,6 +10,7 @@ import { getNodeInputParams, getNodeOutputParams } from '@/utils/ai/node-params'
 import { getNodeTypeInfo } from '@/utils/ai/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
 import { $t } from '@/locales';
+import { DRAWER_RENDER_KEY } from '@/components/ai/workflow/drawer-context';
 
 /** 摘要条目 */
 export interface SummaryItem {
@@ -33,11 +34,13 @@ interface Props extends NodeProps {
   drawerMode?: boolean;
   /** 是否隐藏默认输出 Handle */
   hideSourceHandle?: boolean;
-  /** 是否去除内容区内边距 */
-  noContentPadding?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  drawerMode: false,
+  summaryItems: () => [],
+  hideSourceHandle: false
+});
 
 const emit = defineEmits<{
   nodeClick: [id: string];
@@ -50,6 +53,10 @@ const workflowStore = useWorkflowStore();
 
 // 全局抽屉模式（画布级别）
 const isDrawerMode = computed(() => workflowStore.globalDrawerMode);
+
+// 是否在抽屉中渲染：优先使用 prop，其次通过 inject 判断当前渲染上下文是否为抽屉
+const isInDrawerContext = inject(DRAWER_RENDER_KEY, false);
+const isInDrawer = computed(() => props.drawerMode || isInDrawerContext);
 
 function openDrawer(e: Event) {
   e.stopPropagation();
@@ -273,9 +280,9 @@ const statusClass = computed(() => {
 const outlineStyle = computed(() => {
   const isHighlighted = props.selected || isHovered.value;
   return {
-    outline: isHighlighted ? `2px solid ${props.data.nodeColor}` : '1px solid rgba(0,0,0,0.1)',
+    outline: isHighlighted ? `1px solid ${props.data.nodeColor}` : '1px solid rgba(0,0,0,0.1)',
     outlineOffset: '-1px',
-    boxShadow: isHovered.value && !props.selected ? `0 0 0 3px ${props.data.nodeColor}20` : undefined
+    boxShadow: isHovered.value && !props.selected ? `0 0 0 1.5px ${props.data.nodeColor}20` : undefined
   };
 });
 
@@ -358,8 +365,8 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
 <template>
   <!-- 抽屉模式：只渲染内容，不渲染节点外壳 -->
-  <template v-if="drawerMode">
-    <div v-if="$slots.default" class="nodrag text-3 c-gray-5 dark:c-gray-4">
+  <template v-if="isInDrawer">
+    <div class="nodrag w-full text-3 c-gray-5 dark:c-gray-4">
       <slot
         :show-handles="false"
         :has-source-connection="hasSourceConnection"
@@ -446,23 +453,22 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
       :style="outlineStyle"
       @click="handleClick"
     >
-      <!-- 输入连接点 (左侧) -->
-      <Handle
-        v-if="data.nodeType !== 'START' && data.nodeType !== 'APP_INFO'"
-        :position="Position.Left"
-        type="target"
-        :connectable-start="false"
-        :connectable-end="true"
-        class="custom-handle custom-handle-target"
-        :class="{ highlighted: shouldHighlightTargetHandle }"
-        :style="getHandleStyle(shouldHighlightTargetHandle)"
-      />
-
       <!-- 节点头部 -->
       <div
-        class="relative flex cursor-move items-center gap-2 overflow-hidden rounded-t-2 px-4 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
+        class="relative flex cursor-move items-center gap-2 rounded-t-2 px-4 py-2 text-3.5 c-gray-8 font-600 dark:c-gray-1"
         :style="{ background: headerGradient }"
       >
+        <!-- 输入连接点 (左侧，对齐标题中央) -->
+        <Handle
+          v-if="data.nodeType !== 'START' && data.nodeType !== 'APP_INFO'"
+          :position="Position.Left"
+          type="target"
+          :connectable-start="false"
+          :connectable-end="true"
+          class="custom-handle custom-handle-target"
+          :class="{ highlighted: shouldHighlightTargetHandle }"
+          :style="getHandleStyle(shouldHighlightTargetHandle)"
+        />
         <div
           class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1 -ml-2"
           :style="{ backgroundColor: iconBackgroundColor, color: data.nodeColor }"
@@ -476,29 +482,48 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         <!-- 折叠按钮（内嵌模式下保留） -->
         <span
           v-if="!isDrawerMode"
-          class="h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
+          class="mr-4 h-5 w-5 flex cursor-pointer items-center justify-center rounded bg-transparent transition-colors hover:bg-gray-2 dark:hover:bg-dark-3"
           @click="toggleCollapse"
         >
           <SvgIcon :local-icon="collapsed ? 'mdi-chevron-up' : 'mdi-chevron-down'" class="text-4 c-gray-5" />
         </span>
+
+        <!-- 输出连接点 (右侧，对齐标题中央) -->
+        <Handle
+          v-if="
+            !hideSourceHandle && !['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)
+          "
+          :position="Position.Right"
+          type="source"
+          class="custom-handle custom-handle-source"
+          :class="[
+            { 'show-plus': !hasSourceConnection },
+            { 'handles-visible': showHandles || selected },
+            { highlighted: shouldHighlightSourceHandle }
+          ]"
+          :style="getHandleStyle(shouldHighlightSourceHandle)"
+          @click="handleSourceHandleClick"
+        />
       </div>
 
       <!-- 节点主体 -->
-      <div class="pb-1 pl-4 pr-4">
+      <div class="pb-3 pl-2 pr-2">
         <!-- 抽屉模式：有摘要时展示，无摘要时不渲染任何内容 -->
         <template v-if="isDrawerMode">
           <div
             v-if="summaryItems && summaryItems.length > 0"
-            class="mt-2 cursor-pointer rounded-1 bg-gray-1 px-3 py-2 text-3 dark:bg-dark-3"
+            class="mt-1.5 cursor-pointer rounded-1 bg-gray-1 px-2 py-1 text-3 transition-colors dark:bg-dark-3 hover:bg-gray-2 dark:hover:bg-dark-4"
             @click="openDrawer"
           >
-            <div v-for="item in summaryItems" :key="item.label" class="flex items-center gap-1 truncate leading-5">
-              <span class="flex-shrink-0 c-gray-4">{{ item.label }}:</span>
-              <span class="truncate c-gray-7 font-500 dark:c-gray-2">{{ item.value }}</span>
-            </div>
-            <div class="mt-1 flex items-center gap-1 text-2.5 c-gray-4">
-              <SvgIcon local-icon="mdi-pencil-outline" class="text-3" />
-              <span>点击编辑</span>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+              <div
+                v-for="item in summaryItems"
+                :key="item.label"
+                class="flex items-center gap-1 truncate leading-relaxed"
+              >
+                <span class="flex-shrink-0 c-gray-4">{{ item.label }}:</span>
+                <span class="truncate c-gray-7 font-500 dark:c-gray-2">{{ item.value }}</span>
+              </div>
             </div>
           </div>
         </template>
@@ -566,23 +591,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           <div v-else-if="data.status === 'success'" class="i-mdi:check-circle c-green-5" />
           <div v-else-if="data.status === 'error'" class="i-mdi:alert-circle c-red-5" />
         </div>
-
-        <!-- 输出连接点 (右侧) -->
-        <Handle
-          v-if="
-            !hideSourceHandle && !['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)
-          "
-          :position="Position.Right"
-          type="source"
-          class="custom-handle custom-handle-source"
-          :class="[
-            { 'show-plus': !hasSourceConnection },
-            { 'handles-visible': showHandles || selected },
-            { highlighted: shouldHighlightSourceHandle }
-          ]"
-          :style="getHandleStyle(shouldHighlightSourceHandle)"
-          @click="handleSourceHandleClick"
-        />
 
         <!-- 重命名弹窗 -->
         <NModal
@@ -677,15 +685,15 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
     box-shadow 0.2s ease !important;
 }
 
-/* 抽屉模式下节点宽度缩小（约一半） */
+/* 抽屉模式下节点宽度调宽 */
 .workflow-node-wrapper.drawer-mode .workflow-node {
-  max-width: 220px !important;
+  max-width: 280px !important;
 }
 
 /* 抽屉模式下各节点 scoped min-width 覆盖 */
 .workflow-node-wrapper.drawer-mode :deep(.workflow-node) {
-  min-width: 160px !important;
-  max-width: 220px !important;
+  min-width: 200px !important;
+  max-width: 280px !important;
 }
 
 .workflow-node * {
@@ -700,6 +708,20 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 
 :deep(.custom-handle) {
   transition: all 0.2s;
+}
+
+/* Handle 定位到标题行中央，一半在边框外 */
+/* header 高度约 40px，中心在 20px；source handle 宽 20px，半径 10px */
+:deep(.custom-handle-target) {
+  top: 20px !important;
+  left: -5px !important;
+  transform: translateY(-50%) !important;
+}
+
+:deep(.custom-handle-source) {
+  top: 20px !important;
+  right: -10px !important;
+  transform: translateY(-50%) !important;
 }
 </style>
 

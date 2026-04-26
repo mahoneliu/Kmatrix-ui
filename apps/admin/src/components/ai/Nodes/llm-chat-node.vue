@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { NCollapse, NCollapseItem, NSelect, NSwitch, NTooltip } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchMcpServerList } from '@/service/api/ai/mcp-server';
 import { fetchBuiltinToolList } from '@/service/api/ai/builtin-tool';
 import { fetchGetAllSkillList } from '@/service/api/ai/skill';
+import { useAiModelStore } from '@/store/modules/ai/ai-model';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
-const props = defineProps<NodeProps>();
+const props = defineProps<NodeProps & { drawerMode?: boolean }>();
+const aiModelStore = useAiModelStore();
 
 // 工具配置（LLM 节点特有）
 const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
@@ -19,6 +21,20 @@ const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   enableToolTrace: false
 });
 
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config || {};
+  if (config.modelId) {
+    const model = aiModelStore.models?.find(m => String(m.modelId) === String(config.modelId));
+    items.push({
+      label: $t('ai.workflow_public.model'),
+      value: model?.modelName || config.modelId
+    });
+  }
+  return items;
+});
+
 // 下拉选项
 const mcpOptions = ref<{ label: string; value: string }[]>([]);
 const toolOptions = ref<{ label: string; value: string }[]>([]);
@@ -26,6 +42,7 @@ const skillOptions = ref<{ label: string; value: string }[]>([]);
 
 onMounted(() => {
   initData();
+  aiModelStore.loadModels();
 
   fetchMcpServerList({ serverName: '' }).then(res => {
     const list = (res as any)?.data ?? res ?? [];
@@ -49,7 +66,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="llm-chat-node">
+  <BaseNode
+    v-bind="props"
+    :data="data"
+    :drawer-mode="props.drawerMode"
+    :summary-items="summaryItems"
+    class="llm-chat-node"
+  >
     <div class="w-full">
       <NCollapse :default-expanded-names="['tools']">
         <template #arrow>

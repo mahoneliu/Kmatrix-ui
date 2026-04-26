@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NButton, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
@@ -34,7 +34,7 @@ const workflowStore = useWorkflowStore();
 const nodeDefinitionStore = useNodeDefinitionStore();
 
 // Vue Flow composable
-const { getNodes, zoomIn, zoomOut, fitView } = useVueFlow();
+const { getNodes, zoomIn, zoomOut, fitView, nodesDraggable, setInteractive } = useVueFlow();
 
 // Refs
 const flowWrapper = ref<HTMLElement | null>(null);
@@ -73,10 +73,27 @@ const { handleAutoLayout, handleCollapseAll, handleExpandAll, handleCollapseAndL
 // 节点组件映射（模板不需要 APP_INFO 节点，使用默认配置）
 const { getNodeComponent } = useNodeComponents();
 
+// 页面全屏（CSS fixed 铺满浏览器视口）
+const isPageFullscreen = ref(false);
+function togglePageFullscreen() {
+  isPageFullscreen.value = !isPageFullscreen.value;
+}
+
+function toggleInteractive() {
+  setInteractive(!nodesDraggable.value);
+}
+
+function onKeydownEsc(e: KeyboardEvent) {
+  if (e.key === 'Escape' && isPageFullscreen.value) {
+    isPageFullscreen.value = false;
+  }
+}
+
 // 路由守卫和浏览器关闭守卫
 useUnsavedChangesGuard(handleAutoSave);
 
 onMounted(async () => {
+  document.addEventListener('keydown', onKeydownEsc);
   try {
     await nodeDefinitionStore.loadNodeDefinitions();
     workflowStore.clearWorkflow();
@@ -85,10 +102,14 @@ onMounted(async () => {
     message.error($t('ai.workflow_template.init_failed'));
   }
 });
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeydownEsc);
+});
 </script>
 
 <template>
-  <div class="relative h-full">
+  <div class="relative h-full -m-16px" :class="{ 'fixed inset-0 z-[9999]': isPageFullscreen }">
     <div ref="flowWrapper" class="absolute inset-0 overflow-hidden bg-gray-1 dark:bg-dark-1">
       <VueFlow
         v-model:nodes="workflowStore.nodes"
@@ -111,6 +132,12 @@ onMounted(async () => {
           :on-expand-all="handleExpandAll"
           :on-auto-layout="handleAutoLayout"
           :on-collapse-and-layout="handleCollapseAndLayout"
+          :drawer-mode="workflowStore.globalDrawerMode"
+          :on-toggle-drawer-mode="workflowStore.toggleGlobalDrawerMode"
+          :is-page-fullscreen="isPageFullscreen"
+          :on-toggle-page-fullscreen="togglePageFullscreen"
+          :is-interactive="nodesDraggable"
+          :on-toggle-interactive="toggleInteractive"
         />
         <MiniMap />
         <template #connection-line="connectionLineProps">
