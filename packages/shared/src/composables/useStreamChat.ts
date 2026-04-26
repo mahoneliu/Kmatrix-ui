@@ -25,8 +25,19 @@ export interface ChatMessage {
   feedbackStatus?: number;
   /** 引用元数据列表 (来自知识检索节点) */
   citations?: Citation[];
+  /** 工具调用轨迹 */
+  toolTraces?: ToolTrace[];
   /** 标记当前消息是否为错误消息 */
   isError?: boolean;
+}
+
+export interface ToolTrace {
+  type: 'tool_call_start' | 'tool_call_result';
+  toolName: string;
+  arguments?: string;
+  result?: string;
+  hasRichContent?: boolean;
+  expanded?: boolean;
 }
 
 export interface Citation {
@@ -110,6 +121,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
     onNodeStatus: (nodeName: string | null) => void;
     onThinking?: (content: string) => void;
     onCitation?: (citations: Citation[]) => void;
+    onToolTrace?: (trace: ToolTrace) => void;
     onComplete?: (content: string) => void;
     onDone?: (data: any) => void | Promise<void>;
     onNodeStart?: (nodeId: string) => void;
@@ -123,6 +135,7 @@ export function useStreamChat(options: UseStreamChatOptions) {
 
       onThinking,
       onCitation,
+      onToolTrace,
       onComplete,
       onDone,
       onNodeStart,
@@ -177,7 +190,13 @@ export function useStreamChat(options: UseStreamChatOptions) {
           }
         } catch {
           console.error('Failed to parse citation');
-          console.error('Failed to parse citation');
+        }
+      } else if (currentEvent === 'TOOL_TRACE' || currentEvent === 'tool_trace') {
+        try {
+          const traceData = JSON.parse(data);
+          onToolTrace?.(traceData);
+        } catch {
+          console.error('Failed to parse tool_trace');
         }
       } else if (currentEvent === 'session_update') {
         try {
@@ -408,6 +427,60 @@ export function useStreamChat(options: UseStreamChatOptions) {
         onCitation: (citations: Citation[]) => {
           if (citations && citations.length > 0) {
             aiMsg.citations = citations;
+            triggerRef(messages);
+          }
+        },
+        onToolTrace: (trace: ToolTrace) => {
+          if (!aiMsg.toolTraces) {
+            aiMsg.toolTraces = [];
+          }
+          // 如果是 result，启动打字机效果模拟流式输出
+          if (trace.type === 'tool_call_result') {
+            const lastStartIdx = aiMsg.toolTraces.findLastIndex(
+              traceItem => traceItem.toolName === trace.toolName && traceItem.type === 'tool_call_start'
+            );
+            if (lastStartIdx !== -1) {
+              const targetTrace = aiMsg.toolTraces[lastStartIdx];
+              // 状态同步：转为 result 类型，并确保处于展开状态以便流式展示
+              targetTrace.type = 'tool_call_result';
+              targetTrace.expanded = true;
+              targetTrace.hasRichContent = trace.hasRichContent;
+
+              if (trace.result) {
+                targetTrace.result = '';
+                let i = 0;
+                const fullText = trace.result;
+                const chunkSize = Math.max(5, Math.floor(fullText.length / 100)); // 根据总长度动态调整步进，避免极长内容输出过慢
+
+                const typeNext = () => {
+                  if (i >= fullText.length) {
+                    // 打字完成，延迟一小段时间后自动收起
+                    setTimeout(() => {
+                      targetTrace.expanded = false;
+                      triggerRef(messages);
+                    }, 1000);
+                    return;
+                  }
+                  const end = Math.min(i + chunkSize, fullText.length);
+                  targetTrace.result += fullText.slice(i, end);
+                  i = end;
+                  triggerRef(messages);
+                  requestAnimationFrame(typeNext);
+                };
+                typeNext();
+              } else {
+                targetTrace.expanded = false;
+                triggerRef(messages);
+              }
+            } else {
+              trace.expanded = false;
+              aiMsg.toolTraces.push(trace);
+              triggerRef(messages);
+            }
+          } else {
+            // 新启动的工具调用，默认展开
+            trace.expanded = true;
+            aiMsg.toolTraces.push(trace);
             triggerRef(messages);
           }
         },
