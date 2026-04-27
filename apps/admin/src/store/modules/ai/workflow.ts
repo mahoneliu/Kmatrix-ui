@@ -63,7 +63,7 @@ export const useWorkflowStore = defineStore('workflow', {
     hoveredNodeId: null,
     runningNodeId: null,
     drawerNodeId: null,
-    globalDrawerMode: true
+    globalDrawerMode: localStorage.getItem('workflow_drawer_mode') !== 'false'
   }),
 
   getters: {
@@ -264,6 +264,8 @@ export const useWorkflowStore = defineStore('workflow', {
     /** 切换全局表单展示模式 */
     toggleGlobalDrawerMode() {
       this.globalDrawerMode = !this.globalDrawerMode;
+      // 持久化到本地存储
+      localStorage.setItem('workflow_drawer_mode', String(this.globalDrawerMode));
       // 切换为内嵌模式时关闭当前抽屉
       if (!this.globalDrawerMode) {
         this.drawerNodeId = null;
