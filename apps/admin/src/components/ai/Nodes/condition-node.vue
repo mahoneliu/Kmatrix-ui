@@ -299,7 +299,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
               id="default"
               type="source"
               :position="Position.Right"
-              class="custom-handle custom-handle-source !bg-gray-2"
+              class="custom-handle custom-handle-source"
               :class="[
                 { 'handles-visible': showHandles || selected },
                 { connected: isHandleConnected('default') },
@@ -323,5 +323,8 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 .branch-name-input {
   max-width: 100%;
   min-width: 0;
+}
+.vue-flow__handle {
+  min-width: 2px;
 }
 </style>

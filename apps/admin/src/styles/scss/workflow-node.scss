@@ -1,34 +1,59 @@
 /* 统一的节点 Handle 样式 */
 .workflow-node {
 
-  /* source handle (右侧)：默认小贴片，有连线时显示 */
-  /* 不覆盖 right/transform，保持 vue-flow 默认定位，连线才能正确接上 */
+  /* source handle (右侧)：默认隐藏，有连线时显示小贴片，高亮时显示带加号圆圈 */
   .vue-flow__handle.custom-handle-source {
-    width: 1px !important;
-    right: -4px !important;
-    /* 水平方向压缩到 0.5 倍，垂直方向保持 1.2 倍拉长 */
-    transform: translateY(-50%) scaleX(0.5) !important;
-    transform-origin: center;
-    /* 居中缩放 */
+    width: 2px !important;
     height: 10px !important;
     border-radius: 0 !important;
     border: none !important;
     opacity: 0;
+    cursor: crosshair;
     transition: opacity 0.15s ease;
   }
 
-  .vue-flow__handle.custom-handle-source.connected,
-  .vue-flow__handle.custom-handle-source.highlighted {
+  /* 有连接非高亮：显示小贴片 */
+  .vue-flow__handle.custom-handle-source.connected {
     opacity: 1;
+  }
+
+  /* 任何高亮状态：显示带加号的圆圈 */
+  .vue-flow__handle.custom-handle-source.highlighted {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    border: 2px solid #fff !important;
+    opacity: 1;
+    transition: none;
+    right: -10px !important;
+    transform: translateY(-50%) scaleX(1) !important;
+
+    &::after {
+      content: '+';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      z-index: 10;
+    }
   }
 
   /* target handle (左侧)：默认小贴片，有连线时显示 */
   .vue-flow__handle.custom-handle-target {
-    width: 1px !important;
-    left: -4px !important;
+    width: 2px !important;
+    //left: -2px !important;
     /* 水平方向压缩到 0.5 倍，垂直方向保持 1.2 倍拉长 */
-    transform: translateY(-50%) scaleX(0.5) !important;
-    transform-origin: center;
+    //transform: translateY(-50%) scaleX(0.5) !important;
+    //transform-origin: center;
     height: 10px !important;
     border-radius: 0 !important;
     border: none !important;
@@ -42,19 +67,50 @@
     opacity: 1;
   }
 
-  /* 分支节点 Handle：始终显示（有连线主题色，无连线灰色） */
+  /* 分支节点 Handle：有连线显示小贴片，无连线非高亮时隐藏 */
   .branch-row-handle {
     .vue-flow__handle.custom-handle-source {
-      opacity: 1 !important;
-      right: -10px !important;
+      width: 2px !important;
+      right: -8px !important;
 
       &::after {
         display: none !important;
       }
     }
 
-    .vue-flow__handle.custom-handle-source:not(.connected) {
-      background: #c0c4cc !important;
+    /* 有连接：显示小贴片（主题色由 inline style 控制） */
+    .vue-flow__handle.custom-handle-source.connected {
+      opacity: 1 !important;
+    }
+
+    /* 高亮状态：显示带加号的圆圈（需在此处覆盖 branch-row-handle 的基础样式） */
+    .vue-flow__handle.custom-handle-source.highlighted {
+      width: 16px !important;
+      height: 16px !important;
+      border-radius: 50% !important;
+      border: 2px solid #fff !important;
+      opacity: 1 !important;
+      right: -8px !important;
+      transform: translateY(-50%) scaleX(1) !important;
+      transition: none;
+
+      &::after {
+        content: '+' !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -52%);
+        font-size: 14px;
+        font-weight: 800;
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        z-index: 10;
+      }
     }
   }
 
@@ -88,7 +144,7 @@
         height: 35px;
         border-radius: 50%;
         z-index: 10;
-        background: transparent;
+        //background: transparent;
       }
     }
 
@@ -102,6 +158,7 @@
         opacity: 1 !important;
         right: -16px !important;
         transform: translateY(-50%) scaleX(1) !important;
+        transition: none;
 
         &::after {
           content: '+' !important;
@@ -126,7 +183,7 @@
 
     /* target handle 高亮时略微放大 */
     .vue-flow__handle.custom-handle-target {
-      width: 4px !important;
+      width: 2px !important;
       height: 10px !important;
       opacity: 1;
     }
@@ -141,10 +198,7 @@
 /* 画布抽屉模式下分支节点的 Handle：始终显示小贴片，不变圆圈 */
 .canvas-drawer-slot {
   .vue-flow__handle.custom-handle-source {
-    width: 1px !important;
-    /* 水平方向压缩到 0.5 倍，垂直方向保持 1.2 倍拉长 */
-    transform: translateY(-50%) scaleX(0.5) !important;
-    transform-origin: center;
+    width: 2px !important;
     height: 10px !important;
     border-radius: 0 !important;
     border: none !important;
@@ -153,10 +207,6 @@
     &::after {
       display: none !important;
     }
-  }
-
-  .vue-flow__handle.custom-handle-source:not(.connected) {
-    background: #c0c4cc !important;
   }
 }
 
@@ -169,4 +219,8 @@
       font-size: 1rem;
     }
   }
+}
+
+.vue-flow__handle {
+  min-width: 1px;
 }

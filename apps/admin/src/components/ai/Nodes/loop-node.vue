@@ -257,7 +257,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
               id="exit"
               type="source"
               :position="Position.Right"
-              class="custom-handle custom-handle-source !bg-red-4"
+              class="custom-handle custom-handle-source"
               :class="[
                 { 'handles-visible': showHandles || selected },
                 { connected: isHandleConnected('exit') },
@@ -276,5 +276,8 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 <style scoped>
 :deep(.vue-flow__handle) {
   z-index: 10;
+}
+.vue-flow__handle {
+  min-width: 2px;
 }
 </style>
