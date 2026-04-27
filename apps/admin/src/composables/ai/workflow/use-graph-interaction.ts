@@ -99,6 +99,10 @@ export function useGraphInteraction(
       workflowStore.selectNode(node.id);
     });
 
+    instance.onPaneClick(() => {
+      workflowStore.selectNode(null);
+    });
+
     instance.onNodeMouseEnter(({ node }: any) => {
       // console.log('Node Mouse Enter:', node.id);
       workflowStore.setHoveredNodeId(node.id);

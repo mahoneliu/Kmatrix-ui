@@ -419,6 +419,7 @@ const workflow_template: App.I18n.Schema['ai']['workflow_template'] = {
   used_count_times: '已使用 {count} 次',
   template: '模板',
   workflow_template: '工作流模板',
+  workflow: '工作流',
   init_failed: '初始化失败，请尝试刷新页面',
   template_edit: '模板编辑',
   components: '组件库',

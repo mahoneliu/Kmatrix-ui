@@ -26,22 +26,38 @@ watch(isHighlighted, v => {
   if (v) console.log('Edge Highlighted:', props.id);
 }); */
 
-const isHighlighted = computed(() => {
-  return (
-    workflowStore.hoveredNodeId &&
-    (workflowStore.hoveredNodeId === props.source || workflowStore.hoveredNodeId === props.target)
-  );
+// 判断此边是否与 hover 节点相关，以及与 selected 节点相关
+const isHoveredHighlight = computed(() => {
+  const hovered = workflowStore.hoveredNodeId;
+  return hovered && (hovered === props.source || hovered === props.target);
 });
 
-// 使用 style 绑定来强制更改颜色，避开 CSS 优先级问题
-const edgeStyle = computed(() => {
-  if (isHighlighted.value) {
-    const hoveredNode = workflowStore.nodes.find(n => n.id === workflowStore.hoveredNodeId);
-    const highlightColor = hoveredNode?.data?.nodeColor || '#18a058';
+const isSelectedHighlight = computed(() => {
+  const selected = workflowStore.selectedNodeId;
+  return selected && (selected === props.source || selected === props.target);
+});
 
+const isHighlighted = computed(() => isHoveredHighlight.value || isSelectedHighlight.value);
+
+// 使用 style 绑定来强制更改颜色，避开 CSS 优先级问题
+// hover 优先级高于 selected，但颜色取各自对应节点的颜色
+const edgeStyle = computed(() => {
+  if (isHoveredHighlight.value) {
+    // 此边与 hover 节点相关，用 hover 节点的颜色
+    const hoverNode = workflowStore.nodes.find(n => n.id === workflowStore.hoveredNodeId);
     return {
       ...props.style,
-      stroke: highlightColor,
+      stroke: hoverNode?.data?.nodeColor || '#18a058',
+      strokeWidth: 3,
+      opacity: 1
+    };
+  }
+  if (isSelectedHighlight.value) {
+    // 此边与 selected 节点相关，用 selected 节点的颜色
+    const selectedNode = workflowStore.nodes.find(n => n.id === workflowStore.selectedNodeId);
+    return {
+      ...props.style,
+      stroke: selectedNode?.data?.nodeColor || '#18a058',
       strokeWidth: 3,
       opacity: 1
     };

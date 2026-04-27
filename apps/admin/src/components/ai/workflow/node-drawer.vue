@@ -138,21 +138,14 @@ provide(DRAWER_RENDER_KEY, true);
   z-index: 500;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--node-drawer-bg, #fff);
   box-shadow:
     -2px 0 20px rgba(0, 0, 0, 0.12),
     0 4px 16px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--node-drawer-border, rgba(0, 0, 0, 0.08));
   border-radius: 12px;
   overflow: hidden;
-}
-
-:global(.dark) .node-drawer-container {
-  background: #1e1e2e;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow:
-    -2px 0 20px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.3);
+  color: var(--node-drawer-color, #1f2937);
 }
 
 .node-drawer-resize-handle {
@@ -176,9 +169,10 @@ provide(DRAWER_RENDER_KEY, true);
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px 6px 12px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--node-drawer-header-border, #e5e7eb);
   flex-shrink: 0;
   gap: 6px;
+  background: var(--node-drawer-bg, #fff);
 }
 
 .node-drawer-close-btn {
@@ -199,13 +193,8 @@ provide(DRAWER_RENDER_KEY, true);
 }
 
 .node-drawer-close-btn:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-:global(.dark) .node-drawer-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e5e7eb;
+  background: var(--node-drawer-btn-hover, #f3f4f6);
+  color: var(--node-drawer-btn-hover-color, #374151);
 }
 
 .node-drawer-body {
@@ -213,6 +202,7 @@ provide(DRAWER_RENDER_KEY, true);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px 14px 14px 14px;
+  background: var(--node-drawer-bg, #fff);
 }
 
 /* 内容包裹层：撑满宽度 */
@@ -266,6 +256,19 @@ provide(DRAWER_RENDER_KEY, true);
 
 <!-- 全局样式：覆盖抽屉内节点的固定宽度（不能用 scoped，因为内容来自子组件 slot） -->
 <style>
+/* 深色模式下抽屉 CSS 变量覆盖 */
+html.dark .node-drawer-container {
+  --node-drawer-bg: #1e1e2e;
+  --node-drawer-border: rgba(255, 255, 255, 0.08);
+  --node-drawer-color: #e5e7eb;
+  --node-drawer-header-border: rgba(255, 255, 255, 0.1);
+  --node-drawer-btn-hover: rgba(255, 255, 255, 0.1);
+  --node-drawer-btn-hover-color: #e5e7eb;
+  box-shadow:
+    -2px 0 20px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
 .drawer-content-wrapper .w-93,
 .drawer-content-wrapper .w-85,
 .drawer-content-wrapper .w-80,

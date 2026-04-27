@@ -122,9 +122,10 @@ const nearestHandlePosition = computed(() => {
       return null;
     }
 
-    // 计算 target handle 的位置 (左侧垂直居中)
+    // 计算 target handle 的位置 (左侧，对齐 header 中央，header 高度约 40px)
+    const NODE_HEADER_HEIGHT = 40;
     const handleX = node.position.x;
-    const handleY = node.position.y + node.dimensions.height / 2;
+    const handleY = node.position.y + NODE_HEADER_HEIGHT / 2;
 
     return {
       x: handleX,

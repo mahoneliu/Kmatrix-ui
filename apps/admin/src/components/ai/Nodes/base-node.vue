@@ -252,8 +252,11 @@ watch(
 const showHandles = ref(false);
 let handleHideTimer: number | null = null;
 
-// 浮动操作栏显示状态（hover 或 selected）
-const showFloatingActions = computed(() => showHandles.value || props.selected);
+// 节点操作菜单是否展开
+const isMenuOpen = ref(false);
+
+// 浮动操作栏显示状态（hover 或 selected 或菜单打开中）
+const showFloatingActions = computed(() => showHandles.value || props.selected || isMenuOpen.value);
 
 // 菜单选项
 const menuOptions: DropdownOption[] = [
@@ -462,7 +465,13 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           {{ data.description }}
         </NTooltip>
         <!-- 更多操作 -->
-        <NDropdown :options="menuOptions" trigger="click" placement="bottom-end" @select="handleMenuSelect">
+        <NDropdown
+          :options="menuOptions"
+          trigger="click"
+          placement="bottom-end"
+          @select="handleMenuSelect"
+          @update:show="v => (isMenuOpen = v)"
+        >
           <span class="floating-action-btn">
             <SvgIcon local-icon="mdi-dots-horizontal" class="text-3.5 c-gray-6" />
           </span>
@@ -758,7 +767,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 /* Handle 定位到标题行中央 */
 /* header 高度约 40px，中心在 20px */
 :deep(.header-handle) {
-  top: 20px !important;
+  top: 50% !important;
 }
 
 /* 恢复分支类 Handle 的默认垂直居中 */

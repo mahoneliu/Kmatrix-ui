@@ -80,7 +80,14 @@ function handleLibraryDragStart(data: {
     class="shadow-sm !rounded-5px !border-none !bg-[#fbfbfb] dark:!bg-dark-2"
   >
     <!-- ── 第一组：组件库 + 抽屉切换 ── -->
-    <NPopover trigger="hover" placement="right-start" :show-arrow="false" raw :content-style="{ padding: 0 }">
+    <NPopover
+      trigger="hover"
+      placement="right-start"
+      :show-arrow="false"
+      raw
+      :content-style="{ padding: 0 }"
+      :z-index="10000"
+    >
       <template #trigger>
         <ControlButton title="组件库" class="!b-0 !bg-transparent hover:!bg-[#f3f4f6] dark:hover:!bg-white/10">
           <span class="library-add-btn">
@@ -176,7 +183,7 @@ function handleLibraryDragStart(data: {
       <SvgIcon local-icon="mdi-redo-variant" class="toolbar-icon" />
     </ControlButton>
 
-    <NPopover trigger="hover" placement="right-end" :show-arrow="false" class="!rounded-8px !p-0">
+    <NPopover trigger="hover" placement="right-end" :show-arrow="false" class="!rounded-8px !p-0" :z-index="10000">
       <template #trigger>
         <ControlButton
           :title="$t('ai.workflow.operation_history')"

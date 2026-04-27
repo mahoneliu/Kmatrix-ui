@@ -103,11 +103,18 @@ function resetForm() {
   showAdvanced.value = false;
 }
 
-// 监听弹窗关闭,重置表单
+// 监听弹窗打开,自动选中兜底大语言模型
 watch(
   () => props.show,
   show => {
-    if (!show) {
+    if (show) {
+      if (!formData.value.modelId) {
+        const fallback = aiModelStore.models.find(m => m.isDefault === 1 && m.modelType === '1');
+        if (fallback) {
+          formData.value.modelId = fallback.modelId;
+        }
+      }
+    } else {
       resetForm();
     }
   }

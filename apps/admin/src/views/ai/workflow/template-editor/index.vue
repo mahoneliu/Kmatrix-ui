@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, h, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { NButton, NSpace, NSwitch, useMessage } from 'naive-ui';
+import { NButton, NDropdown, NSpace, NSwitch, useMessage } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
@@ -15,7 +16,6 @@ import { useGraphInteraction } from '@/composables/ai/workflow/use-graph-interac
 import { useComponentPanel } from '@/composables/ai/workflow/use-component-panel';
 import { $t } from '@/locales';
 import ConnectionLine from '@/components/ai/edges/connection-line.vue';
-import ComponentLibraryModal from '@/components/ai/workflow/component-library-modal.vue';
 import ComponentLibraryPanel from '@/components/ai/workflow/component-library-panel.vue';
 import WorkflowSaveStatus from '@/components/ai/workflow/workflow-save-status.vue';
 import WorkflowControls from '@/components/ai/workflow/workflow-controls.vue';
@@ -106,118 +106,149 @@ onMounted(async () => {
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydownEsc);
 });
+
+// ---- 工作流操作下拉菜单 ----
+const workflowMenuOptions = computed<DropdownOption[]>(() => [
+  {
+    key: 'save',
+    label: $t('common.save'),
+    icon: () => h(SvgIcon, { localIcon: 'mdi-content-save-outline', class: 'text-base' })
+  },
+  { key: 'divider-1', type: 'divider' },
+  {
+    key: 'auto-save',
+    label: '',
+    icon: () => h(SvgIcon, { localIcon: 'mdi-content-save-cog-outline', class: 'text-base' })
+  }
+]);
+
+function renderWorkflowMenuLabel(option: DropdownOption) {
+  if (option.key === 'auto-save') {
+    return h('div', { class: 'flex items-center justify-between gap-6 w-full' }, [
+      h('span', {}, $t('ai.workflow.auto_save')),
+      h(NSwitch, {
+        value: workflowStore.autoSaveEnabled,
+        size: 'small',
+        onClick: (e: MouseEvent) => e.stopPropagation(),
+        'onUpdate:value': (v: boolean) => {
+          workflowStore.autoSaveEnabled = v;
+        }
+      })
+    ]);
+  }
+  return String(option.label ?? '');
+}
+
+function handleWorkflowMenuSelect(key: string) {
+  if (key === 'save') handleSave(false);
+}
 </script>
 
 <template>
-  <div class="relative h-full -m-16px" :class="{ 'fixed inset-0 z-[9999]': isPageFullscreen }">
-    <div ref="flowWrapper" class="absolute inset-0 overflow-hidden bg-gray-1 dark:bg-dark-1">
-      <VueFlow
-        v-model:nodes="workflowStore.nodes"
-        v-model:edges="workflowStore.edges"
-        :edge-types="edgeTypes"
-        :connection-radius="1"
-        :pan-on-drag="true"
-        :pan-on-scroll="false"
-        :zoom-on-scroll="true"
-        :zoom-on-pinch="true"
-        class="h-full w-full"
-        @pane-ready="onPaneReady"
-      >
-        <Background />
-        <WorkflowControls
-          :on-zoom-in="zoomIn"
-          :on-zoom-out="zoomOut"
-          :on-fit-view="fitView"
-          :on-collapse-all="handleCollapseAll"
-          :on-expand-all="handleExpandAll"
-          :on-auto-layout="handleAutoLayout"
-          :on-collapse-and-layout="handleCollapseAndLayout"
-          :drawer-mode="workflowStore.globalDrawerMode"
-          :on-toggle-drawer-mode="workflowStore.toggleGlobalDrawerMode"
-          :is-page-fullscreen="isPageFullscreen"
-          :on-toggle-page-fullscreen="togglePageFullscreen"
-          :is-interactive="nodesDraggable"
-          :on-toggle-interactive="toggleInteractive"
-        />
-        <MiniMap />
-        <template #connection-line="connectionLineProps">
-          <ConnectionLine v-bind="connectionLineProps" />
-        </template>
-        <template #node-custom="nodeProps">
-          <component
-            :is="getNodeComponent(nodeProps.data.nodeType)"
-            v-bind="nodeProps"
-            @delete-node="handleDeleteNode"
-            @duplicate-node="handleDuplicateNode"
-            @source-handle-click="handleSourceHandleClick"
-          />
-        </template>
-      </VueFlow>
+  <div class="relative h-full -m-16px">
+    <Teleport to="body" :disabled="!isPageFullscreen">
+      <div :class="isPageFullscreen ? 'fixed inset-0 z-100 bg-gray-1 dark:bg-dark-1' : 'absolute inset-0'">
+        <div ref="flowWrapper" class="absolute inset-0 overflow-hidden bg-gray-1 dark:bg-dark-1">
+          <VueFlow
+            v-model:nodes="workflowStore.nodes"
+            v-model:edges="workflowStore.edges"
+            :edge-types="edgeTypes"
+            :connection-radius="1"
+            :pan-on-drag="true"
+            :pan-on-scroll="false"
+            :zoom-on-scroll="true"
+            :zoom-on-pinch="true"
+            class="h-full w-full"
+            @pane-ready="onPaneReady"
+          >
+            <Background />
+            <WorkflowControls
+              :on-zoom-in="zoomIn"
+              :on-zoom-out="zoomOut"
+              :on-fit-view="fitView"
+              :on-collapse-all="handleCollapseAll"
+              :on-expand-all="handleExpandAll"
+              :on-auto-layout="handleAutoLayout"
+              :on-collapse-and-layout="handleCollapseAndLayout"
+              :drawer-mode="workflowStore.globalDrawerMode"
+              :on-toggle-drawer-mode="workflowStore.toggleGlobalDrawerMode"
+              :on-select-node="handleSelectNode"
+              :on-drag-start="handleManualDragStart"
+              :is-page-fullscreen="isPageFullscreen"
+              :on-toggle-page-fullscreen="togglePageFullscreen"
+              :is-interactive="nodesDraggable"
+              :on-toggle-interactive="toggleInteractive"
+            />
+            <MiniMap />
+            <template #connection-line="connectionLineProps">
+              <ConnectionLine v-bind="connectionLineProps" />
+            </template>
+            <template #node-custom="nodeProps">
+              <component
+                :is="getNodeComponent(nodeProps.data.nodeType)"
+                v-bind="nodeProps"
+                @delete-node="handleDeleteNode"
+                @duplicate-node="handleDuplicateNode"
+                @source-handle-click="handleSourceHandleClick"
+              />
+            </template>
+          </VueFlow>
 
-      <div
-        v-if="showHandlePanel"
-        class="fixed z-1000"
-        :style="{
-          left: `${handlePanelPosition.x}px`,
-          top: `${handlePanelPosition.y}px`
-        }"
-        @mouseenter="handlePanelMouseEnter"
-        @mouseleave="handlePanelMouseLeave"
-      >
-        <ComponentLibraryPanel
-          :source-node="sourceNodeByHandle?.node"
-          @select="handlePanelSelectNode"
-          @drag-start="handlePanelDragStart"
-        />
-      </div>
-      <div v-if="showHandlePanel" class="fixed inset-0 z-999" @click="handleSourceHandleClose" />
-      <!-- 节点抽屉 -->
-      <NodeDrawer />
-    </div>
-
-    <!-- 左上角标题 -->
-    <div class="absolute left-4 top-4 z-1000">
-      <div class="flex items-center gap-2">
-        <span class="pointer-events-none font-bold drop-shadow-md">
-          {{ templateName || $t('ai.workflow_template.template_edit') }}
-        </span>
-        <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-          {{ $t('ai.workflow_template.template') }}
-        </span>
-      </div>
-    </div>
-
-    <!-- 右上角工具栏 -->
-    <div class="absolute right-4 top-4 z-1000">
-      <NSpace align="center" size="small">
-        <WorkflowSaveStatus v-if="workflowStore.autoSaveEnabled" class="mr-2" />
-        <ComponentLibraryModal @select="handleSelectNode" @drag-start="handleManualDragStart">
-          <template #trigger>
-            <NButton class="bg-white/90 shadow-md dark:bg-dark-2 dark:text-white">
-              <template #icon>
-                <SvgIcon local-icon="carbon-add" />
-              </template>
-              {{ $t('ai.workflow_template.components') }}
-            </NButton>
-          </template>
-        </ComponentLibraryModal>
-        <NButton
-          class="bg-white/90 shadow-md dark:bg-dark-2 dark:text-white"
-          :loading="loading"
-          @click="() => handleSave(false)"
-        >
-          <template #icon>
-            <SvgIcon local-icon="mdi-content-save-outline" />
-          </template>
-          {{ $t('common.save') }}
-        </NButton>
-        <div class="flex items-center gap-2 rounded bg-white/90 px-3 py-1.5 shadow-md dark:bg-dark-2 dark:text-white">
-          <SvgIcon local-icon="mdi-content-save-cog-outline" class="text-gray-500 dark:text-white" />
-          <span class="text-sm">{{ $t('ai.workflow_template.auto_save') }}</span>
-          <NSwitch v-model:value="workflowStore.autoSaveEnabled" size="small" />
+          <div
+            v-if="showHandlePanel"
+            class="fixed z-1000"
+            :style="{
+              left: `${handlePanelPosition.x}px`,
+              top: `${handlePanelPosition.y}px`
+            }"
+            @mouseenter="handlePanelMouseEnter"
+            @mouseleave="handlePanelMouseLeave"
+          >
+            <ComponentLibraryPanel
+              :source-node="sourceNodeByHandle?.node"
+              @select="handlePanelSelectNode"
+              @drag-start="handlePanelDragStart"
+            />
+          </div>
+          <div v-if="showHandlePanel" class="fixed inset-0 z-999" @click="handleSourceHandleClose" />
+          <!-- 节点抽屉 -->
+          <NodeDrawer />
         </div>
-      </NSpace>
-    </div>
+
+        <!-- 左上角标题 -->
+        <div class="absolute left-4 top-4 z-1000">
+          <div class="flex items-center gap-2">
+            <span class="pointer-events-none font-bold drop-shadow-md">
+              {{ templateName || $t('ai.workflow_template.template_edit') }}
+            </span>
+            <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+              {{ $t('ai.workflow_template.template') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- 右上角工具栏 -->
+        <div class="absolute right-4 top-4 z-1000">
+          <NSpace align="center" size="small">
+            <WorkflowSaveStatus v-if="workflowStore.autoSaveEnabled" class="mr-2" />
+            <NDropdown
+              trigger="hover"
+              placement="bottom-end"
+              :options="workflowMenuOptions"
+              :render-label="renderWorkflowMenuLabel"
+              @select="handleWorkflowMenuSelect"
+            >
+              <NButton class="bg-white/90 shadow-md dark:bg-dark-2" :loading="loading">
+                {{ $t('ai.workflow_template.workflow') }}
+                <template #icon>
+                  <SvgIcon local-icon="mdi-dots-horizontal" class="text-base" />
+                </template>
+              </NButton>
+            </NDropdown>
+          </NSpace>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 

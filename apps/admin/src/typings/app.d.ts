@@ -2331,6 +2331,7 @@ declare namespace App {
           used_count_times: string;
           template: string;
           workflow_template: string;
+          workflow: string;
           app_name: string;
           app_desc: string;
           search: string;

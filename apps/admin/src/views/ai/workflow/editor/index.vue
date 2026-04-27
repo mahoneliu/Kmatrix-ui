@@ -365,7 +365,7 @@ function handleWorkflowMenuSelect(key: string) {
     <Teleport to="body" :disabled="!isPageFullscreen">
       <div
         ref="editorRoot"
-        :class="isPageFullscreen ? 'fixed inset-0 z-[9999] bg-gray-1 dark:bg-dark-1' : 'absolute inset-0'"
+        :class="isPageFullscreen ? 'fixed inset-0 z-100 bg-gray-1 dark:bg-dark-1' : 'absolute inset-0'"
       >
         <div ref="flowWrapper" class="absolute inset-0 overflow-hidden bg-gray-1 dark:bg-dark-1">
           <VueFlow

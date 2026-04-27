@@ -421,6 +421,7 @@ const workflow_template: App.I18n.Schema['ai']['workflow_template'] = {
   used_count_times: 'Used {count} times',
   template: 'Template',
   workflow_template: 'Workflow Template',
+  workflow: 'Workflow',
   init_failed: 'Init failed, try refresh',
   template_edit: 'Template Edit',
   components: 'Components',
