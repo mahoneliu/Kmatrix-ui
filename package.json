@@ -1,7 +1,7 @@
 {
   "name": "kmatrix-ui",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.5.1-beta",
   "private": true,
   "description": "KMatrix UI Monorepo",
   "author": {
