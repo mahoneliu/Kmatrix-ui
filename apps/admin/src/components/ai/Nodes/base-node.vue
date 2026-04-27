@@ -111,10 +111,10 @@ const shouldHighlightTargetHandle = computed(() => checkHandleHighlight(null, 't
 const isHovered = computed(() => workflowStore.hoveredNodeId === props.id);
 
 // 动态计算 Handle 样式
+// 使用 background 简写而非 backgroundColor，确保完整覆盖 vue-flow 的 background 简写属性
 function getHandleStyle(highlighted: boolean) {
   const baseStyle = {
-    backgroundColor: props.data.nodeColor,
-    borderColor: '#fff',
+    background: props.data.nodeColor,
     zIndex: 10
   };
   if (!highlighted) return baseStyle;
@@ -530,7 +530,6 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
           type="source"
           class="custom-handle custom-handle-source header-handle"
           :class="[
-            { 'show-plus': !hasSourceConnection },
             { 'handles-visible': showHandles || selected },
             { highlighted: shouldHighlightSourceHandle },
             { connected: hasSourceConnection }
@@ -773,6 +772,10 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
 /* 恢复分支类 Handle 的默认垂直居中 */
 :deep(.branch-row-handle .custom-handle) {
   top: 50% !important;
+}
+
+.vue-flow__handle {
+  min-width: 2px;
 }
 </style>
 

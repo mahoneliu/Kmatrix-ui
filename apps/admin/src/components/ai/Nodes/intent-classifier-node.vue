@@ -143,9 +143,10 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
               id="else"
               type="source"
               :position="Position.Right"
-              class="custom-handle custom-handle-source !bg-gray-2"
+              class="custom-handle custom-handle-source"
               :class="[
                 { 'handles-visible': showHandles || selected },
+                { connected: isHandleConnected('else') },
                 { highlighted: checkHandleHighlight('else', 'source') }
               ]"
               :style="getHandleStyle(checkHandleHighlight('else', 'source'))"
@@ -163,5 +164,8 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
 /* 为了简单起见，我们在 inline style 中强制了一部分样式，也可以在这里定义 */
 :deep(.vue-flow__handle) {
   z-index: 10;
+}
+.vue-flow__handle {
+  min-width: 2px;
 }
 </style>

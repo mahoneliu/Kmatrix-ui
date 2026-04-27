@@ -45,21 +45,24 @@ onMounted(() => {
   aiModelStore.loadModels();
 
   fetchMcpServerList({ serverName: '' }).then(res => {
-    const list = (res as any)?.data ?? res ?? [];
+    const raw = res as any;
+    const list: Api.Ai.McpServerVo[] = Array.isArray(raw) ? raw : (raw?.rows ?? raw?.data ?? []);
     mcpOptions.value = list
       .filter((s: Api.Ai.McpServerVo) => s.status === '0')
       .map((s: Api.Ai.McpServerVo) => ({ label: s.serverName, value: String(s.serverId) }));
   });
 
   fetchBuiltinToolList({ toolName: '' }).then(res => {
-    const list = (res as any)?.data ?? res ?? [];
+    const raw = res as any;
+    const list: Api.Ai.BuiltinToolVo[] = Array.isArray(raw) ? raw : (raw?.rows ?? raw?.data ?? []);
     toolOptions.value = list
       .filter((t: Api.Ai.BuiltinToolVo) => t.status === '0')
       .map((t: Api.Ai.BuiltinToolVo) => ({ label: t.toolName, value: String(t.toolId) }));
   });
 
   fetchGetAllSkillList({ status: '0', skillName: '' }).then(res => {
-    const list = (res as any)?.data ?? res ?? [];
+    const raw = res as any;
+    const list: Api.Ai.Skill.Info[] = Array.isArray(raw) ? raw : (raw?.rows ?? raw?.data ?? []);
     skillOptions.value = list.map((s: Api.Ai.Skill.Info) => ({ label: s.skillName, value: String(s.skillId) }));
   });
 });
