@@ -49,7 +49,8 @@ export const NODE_CATEGORIES = computed<Record<string, string>>(() => ({
   logic: $t('ai.workflow_node.node_category_logic'),
   database: $t('ai.workflow_node.node_category_database'),
   action: $t('ai.workflow_node.node_category_action'),
-  fileProcessing: $t('ai.workflow_node.node_category_fileprocessing')
+  fileProcessing: $t('ai.workflow_node.node_category_fileprocessing'),
+  tool: $t('ai.workflow_node.node_category_tool')
 }));
 
 /**

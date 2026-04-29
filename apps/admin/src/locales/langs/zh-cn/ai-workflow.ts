@@ -273,6 +273,8 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   node_category_database: '数据库',
   node_category_action: '动作',
   node_category_fileprocessing: '文件处理',
+  cover_stream_msg: '覆盖流式消息',
+  cover_stream_msg_tip: '如果开启，在最终输出时将覆盖之前大模型流式输出的文本过程。',
   node_category_tool: '工具',
   op_eq: '等于 (==)',
   op_ne: '不等于 (!=)',

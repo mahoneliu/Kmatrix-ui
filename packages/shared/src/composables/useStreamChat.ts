@@ -464,20 +464,40 @@ export function useStreamChat(options: UseStreamChatOptions) {
         },
 
         onComplete: data => {
-          // 只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充
-          // 若已有流式内容（打字机效果），则不覆盖，避免整段文字突然替换已有内容
-          if (data.length > 0 && !aiMsg.content) {
+          let finalData = data;
+          let cover = false;
+
+          // 尝试解析后端传递的包装结构
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed && typeof parsed === 'object' && parsed.text !== undefined) {
+              finalData = parsed.text;
+              cover = Boolean(parsed.coverStreamMsg);
+            }
+          } catch {
+            // 兼容旧的纯文本格式
+          }
+
+          // 如果需要最终在聊天面板呈现 endNode 的 finalResponse 并覆盖，无条件使用 finalData 覆盖 aiMsg.content
+          if (cover) {
+            aiMsg.content = finalData;
+            triggerRef(messages);
+            return;
+          }
+
+          // 否则走原来的机制（只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充）
+          if (finalData.length > 0 && !aiMsg.content) {
             // 模拟打字机效果：按字符逐步输出，完成后 resolve
             typingPromise = new Promise<void>(resolve => {
               let i = 0;
               const chunkSize = 4;
               function typeNext() {
-                if (i >= data.length) {
+                if (i >= finalData.length) {
                   resolve();
                   return;
                 }
-                const end = Math.min(i + chunkSize, data.length);
-                aiMsg.content += data.slice(i, end);
+                const end = Math.min(i + chunkSize, finalData.length);
+                aiMsg.content += finalData.slice(i, end);
                 triggerRef(messages);
                 i = end;
                 requestAnimationFrame(typeNext);

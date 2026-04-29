@@ -11,11 +11,13 @@ import { NCollapse, NCollapseItem, NInputNumber, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
+const { collapseProps } = useNodeCollapse();
 
 // 使用 composable 统一管理数据源
 const { dataSourceOptions, loadDataSources } = useDataSource();
@@ -71,7 +73,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="data" class="sql-execute-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

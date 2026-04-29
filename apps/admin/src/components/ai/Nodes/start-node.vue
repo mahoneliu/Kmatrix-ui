@@ -3,12 +3,14 @@ import { computed, onMounted, ref } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import ParamTag from './add-in/param-tag.vue';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
+const { collapseProps } = useNodeCollapse();
 
 // 获取 APP_INFO 节点的配置
 const appInfoConfig = computed(() => {
@@ -50,7 +52,7 @@ const hasAnyParams = computed(
 <template>
   <BaseNode v-bind="props" :data="data">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['globalParams']">
+      <NCollapse v-bind="collapseProps(['globalParams'], ['globalParams', 'params'])">
         <NCollapseItem :title="$t('ai.workflow_node.global_params')" name="globalParams">
           <template #arrow>
             <SvgIcon local-icon="mdi-play" class="text-4 c-gray-5" />

@@ -11,11 +11,13 @@ import { NCollapse, NCollapseItem, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchMcpServerList, fetchMcpServerResources } from '@/service/api/ai/mcp-server';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
+const { collapseProps } = useNodeCollapse();
 
 // 下拉选项数据
 const serverOptions = ref<{ label: string; value: CommonType.IdType }[]>([]);
@@ -132,7 +134,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="data" class="mcp-resource-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

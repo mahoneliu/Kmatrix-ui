@@ -11,6 +11,7 @@ import { NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NSlider, NSwit
 import type { NodeProps } from '@vue-flow/core';
 import { fetchAllKnowledgeBases } from '@/service/api/ai/knowledge';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
@@ -37,6 +38,8 @@ const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   enableRerank: true,
   emptyResponse: ''
 });
+
+const { collapseProps } = useNodeCollapse();
 
 // 加载知识库列表
 async function loadKnowledgeBases() {
@@ -65,7 +68,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="data" class="knowledge-retrieval-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

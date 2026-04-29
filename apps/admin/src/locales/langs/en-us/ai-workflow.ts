@@ -275,6 +275,8 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   node_category_database: 'Database',
   node_category_action: 'Action',
   node_category_fileprocessing: 'File Processing',
+  cover_stream_msg: 'Cover Stream Message',
+  cover_stream_msg_tip: 'If checked, it will override the previous streaming output during final output.',
   node_category_tool: 'Tool',
   op_eq: 'Equal (==)',
   op_ne: 'Not Equal (!=)',

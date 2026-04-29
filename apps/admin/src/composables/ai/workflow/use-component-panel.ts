@@ -57,7 +57,8 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
       config: extraData?.config || {},
       paramBindings: [],
       customInputParams: extraData?.customInputParams || [],
-      customOutputParams: extraData?.customOutputParams || []
+      customOutputParams: extraData?.customOutputParams || [],
+      dynamicOutputParams: extraData?.dynamicOutputParams || []
     };
 
     return { id, type: 'custom', position, data };

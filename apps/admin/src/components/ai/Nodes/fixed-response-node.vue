@@ -3,12 +3,14 @@ import { onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import VariableMention from '@/components/ai/Nodes/add-in/variable-mention.vue';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
+const { collapseProps } = useNodeCollapse();
 
 // 局部表单数据
 const formModel = reactive<Workflow.FixedResponseConfig>({
@@ -55,7 +57,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="{ ...data, localIcon: 'mdi-message-text' }" class="fixed-response-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

@@ -109,24 +109,8 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
   const uniqueUpstreamNodes = Array.from(new Map(upstreamNodes.map(node => [node.id, node])).values());
 
   uniqueUpstreamNodes.forEach(node => {
+    const validParams = collectNodeOutputParams(node);
     const nodeType = node.data.nodeType as Workflow.NodeType;
-    const outputParams = [...getNodeOutputParams(nodeType)];
-
-    // 1. 追加用户在面板上自定义的输出参数
-    if (node.data.customOutputParams && Array.isArray(node.data.customOutputParams)) {
-      outputParams.push(...node.data.customOutputParams);
-    }
-
-    // 2. 追加节点附带的动态输出 Schema（如 TOOL/SKILL 节点自带的出参）
-    if (nodeType === 'TOOL' && node.data.config?.tool?.outputs) {
-      outputParams.push(...node.data.config.tool.outputs);
-    }
-    if (nodeType === 'SKILL' && node.data.config?.outputs) {
-      outputParams.push(...node.data.config.outputs);
-    }
-
-    // 过滤掉未命名（key为空）的参数
-    const validParams = outputParams.filter(p => p.key && p.key.trim() !== '');
 
     if (validParams.length > 0) {
       sources.push({
@@ -139,6 +123,55 @@ export function getAvailableParamsForNode(nodeId: string, nodes: Node[], edges: 
   });
 
   return sources;
+}
+
+/**
+ * 汇总并去重特定节点的输出参数
+ * @param node 节点数据
+ * @returns 参数定义列表
+ */
+function collectNodeOutputParams(node: Node): Workflow.ParamDefinition[] {
+  const nodeType = node.data.nodeType as Workflow.NodeType;
+  const allParams: Workflow.ParamDefinition[] = [];
+
+  // 优先级 3: 添加节点默认定义参数
+  allParams.push(...getNodeOutputParams(nodeType));
+
+  // 优先级 2: 追加用户在面板上自定义的输出参数 (会覆盖默认参数)
+  if (node.data.customOutputParams && Array.isArray(node.data.customOutputParams)) {
+    allParams.push(...node.data.customOutputParams);
+  }
+
+  // 优先级 1: 追加节点业务逻辑动态生成的输出参数 (解耦后的统一字段)
+  let dynamicOutputs = node.data.dynamicOutputParams || [];
+
+  // 兼容旧版逻辑：如果新标准字段为空，尝试从历史路径回退读取
+  if (!dynamicOutputs || dynamicOutputs.length === 0) {
+    if (nodeType === 'TOOL' && node.data.config?.tool?.outputs) {
+      dynamicOutputs = node.data.config.tool.outputs;
+    } else if (nodeType === 'SKILL' && node.data.config?.outputs) {
+      dynamicOutputs = node.data.config.outputs;
+    } else if (
+      (nodeType === 'VARIABLE_AGGREGATOR' || nodeType === 'PARAMETER_EXTRACTOR') &&
+      node.data.customOutputParams?.length
+    ) {
+      dynamicOutputs = node.data.customOutputParams;
+    }
+  }
+
+  if (dynamicOutputs && Array.isArray(dynamicOutputs)) {
+    allParams.push(...dynamicOutputs);
+  }
+
+  // 去重处理: 相同 key 的参数只保留优先级最高的 (由于 Map.set 后者覆盖前者，所以按优先级从低到高 push)
+  const paramMap = new Map<string, Workflow.ParamDefinition>();
+  allParams.forEach(p => {
+    if (p.key && p.key.trim() !== '') {
+      paramMap.set(p.key, p);
+    }
+  });
+
+  return Array.from(paramMap.values());
 }
 
 /**

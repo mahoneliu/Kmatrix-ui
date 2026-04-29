@@ -5,6 +5,7 @@ import type { NodeProps } from '@vue-flow/core';
 import { PARAM_TYPE_MAP, PARAM_TYPE_OPTIONS } from '@/constants/workflow';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useAiModelStore } from '@/store/modules/ai/ai-model';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import ModelSelector from '@/components/ai/public/model-selector.vue';
 import BaseNode from './base-node.vue';
@@ -12,6 +13,7 @@ import BaseNode from './base-node.vue';
 const props = defineProps<NodeProps & { drawerMode?: boolean }>();
 const workflowStore = useWorkflowStore();
 const aiModelStore = useAiModelStore();
+const { collapseProps } = useNodeCollapse();
 
 // 局部表单数据,避免直接与 Store 双向绑定导致的循环更新
 const formModel = reactive<Workflow.AppInfoConfig>({
@@ -255,7 +257,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="data" :summary-items="summaryItems">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['basic']">
+      <NCollapse v-bind="collapseProps(['basic'], ['basic', 'params'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

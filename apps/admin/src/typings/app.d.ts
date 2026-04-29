@@ -2097,6 +2097,9 @@ declare namespace App {
           node_category_database: string;
           node_category_action: string;
           node_category_fileprocessing: string;
+          cover_stream_msg: string;
+          cover_stream_msg_tip: string;
+          node_category_tool: string;
           op_eq: string;
           op_ne: string;
           op_gt: string;

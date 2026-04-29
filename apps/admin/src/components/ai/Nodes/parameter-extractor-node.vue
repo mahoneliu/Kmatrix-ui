@@ -85,7 +85,10 @@ function syncOutputParams() {
       description: p.description || ''
     }));
 
-  workflowStore.updateNode(props.id, { customOutputParams: outputs });
+  workflowStore.updateNode(props.id, {
+    dynamicOutputParams: outputs,
+    customOutputParams: [] // 清理旧数据，归并到动态参数
+  });
 }
 
 watch(

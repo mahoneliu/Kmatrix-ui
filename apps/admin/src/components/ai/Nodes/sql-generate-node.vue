@@ -11,6 +11,7 @@ import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
@@ -26,6 +27,8 @@ const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   tableBlacklist: ''
 });
 
+const { collapseProps } = useNodeCollapse();
+
 onMounted(() => {
   initData();
   loadDataSources();
@@ -35,7 +38,7 @@ onMounted(() => {
 <template>
   <BaseNode v-bind="props" :data="data" class="sql-generate-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'], ['config', 'advanced'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

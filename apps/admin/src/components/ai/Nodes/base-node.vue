@@ -6,6 +6,7 @@ import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/ai/node-params';
 import { getNodeTypeInfo } from '@/utils/ai/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
@@ -59,6 +60,8 @@ const isDrawerMode = computed(() => workflowStore.globalDrawerMode);
 // 是否在抽屉中渲染：优先使用 prop，其次通过 inject 判断当前渲染上下文是否为抽屉
 const isInDrawerContext = inject(DRAWER_RENDER_KEY, false);
 const isInDrawer = computed(() => props.drawerMode || isInDrawerContext);
+
+const { collapseProps } = useNodeCollapse();
 
 function openDrawer(e: Event) {
   e.stopPropagation();
@@ -124,6 +127,9 @@ function getHandleStyle(highlighted: boolean) {
 // 折叠状态
 const collapsed = ref(false);
 
+// 初始化标记，防止初始化阶段触发不必要的更新
+const isInitializing = ref(true);
+
 // 参数绑定状态
 const paramBindings = ref<Workflow.ParamBinding[]>([]);
 
@@ -136,14 +142,16 @@ const inputParams = computed(() => {
 // 输出参数定义
 const outputParams = computed(() => {
   if (!props.data.nodeType) return [];
-  const params = getNodeOutputParams(props.data.nodeType);
-  let extraOutputs: any[] = [];
-  if (props.data.nodeType === 'TOOL' && props.data.config?.tool?.outputs) {
-    extraOutputs = props.data.config.tool.outputs;
-  } else if (props.data.nodeType === 'SKILL' && props.data.config?.outputs) {
-    extraOutputs = props.data.config.outputs;
-  }
-  return [...params, ...extraOutputs].map(p => ({
+
+  // 1. 获取数据库定义的静态出参
+  const baseParams = getNodeOutputParams(props.data.nodeType);
+
+  // 2. 获取业务动态出参
+  // 优先读取标准字段 dynamicOutputParams
+  const dynamicOutputs = props.data.dynamicOutputParams || [];
+
+  // 合并并格式化输出
+  return [...baseParams, ...dynamicOutputs].map(p => ({
     key: p.key,
     label: p.label,
     type: p.type,
@@ -173,10 +181,13 @@ watch(
   newData => {
     const oldInputKeys = new Set(customInputParams.value.map(p => p.key));
     const oldOutputKeys = new Set(customOutputParams.value.map(p => p.key));
+
     customInputParams.value = newData.customInputParams || [];
     customOutputParams.value = newData.customOutputParams || [];
+
     const newInputKeys = new Set(customInputParams.value.map(p => p.key));
     const newOutputKeys = new Set(customOutputParams.value.map(p => p.key));
+    // ... rest of binding cleanup logic ...
     const deletedInputKeys = [...oldInputKeys].filter(key => !newInputKeys.has(key));
     const deletedOutputKeys = [...oldOutputKeys].filter(key => !newOutputKeys.has(key));
     if (deletedInputKeys.length > 0 || deletedOutputKeys.length > 0) {
@@ -202,13 +213,13 @@ watch(
       JSON.stringify(newInputs) !== JSON.stringify(props.data.customInputParams) ||
       JSON.stringify(newOutputs) !== JSON.stringify(props.data.customOutputParams)
     ) {
-      const node = workflowStore.nodes.find(n => n.id === props.id);
-      if (node) {
-        workflowStore.updateNode(props.id, {
-          customInputParams: newInputs,
-          customOutputParams: newOutputs
-        });
-      }
+      // 避免在初始化或无变化时更新
+      if (isInitializing.value) return;
+
+      workflowStore.updateNode(props.id, {
+        customInputParams: newInputs,
+        customOutputParams: newOutputs
+      });
     }
   },
   { deep: true }
@@ -216,6 +227,7 @@ watch(
 
 onMounted(() => {
   paramBindings.value = props.data.paramBindings || [];
+  isInitializing.value = false;
 });
 
 watch(
@@ -405,13 +417,13 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         :get-handle-style="getHandleStyle"
       />
     </div>
-    <NCollapse v-if="isAiNode" class="pt-3">
+    <NCollapse v-if="isAiNode" v-bind="collapseProps([], ['ai-config'])" class="pt-3">
       <template #arrow>
         <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
       </template>
       <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
     </NCollapse>
-    <NCollapse v-if="isDialogNode" class="pt-3">
+    <NCollapse v-if="isDialogNode" v-bind="collapseProps([], ['dialog-config'])" class="pt-3">
       <template #arrow>
         <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
       </template>
@@ -419,6 +431,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
     </NCollapse>
     <NCollapse
       v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+      v-bind="collapseProps([], ['params'])"
       class="pb-2 pt-3"
     >
       <template #arrow>
@@ -599,13 +612,13 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
             />
           </div>
           <div v-if="!collapsed" class="nodrag mt-2 text-3 c-gray-5 dark:c-gray-4">
-            <NCollapse v-if="isAiNode" class="pt-3">
+            <NCollapse v-if="isAiNode" v-bind="collapseProps([], ['ai-config'])" class="pt-3">
               <template #arrow>
                 <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
               </template>
               <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
             </NCollapse>
-            <NCollapse v-if="isDialogNode" class="pt-3">
+            <NCollapse v-if="isDialogNode" v-bind="collapseProps([], ['dialog-config'])" class="pt-3">
               <template #arrow>
                 <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
               </template>
@@ -613,6 +626,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
             </NCollapse>
             <NCollapse
               v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+              v-bind="collapseProps([], ['params'])"
               class="pb-2 pt-3"
             >
               <template #arrow>
