@@ -1,5 +1,6 @@
 import { ref, triggerRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getAuthHeaders } from '../utils/auth';
 // import { localStg } from '@/utils/storage';
 
 export interface ChatMessage {
@@ -340,38 +341,15 @@ export function useStreamChat(options: UseStreamChatOptions) {
     messages.value.push(aiMsg);
 
     try {
-      // 优先使用 options 传入的 token，否则尝试从本地存储获取
-      // RuoYi 项目使用 RY_token 作为存储键
-      let token = options.token || localStorage.getItem('RY_token') || '';
-
-      // 如果 localStorage 中没有 token，尝试从 Cookie 中读取
-      if (!token) {
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          if (name === 'Authorization') {
-            // Cookie 中的值可能已经包含 Bearer 前缀，也可能没有
-            token = decodeURIComponent(value);
-            break;
-          }
-        }
-      }
+      const authHeaders = getAuthHeaders(options.token);
 
       const clientId = import.meta.env.VITE_APP_CLIENT_ID;
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        clientid: clientId || ''
+        clientid: clientId || '',
+        ...authHeaders
       };
-
-      // 如果有 token，则添加 Authorization 头
-      if (token) {
-        // 清理 token：移除可能的引号和空格
-        token = token.trim().replace(/^["']|["']$/g, '');
-
-        // 如果 token 不是以 Bearer 开头，则添加 Bearer 前缀
-        headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      }
 
       const response = await fetch(`${baseURL}${apiEndpoint}`, {
         method: 'POST',

@@ -1,4 +1,5 @@
 import { createFlatRequest } from '@sa/axios';
+import { getAuthToken } from '../utils/auth';
 
 /**
  * 共享请求工具
@@ -32,12 +33,12 @@ export const request = createFlatRequest(
     },
     async onRequest(config) {
       const isToken = config.headers?.isToken === false;
-      const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
-      const token = localStorage.getItem(`${storagePrefix}token`);
 
-      if (token && !isToken && !config.headers.Authorization) {
-        const pureToken = token.replace(/^"|"$/g, '');
-        Object.assign(config.headers, { Authorization: `Bearer ${pureToken}` });
+      if (!isToken && !config.headers.Authorization) {
+        const token = getAuthToken();
+        if (token) {
+          Object.assign(config.headers, { Authorization: `Bearer ${token}` });
+        }
       }
 
       const clientId = import.meta.env.VITE_APP_CLIENT_ID;

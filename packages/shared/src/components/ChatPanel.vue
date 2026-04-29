@@ -23,6 +23,7 @@ import { getNodeIconBackground } from '../utils/color';
 import { copyToClipboard } from '../utils/clipboard';
 import { abortRequest, uploadFile } from '../api/chat';
 import { baseURL } from '../api/request';
+import { getAuthHeaders, getAuthToken } from '../utils/auth';
 import MarkdownRenderer from './MarkdownRenderer.vue';
 import ChatWelcomeScreen from './ChatWelcomeScreen.vue';
 
@@ -211,26 +212,8 @@ async function handleAbort() {
     // 立即停止前端流式处理
     abortStream();
 
-    // 获取 token
-    let token = props.token || localStorage.getItem('RY_token') || '';
-    if (!token) {
-      const cookies = document.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'Authorization') {
-          token = decodeURIComponent(value);
-          break;
-        }
-      }
-    }
-
-    // 清理 token（移除引号和 Bearer 前缀）
-    if (token) {
-      token = token.trim().replace(/^["']|["']$/g, '');
-      if (token.startsWith('Bearer ')) {
-        token = token.substring(7);
-      }
-    }
+    // 获取 token（已自动清理引号和 Bearer 前缀）
+    const token = getAuthToken(props.token);
 
     // 同时通知后端中止请求（不使用 isAdmin 路由，统一使用 /ai/chat/abort）
     await abortRequest(currentRequestId.value, token || undefined, false);
@@ -249,24 +232,7 @@ async function loadResumableSessions() {
   try {
     isLoadingResumable.value = true;
 
-    // 获取 token
-    let token = props.token || localStorage.getItem('RY_token') || '';
-    if (!token) {
-      const cookies = document.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'Authorization') {
-          token = decodeURIComponent(value);
-          break;
-        }
-      }
-    }
-
-    const headers: Record<string, string> = {};
-    if (token) {
-      token = token.trim().replace(/^["']|["']$/g, '');
-      headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-    }
+    const headers = getAuthHeaders(props.token);
 
     const response = await fetch(`${baseURL}/ai/chat/resumable-sessions/${props.appId}`, {
       method: 'GET',
@@ -298,24 +264,7 @@ async function loadResumableSessions() {
  */
 async function handleResumeSession(sessionId: string) {
   try {
-    // 获取 token
-    let token = props.token || localStorage.getItem('RY_token') || '';
-    if (!token) {
-      const cookies = document.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'Authorization') {
-          token = decodeURIComponent(value);
-          break;
-        }
-      }
-    }
-
-    const headers: Record<string, string> = {};
-    if (token) {
-      token = token.trim().replace(/^["']|["']$/g, '');
-      headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-    }
+    const headers = getAuthHeaders(props.token);
 
     const response = await fetch(`${baseURL}/ai/chat/resume-session/${sessionId}`, {
       method: 'POST',
