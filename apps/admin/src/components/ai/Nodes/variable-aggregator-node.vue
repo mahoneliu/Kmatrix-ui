@@ -184,10 +184,26 @@ function getGroupTypeError(variables: VarRef[]): string | null {
   if (types.every(t => t === first)) return null;
   return $t('ai.workflow_node.variable_aggregator.type_mismatch');
 }
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as any;
+  if (config?.enableGrouping) {
+    const count = (config?.groups as any[] | undefined)?.length ?? 0;
+    if (count > 0) {
+      items.push({ label: $t('ai.workflow_node.variable_aggregator.groups'), value: `${count} 组` });
+    }
+  } else {
+    const key = (config?.outputKey as string | undefined)?.trim() || 'output';
+    items.push({ label: $t('ai.workflow_node.variable_aggregator.output_key'), value: key });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="variable-aggregator-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="variable-aggregator-node">
     <div class="w-full">
       <!-- 启用分组开关 -->
       <div class="mb-2 workflow-config-item">

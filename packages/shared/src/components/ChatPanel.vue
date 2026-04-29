@@ -142,12 +142,23 @@ const showResumeDialog = ref(false);
 const resumableSessions = ref<any[]>([]);
 const isLoadingResumable = ref(false);
 
-// 流式输出期间自动滚动到底部
+// 流式输出期间持续滚动到底部
 watch(isStreaming, streaming => {
   if (!streaming) {
     scrollToBottom();
   }
 });
+
+// 流式输出过程中，每次消息内容变化都滚到底部
+watch(
+  messages,
+  () => {
+    if (isStreaming.value) {
+      scrollToBottom();
+    }
+  },
+  { deep: true }
+);
 
 // 输入消息
 const userInput = ref('');
@@ -384,6 +395,32 @@ function scrollToBottom() {
     scrollbarRef.value?.scrollTo({ top: 999999, behavior: 'smooth' });
   });
 }
+
+// Thinking 内容区滚动容器 ref 映射（key: msg.id）
+const thinkingScrollRefs = ref<Record<string, HTMLElement | null>>({});
+
+function setThinkingScrollRef(msgId: string, el: HTMLElement | null) {
+  thinkingScrollRefs.value[msgId] = el;
+}
+
+// 监听 messages 中 thinkingContent 变化，自动将 thinking 区域滚到底部
+watch(
+  messages,
+  () => {
+    if (!isStreaming.value) return;
+    nextTick(() => {
+      for (const msg of messages.value) {
+        if (msg.thinkingExpanded && msg.thinkingContent) {
+          const el = thinkingScrollRefs.value[msg.id];
+          if (el) {
+            el.scrollTop = el.scrollHeight;
+          }
+        }
+      }
+    });
+  },
+  { deep: true }
+);
 
 /** 获取文件的完整访问路径 */
 function getFileUrl(url: string) {
@@ -750,6 +787,104 @@ defineExpose({
                       : 'bg-gray-100 dark:bg-gray-800'
                   "
                 >
+                  <!-- 工具调用轨迹 -->
+                  <div
+                    v-if="msg.toolTraces && msg.toolTraces.length > 0"
+                    class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700"
+                  >
+                    <NCollapse
+                      :key="`tool-traces-${msg.id}-${msg.toolTracesExpanded}`"
+                      :default-expanded-names="msg.toolTracesExpanded ? ['tool-traces'] : []"
+                    >
+                      <NCollapseItem name="tool-traces">
+                        <template #header>
+                          <span class="text-xs text-gray-500 dark:text-gray-200">
+                            {{ t('ai.chat.tool_calls', '工具调用') }}（{{ msg.toolTraces.length }}）
+                          </span>
+                        </template>
+                        <template #arrow>
+                          <SvgIcon
+                            local-icon="mdi-play"
+                            class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
+                          />
+                        </template>
+                        <div class="-mt-2 space-y-2">
+                          <div
+                            v-for="(trace, tIdx) in msg.toolTraces"
+                            :key="tIdx"
+                            class="overflow-hidden border border-gray-100 rounded-md bg-white/40 dark:border-gray-700/50 dark:bg-dark-1/30"
+                          >
+                            <!-- 标题栏：可点击切换折叠 -->
+                            <div
+                              class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
+                              @click="trace.expanded = !trace.expanded"
+                            >
+                              <div class="flex items-center gap-2 text-gray-600 font-medium dark:text-gray-300">
+                                <div
+                                  class="h-5 w-5 flex items-center justify-center rounded-full bg-primary-50 text-primary dark:bg-primary-900/20"
+                                >
+                                  <SvgIcon local-icon="mdi-tools" class="text-12px" />
+                                </div>
+                                <span class="text-xs">{{ trace.toolName }}</span>
+                              </div>
+                              <div class="flex items-center gap-2">
+                                <span
+                                  v-if="trace.type === 'tool_call_start'"
+                                  class="flex items-center gap-1 text-gray-400"
+                                >
+                                  <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                                  <span class="text-xs">执行中...</span>
+                                </span>
+                                <span v-else class="text-green-500">
+                                  <SvgIcon local-icon="mdi-check-circle" class="text-16px" />
+                                </span>
+                                <SvgIcon
+                                  local-icon="mdi-chevron-down"
+                                  class="text-14px text-gray-400 transition-transform duration-300"
+                                  :class="{ 'rotate-180': trace.expanded }"
+                                />
+                              </div>
+                            </div>
+
+                            <!-- 内容区域：受 expanded 控制 -->
+                            <div
+                              v-if="trace.expanded"
+                              class="border-t border-gray-50 p-2 pl-9 space-y-3 dark:border-gray-800"
+                            >
+                              <!-- 输入参数 -->
+                              <div v-if="trace.arguments">
+                                <div class="mb-1 flex items-center gap-1 text-10px text-gray-400">
+                                  <SvgIcon local-icon="mdi-arrow-right-bottom" />
+                                  输入参数
+                                </div>
+                                <div class="overflow-hidden border border-gray-50 rounded-md dark:border-gray-800">
+                                  <pre
+                                    class="max-h-32 overflow-auto bg-gray-50/40 p-2 text-10px text-gray-500 leading-relaxed dark:bg-gray-900/40 dark:text-gray-400"
+                                    >{{ trace.arguments }}</pre
+                                  >
+                                </div>
+                              </div>
+
+                              <!-- 执行结果 -->
+                              <div v-if="trace.result">
+                                <div class="mb-1 flex items-center gap-1 text-10px text-gray-400">
+                                  <SvgIcon local-icon="mdi-text-box-check-outline" />
+                                  执行结果
+                                </div>
+                                <div class="overflow-hidden border border-gray-50 rounded-md dark:border-gray-800">
+                                  <pre
+                                    class="max-h-60 overflow-auto whitespace-pre-wrap bg-gray-50/40 p-2 text-10px text-gray-600 leading-relaxed dark:bg-gray-900/40 dark:text-gray-400"
+                                    >{{ trace.result }}</pre
+                                  >
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </NCollapseItem>
+                    </NCollapse>
+                  </div>
+
                   <!-- Thinking区域（可折叠） -->
                   <div v-if="msg.thinkingContent" class="mb-1 border-b border-gray-200 pb-1 dark:border-gray-700">
                     <NCollapse
@@ -768,83 +903,14 @@ defineExpose({
                             class="text-gray-400 workflow-collapse-icon dark:text-gray-200"
                           />
                         </template>
-                        <div class="max-h-200px overflow-y-auto text-xs text-gray-500 italic -mt-5 dark:text-gray-200">
+                        <div
+                          :ref="el => setThinkingScrollRef(msg.id, el as HTMLElement | null)"
+                          class="max-h-200px overflow-y-auto text-xs text-gray-500 italic -mt-5 dark:text-gray-200"
+                        >
                           <MarkdownRenderer :content="msg.thinkingContent" />
                         </div>
                       </NCollapseItem>
                     </NCollapse>
-                  </div>
-
-                  <!-- 工具调用轨迹 -->
-                  <div v-if="msg.toolTraces && msg.toolTraces.length > 0" class="mb-3 space-y-2">
-                    <div
-                      v-for="(trace, tIdx) in msg.toolTraces"
-                      :key="tIdx"
-                      class="overflow-hidden border border-gray-100 rounded-md bg-white/40 dark:border-gray-700/50 dark:bg-dark-1/30"
-                    >
-                      <!-- 标题栏：可点击切换折叠 -->
-                      <div
-                        class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
-                        @click="trace.expanded = !trace.expanded"
-                      >
-                        <div class="flex items-center gap-2 text-gray-600 font-medium dark:text-gray-300">
-                          <div
-                            class="h-5 w-5 flex items-center justify-center rounded-full bg-primary-50 text-primary dark:bg-primary-900/20"
-                          >
-                            <SvgIcon local-icon="mdi-tools" class="text-12px" />
-                          </div>
-                          <span class="text-xs">{{ trace.toolName }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                          <span v-if="trace.type === 'tool_call_start'" class="flex items-center gap-1 text-gray-400">
-                            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-                            <span class="text-xs">执行中...</span>
-                          </span>
-                          <span v-else class="text-green-500">
-                            <SvgIcon local-icon="mdi-check-circle" class="text-16px" />
-                          </span>
-                          <SvgIcon
-                            local-icon="mdi-chevron-down"
-                            class="text-14px text-gray-400 transition-transform duration-300"
-                            :class="{ 'rotate-180': trace.expanded }"
-                          />
-                        </div>
-                      </div>
-
-                      <!-- 内容区域：受 expanded 控制 -->
-                      <div
-                        v-if="trace.expanded"
-                        class="border-t border-gray-50 p-2 pl-9 space-y-3 dark:border-gray-800"
-                      >
-                        <!-- 输入参数 -->
-                        <div v-if="trace.arguments">
-                          <div class="mb-1 flex items-center gap-1 text-10px text-gray-400">
-                            <SvgIcon local-icon="mdi-arrow-right-bottom" />
-                            输入参数
-                          </div>
-                          <div class="overflow-hidden border border-gray-50 rounded-md dark:border-gray-800">
-                            <pre
-                              class="max-h-32 overflow-auto bg-gray-50/40 p-2 text-10px text-gray-500 leading-relaxed dark:bg-gray-900/40 dark:text-gray-400"
-                              >{{ trace.arguments }}</pre
-                            >
-                          </div>
-                        </div>
-
-                        <!-- 执行结果 -->
-                        <div v-if="trace.result">
-                          <div class="mb-1 flex items-center gap-1 text-10px text-gray-400">
-                            <SvgIcon local-icon="mdi-text-box-check-outline" />
-                            执行结果
-                          </div>
-                          <div class="overflow-hidden border border-gray-50 rounded-md dark:border-gray-800">
-                            <pre
-                              class="max-h-60 overflow-auto whitespace-pre-wrap bg-gray-50/40 p-2 text-10px text-gray-600 leading-relaxed dark:bg-gray-900/40 dark:text-gray-400"
-                              >{{ trace.result }}</pre
-                            >
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   <!-- Markdown渲染的回复内容 -->

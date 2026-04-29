@@ -6,7 +6,7 @@
  * @author Mahone
  * @date 2026-04-22
  */
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { NCollapse, NCollapseItem, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchMcpServerList, fetchMcpServerResources } from '@/service/api/ai/mcp-server';
@@ -129,10 +129,26 @@ onMounted(() => {
   initData();
   loadServers();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as any;
+  if (config?.serverId) {
+    const server = serverOptions.value.find(o => o.value === config.serverId);
+    items.push({ label: $t('ai.mcp.mcp_server'), value: server?.label || String(config.serverId) });
+  }
+  if (config?.uri) {
+    const resource = resourceOptions.value.find(o => o.value === config.uri);
+    const display = resource?.label || config.uri;
+    items.push({ label: $t('ai.mcp.resource_uri'), value: display.length > 20 ? `${display.slice(0, 20)}…` : display });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="mcp-resource-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="mcp-resource-node">
     <div class="w-full">
       <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>

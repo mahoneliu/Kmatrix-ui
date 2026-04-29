@@ -92,15 +92,28 @@ export function useGraphInteraction(
 
     instance.onNodeDragStop(({ node }: any) => {
       workflowStore.updateNodePosition(node.id, node.position);
+      // 拖动结束后同步 selectedNodeId，确保边高亮与节点选中状态一致
+      workflowStore.selectNode(node.id);
+      if (workflowStore.globalDrawerMode) {
+        workflowStore.openNodeDrawer(node.id);
+      }
       takeSnapshot(`移动节点[${workflowStore.nodes.find(n => n.id === node.id)?.data.nodeLabel}]`);
     });
 
     instance.onNodeClick(({ node }: any) => {
       workflowStore.selectNode(node.id);
+      // 抽屉模式下，点击节点同步打开对应抽屉
+      if (workflowStore.globalDrawerMode) {
+        workflowStore.openNodeDrawer(node.id);
+      }
     });
 
     instance.onPaneClick(() => {
       workflowStore.selectNode(null);
+      // 抽屉模式下，点击空白处关闭抽屉
+      if (workflowStore.globalDrawerMode) {
+        workflowStore.closeNodeDrawer();
+      }
     });
 
     instance.onNodeMouseEnter(({ node }: any) => {

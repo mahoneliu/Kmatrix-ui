@@ -6,7 +6,7 @@
  * @author Mahone
  * @date 2026-01-24
  */
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem, NInputNumber, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
@@ -68,10 +68,21 @@ onMounted(() => {
   initData();
   loadDataSources();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as Workflow.SqlExecuteNodeConfig | undefined;
+  if (config?.dataSourceId) {
+    const ds = dataSourceOptions.value.find(o => o.value === config.dataSourceId);
+    items.push({ label: $t('ai.workflow_node.data_source'), value: ds?.label || String(config.dataSourceId) });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="sql-execute-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="sql-execute-node">
     <div class="w-full">
       <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>

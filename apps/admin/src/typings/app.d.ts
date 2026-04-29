@@ -1773,6 +1773,7 @@ declare namespace App {
           thinking_process: string;
           time_cost: string;
           execution_details: string;
+          tool_calls: string;
           node_count: string;
           ai_thinking: string;
           ai_responding: string;

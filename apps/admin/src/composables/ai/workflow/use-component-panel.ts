@@ -186,6 +186,11 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
               });
               sourceNodeByHandle.value = null;
             }
+            // 抽屉模式下自动打开新节点的抽屉；无论哪种模式都更新 selectedNodeId 以驱动边高亮
+            workflowStore.selectNode(newNode.id);
+            if (workflowStore.globalDrawerMode) {
+              workflowStore.openNodeDrawer(newNode.id);
+            }
             takeSnapshot(`拖拽添加并链接节点[${newNode.data.nodeLabel}]`);
           }
         }
@@ -231,6 +236,21 @@ export function useComponentPanel(vueFlowInstance: Ref<any>, flowWrapper: Ref<HT
           });
           sourceNodeByHandle.value = null;
         }
+        // 抽屉模式下自动打开新节点的抽屉；无论哪种模式都更新 selectedNodeId 以驱动边高亮
+        workflowStore.selectNode(newNode.id);
+        if (workflowStore.globalDrawerMode) {
+          workflowStore.openNodeDrawer(newNode.id);
+        }
+        // 通过 vue-flow API 同步 node.selected，确保边高亮正确
+        setTimeout(() => {
+          if (vueFlowInstance.value) {
+            vueFlowInstance.value.removeSelectedNodes(workflowStore.nodes.filter(n => n.id !== newNode.id));
+            const addedNode = workflowStore.nodes.find(n => n.id === newNode.id);
+            if (addedNode) {
+              vueFlowInstance.value.addSelectedNodes([addedNode]);
+            }
+          }
+        }, 0);
         takeSnapshot(`添加并连接节点[${newNode.data.nodeLabel}]`);
       }
     }

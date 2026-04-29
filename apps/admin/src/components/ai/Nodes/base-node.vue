@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, h, inject, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, h, inject, ref, watch } from 'vue';
 import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NTooltip } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
@@ -127,12 +127,6 @@ function getHandleStyle(highlighted: boolean) {
 // 折叠状态
 const collapsed = ref(false);
 
-// 初始化标记，防止初始化阶段触发不必要的更新
-const isInitializing = ref(true);
-
-// 参数绑定状态
-const paramBindings = ref<Workflow.ParamBinding[]>([]);
-
 // 输入参数定义
 const inputParams = computed(() => {
   if (!props.data.nodeType) return [];
@@ -172,62 +166,50 @@ const isDialogNode = computed(() => nodeConfig.value?.requireDialogConfig === '1
 const allowCustomInput = computed(() => nodeConfig.value?.allowCustomInputParams === '1');
 const allowCustomOutput = computed(() => nodeConfig.value?.allowCustomOutputParams === '1');
 
-// 自定义参数
-const customInputParams = ref<Workflow.ParamDefinition[]>([]);
-const customOutputParams = ref<Workflow.ParamDefinition[]>([]);
+// 参数绑定 — 直接读写 store，无需本地 ref + watch
+const paramBindings = computed<Workflow.ParamBinding[]>({
+  get: () => props.data.paramBindings ?? [],
+  set: val => workflowStore.updateNode(props.id, { paramBindings: val })
+});
 
-watch(
-  () => props.data,
-  newData => {
-    const oldInputKeys = new Set(customInputParams.value.map(p => p.key));
-    const oldOutputKeys = new Set(customOutputParams.value.map(p => p.key));
+// 自定义参数 — 直接读写 store
+const customInputParams = computed<Workflow.ParamDefinition[]>({
+  get: () => props.data.customInputParams ?? [],
+  set: val => {
+    // 删除了自定义入参时，清理对应的 paramBindings
+    const oldKeys = new Set((props.data.customInputParams ?? []).map((p: Workflow.ParamDefinition) => p.key));
+    const newKeys = new Set(val.map((p: Workflow.ParamDefinition) => p.key));
+    const deletedKeys = [...oldKeys].filter(k => !newKeys.has(k));
+    const newBindings =
+      deletedKeys.length > 0
+        ? (props.data.paramBindings ?? []).filter((b: Workflow.ParamBinding) => !deletedKeys.includes(b.paramKey))
+        : props.data.paramBindings;
+    workflowStore.updateNode(props.id, {
+      customInputParams: val,
+      ...(deletedKeys.length > 0 ? { paramBindings: newBindings } : {})
+    });
+  }
+});
 
-    customInputParams.value = newData.customInputParams || [];
-    customOutputParams.value = newData.customOutputParams || [];
-
-    const newInputKeys = new Set(customInputParams.value.map(p => p.key));
-    const newOutputKeys = new Set(customOutputParams.value.map(p => p.key));
-    // ... rest of binding cleanup logic ...
-    const deletedInputKeys = [...oldInputKeys].filter(key => !newInputKeys.has(key));
-    const deletedOutputKeys = [...oldOutputKeys].filter(key => !newOutputKeys.has(key));
-    if (deletedInputKeys.length > 0 || deletedOutputKeys.length > 0) {
-      paramBindings.value = paramBindings.value.filter(binding => {
-        if (deletedInputKeys.includes(binding.paramKey)) return false;
-        if (
-          binding.sourceType === 'node' &&
-          binding.sourceKey === props.id &&
-          deletedOutputKeys.includes(binding.sourceParam || '')
-        )
-          return false;
-        return true;
-      });
-    }
-  },
-  { immediate: true, deep: true }
-);
-
-watch(
-  [customInputParams, customOutputParams],
-  ([newInputs, newOutputs]) => {
-    if (
-      JSON.stringify(newInputs) !== JSON.stringify(props.data.customInputParams) ||
-      JSON.stringify(newOutputs) !== JSON.stringify(props.data.customOutputParams)
-    ) {
-      // 避免在初始化或无变化时更新
-      if (isInitializing.value) return;
-
-      workflowStore.updateNode(props.id, {
-        customInputParams: newInputs,
-        customOutputParams: newOutputs
-      });
-    }
-  },
-  { deep: true }
-);
-
-onMounted(() => {
-  paramBindings.value = props.data.paramBindings || [];
-  isInitializing.value = false;
+const customOutputParams = computed<Workflow.ParamDefinition[]>({
+  get: () => props.data.customOutputParams ?? [],
+  set: val => {
+    // 删除了自定义出参时，清理引用该节点出参的 paramBindings
+    const oldKeys = new Set((props.data.customOutputParams ?? []).map((p: Workflow.ParamDefinition) => p.key));
+    const newKeys = new Set(val.map((p: Workflow.ParamDefinition) => p.key));
+    const deletedKeys = [...oldKeys].filter(k => !newKeys.has(k));
+    const newBindings =
+      deletedKeys.length > 0
+        ? (props.data.paramBindings ?? []).filter(
+            (b: Workflow.ParamBinding) =>
+              !(b.sourceType === 'node' && b.sourceKey === props.id && deletedKeys.includes(b.sourceParam ?? ''))
+          )
+        : props.data.paramBindings;
+    workflowStore.updateNode(props.id, {
+      customOutputParams: val,
+      ...(deletedKeys.length > 0 ? { paramBindings: newBindings } : {})
+    });
+  }
 });
 
 watch(
@@ -235,29 +217,6 @@ watch(
   newValue => {
     if (newValue !== null) collapsed.value = newValue;
   }
-);
-
-watch(
-  paramBindings,
-  newBindings => {
-    const node = workflowStore.nodes.find(n => n.id === props.id);
-    if (node) {
-      if (JSON.stringify(newBindings) !== JSON.stringify(props.data.paramBindings)) {
-        workflowStore.updateNode(props.id, { paramBindings: newBindings });
-      }
-    }
-  },
-  { deep: true }
-);
-
-watch(
-  () => props.data.paramBindings,
-  newBindings => {
-    if (newBindings && JSON.stringify(newBindings) !== JSON.stringify(paramBindings.value)) {
-      paramBindings.value = newBindings;
-    }
-  },
-  { deep: true }
 );
 
 // Handle 显示状态

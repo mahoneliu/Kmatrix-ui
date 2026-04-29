@@ -28,6 +28,8 @@ export interface ChatMessage {
   citations?: Citation[];
   /** 工具调用轨迹 */
   toolTraces?: ToolTrace[];
+  /** 工具调用轨迹面板是否展开 */
+  toolTracesExpanded?: boolean;
   /** 标记当前消息是否为错误消息 */
   isError?: boolean;
 }
@@ -411,6 +413,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
         onToolTrace: (trace: ToolTrace) => {
           if (!aiMsg.toolTraces) {
             aiMsg.toolTraces = [];
+            // 首次出现工具调用时展开面板
+            aiMsg.toolTracesExpanded = true;
           }
           // 如果是 result，启动打字机效果模拟流式输出
           if (trace.type === 'tool_call_result') {
@@ -516,6 +520,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
           aiMsg.streaming = false;
           // 折叠thinking区域
           aiMsg.thinkingExpanded = false;
+          // 折叠工具调用轨迹面板
+          aiMsg.toolTracesExpanded = false;
 
           // 汇总所有节点的 token 使用量
           let totalInput = 0;

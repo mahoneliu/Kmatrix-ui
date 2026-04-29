@@ -22,11 +22,13 @@ const isDragging = ref(false);
 let startX = 0;
 let startWidth = 0;
 
-const isOpen = computed(() => Boolean(workflowStore.selectedNodeId));
+// 抽屉开关由 drawerNodeId 控制，与 selectedNodeId 解耦
+// 内嵌模式下 drawerNodeId 为 null，抽屉不显示
+const isOpen = computed(() => Boolean(workflowStore.drawerNodeId) && workflowStore.globalDrawerMode);
 
 const activeNode = computed(() => {
-  if (!workflowStore.selectedNodeId) return null;
-  return workflowStore.nodes.find(n => n.id === workflowStore.selectedNodeId) ?? null;
+  if (!workflowStore.drawerNodeId) return null;
+  return workflowStore.nodes.find(n => n.id === workflowStore.drawerNodeId) ?? null;
 });
 
 const nodeComponent = computed(() => {
@@ -35,7 +37,7 @@ const nodeComponent = computed(() => {
 });
 
 function close() {
-  workflowStore.selectNode(null);
+  workflowStore.closeNodeDrawer();
 }
 
 // 拖拽调整宽度

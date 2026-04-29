@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import { NCollapse, NCollapseItem } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
@@ -52,10 +52,28 @@ watch(
 onMounted(() => {
   initData();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const content = (props.data.config as Workflow.FixedResponseConfig | undefined)?.content || '';
+  if (!content) return [];
+  const text = content.replace(/\{\{[^}]+\}\}/g, '[变量]');
+  return [
+    {
+      label: $t('ai.workflow_node.specify_reply_content'),
+      value: text.length > 20 ? `${text.slice(0, 20)}…` : text
+    }
+  ];
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="{ ...data, localIcon: 'mdi-message-text' }" class="fixed-response-node">
+  <BaseNode
+    v-bind="props"
+    :data="{ ...data, localIcon: 'mdi-message-text' }"
+    :summary-items="summaryItems"
+    class="fixed-response-node"
+  >
     <div class="w-full">
       <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
