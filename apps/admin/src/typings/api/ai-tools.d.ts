@@ -77,6 +77,59 @@ declare namespace Api.Ai {
     remark?: string;
   }
 
+  // ============ MCP 连接测试 ============
+
+  /** MCP 连接测试请求 BO */
+  interface McpConnectionTestBo {
+    /** 已保存的 MCP Server ID（与 serverConfig 二选一） */
+    serverId?: CommonType.IdType;
+    /** 临时配置 JSON（Import Wizard 中使用） */
+    serverConfig?: string;
+    /** 传输类型（临时配置时必填） */
+    transportType?: string;
+  }
+
+  /** MCP 连接测试结果 VO */
+  interface McpConnectionTestResultVo {
+    success: boolean;
+    tools: McpToolVo[];
+    errorMessage: string | null;
+    elapsedMs: number;
+  }
+
+  /** MCP 工具信息 VO */
+  interface McpToolVo {
+    name: string;
+    description: string;
+  }
+
+  // ============ MCP 市场 ============
+
+  /** MCP 市场条目 VO */
+  interface McpMarketItemVo {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+    category: string;
+    transportType: string;
+    /** 配置模板 JSON 字符串，含占位符如 ${API_KEY} */
+    configTemplate: string;
+    params: McpMarketParamVo[];
+    /** 配置示例说明 */
+    configExample: string;
+  }
+
+  /** MCP 市场条目参数定义 VO */
+  interface McpMarketParamVo {
+    /** 占位符 key，如 API_KEY */
+    key: string;
+    /** 显示名称 */
+    label: string;
+    required: boolean;
+    description: string;
+  }
+
   // ============ 工具绑定（节点配置用） ============
 
   /** 工具绑定项（用于 AI 节点绑定工具） */

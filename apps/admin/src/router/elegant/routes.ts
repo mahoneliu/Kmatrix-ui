@@ -207,6 +207,15 @@ export const generatedRoutes: GeneratedRoute[] = [
             }
           },
           {
+            name: 'ai_model_mcp-market',
+            path: '/ai/model/mcp-market',
+            component: 'view.ai_model_mcp-market',
+            meta: {
+              title: 'ai_model_mcp-market',
+              i18nKey: 'route.ai_model_mcp-market'
+            }
+          },
+          {
             name: 'ai_model_model-manager',
             path: '/ai/model/model-manager',
             component: 'view.ai_model_model-manager',

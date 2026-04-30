@@ -40,6 +40,7 @@ declare module "@elegant-router/types" {
     "ai_knowledge_knowledge-manager": "/ai/knowledge/knowledge-manager";
     "ai_model": "/ai/model";
     "ai_model_mcp-manager": "/ai/model/mcp-manager";
+    "ai_model_mcp-market": "/ai/model/mcp-market";
     "ai_model_model-manager": "/ai/model/model-manager";
     "ai_model_skill-manager": "/ai/model/skill-manager";
     "ai_model_tool-manager": "/ai/model/tool-manager";
@@ -164,6 +165,7 @@ declare module "@elegant-router/types" {
     | "ai_knowledge_knowledge-detail"
     | "ai_knowledge_knowledge-manager"
     | "ai_model_mcp-manager"
+    | "ai_model_mcp-market"
     | "ai_model_model-manager"
     | "ai_model_skill-manager"
     | "ai_model_tool-manager"

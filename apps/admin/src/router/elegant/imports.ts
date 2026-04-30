@@ -34,6 +34,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "ai_knowledge_knowledge-detail": () => import("@/views/ai/knowledge/knowledge-detail/index.vue"),
   "ai_knowledge_knowledge-manager": () => import("@/views/ai/knowledge/knowledge-manager/index.vue"),
   "ai_model_mcp-manager": () => import("@/views/ai/model/mcp-manager/index.vue"),
+  "ai_model_mcp-market": () => import("@/views/ai/model/mcp-market/index.vue"),
   "ai_model_model-manager": () => import("@/views/ai/model/model-manager/index.vue"),
   "ai_model_skill-manager": () => import("@/views/ai/model/skill-manager/index.vue"),
   "ai_model_tool-manager": () => import("@/views/ai/model/tool-manager/index.vue"),
