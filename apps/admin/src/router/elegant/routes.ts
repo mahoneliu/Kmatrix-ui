@@ -204,7 +204,18 @@ export const generatedRoutes: GeneratedRoute[] = [
             meta: {
               title: 'ai_model_mcp-manager',
               i18nKey: 'route.ai_model_mcp-manager'
-            }
+            },
+            children: [
+              {
+                name: 'ai_model_mcp-manager_registry',
+                path: '/ai/model/mcp-manager/registry',
+                component: 'view.ai_model_mcp-manager_registry',
+                meta: {
+                  title: 'ai_model_mcp-manager_registry',
+                  i18nKey: 'route.ai_model_mcp-manager_registry'
+                }
+              }
+            ]
           },
           {
             name: 'ai_model_mcp-market',

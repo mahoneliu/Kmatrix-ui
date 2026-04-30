@@ -266,19 +266,28 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
 
           <!-- Handle：仅画布模式显示 -->
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              :id="`condition-${index}`"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected(`condition-${index}`) },
-                { highlighted: checkHandleHighlight(`condition-${index}`, 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight(`condition-${index}`, 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  :id="`condition-${index}`"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected(`condition-${index}`) },
+                    { highlighted: checkHandleHighlight(`condition-${index}`, 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight(`condition-${index}`, 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
 
@@ -295,19 +304,28 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
             <div class="flex-1 truncate text-11px c-gray-4">{{ $t('ai.workflow_node.default_else') }}</div>
           </template>
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              id="default"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected('default') },
-                { highlighted: checkHandleHighlight('default', 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight('default', 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, -1)"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  id="default"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected('default') },
+                    { highlighted: checkHandleHighlight('default', 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight('default', 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, -1)"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
       </div>

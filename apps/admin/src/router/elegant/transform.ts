@@ -186,6 +186,7 @@ const routeMap: RouteMap = {
   "ai_knowledge_knowledge-manager": "/ai/knowledge/knowledge-manager",
   "ai_model": "/ai/model",
   "ai_model_mcp-manager": "/ai/model/mcp-manager",
+  "ai_model_mcp-manager_registry": "/ai/model/mcp-manager/registry",
   "ai_model_mcp-market": "/ai/model/mcp-market",
   "ai_model_model-manager": "/ai/model/model-manager",
   "ai_model_skill-manager": "/ai/model/skill-manager",

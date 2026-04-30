@@ -5,6 +5,7 @@
  * @date 2026-03-15
  */
 import { h, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -22,8 +23,10 @@ import { SvgIcon } from '@sa/materials';
 import { deleteMcpServer, fetchMcpServerList } from '@/service/api/ai/mcp-server';
 import { $t } from '@/locales';
 import McpServerFormDrawer from './components/mcp-server-form-drawer.vue';
+import ConnectionTestModal from './components/connection-test-modal.vue';
 
 const message = useMessage();
+const router = useRouter();
 
 const searchParams = ref<Api.Ai.McpServerQuery>({
   serverName: ''
@@ -34,6 +37,9 @@ const loading = ref(false);
 
 const showDrawer = ref(false);
 const editingServer = ref<Api.Ai.McpServerVo | null>(null);
+
+const showTestModal = ref(false);
+const testServer = ref<Api.Ai.McpServerVo | null>(null);
 
 const transportTypeMap: Record<string, { label: string; type: 'success' | 'info' }> = {
   sse: { label: 'SSE', type: 'success' },
@@ -79,7 +85,7 @@ const columns: DataTableColumns<Api.Ai.McpServerVo> = [
   {
     title: () => $t('common.action'),
     key: 'actions',
-    width: 160,
+    width: 220,
     render: row =>
       h(
         NSpace,
@@ -87,6 +93,11 @@ const columns: DataTableColumns<Api.Ai.McpServerVo> = [
         {
           default: () => [
             h(NButton, { size: 'small', onClick: () => handleEdit(row) }, { default: () => $t('common.edit') }),
+            h(
+              NButton,
+              { size: 'small', type: 'info', onClick: () => handleTestConnection(row) },
+              { default: () => $t('ai.mcp.testConnection') }
+            ),
             h(
               NPopconfirm,
               { onPositiveClick: () => handleDelete(row.serverId) },
@@ -121,6 +132,11 @@ function handleAdd() {
 function handleEdit(row: Api.Ai.McpServerVo) {
   editingServer.value = { ...row };
   showDrawer.value = true;
+}
+
+function handleTestConnection(row: Api.Ai.McpServerVo) {
+  testServer.value = row;
+  showTestModal.value = true;
 }
 
 async function handleDelete(id: CommonType.IdType) {
@@ -174,12 +190,20 @@ onMounted(() => loadList());
       content-class="flex flex-col h-full overflow-hidden"
     >
       <template #header-extra>
-        <NButton type="primary" size="small" @click="handleAdd">
-          <template #icon>
-            <SvgIcon icon="mdi:plus" />
-          </template>
-          {{ $t('common.add') }}
-        </NButton>
+        <NSpace>
+          <NButton size="small" @click="() => router.push('/ai/model/mcp-market')">
+            <template #icon>
+              <SvgIcon icon="mdi:store-outline" />
+            </template>
+            {{ $t('ai.mcp.market') }}
+          </NButton>
+          <NButton type="primary" size="small" @click="handleAdd">
+            <template #icon>
+              <SvgIcon icon="mdi:plus" />
+            </template>
+            {{ $t('common.add') }}
+          </NButton>
+        </NSpace>
       </template>
 
       <NDataTable :columns="columns" :data="mcpList" :loading="loading" :bordered="false" class="h-full" flex-height />
@@ -187,6 +211,9 @@ onMounted(() => loadList());
 
     <!-- 表单 Drawer -->
     <McpServerFormDrawer v-model:show="showDrawer" :server="editingServer" @success="handleDrawerSuccess" />
+
+    <!-- 连接测试弹窗 -->
+    <ConnectionTestModal v-if="testServer" v-model:show="showTestModal" :server="testServer" />
   </div>
 </template>
 

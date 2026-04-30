@@ -107,6 +107,15 @@ const highlightedTemplate = computed(() => {
   return props.item?.configTemplate ? highlightTemplate(props.item.configTemplate) : '';
 });
 
+/** 表单 model，参数字段加 param_ 前缀以匹配校验规则 path */
+const formModel = computed(() => {
+  const prefixed: Record<string, string> = {};
+  for (const [k, v] of Object.entries(paramValues.value)) {
+    prefixed[`param_${k}`] = v;
+  }
+  return { formName: formName.value, formDescription: formDescription.value, ...prefixed };
+});
+
 // ============ 连接测试 ============
 
 async function handleTestConnection() {
@@ -236,11 +245,11 @@ watch(
     :show="show"
     preset="card"
     :title="`导入 MCP 服务：${item?.name ?? ''}`"
-    style="width: 600px"
+    :style="{ width: '600px' }"
     :mask-closable="false"
     @update:show="emit('update:show', $event)"
   >
-    <NForm ref="formRef" :model="{ formName, formDescription, ...paramValues }" :rules="rules" label-placement="top">
+    <NForm ref="formRef" :model="formModel" :rules="rules" label-placement="top">
       <!-- 名称 -->
       <NFormItem label="名称" path="formName">
         <NInput v-model:value="formName" placeholder="请输入 MCP Server 名称" />

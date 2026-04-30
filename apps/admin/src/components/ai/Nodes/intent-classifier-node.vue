@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { NButton, NInput } from 'naive-ui';
+import { NButton, NInput, NPopover } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
@@ -111,19 +111,28 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
 
           <!-- Handle：仅画布模式（含画布抽屉模式）显示 -->
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              :id="`intent-${index}`"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected(`intent-${index}`) },
-                { highlighted: checkHandleHighlight(`intent-${index}`, 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight(`intent-${index}`, 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  :id="`intent-${index}`"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected(`intent-${index}`) },
+                    { highlighted: checkHandleHighlight(`intent-${index}`, 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight(`intent-${index}`, 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, index)"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
 
@@ -139,19 +148,28 @@ function handleSourceHandleClick(e: MouseEvent, index: number) {
             <div class="flex-1 truncate pl-2.5 text-11px c-gray-4">其他 (Else)</div>
           </template>
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              id="else"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected('else') },
-                { highlighted: checkHandleHighlight('else', 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight('else', 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, -1)"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  id="else"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected('else') },
+                    { highlighted: checkHandleHighlight('else', 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight('else', 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, -1)"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
       </div>

@@ -77,7 +77,8 @@ const props = withDefaults(defineProps<Props>(), {
   availableSkills: () => [],
   capabilities: () => [],
   logo: undefined,
-  uiSetting: undefined
+  uiSetting: undefined,
+  customParams: () => ({})
 });
 
 const emit = defineEmits<{

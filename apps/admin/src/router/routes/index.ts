@@ -10,6 +10,28 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  */
 const customRoutes: any = [
   {
+    name: 'customAiMcpMarket',
+    path: '/ai/model',
+    component: 'layout.base',
+    meta: {
+      title: 'MCP市场',
+      hideInMenu: true,
+      constant: true
+    },
+    children: [
+      {
+        name: 'ai_model_mcp-market',
+        path: 'mcp-market',
+        component: 'view.ai_model_mcp-market',
+        meta: {
+          title: 'MCP市场',
+          hideInMenu: true,
+          constant: true
+        }
+      }
+    ]
+  },
+  {
     name: 'customAiDocumentUpload',
     path: '/ai',
     component: 'layout.base',
