@@ -113,6 +113,9 @@ importers:
       clipboard:
         specifier: 2.0.11
         version: 2.0.11
+      crypto-js:
+        specifier: ^4.2.0
+        version: 4.2.0
       dagre:
         specifier: ^0.8.5
         version: 0.8.5
@@ -195,6 +198,9 @@ importers:
       '@soybeanjs/eslint-config':
         specifier: 1.7.4
         version: 1.7.4(@typescript-eslint/utils@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@unocss/eslint-config@66.5.10(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint-plugin-vue@10.6.2(@typescript-eslint/parser@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.39.1(jiti@2.6.1))))(eslint@9.39.1(jiti@2.6.1))(svelte-eslint-parser@1.4.1)(typescript@5.9.3)(vue-eslint-parser@10.2.0(eslint@9.39.1(jiti@2.6.1)))
+      '@types/crypto-js':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/dagre':
         specifier: ^0.7.53
         version: 0.7.53
