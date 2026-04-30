@@ -31,6 +31,7 @@ const local = {
       thinking_process: '思考过程',
       time_cost: '耗时',
       execution_details: '执行详情',
+      tool_calls: '工具调用',
       node_count: '{count}个节点',
       ai_thinking: 'AI正在思考...',
       ai_responding: 'AI正在回复...',

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, h, inject, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, h, inject, ref, watch } from 'vue';
 import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NTooltip } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { getNodeInputParams, getNodeOutputParams } from '@/utils/ai/node-params';
 import { getNodeTypeInfo } from '@/utils/ai/node-registry';
 import { getNodeHeaderGradient, getNodeIconBackground } from '@/utils/color';
@@ -59,6 +60,8 @@ const isDrawerMode = computed(() => workflowStore.globalDrawerMode);
 // 是否在抽屉中渲染：优先使用 prop，其次通过 inject 判断当前渲染上下文是否为抽屉
 const isInDrawerContext = inject(DRAWER_RENDER_KEY, false);
 const isInDrawer = computed(() => props.drawerMode || isInDrawerContext);
+
+const { collapseProps } = useNodeCollapse();
 
 function openDrawer(e: Event) {
   e.stopPropagation();
@@ -124,9 +127,6 @@ function getHandleStyle(highlighted: boolean) {
 // 折叠状态
 const collapsed = ref(false);
 
-// 参数绑定状态
-const paramBindings = ref<Workflow.ParamBinding[]>([]);
-
 // 输入参数定义
 const inputParams = computed(() => {
   if (!props.data.nodeType) return [];
@@ -136,14 +136,16 @@ const inputParams = computed(() => {
 // 输出参数定义
 const outputParams = computed(() => {
   if (!props.data.nodeType) return [];
-  const params = getNodeOutputParams(props.data.nodeType);
-  let extraOutputs: any[] = [];
-  if (props.data.nodeType === 'TOOL' && props.data.config?.tool?.outputs) {
-    extraOutputs = props.data.config.tool.outputs;
-  } else if (props.data.nodeType === 'SKILL' && props.data.config?.outputs) {
-    extraOutputs = props.data.config.outputs;
-  }
-  return [...params, ...extraOutputs].map(p => ({
+
+  // 1. 获取数据库定义的静态出参
+  const baseParams = getNodeOutputParams(props.data.nodeType);
+
+  // 2. 获取业务动态出参
+  // 优先读取标准字段 dynamicOutputParams
+  const dynamicOutputs = props.data.dynamicOutputParams || [];
+
+  // 合并并格式化输出
+  return [...baseParams, ...dynamicOutputs].map(p => ({
     key: p.key,
     label: p.label,
     type: p.type,
@@ -164,58 +166,50 @@ const isDialogNode = computed(() => nodeConfig.value?.requireDialogConfig === '1
 const allowCustomInput = computed(() => nodeConfig.value?.allowCustomInputParams === '1');
 const allowCustomOutput = computed(() => nodeConfig.value?.allowCustomOutputParams === '1');
 
-// 自定义参数
-const customInputParams = ref<Workflow.ParamDefinition[]>([]);
-const customOutputParams = ref<Workflow.ParamDefinition[]>([]);
+// 参数绑定 — 直接读写 store，无需本地 ref + watch
+const paramBindings = computed<Workflow.ParamBinding[]>({
+  get: () => props.data.paramBindings ?? [],
+  set: val => workflowStore.updateNode(props.id, { paramBindings: val })
+});
 
-watch(
-  () => props.data,
-  newData => {
-    const oldInputKeys = new Set(customInputParams.value.map(p => p.key));
-    const oldOutputKeys = new Set(customOutputParams.value.map(p => p.key));
-    customInputParams.value = newData.customInputParams || [];
-    customOutputParams.value = newData.customOutputParams || [];
-    const newInputKeys = new Set(customInputParams.value.map(p => p.key));
-    const newOutputKeys = new Set(customOutputParams.value.map(p => p.key));
-    const deletedInputKeys = [...oldInputKeys].filter(key => !newInputKeys.has(key));
-    const deletedOutputKeys = [...oldOutputKeys].filter(key => !newOutputKeys.has(key));
-    if (deletedInputKeys.length > 0 || deletedOutputKeys.length > 0) {
-      paramBindings.value = paramBindings.value.filter(binding => {
-        if (deletedInputKeys.includes(binding.paramKey)) return false;
-        if (
-          binding.sourceType === 'node' &&
-          binding.sourceKey === props.id &&
-          deletedOutputKeys.includes(binding.sourceParam || '')
-        )
-          return false;
-        return true;
-      });
-    }
-  },
-  { immediate: true, deep: true }
-);
+// 自定义参数 — 直接读写 store
+const customInputParams = computed<Workflow.ParamDefinition[]>({
+  get: () => props.data.customInputParams ?? [],
+  set: val => {
+    // 删除了自定义入参时，清理对应的 paramBindings
+    const oldKeys = new Set((props.data.customInputParams ?? []).map((p: Workflow.ParamDefinition) => p.key));
+    const newKeys = new Set(val.map((p: Workflow.ParamDefinition) => p.key));
+    const deletedKeys = [...oldKeys].filter(k => !newKeys.has(k));
+    const newBindings =
+      deletedKeys.length > 0
+        ? (props.data.paramBindings ?? []).filter((b: Workflow.ParamBinding) => !deletedKeys.includes(b.paramKey))
+        : props.data.paramBindings;
+    workflowStore.updateNode(props.id, {
+      customInputParams: val,
+      ...(deletedKeys.length > 0 ? { paramBindings: newBindings } : {})
+    });
+  }
+});
 
-watch(
-  [customInputParams, customOutputParams],
-  ([newInputs, newOutputs]) => {
-    if (
-      JSON.stringify(newInputs) !== JSON.stringify(props.data.customInputParams) ||
-      JSON.stringify(newOutputs) !== JSON.stringify(props.data.customOutputParams)
-    ) {
-      const node = workflowStore.nodes.find(n => n.id === props.id);
-      if (node) {
-        workflowStore.updateNode(props.id, {
-          customInputParams: newInputs,
-          customOutputParams: newOutputs
-        });
-      }
-    }
-  },
-  { deep: true }
-);
-
-onMounted(() => {
-  paramBindings.value = props.data.paramBindings || [];
+const customOutputParams = computed<Workflow.ParamDefinition[]>({
+  get: () => props.data.customOutputParams ?? [],
+  set: val => {
+    // 删除了自定义出参时，清理引用该节点出参的 paramBindings
+    const oldKeys = new Set((props.data.customOutputParams ?? []).map((p: Workflow.ParamDefinition) => p.key));
+    const newKeys = new Set(val.map((p: Workflow.ParamDefinition) => p.key));
+    const deletedKeys = [...oldKeys].filter(k => !newKeys.has(k));
+    const newBindings =
+      deletedKeys.length > 0
+        ? (props.data.paramBindings ?? []).filter(
+            (b: Workflow.ParamBinding) =>
+              !(b.sourceType === 'node' && b.sourceKey === props.id && deletedKeys.includes(b.sourceParam ?? ''))
+          )
+        : props.data.paramBindings;
+    workflowStore.updateNode(props.id, {
+      customOutputParams: val,
+      ...(deletedKeys.length > 0 ? { paramBindings: newBindings } : {})
+    });
+  }
 });
 
 watch(
@@ -223,29 +217,6 @@ watch(
   newValue => {
     if (newValue !== null) collapsed.value = newValue;
   }
-);
-
-watch(
-  paramBindings,
-  newBindings => {
-    const node = workflowStore.nodes.find(n => n.id === props.id);
-    if (node) {
-      if (JSON.stringify(newBindings) !== JSON.stringify(props.data.paramBindings)) {
-        workflowStore.updateNode(props.id, { paramBindings: newBindings });
-      }
-    }
-  },
-  { deep: true }
-);
-
-watch(
-  () => props.data.paramBindings,
-  newBindings => {
-    if (newBindings && JSON.stringify(newBindings) !== JSON.stringify(paramBindings.value)) {
-      paramBindings.value = newBindings;
-    }
-  },
-  { deep: true }
 );
 
 // Handle 显示状态
@@ -405,13 +376,13 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         :get-handle-style="getHandleStyle"
       />
     </div>
-    <NCollapse v-if="isAiNode" class="pt-3">
+    <NCollapse v-if="isAiNode" v-bind="collapseProps([], ['ai-config'])" class="pt-3">
       <template #arrow>
         <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
       </template>
       <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
     </NCollapse>
-    <NCollapse v-if="isDialogNode" class="pt-3">
+    <NCollapse v-if="isDialogNode" v-bind="collapseProps([], ['dialog-config'])" class="pt-3">
       <template #arrow>
         <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
       </template>
@@ -419,6 +390,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
     </NCollapse>
     <NCollapse
       v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+      v-bind="collapseProps([], ['params'])"
       class="pb-2 pt-3"
     >
       <template #arrow>
@@ -599,13 +571,13 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
             />
           </div>
           <div v-if="!collapsed" class="nodrag mt-2 text-3 c-gray-5 dark:c-gray-4">
-            <NCollapse v-if="isAiNode" class="pt-3">
+            <NCollapse v-if="isAiNode" v-bind="collapseProps([], ['ai-config'])" class="pt-3">
               <template #arrow>
                 <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
               </template>
               <AiConfigPanel :node-data="data" :node-id="id" @update-ai-config="handleAiConfigUpdate" />
             </NCollapse>
-            <NCollapse v-if="isDialogNode" class="pt-3">
+            <NCollapse v-if="isDialogNode" v-bind="collapseProps([], ['dialog-config'])" class="pt-3">
               <template #arrow>
                 <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
               </template>
@@ -613,6 +585,7 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
             </NCollapse>
             <NCollapse
               v-if="inputParams.length > 0 || outputParams.length > 0 || allowCustomInput || allowCustomOutput"
+              v-bind="collapseProps([], ['params'])"
               class="pb-2 pt-3"
             >
               <template #arrow>

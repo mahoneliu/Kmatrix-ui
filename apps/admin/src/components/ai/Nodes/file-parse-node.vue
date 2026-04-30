@@ -6,7 +6,7 @@
  * @author Mahone
  * @date 2026-04-05
  */
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import { NSelect, NTooltip } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
@@ -68,10 +68,30 @@ watch(
 onMounted(() => {
   initData();
 });
+
+// 解析方式标签映射
+const processTypeLabels: Record<string, string> = {
+  GENERIC_FILE: $t('ai.workflow_node.process_type_generic'),
+  QA_PAIR: $t('ai.workflow_node.process_type_qa'),
+  ONLINE_DOC: $t('ai.workflow_node.process_type_online'),
+  WEB_LINK: $t('ai.workflow_node.process_type_web')
+};
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const processType = (props.data.config as Workflow.FileParseConfig | undefined)?.processType;
+  if (!processType) return [];
+  return [
+    {
+      label: $t('ai.workflow_node.process_type'),
+      value: processTypeLabels[processType] || processType
+    }
+  ];
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="file-parse-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="file-parse-node">
     <div class="w-full">
       <div class="workflow-config-section">
         <div class="workflow-config-item">

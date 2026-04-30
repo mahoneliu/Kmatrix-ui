@@ -1773,6 +1773,7 @@ declare namespace App {
           thinking_process: string;
           time_cost: string;
           execution_details: string;
+          tool_calls: string;
           node_count: string;
           ai_thinking: string;
           ai_responding: string;
@@ -2097,6 +2098,9 @@ declare namespace App {
           node_category_database: string;
           node_category_action: string;
           node_category_fileprocessing: string;
+          cover_stream_msg: string;
+          cover_stream_msg_tip: string;
+          node_category_tool: string;
           op_eq: string;
           op_ne: string;
           op_gt: string;

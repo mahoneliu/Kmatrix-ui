@@ -253,6 +253,8 @@ export const useWorkflowStore = defineStore('workflow', {
 
     /** 打开节点抽屉 */
     openNodeDrawer(nodeId: string) {
+      // 只管理抽屉状态，不干预 vue-flow 的 node.selected
+      // selectedNodeId 由 vue-flow 的 onNodeClick 事件统一维护
       this.drawerNodeId = nodeId;
     },
 
@@ -266,7 +268,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.globalDrawerMode = !this.globalDrawerMode;
       // 持久化到本地存储
       localStorage.setItem('workflow_drawer_mode', String(this.globalDrawerMode));
-      // 切换为内嵌模式时关闭当前抽屉
+      // 切换为内嵌模式时关闭抽屉
       if (!this.globalDrawerMode) {
         this.drawerNodeId = null;
       }

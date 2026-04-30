@@ -7,11 +7,13 @@ import { fetchBuiltinToolList } from '@/service/api/ai/builtin-tool';
 import { fetchGetAllSkillList } from '@/service/api/ai/skill';
 import { useAiModelStore } from '@/store/modules/ai/ai-model';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps & { drawerMode?: boolean }>();
 const aiModelStore = useAiModelStore();
+const { collapseProps } = useNodeCollapse();
 
 // 工具配置（LLM 节点特有）
 const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
@@ -77,7 +79,7 @@ onMounted(() => {
     class="llm-chat-node"
   >
     <div class="w-full">
-      <NCollapse :default-expanded-names="['tools']">
+      <NCollapse v-bind="collapseProps(['tools'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

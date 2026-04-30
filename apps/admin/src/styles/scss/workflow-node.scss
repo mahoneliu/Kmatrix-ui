@@ -1,6 +1,5 @@
 /* 统一的节点 Handle 样式 */
 .workflow-node {
-
   /* source handle (右侧)：默认隐藏，有连线时显示小贴片，高亮时显示带加号圆圈 */
   .vue-flow__handle.custom-handle-source {
     width: 2px !important;
@@ -116,7 +115,6 @@
 
   /* 高亮状态（hover / selected） */
   &.handles-visible {
-
     /* 普通 source handle：带 + 的圆圈，一半在内一半在外 */
     .vue-flow__handle.custom-handle-source {
       width: 20px !important;
@@ -212,7 +210,6 @@
 
 /* 操作按钮统一样式 */
 .workflow-btn {
-
   &-add,
   &-remove {
     .svg-icon {

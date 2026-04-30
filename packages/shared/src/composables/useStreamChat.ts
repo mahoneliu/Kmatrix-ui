@@ -1,5 +1,6 @@
 import { ref, triggerRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getAuthHeaders } from '../utils/auth';
 // import { localStg } from '@/utils/storage';
 
 export interface ChatMessage {
@@ -27,6 +28,8 @@ export interface ChatMessage {
   citations?: Citation[];
   /** 工具调用轨迹 */
   toolTraces?: ToolTrace[];
+  /** 工具调用轨迹面板是否展开 */
+  toolTracesExpanded?: boolean;
   /** 标记当前消息是否为错误消息 */
   isError?: boolean;
 }
@@ -340,38 +343,15 @@ export function useStreamChat(options: UseStreamChatOptions) {
     messages.value.push(aiMsg);
 
     try {
-      // 优先使用 options 传入的 token，否则尝试从本地存储获取
-      // RuoYi 项目使用 RY_token 作为存储键
-      let token = options.token || localStorage.getItem('RY_token') || '';
-
-      // 如果 localStorage 中没有 token，尝试从 Cookie 中读取
-      if (!token) {
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          if (name === 'Authorization') {
-            // Cookie 中的值可能已经包含 Bearer 前缀，也可能没有
-            token = decodeURIComponent(value);
-            break;
-          }
-        }
-      }
+      const authHeaders = getAuthHeaders(options.token);
 
       const clientId = import.meta.env.VITE_APP_CLIENT_ID;
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        clientid: clientId || ''
+        clientid: clientId || '',
+        ...authHeaders
       };
-
-      // 如果有 token，则添加 Authorization 头
-      if (token) {
-        // 清理 token：移除可能的引号和空格
-        token = token.trim().replace(/^["']|["']$/g, '');
-
-        // 如果 token 不是以 Bearer 开头，则添加 Bearer 前缀
-        headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-      }
 
       const response = await fetch(`${baseURL}${apiEndpoint}`, {
         method: 'POST',
@@ -433,6 +413,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
         onToolTrace: (trace: ToolTrace) => {
           if (!aiMsg.toolTraces) {
             aiMsg.toolTraces = [];
+            // 首次出现工具调用时展开面板
+            aiMsg.toolTracesExpanded = true;
           }
           // 如果是 result，启动打字机效果模拟流式输出
           if (trace.type === 'tool_call_result') {
@@ -486,20 +468,40 @@ export function useStreamChat(options: UseStreamChatOptions) {
         },
 
         onComplete: data => {
-          // 只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充
-          // 若已有流式内容（打字机效果），则不覆盖，避免整段文字突然替换已有内容
-          if (data.length > 0 && !aiMsg.content) {
+          let finalData = data;
+          let cover = false;
+
+          // 尝试解析后端传递的包装结构
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed && typeof parsed === 'object' && parsed.text !== undefined) {
+              finalData = parsed.text;
+              cover = Boolean(parsed.coverStreamMsg);
+            }
+          } catch {
+            // 兼容旧的纯文本格式
+          }
+
+          // 如果需要最终在聊天面板呈现 endNode 的 finalResponse 并覆盖，无条件使用 finalData 覆盖 aiMsg.content
+          if (cover) {
+            aiMsg.content = finalData;
+            triggerRef(messages);
+            return;
+          }
+
+          // 否则走原来的机制（只有在流式阶段没有收到任何内容时，才用 workflow_complete 的完整内容填充）
+          if (finalData.length > 0 && !aiMsg.content) {
             // 模拟打字机效果：按字符逐步输出，完成后 resolve
             typingPromise = new Promise<void>(resolve => {
               let i = 0;
               const chunkSize = 4;
               function typeNext() {
-                if (i >= data.length) {
+                if (i >= finalData.length) {
                   resolve();
                   return;
                 }
-                const end = Math.min(i + chunkSize, data.length);
-                aiMsg.content += data.slice(i, end);
+                const end = Math.min(i + chunkSize, finalData.length);
+                aiMsg.content += finalData.slice(i, end);
                 triggerRef(messages);
                 i = end;
                 requestAnimationFrame(typeNext);
@@ -518,6 +520,8 @@ export function useStreamChat(options: UseStreamChatOptions) {
           aiMsg.streaming = false;
           // 折叠thinking区域
           aiMsg.thinkingExpanded = false;
+          // 折叠工具调用轨迹面板
+          aiMsg.toolTracesExpanded = false;
 
           // 汇总所有节点的 token 使用量
           let totalInput = 0;

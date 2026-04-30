@@ -6,11 +6,12 @@
  * @author Mahone
  * @date 2026-01-29
  */
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NSlider, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchAllKnowledgeBases } from '@/service/api/ai/knowledge';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
@@ -38,6 +39,8 @@ const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   emptyResponse: ''
 });
 
+const { collapseProps } = useNodeCollapse();
+
 // 加载知识库列表
 async function loadKnowledgeBases() {
   kbLoading.value = true;
@@ -56,6 +59,35 @@ async function loadKnowledgeBases() {
   }
 }
 
+// 检索模式标签映射
+const modeLabels: Record<string, string> = {
+  VECTOR: $t('ai.workflow_node.vector_retrieval'),
+  KEYWORD: $t('ai.workflow_node.keyword_search'),
+  HYBRID: $t('ai.workflow_node.hybrid_retrieval')
+};
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as any;
+  const kbIds: number[] = config?.kbIds || [];
+  if (kbIds.length > 0) {
+    const names = kbIds
+      .map((id: number) => kbOptions.value.find(o => o.value === id)?.label)
+      .filter(Boolean) as string[];
+    let display = `${kbIds.length}个`;
+    if (names.length > 0) {
+      display = names.length <= 2 ? names.join('、') : `${names.slice(0, 2).join('、')} +${names.length - 2}`;
+    }
+    items.push({ label: $t('ai.workflow_node.knowledge_base'), value: display });
+  }
+  const mode = config?.mode;
+  if (mode) {
+    items.push({ label: $t('ai.workflow_node.retrieval_mode'), value: modeLabels[mode] || mode });
+  }
+  return items;
+});
+
 onMounted(() => {
   initData();
   loadKnowledgeBases();
@@ -63,9 +95,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="knowledge-retrieval-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="knowledge-retrieval-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

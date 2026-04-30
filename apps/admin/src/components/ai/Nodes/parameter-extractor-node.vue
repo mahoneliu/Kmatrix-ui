@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { NButton, NForm, NFormItem, NInput, NModal, NSelect, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { PARAM_TYPE_MAP, PARAM_TYPE_OPTIONS } from '@/constants/workflow';
@@ -85,7 +85,10 @@ function syncOutputParams() {
       description: p.description || ''
     }));
 
-  workflowStore.updateNode(props.id, { customOutputParams: outputs });
+  workflowStore.updateNode(props.id, {
+    dynamicOutputParams: outputs,
+    customOutputParams: [] // 清理旧数据，归并到动态参数
+  });
 }
 
 watch(
@@ -93,12 +96,26 @@ watch(
   () => syncOutputParams(),
   { deep: true }
 );
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const config = props.data.config as any;
+  const count = (config?.parameters as Workflow.ExtractorParamDef[] | undefined)?.length ?? 0;
+  if (count === 0) return [];
+  return [
+    {
+      label: $t('ai.workflow_node.parameter_extractor.param_definitions'),
+      value: `${count} 个参数`
+    }
+  ];
+});
 </script>
 
 <template>
   <BaseNode
     v-bind="props"
     :data="data"
+    :summary-items="summaryItems"
     class="parameter-extractor-node"
     @delete-node="id => emit('deleteNode', id)"
     @duplicate-node="id => emit('duplicateNode', id)"

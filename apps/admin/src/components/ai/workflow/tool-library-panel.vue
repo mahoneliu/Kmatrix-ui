@@ -136,6 +136,7 @@ function handleMouseDown(e: MouseEvent, toolRef: any, isMcp: boolean) {
     nodeIcon,
     description,
     customInputParams: parsedInputs,
+    dynamicOutputParams: parsedOutputs,
     config: {
       tool: {
         type: isMcp ? 'mcp' : 'builtin',
@@ -230,6 +231,7 @@ function handleSkillMouseDown(e: MouseEvent, skill: Api.Ai.Skill.Info) {
     nodeIcon,
     description,
     customInputParams: parsedInputs,
+    dynamicOutputParams: parsedOutputs,
     config: {
       skillId: skill.skillId,
       outputs: parsedOutputs

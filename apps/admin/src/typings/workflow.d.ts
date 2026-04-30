@@ -59,6 +59,8 @@ declare namespace Workflow {
     customInputParams?: ParamDefinition[];
     /** 自定义输出参数 */
     customOutputParams?: ParamDefinition[];
+    /** 动态输出参数（由具体节点逻辑如 TOOL、SKILL、VARIABLE_AGGREGATOR 自动维护的出参，不应由用户在通用配置面板中增删） */
+    dynamicOutputParams?: ParamDefinition[];
     /** 是否使用抽屉模式展示表单 */
     drawerMode?: boolean;
   }
@@ -279,6 +281,8 @@ declare namespace Workflow {
     isCustomResponse: boolean;
     /** 指定回复内容 (finalResponse参数与customResponse参数必填其中之一) */
     customResponse: string;
+    /** 是否覆盖前序流式消息 */
+    coverStreamMsg?: boolean;
   }
 
   /** 应用基础信息节点配置 */

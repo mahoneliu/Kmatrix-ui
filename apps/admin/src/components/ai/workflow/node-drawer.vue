@@ -3,8 +3,9 @@ import { computed, provide, ref, watch } from 'vue';
 import { SvgIcon } from '@sa/materials';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
 import { useNodeComponents } from '@/composables/ai/workflow/use-node-components';
+import { getNodeIconBackground } from '@/utils/color';
 import AppInfoNode from '@/components/ai/Nodes/appInfo-node.vue';
-import { DRAWER_RENDER_KEY } from './drawer-context';
+import { DRAWER_EXPANDED_KEY, DRAWER_RENDER_KEY } from './drawer-context';
 
 /** 抽屉最小宽度 */
 const MIN_WIDTH = 320;
@@ -21,7 +22,9 @@ const isDragging = ref(false);
 let startX = 0;
 let startWidth = 0;
 
-const isOpen = computed(() => Boolean(workflowStore.drawerNodeId));
+// 抽屉开关由 drawerNodeId 控制，与 selectedNodeId 解耦
+// 内嵌模式下 drawerNodeId 为 null，抽屉不显示
+const isOpen = computed(() => Boolean(workflowStore.drawerNodeId) && workflowStore.globalDrawerMode);
 
 const activeNode = computed(() => {
   if (!workflowStore.drawerNodeId) return null;
@@ -67,6 +70,8 @@ watch(isOpen, open => {
 
 // 向子组件注入"当前是抽屉渲染上下文"
 provide(DRAWER_RENDER_KEY, true);
+// 向子组件注入"抽屉模式下自动展开所有折叠面板"
+provide(DRAWER_EXPANDED_KEY, true);
 </script>
 
 <template>
@@ -81,7 +86,7 @@ provide(DRAWER_RENDER_KEY, true);
           <div
             class="h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-1"
             :style="{
-              backgroundColor: `${activeNode.data.nodeColor}22`,
+              backgroundColor: getNodeIconBackground(activeNode.data.nodeColor),
               color: activeNode.data.nodeColor
             }"
           >

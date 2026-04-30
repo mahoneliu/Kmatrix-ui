@@ -6,7 +6,7 @@
  * @author Mahone
  * @date 2026-04-05
  */
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { fetchAllKnowledgeBases, fetchDatasetsByKbId } from '@/service/api/ai/knowledge';
@@ -136,10 +136,21 @@ onMounted(() => {
   initData();
   loadKnowledgeBases();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as Workflow.FileStorageConfig | undefined;
+  if (config?.kbId) {
+    const kb = kbOptions.value.find(o => o.value === config.kbId);
+    items.push({ label: $t('ai.workflow_node.knowledge_base'), value: kb?.label || String(config.kbId) });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="file-storage-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="file-storage-node">
     <div class="w-full">
       <div class="workflow-config-section">
         <!-- 知识库选择 -->

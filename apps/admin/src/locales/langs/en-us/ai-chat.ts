@@ -11,6 +11,7 @@ const chat: App.I18n.Schema['ai']['chat'] = {
   thinking_process: 'Thinking Process',
   time_cost: 'Time Cost',
   execution_details: 'Execution Details',
+  tool_calls: 'Tool Calls',
   node_count: 'Nodes',
   ai_thinking: 'AI thinking...',
   ai_responding: 'AI responding...',

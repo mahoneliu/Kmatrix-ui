@@ -113,10 +113,18 @@ watch(
 onMounted(() => {
   initData();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const config = props.data.config as Workflow.SessionVariableAssignConfig | undefined;
+  const count = config?.assignments?.length ?? 0;
+  if (count === 0) return [];
+  return [{ label: $t('ai.workflow_node.variable'), value: `${count} 个变量` }];
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems">
     <div class="w-93">
       <!-- 变量列表标题行：+ 按钮与每行的 - 按钮右对齐，使用相同宽度占位 -->
       <div class="mb-2 flex items-center text-12px c-gray-5 font-600">

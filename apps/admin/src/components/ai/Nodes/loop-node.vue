@@ -6,7 +6,7 @@
  * @author Mahone
  * @date 2026-03-22
  */
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { NInputNumber, NPopover } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
@@ -144,6 +144,16 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     return $t('ai.workflow_node.detail');
   }
 }
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const maxIter = localConfig.value.maxIterations;
+  if (maxIter !== undefined && maxIter !== null) {
+    items.push({ label: $t('ai.workflow_node.max_iterations_label'), value: String(maxIter) });
+  }
+  return items;
+});
 </script>
 
 <template>
@@ -158,6 +168,7 @@ function getConditionSummary(condition: Workflow.ConditionGroup): string {
     }"
     v-bind="props"
     :data="data"
+    :summary-items="summaryItems"
     :hide-source-handle="true"
     :no-content-padding="true"
     class="loop-node"

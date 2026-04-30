@@ -6,11 +6,12 @@
  * @author Mahone
  * @date 2026-01-24
  */
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { NCollapse, NCollapseItem, NInput, NSelect } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useDataSource } from '@/composables/ai/data-source/use-data-source';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import BaseNode from './base-node.vue';
 
@@ -26,16 +27,29 @@ const { formModel, initData } = useAiNodeConfig(props.id, () => props.data, {
   tableBlacklist: ''
 });
 
+const { collapseProps } = useNodeCollapse();
+
 onMounted(() => {
   initData();
   loadDataSources();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as Workflow.SqlGenerateNodeConfig | undefined;
+  if (config?.dataSourceId) {
+    const ds = dataSourceOptions.value.find(o => o.value === config.dataSourceId);
+    items.push({ label: $t('ai.workflow_node.data_source'), value: ds?.label || String(config.dataSourceId) });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data" class="sql-generate-node">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems" class="sql-generate-node">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'], ['config', 'advanced'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>

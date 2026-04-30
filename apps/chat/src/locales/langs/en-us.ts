@@ -30,6 +30,7 @@ const local = {
       thinking_process: 'Thinking Process',
       time_cost: 'Time Cost',
       execution_details: 'Execution Details',
+      tool_calls: 'Tool Calls',
       node_count: '{count} nodes',
       ai_thinking: 'AI is thinking...',
       ai_responding: 'AI is responding...',

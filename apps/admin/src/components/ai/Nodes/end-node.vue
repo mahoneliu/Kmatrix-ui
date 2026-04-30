@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue';
-import { NCollapse, NCollapseItem } from 'naive-ui';
+import { computed, onMounted, reactive, watch } from 'vue';
+import { NCollapse, NCollapseItem, NSwitch } from 'naive-ui';
 import type { NodeProps } from '@vue-flow/core';
 import { useWorkflowStore } from '@/store/modules/ai/workflow';
+import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
 import VariableMention from '@/components/ai/Nodes/add-in/variable-mention.vue';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps>();
 const workflowStore = useWorkflowStore();
+const { collapseProps } = useNodeCollapse();
 
 // 局部表单数据
 const formModel = reactive<Workflow.EndConfig>({
   isCustomResponse: false,
-  customResponse: ''
+  customResponse: '',
+  coverStreamMsg: false
 });
 
 // 初始化数据
@@ -22,6 +25,7 @@ function initData() {
   if (config) {
     formModel.isCustomResponse = config.isCustomResponse || false;
     formModel.customResponse = config.customResponse || '';
+    formModel.coverStreamMsg = config.coverStreamMsg || false;
   }
 }
 
@@ -32,7 +36,8 @@ watch(
     const currentConfig = props.data.config as Workflow.EndConfig | undefined;
     if (
       newValue.customResponse !== currentConfig?.customResponse ||
-      newValue.isCustomResponse !== currentConfig?.isCustomResponse
+      newValue.isCustomResponse !== currentConfig?.isCustomResponse ||
+      newValue.coverStreamMsg !== currentConfig?.coverStreamMsg
     ) {
       workflowStore.updateNodeConfig(props.id, { ...newValue });
     }
@@ -52,6 +57,9 @@ watch(
       if (config.isCustomResponse !== formModel.isCustomResponse) {
         formModel.isCustomResponse = config.isCustomResponse || false;
       }
+      if (config.coverStreamMsg !== formModel.coverStreamMsg) {
+        formModel.coverStreamMsg = config.coverStreamMsg || false;
+      }
     }
   },
   { deep: true }
@@ -60,12 +68,26 @@ watch(
 onMounted(() => {
   initData();
 });
+
+// 计算摘要信息
+const summaryItems = computed(() => {
+  const items = [];
+  const config = props.data.config as Workflow.EndConfig | undefined;
+  if (config?.customResponse) {
+    const text = config.customResponse.replace(/\{\{[^}]+\}\}/g, '[变量]');
+    items.push({
+      label: $t('ai.workflow_node.specify_reply_content'),
+      value: text.length > 20 ? `${text.slice(0, 20)}…` : text
+    });
+  }
+  return items;
+});
 </script>
 
 <template>
-  <BaseNode v-bind="props" :data="data">
+  <BaseNode v-bind="props" :data="data" :summary-items="summaryItems">
     <div class="w-full">
-      <NCollapse :default-expanded-names="['config']">
+      <NCollapse v-bind="collapseProps(['config'])">
         <template #arrow>
           <SvgIcon local-icon="mdi-play" class="workflow-collapse-icon" />
         </template>
@@ -93,6 +115,26 @@ onMounted(() => {
                 :rows="2"
                 :placeholder="$t('ai.workflow_node.input_end_node_content')"
               />
+
+              <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span class="mb-0 workflow-label">
+                    {{ $t('ai.workflow_node.cover_stream_msg') || '覆盖流式消息' }}
+                  </span>
+                  <NTooltip trigger="hover">
+                    <template #trigger>
+                      <span class="inline-flex items-center">
+                        <SvgIcon local-icon="mdi-information-outline" class="cursor-help text-4 c-gray-4" />
+                      </span>
+                    </template>
+                    {{
+                      $t('ai.workflow_node.cover_stream_msg_tip') ||
+                      '如果开启，在最终输出时将覆盖之前大模型流式输出的文本过程。'
+                    }}
+                  </NTooltip>
+                </div>
+                <NSwitch v-model:value="formModel.coverStreamMsg" size="small" />
+              </div>
             </div>
           </div>
         </NCollapseItem>

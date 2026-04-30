@@ -308,7 +308,28 @@ function handleClose() {
           </NFormItem>
 
           <!-- serverConfig: 整体 JSON 编辑 -->
-          <NFormItem :label="$t('ai.mcp.serverConfig')" path="serverConfig">
+          <NFormItem path="serverConfig">
+            <template #label>
+              <div class="flex items-center gap-1.5">
+                <span>{{ $t('ai.mcp.serverConfig') }}</span>
+                <NPopover trigger="hover" :width="380" placement="bottom-start">
+                  <template #trigger>
+                    <SvgIcon icon="mdi:information-outline" class="cursor-help text-16px text-gray-400" />
+                  </template>
+                  <div class="text-13px leading-relaxed">
+                    <p class="m-0 mb-2 font-semibold">配置项应为合法的 JSON 对象，例如：</p>
+                    <pre class="m-0 overflow-x-auto rounded bg-gray-100 p-2 text-12px">
+{
+  "url": "https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/mcp",
+  "headers": {
+    "Authorization": "Bearer your-api-key"
+  }
+}</pre
+                    >
+                  </div>
+                </NPopover>
+              </div>
+            </template>
             <NSpace vertical :size="4" class="w-full">
               <NInput
                 v-model:value="form.serverConfig"
