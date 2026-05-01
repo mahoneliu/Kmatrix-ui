@@ -1,0 +1,76 @@
+name: Deploy Frontend to Windows
+
+on:
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 配置 Node 环境及 pnpm
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: 安装 pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
+    - name: 获取 pnpm 缓存目录配置
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: 启用 pnpm 缓存
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: 安装依赖并构建
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+      run: |
+        pnpm install
+        pnpm run build
+
+    - name: 安装 lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
+
+    - name: 部署 dist 产物到 Windows Nginx (LFTP)
+      shell: bash
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      run: |
+        lftp -c "
+        set ftp:ssl-allow yes;
+        set ftp:ssl-force yes;
+        set ssl:verify-certificate no;
+        set ftp:use-site-chmod no;
+        set ftp:use-mff no;
+        set net:max-retries 10;
+        set net:reconnect-interval-base 5;
+        set net:timeout 30;
+        open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
+        mirror --reverse --parallel=3 --verbose \
+               --no-perms --only-missing \
+               ./apps/admin/dist/assets/ /kmatrix/assets/ ;
+        mirror --reverse --parallel=3 --verbose \
+               --no-perms --exclude assets/ \
+               ./apps/admin/dist/ /kmatrix/
+        "
