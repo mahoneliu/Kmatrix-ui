@@ -221,19 +221,28 @@ const summaryItems = computed(() => {
           </template>
           <!-- Continue 输出点：仅画布模式显示 -->
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              id="continue"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected('continue') },
-                { highlighted: checkHandleHighlight('continue', 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight('continue', 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, 'continue')"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  id="continue"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected('continue') },
+                    { highlighted: checkHandleHighlight('continue', 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight('continue', 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, 'continue')"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
 
@@ -264,19 +273,28 @@ const summaryItems = computed(() => {
             <div class="flex-1 truncate pl-1 text-11px c-gray-4">{{ $t('ai.workflow_node.exit_or_end') }}</div>
           </template>
           <div v-if="!inDrawer" class="branch-row-handle">
-            <Handle
-              id="exit"
-              type="source"
-              :position="Position.Right"
-              class="custom-handle custom-handle-source"
-              :class="[
-                { 'handles-visible': showHandles || selected },
-                { connected: isHandleConnected('exit') },
-                { highlighted: checkHandleHighlight('exit', 'source') }
-              ]"
-              :style="getHandleStyle(checkHandleHighlight('exit', 'source'))"
-              @click="(e: MouseEvent) => handleSourceHandleClick(e, 'exit')"
-            />
+            <NPopover trigger="hover" placement="top" :show-arrow="true">
+              <template #trigger>
+                <Handle
+                  id="exit"
+                  type="source"
+                  :position="Position.Right"
+                  class="custom-handle custom-handle-source"
+                  :class="[
+                    { 'handles-visible': showHandles || selected },
+                    { connected: isHandleConnected('exit') },
+                    { highlighted: checkHandleHighlight('exit', 'source') }
+                  ]"
+                  :style="getHandleStyle(checkHandleHighlight('exit', 'source'))"
+                  @click="(e: MouseEvent) => handleSourceHandleClick(e, 'exit')"
+                />
+              </template>
+              <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+                <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+                <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+              </div>
+            </NPopover>
           </div>
         </div>
       </div>

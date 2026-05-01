@@ -68,3 +68,20 @@ export function fetchMcpServerResources(serverId: CommonType.IdType) {
     method: 'get'
   });
 }
+
+/** 连接测试 */
+export function testMcpConnection(data: Api.Ai.McpConnectionTestBo) {
+  return request<Api.Ai.McpConnectionTestResultVo>({
+    url: '/ai/mcp-server/test-connection',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取 MCP Server 工具列表 */
+export function fetchMcpServerTools(serverId: CommonType.IdType) {
+  return request<Api.Ai.McpToolVo[]>({
+    url: `/ai/mcp-server/${serverId}/tools`,
+    method: 'get'
+  });
+}

@@ -9,6 +9,7 @@ import { useAiModelStore } from '@/store/modules/ai/ai-model';
 import { useAiNodeConfig } from '@/composables/ai/workflow/use-ai-node';
 import { useNodeCollapse } from '@/composables/ai/workflow/use-node-collapse';
 import { $t } from '@/locales';
+import McpToolPreviewPanel from '@/components/ai/Nodes/add-in/mcp-tool-preview-panel.vue';
 import BaseNode from './base-node.vue';
 
 const props = defineProps<NodeProps & { drawerMode?: boolean }>();
@@ -89,7 +90,15 @@ onMounted(() => {
           <div class="workflow-config-section">
             <!-- 绑定 MCP Server -->
             <div class="workflow-config-item">
-              <span class="workflow-label">{{ $t('ai.workflow_node.bind_mcp_servers') }}</span>
+              <div class="flex items-center justify-between">
+                <span class="workflow-label">{{ $t('ai.workflow_node.bind_mcp_servers') }}</span>
+                <a
+                  class="cursor-pointer text-11px text-primary hover:opacity-80"
+                  @click="() => window.open('/ai/model/mcp-market', '_blank')"
+                >
+                  {{ $t('ai.workflow_node.goto_mcp_market') || '前往 MCP 市场' }}
+                </a>
+              </div>
               <NSelect
                 v-model:value="formModel.mcpServerIds"
                 multiple
@@ -98,6 +107,7 @@ onMounted(() => {
                 size="small"
                 class="mt-1"
               />
+              <McpToolPreviewPanel :server-ids="formModel.mcpServerIds" class="mt-1" />
             </div>
 
             <!-- 绑定内置工具 -->

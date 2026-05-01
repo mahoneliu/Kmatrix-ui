@@ -165,6 +165,11 @@ const workflow: App.I18n.Schema['ai']['workflow'] = {
   msg: {
     connection_not_supported: '不支持的连线: [{source}] 到 [{target}]',
     invalid_connection: '无效的连线'
+  },
+  handle_tip: {
+    drag_connect: '拖拽连接节点',
+    click_add: '点击添加节点',
+    drag_blank_add: '拖拽到空白添加节点'
   }
 };
 
@@ -330,6 +335,7 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   end: '结束',
   tool_config: '工具配置',
   bind_mcp_servers: '绑定 MCP Server',
+  go_to_mcp_market: '前往 MCP 市场',
   mcp_select_placeholder: '选择要使用的 MCP Server（可多选）',
   bind_builtin_tools: '绑定内置工具',
   tool_select_placeholder: '选择内置 Python 工具（可多选）',

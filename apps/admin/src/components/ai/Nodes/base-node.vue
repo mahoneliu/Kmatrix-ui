@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, h, inject, ref, watch } from 'vue';
-import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NTooltip } from 'naive-ui';
+import { NCollapse, NCollapseItem, NDropdown, NInput, NModal, NPopover, NTooltip } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 import { Handle, Position } from '@vue-flow/core';
 import type { NodeProps } from '@vue-flow/core';
@@ -494,21 +494,34 @@ function handleAiConfigUpdate(aiConfig: Workflow.AiConfig) {
         </span>
 
         <!-- 输出连接点 (右侧，对齐标题中央) -->
-        <Handle
+        <NPopover
           v-if="
             !hideSourceHandle && !['END', 'APP_INFO', 'INTENT_CLASSIFIER', 'CONDITION', 'LOOP'].includes(data.nodeType)
           "
-          :position="Position.Right"
-          type="source"
-          class="custom-handle custom-handle-source header-handle"
-          :class="[
-            { 'handles-visible': showHandles || selected },
-            { highlighted: shouldHighlightSourceHandle },
-            { connected: hasSourceConnection }
-          ]"
-          :style="getHandleStyle(shouldHighlightSourceHandle)"
-          @click="handleSourceHandleClick"
-        />
+          trigger="hover"
+          placement="top"
+          :show-arrow="true"
+        >
+          <template #trigger>
+            <Handle
+              :position="Position.Right"
+              type="source"
+              class="custom-handle custom-handle-source header-handle"
+              :class="[
+                { 'handles-visible': showHandles || selected },
+                { highlighted: shouldHighlightSourceHandle },
+                { connected: hasSourceConnection }
+              ]"
+              :style="getHandleStyle(shouldHighlightSourceHandle)"
+              @click="handleSourceHandleClick"
+            />
+          </template>
+          <div class="flex flex-col gap-1 p-0.5 text-12px c-gray-6 dark:c-gray-3">
+            <div>{{ $t('ai.workflow.handle_tip.drag_connect') }}</div>
+            <div>{{ $t('ai.workflow.handle_tip.click_add') }}</div>
+            <div>{{ $t('ai.workflow.handle_tip.drag_blank_add') }}</div>
+          </div>
+        </NPopover>
       </div>
 
       <!-- 节点主体 -->

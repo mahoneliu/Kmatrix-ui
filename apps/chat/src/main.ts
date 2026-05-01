@@ -20,6 +20,7 @@ function getUrlParams() {
       customParams = JSON.parse(decodeURIComponent(customParamsStr));
     }
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error('[KMatrix Embed] Failed to parse customParams:', e);
   }
 

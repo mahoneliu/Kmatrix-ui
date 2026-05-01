@@ -167,6 +167,11 @@ const workflow: App.I18n.Schema['ai']['workflow'] = {
   msg: {
     connection_not_supported: 'Not supported: [{source}] to [{target}]',
     invalid_connection: 'Invalid connection'
+  },
+  handle_tip: {
+    drag_connect: 'Drag to connect nodes',
+    click_add: 'Click to add node',
+    drag_blank_add: 'Drag to blank area to add node'
   }
 };
 
@@ -332,6 +337,7 @@ const workflow_node: App.I18n.Schema['ai']['workflow_node'] = {
   end: 'End',
   tool_config: 'Tool Config',
   bind_mcp_servers: 'Bind MCP Servers',
+  go_to_mcp_market: 'Go to MCP Market',
   mcp_select_placeholder: 'Select MCP Servers (multi)',
   bind_builtin_tools: 'Bind Built-in Tools',
   tool_select_placeholder: 'Select Built-in Tools (multi)',

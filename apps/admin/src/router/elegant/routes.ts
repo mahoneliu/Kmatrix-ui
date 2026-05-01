@@ -51,260 +51,53 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'ai',
-    path: '/ai',
+    name: 'app',
+    path: '/app',
     component: 'layout.base',
     meta: {
-      title: 'ai',
-      i18nKey: 'route.ai',
-      localIcon: 'carbon-bot',
-      order: 2
+      title: 'app',
+      i18nKey: 'route.app'
     },
     children: [
       {
-        name: 'ai_app',
-        path: '/ai/app',
-        component: 'layout.base',
+        name: 'app_app-detail',
+        path: '/app/app-detail',
+        component: 'view.app_app-detail',
         meta: {
-          title: 'ai_app',
-          i18nKey: 'route.ai_app',
+          title: 'app_app-detail',
+          i18nKey: 'route.app_app-detail',
+          constant: true,
           hideInMenu: true
-        },
-        children: [
-          {
-            name: 'ai_app_app-detail',
-            path: '/ai/app/app-detail',
-            component: 'view.ai_app_app-detail',
-            meta: {
-              title: 'ai_app_app-detail',
-              i18nKey: 'route.ai_app_app-detail',
-              hideInMenu: true,
-              constant: true
-            }
-          },
-          {
-            name: 'ai_app_app-manager',
-            path: '/ai/app/app-manager',
-            component: 'view.ai_app_app-manager',
-            meta: {
-              title: 'ai_app_app-manager',
-              i18nKey: 'route.ai_app_app-manager'
-            }
-          },
-          {
-            name: 'ai_app_chat',
-            path: '/ai/app/chat',
-            component: 'view.ai_app_chat',
-            meta: {
-              title: 'ai_app_chat',
-              i18nKey: 'route.ai_app_chat',
-              constant: true,
-              hideInMenu: true
-            }
-          },
-          {
-            name: 'ai_app_rate-limit',
-            path: '/ai/app/rate-limit',
-            component: 'view.ai_app_rate-limit',
-            meta: {
-              title: 'ai_app_rate-limit',
-              i18nKey: 'route.ai_app_rate-limit'
-            }
-          }
-        ]
+        }
       },
       {
-        name: 'ai_knowledge',
-        path: '/ai/knowledge',
-        component: 'layout.base',
+        name: 'app_app-manager',
+        path: '/app/app-manager',
+        component: 'view.app_app-manager',
         meta: {
-          title: 'ai_knowledge',
-          i18nKey: 'route.ai_knowledge',
-          hideInMenu: true
-        },
-        children: [
-          {
-            name: 'ai_knowledge_chunk-manager',
-            path: '/ai/knowledge/chunk-manager',
-            component: 'view.ai_knowledge_chunk-manager',
-            meta: {
-              title: 'ai_knowledge_chunk-manager',
-              i18nKey: 'route.ai_knowledge_chunk-manager'
-            }
-          },
-          {
-            name: 'ai_knowledge_document-upload',
-            path: '/ai/knowledge/document-upload',
-            component: 'view.ai_knowledge_document-upload',
-            meta: {
-              title: 'ai_knowledge_document-upload',
-              i18nKey: 'route.ai_knowledge_document-upload',
-              constant: true,
-              hideInMenu: true
-            },
-            children: [
-              {
-                name: 'ai_knowledge_document-upload_step1',
-                path: '/ai/knowledge/document-upload/step1',
-                component: 'view.ai_knowledge_document-upload_step1',
-                meta: {
-                  title: 'ai_knowledge_document-upload_step1',
-                  i18nKey: 'route.ai_knowledge_document-upload_step1',
-                  constant: true,
-                  hideInMenu: true
-                }
-              },
-              {
-                name: 'ai_knowledge_document-upload_step2',
-                path: '/ai/knowledge/document-upload/step2',
-                component: 'view.ai_knowledge_document-upload_step2',
-                meta: {
-                  title: 'ai_knowledge_document-upload_step2',
-                  i18nKey: 'route.ai_knowledge_document-upload_step2',
-                  constant: true,
-                  hideInMenu: true
-                }
-              }
-            ]
-          },
-          {
-            name: 'ai_knowledge_knowledge-detail',
-            path: '/ai/knowledge/knowledge-detail',
-            component: 'view.ai_knowledge_knowledge-detail',
-            meta: {
-              title: 'ai_knowledge_knowledge-detail',
-              i18nKey: 'route.ai_knowledge_knowledge-detail'
-            }
-          },
-          {
-            name: 'ai_knowledge_knowledge-manager',
-            path: '/ai/knowledge/knowledge-manager',
-            component: 'view.ai_knowledge_knowledge-manager',
-            meta: {
-              title: 'ai_knowledge_knowledge-manager',
-              i18nKey: 'route.ai_knowledge_knowledge-manager'
-            }
-          }
-        ]
+          title: 'app_app-manager',
+          i18nKey: 'route.app_app-manager'
+        }
       },
       {
-        name: 'ai_model',
-        path: '/ai/model',
-        component: 'layout.base',
+        name: 'app_chat',
+        path: '/app/chat',
+        component: 'view.app_chat',
         meta: {
-          title: 'ai_model',
-          i18nKey: 'route.ai_model',
+          title: 'app_chat',
+          i18nKey: 'route.app_chat',
+          constant: true,
           hideInMenu: true
-        },
-        children: [
-          {
-            name: 'ai_model_mcp-manager',
-            path: '/ai/model/mcp-manager',
-            component: 'view.ai_model_mcp-manager',
-            meta: {
-              title: 'ai_model_mcp-manager',
-              i18nKey: 'route.ai_model_mcp-manager'
-            }
-          },
-          {
-            name: 'ai_model_model-manager',
-            path: '/ai/model/model-manager',
-            component: 'view.ai_model_model-manager',
-            meta: {
-              title: 'ai_model_model-manager',
-              i18nKey: 'route.ai_model_model-manager'
-            }
-          },
-          {
-            name: 'ai_model_skill-manager',
-            path: '/ai/model/skill-manager',
-            component: 'view.ai_model_skill-manager',
-            meta: {
-              title: 'ai_model_skill-manager',
-              i18nKey: 'route.ai_model_skill-manager'
-            }
-          },
-          {
-            name: 'ai_model_tool-manager',
-            path: '/ai/model/tool-manager',
-            component: 'view.ai_model_tool-manager',
-            meta: {
-              title: 'ai_model_tool-manager',
-              i18nKey: 'route.ai_model_tool-manager'
-            }
-          }
-        ]
+        }
       },
       {
-        name: 'ai_workflow',
-        path: '/ai/workflow',
-        component: 'layout.base',
+        name: 'app_rate-limit',
+        path: '/app/rate-limit',
+        component: 'view.app_rate-limit',
         meta: {
-          title: 'ai_workflow',
-          i18nKey: 'route.ai_workflow',
-          hideInMenu: true,
-          constant: true
-        },
-        children: [
-          {
-            name: 'ai_workflow_connection-rule-manager',
-            path: '/ai/workflow/connection-rule-manager',
-            component: 'view.ai_workflow_connection-rule-manager',
-            meta: {
-              title: 'ai_workflow_connection-rule-manager',
-              i18nKey: 'route.ai_workflow_connection-rule-manager'
-            }
-          },
-          {
-            name: 'ai_workflow_datasource-manager',
-            path: '/ai/workflow/datasource-manager',
-            component: 'view.ai_workflow_datasource-manager',
-            meta: {
-              title: 'ai_workflow_datasource-manager',
-              i18nKey: 'route.ai_workflow_datasource-manager'
-            }
-          },
-          {
-            name: 'ai_workflow_editor',
-            path: '/ai/workflow/editor',
-            component: 'view.ai_workflow_editor',
-            meta: {
-              title: 'ai_workflow_editor',
-              i18nKey: 'route.ai_workflow_editor',
-              hideInMenu: true,
-              constant: true
-            }
-          },
-          {
-            name: 'ai_workflow_node-definition',
-            path: '/ai/workflow/node-definition',
-            component: 'view.ai_workflow_node-definition',
-            meta: {
-              title: 'ai_workflow_node-definition',
-              i18nKey: 'route.ai_workflow_node-definition'
-            }
-          },
-          {
-            name: 'ai_workflow_template-editor',
-            path: '/ai/workflow/template-editor',
-            component: 'view.ai_workflow_template-editor',
-            meta: {
-              title: 'ai_workflow_template-editor',
-              i18nKey: 'route.ai_workflow_template-editor',
-              hideInMenu: true,
-              constant: true
-            }
-          },
-          {
-            name: 'ai_workflow_workflow-template',
-            path: '/ai/workflow/workflow-template',
-            component: 'view.ai_workflow_workflow-template',
-            meta: {
-              title: 'ai_workflow_workflow-template',
-              i18nKey: 'route.ai_workflow_workflow-template'
-            }
-          }
-        ]
+          title: 'app_rate-limit',
+          i18nKey: 'route.app_rate-limit'
+        }
       }
     ]
   },
@@ -338,6 +131,63 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'execution',
+    path: '/execution',
+    component: 'layout.base',
+    meta: {
+      title: 'execution',
+      i18nKey: 'route.execution'
+    },
+    children: [
+      {
+        name: 'execution_mcp-manager',
+        path: '/execution/mcp-manager',
+        meta: {
+          title: 'execution_mcp-manager',
+          i18nKey: 'route.execution_mcp-manager'
+        },
+        children: [
+          {
+            name: 'execution_mcp-manager_registry',
+            path: '/execution/mcp-manager/registry',
+            component: 'view.execution_mcp-manager_registry',
+            meta: {
+              title: 'execution_mcp-manager_registry',
+              i18nKey: 'route.execution_mcp-manager_registry'
+            }
+          }
+        ]
+      },
+      {
+        name: 'execution_mcp-market',
+        path: '/execution/mcp-market',
+        component: 'view.execution_mcp-market',
+        meta: {
+          title: 'execution_mcp-market',
+          i18nKey: 'route.execution_mcp-market'
+        }
+      },
+      {
+        name: 'execution_skill-manager',
+        path: '/execution/skill-manager',
+        component: 'view.execution_skill-manager',
+        meta: {
+          title: 'execution_skill-manager',
+          i18nKey: 'route.execution_skill-manager'
+        }
+      },
+      {
+        name: 'execution_tool-manager',
+        path: '/execution/tool-manager',
+        component: 'view.execution_tool-manager',
+        meta: {
+          title: 'execution_tool-manager',
+          i18nKey: 'route.execution_tool-manager'
+        }
+      }
+    ]
+  },
+  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
@@ -362,6 +212,78 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'knowledge',
+    path: '/knowledge',
+    component: 'layout.base',
+    meta: {
+      title: 'knowledge',
+      i18nKey: 'route.knowledge'
+    },
+    children: [
+      {
+        name: 'knowledge_chunk-manager',
+        path: '/knowledge/chunk-manager',
+        component: 'view.knowledge_chunk-manager',
+        meta: {
+          title: 'knowledge_chunk-manager',
+          i18nKey: 'route.knowledge_chunk-manager'
+        }
+      },
+      {
+        name: 'knowledge_document-upload',
+        path: '/knowledge/document-upload',
+        meta: {
+          title: 'knowledge_document-upload',
+          i18nKey: 'route.knowledge_document-upload',
+          constant: true,
+          hideInMenu: true
+        },
+        children: [
+          {
+            name: 'knowledge_document-upload_step1',
+            path: '/knowledge/document-upload/step1',
+            component: 'view.knowledge_document-upload_step1',
+            meta: {
+              title: 'knowledge_document-upload_step1',
+              i18nKey: 'route.knowledge_document-upload_step1',
+              constant: true,
+              hideInMenu: true
+            }
+          },
+          {
+            name: 'knowledge_document-upload_step2',
+            path: '/knowledge/document-upload/step2',
+            component: 'view.knowledge_document-upload_step2',
+            meta: {
+              title: 'knowledge_document-upload_step2',
+              i18nKey: 'route.knowledge_document-upload_step2',
+              constant: true,
+              hideInMenu: true
+            }
+          }
+        ]
+      },
+      {
+        name: 'knowledge_knowledge-detail',
+        path: '/knowledge/knowledge-detail',
+        component: 'view.knowledge_knowledge-detail',
+        meta: {
+          title: 'knowledge_knowledge-detail',
+          i18nKey: 'route.knowledge_knowledge-detail'
+        }
+      },
+      {
+        name: 'knowledge_knowledge-manager',
+        path: '/knowledge/knowledge-manager',
+        component: 'view.knowledge_knowledge-manager',
+        meta: {
+          title: 'knowledge_knowledge-manager',
+          i18nKey: 'route.knowledge_knowledge-manager'
+        }
+      }
+    ]
+  },
+  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',
@@ -372,6 +294,26 @@ export const generatedRoutes: GeneratedRoute[] = [
       constant: true,
       hideInMenu: true
     }
+  },
+  {
+    name: 'model',
+    path: '/model',
+    component: 'layout.base',
+    meta: {
+      title: 'model',
+      i18nKey: 'route.model'
+    },
+    children: [
+      {
+        name: 'model_model-manager',
+        path: '/model/model-manager',
+        component: 'view.model_model-manager',
+        meta: {
+          title: 'model_model-manager',
+          i18nKey: 'route.model_model-manager'
+        }
+      }
+    ]
   },
   {
     name: 'monitor',
@@ -600,5 +542,74 @@ export const generatedRoutes: GeneratedRoute[] = [
       localIcon: 'material-symbols-account-circle-full',
       hideInMenu: true
     }
+  },
+  {
+    name: 'workflow',
+    path: '/workflow',
+    component: 'layout.base',
+    meta: {
+      title: 'workflow',
+      i18nKey: 'route.workflow',
+      constant: true,
+      hideInMenu: true
+    },
+    children: [
+      {
+        name: 'workflow_connection-rule-manager',
+        path: '/workflow/connection-rule-manager',
+        component: 'view.workflow_connection-rule-manager',
+        meta: {
+          title: 'workflow_connection-rule-manager',
+          i18nKey: 'route.workflow_connection-rule-manager'
+        }
+      },
+      {
+        name: 'workflow_datasource-manager',
+        path: '/workflow/datasource-manager',
+        component: 'view.workflow_datasource-manager',
+        meta: {
+          title: 'workflow_datasource-manager',
+          i18nKey: 'route.workflow_datasource-manager'
+        }
+      },
+      {
+        name: 'workflow_editor',
+        path: '/workflow/editor',
+        component: 'view.workflow_editor',
+        meta: {
+          title: 'workflow_editor',
+          i18nKey: 'route.workflow_editor'
+        }
+      },
+      {
+        name: 'workflow_node-definition',
+        path: '/workflow/node-definition',
+        component: 'view.workflow_node-definition',
+        meta: {
+          title: 'workflow_node-definition',
+          i18nKey: 'route.workflow_node-definition'
+        }
+      },
+      {
+        name: 'workflow_template-editor',
+        path: '/workflow/template-editor',
+        component: 'view.workflow_template-editor',
+        meta: {
+          title: 'workflow_template-editor',
+          i18nKey: 'route.workflow_template-editor',
+          constant: true,
+          hideInMenu: true
+        }
+      },
+      {
+        name: 'workflow_workflow-template',
+        path: '/workflow/workflow-template',
+        component: 'view.workflow_workflow-template',
+        meta: {
+          title: 'workflow_workflow-template',
+          i18nKey: 'route.workflow_workflow-template'
+        }
+      }
+    ]
   }
 ];
