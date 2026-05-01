@@ -22,7 +22,7 @@ import { fetchAppDetail, publishApp, updateApp, updatePublicAccess } from '@/ser
 import { fetchAppTokenList, refreshAppToken } from '@/service/api/ai/app-token';
 import { graphToDsl, validateGraph } from '@/utils/ai/dsl-converter';
 import { formatValidationErrors, validateWorkflow } from '@/utils/ai/validation';
-import AppOperateModal from '@/views/ai/app/app-manager/modules/app-operate-modal.vue';
+import AppOperateModal from '@/views/app/app-manager/modules/app-operate-modal.vue';
 import DebugChatDialog from '@/components/ai/chat/debug-chat-dialog.vue';
 import SystemTemplateConfigPanel from './modules/system-template-config-panel.vue';
 import UiSettingPanel from './modules/ui-setting-panel.vue';
