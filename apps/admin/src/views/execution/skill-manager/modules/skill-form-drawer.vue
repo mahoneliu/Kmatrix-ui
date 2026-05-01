@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { fetchAddSkill, fetchUpdateSkill } from '@/service/api/ai/skill';
 import { fetchBuiltinToolList } from '@/service/api/ai/builtin-tool';
 import { fetchMcpServerList } from '@/service/api/ai/mcp-server';
-import ParamEditor from '@/views/ai/model/tool-manager/components/param-editor.vue';
-import type { ParamItem } from '@/views/ai/model/tool-manager/components/param-editor.vue';
+import ParamEditor from '@/views/model/tool-manager/components/param-editor.vue';
+import type { ParamItem } from '@/views/model/tool-manager/components/param-editor.vue';
 
 defineOptions({ name: 'SkillFormDrawer' });
 
