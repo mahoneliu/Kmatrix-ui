@@ -10,8 +10,8 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  */
 const customRoutes: any = [
   {
-    name: 'customAiMcpMarket',
-    path: '/ai/model',
+    name: 'customMcpMarket',
+    path: '/execution',
     component: 'layout.base',
     meta: {
       title: 'MCP市场',
@@ -20,9 +20,9 @@ const customRoutes: any = [
     },
     children: [
       {
-        name: 'ai_model_mcp-market',
+        name: 'execution_mcp-market',
         path: 'mcp-market',
-        component: 'view.ai_model_mcp-market',
+        component: 'view.execution_mcp-market',
         meta: {
           title: 'MCP市场',
           hideInMenu: true,
@@ -32,8 +32,8 @@ const customRoutes: any = [
     ]
   },
   {
-    name: 'customAiDocumentUpload',
-    path: '/ai',
+    name: 'customDocumentUpload',
+    path: '/knowledge',
     component: 'layout.base',
     meta: {
       title: '我要自定义分块',
@@ -42,25 +42,25 @@ const customRoutes: any = [
     },
     children: [
       {
-        name: 'ai_document-upload_step1',
-        path: '/document-upload/step1',
-        component: 'view.ai_knowledge_document-upload_step1',
+        name: 'knowledge_document-upload_step1',
+        path: 'document-upload/step1',
+        component: 'view.knowledge_document-upload_step1',
         meta: {
           title: '我要自定义分块',
           hideInMenu: true,
           constant: true,
-          activeMenu: 'ai_knowledge-manager'
+          activeMenu: 'knowledge_knowledge-manager'
         }
       },
       {
-        name: 'ai_document-upload_step2',
-        path: '/document-upload/step2',
-        component: 'view.ai_knowledge_document-upload_step2',
+        name: 'knowledge_document-upload_step2',
+        path: 'document-upload/step2',
+        component: 'view.knowledge_document-upload_step2',
         meta: {
           title: '自定义分块第二步',
           hideInMenu: true,
           constant: true,
-          activeMenu: 'ai_knowledge-manager'
+          activeMenu: 'knowledge_knowledge-manager'
         }
       }
     ]

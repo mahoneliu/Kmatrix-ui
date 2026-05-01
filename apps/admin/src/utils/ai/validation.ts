@@ -65,7 +65,10 @@ const NODE_CONFIG_RULES: Record<
   MCP_RESOURCE: [
     { field: 'serverId', label: 'MCP Server ID' },
     { field: 'uri', label: '资源 URI' }
-  ]
+  ],
+  SESSION_VARIABLE_ASSIGN: [],
+  PARAMETER_EXTRACTOR: [{ field: 'modelId', label: '推理模型' }],
+  VARIABLE_AGGREGATOR: []
 };
 
 /**

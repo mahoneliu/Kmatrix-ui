@@ -25,39 +25,32 @@ declare module "@elegant-router/types" {
     "404": "/404";
     "500": "/500";
     "about": "/about";
-    "ai": "/ai";
-    "ai_app": "/ai/app";
-    "ai_app_app-detail": "/ai/app/app-detail";
-    "ai_app_app-manager": "/ai/app/app-manager";
-    "ai_app_chat": "/ai/app/chat";
-    "ai_app_rate-limit": "/ai/app/rate-limit";
-    "ai_knowledge": "/ai/knowledge";
-    "ai_knowledge_chunk-manager": "/ai/knowledge/chunk-manager";
-    "ai_knowledge_document-upload": "/ai/knowledge/document-upload";
-    "ai_knowledge_document-upload_step1": "/ai/knowledge/document-upload/step1";
-    "ai_knowledge_document-upload_step2": "/ai/knowledge/document-upload/step2";
-    "ai_knowledge_knowledge-detail": "/ai/knowledge/knowledge-detail";
-    "ai_knowledge_knowledge-manager": "/ai/knowledge/knowledge-manager";
-    "ai_model": "/ai/model";
-    "ai_model_mcp-manager": "/ai/model/mcp-manager";
-    "ai_model_mcp-manager_registry": "/ai/model/mcp-manager/registry";
-    "ai_model_mcp-market": "/ai/model/mcp-market";
-    "ai_model_model-manager": "/ai/model/model-manager";
-    "ai_model_skill-manager": "/ai/model/skill-manager";
-    "ai_model_tool-manager": "/ai/model/tool-manager";
-    "ai_workflow": "/ai/workflow";
-    "ai_workflow_connection-rule-manager": "/ai/workflow/connection-rule-manager";
-    "ai_workflow_datasource-manager": "/ai/workflow/datasource-manager";
-    "ai_workflow_editor": "/ai/workflow/editor";
-    "ai_workflow_node-definition": "/ai/workflow/node-definition";
-    "ai_workflow_template-editor": "/ai/workflow/template-editor";
-    "ai_workflow_workflow-template": "/ai/workflow/workflow-template";
+    "app": "/app";
+    "app_app-detail": "/app/app-detail";
+    "app_app-manager": "/app/app-manager";
+    "app_chat": "/app/chat";
+    "app_rate-limit": "/app/rate-limit";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
     "demo_tree": "/demo/tree";
+    "execution": "/execution";
+    "execution_mcp-manager": "/execution/mcp-manager";
+    "execution_mcp-manager_registry": "/execution/mcp-manager/registry";
+    "execution_mcp-market": "/execution/mcp-market";
+    "execution_skill-manager": "/execution/skill-manager";
+    "execution_tool-manager": "/execution/tool-manager";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
+    "knowledge": "/knowledge";
+    "knowledge_chunk-manager": "/knowledge/chunk-manager";
+    "knowledge_document-upload": "/knowledge/document-upload";
+    "knowledge_document-upload_step1": "/knowledge/document-upload/step1";
+    "knowledge_document-upload_step2": "/knowledge/document-upload/step2";
+    "knowledge_knowledge-detail": "/knowledge/knowledge-detail";
+    "knowledge_knowledge-manager": "/knowledge/knowledge-manager";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
+    "model": "/model";
+    "model_model-manager": "/model/model-manager";
     "monitor": "/monitor";
     "monitor_cache": "/monitor/cache";
     "monitor_logininfor": "/monitor/logininfor";
@@ -81,6 +74,13 @@ declare module "@elegant-router/types" {
     "tool": "/tool";
     "tool_gen": "/tool/gen";
     "user-center": "/user-center";
+    "workflow": "/workflow";
+    "workflow_connection-rule-manager": "/workflow/connection-rule-manager";
+    "workflow_datasource-manager": "/workflow/datasource-manager";
+    "workflow_editor": "/workflow/editor";
+    "workflow_node-definition": "/workflow/node-definition";
+    "workflow_template-editor": "/workflow/template-editor";
+    "workflow_workflow-template": "/workflow/workflow-template";
   };
 
   /**
@@ -120,16 +120,20 @@ declare module "@elegant-router/types" {
     | "404"
     | "500"
     | "about"
-    | "ai"
+    | "app"
     | "demo"
+    | "execution"
     | "home"
     | "iframe-page"
+    | "knowledge"
     | "login"
+    | "model"
     | "monitor"
     | "social-callback"
     | "system"
     | "tool"
     | "user-center"
+    | "workflow"
   >;
 
   /**
@@ -155,31 +159,25 @@ declare module "@elegant-router/types" {
     | "social-callback"
     | "user-center"
     | "about"
-    | "ai_app_app-detail"
-    | "ai_app_app-manager"
-    | "ai_app_chat"
-    | "ai_app_rate-limit"
-    | "ai_knowledge_chunk-manager"
-    | "ai_knowledge_document-upload"
-    | "ai_knowledge_document-upload_step1"
-    | "ai_knowledge_document-upload_step2"
-    | "ai_knowledge_knowledge-detail"
-    | "ai_knowledge_knowledge-manager"
-    | "ai_model_mcp-manager"
-    | "ai_model_mcp-manager_registry"
-    | "ai_model_mcp-market"
-    | "ai_model_model-manager"
-    | "ai_model_skill-manager"
-    | "ai_model_tool-manager"
-    | "ai_workflow_connection-rule-manager"
-    | "ai_workflow_datasource-manager"
-    | "ai_workflow_editor"
-    | "ai_workflow_node-definition"
-    | "ai_workflow_template-editor"
-    | "ai_workflow_workflow-template"
+    | "app_app-detail"
+    | "app_app-manager"
+    | "app_chat"
+    | "app_rate-limit"
     | "demo_demo"
     | "demo_tree"
+    | "execution_mcp-manager"
+    | "execution_mcp-manager_registry"
+    | "execution_mcp-market"
+    | "execution_skill-manager"
+    | "execution_tool-manager"
     | "home"
+    | "knowledge_chunk-manager"
+    | "knowledge_document-upload"
+    | "knowledge_document-upload_step1"
+    | "knowledge_document-upload_step2"
+    | "knowledge_knowledge-detail"
+    | "knowledge_knowledge-manager"
+    | "model_model-manager"
     | "monitor_cache"
     | "monitor_logininfor"
     | "monitor_online"
@@ -198,6 +196,12 @@ declare module "@elegant-router/types" {
     | "system_tenant"
     | "system_user"
     | "tool_gen"
+    | "workflow_connection-rule-manager"
+    | "workflow_datasource-manager"
+    | "workflow_editor"
+    | "workflow_node-definition"
+    | "workflow_template-editor"
+    | "workflow_workflow-template"
   >;
 
   /**

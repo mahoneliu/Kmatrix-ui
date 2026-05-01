@@ -2080,6 +2080,11 @@ declare namespace App {
             delete_link: string;
             link_condition_changed: string;
           };
+          handle_tip: {
+            drag_connect: string;
+            click_add: string;
+            drag_blank_add: string;
+          };
           msg: {
             connection_not_supported: string;
             invalid_connection: string;
