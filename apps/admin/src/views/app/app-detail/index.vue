@@ -135,14 +135,14 @@ async function handleRefreshToken(tokenId: string) {
 
 // 跳转去对话
 function handleGoToChat() {
-  router.push({ name: 'ai_app_chat', query: { appId: appId.value } });
+  router.push({ name: 'app_chat', query: { appId: appId.value } });
 }
 
 // 跳转工作流设置
 function handleSettings() {
   if (!appInfo.value || appInfo.value.appType !== '2') return;
   router.push({
-    name: 'ai_workflow_editor',
+    name: 'workflow_editor',
     query: { appId: appId.value }
   });
 }

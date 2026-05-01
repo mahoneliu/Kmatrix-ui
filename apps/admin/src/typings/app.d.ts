@@ -1916,6 +1916,10 @@ declare namespace App {
           supported_models: string;
           no_model_click_add: string;
           save: string;
+          default_endpoint: string;
+          input_default_endpoint: string;
+          site_url: string;
+          input_site_url: string;
         };
         node_definition: {
           icon: string;

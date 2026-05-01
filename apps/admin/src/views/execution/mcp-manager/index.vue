@@ -191,7 +191,7 @@ onMounted(() => loadList());
     >
       <template #header-extra>
         <NSpace>
-          <NButton size="small" @click="() => router.push('/ai/model/mcp-market')">
+          <NButton size="small" @click="() => router.push('/execution/mcp-market')">
             <template #icon>
               <SvgIcon icon="mdi:store-outline" />
             </template>

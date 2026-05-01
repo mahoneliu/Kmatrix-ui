@@ -51,7 +51,7 @@ async function handleUpload() {
 
     // 跳转到 step2 页面,传递所有临时文件信息
     await router.push({
-      name: 'ai_document-upload_step2',
+      name: 'knowledge_document-upload_step2',
       query: {
         kbId: kbId.value,
         datasetId: datasetId.value,

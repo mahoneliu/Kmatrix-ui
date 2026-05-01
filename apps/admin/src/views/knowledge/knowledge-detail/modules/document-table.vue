@@ -130,7 +130,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               <span
                 class="flex-1 cursor-pointer hover:text-primary"
                 title="点击查看分块"
-                onClick={() => router.push({ name: 'ai_knowledge_chunk-manager', query: { documentId: row.id } })}
+                onClick={() => router.push({ name: 'knowledge_chunk-manager', query: { documentId: row.id } })}
               >
                 {row.originalFilename}
               </span>
@@ -254,7 +254,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 type="primary"
                 local-icon="mdi-puzzle-edit"
                 tooltipContent={$t('ai.knowledge_detail.document.actionChunkManage')}
-                onClick={() => router.push({ name: 'ai_knowledge_chunk-manager', query: { documentId: row.id } })}
+                onClick={() => router.push({ name: 'knowledge_chunk-manager', query: { documentId: row.id } })}
               />
             );
           };
@@ -709,7 +709,7 @@ function showWorkflowBindingDialog(
 function handleCustomChunk() {
   const kbId = props.kbId || (router.currentRoute.value.query.kbId as string) || '';
   router.push({
-    name: 'ai_document-upload_step1',
+    name: 'knowledge_document-upload_step1',
     query: {
       kbId,
       datasetId: props.datasetId?.toString() || ''

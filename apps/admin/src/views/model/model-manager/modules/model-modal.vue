@@ -121,8 +121,9 @@ const modelOptions = computed(() => {
         // 根据当前选择的模型类型过滤
         const filtered = models.filter((m: any) => {
           // 如果是对象格式(新格式),根据 modelType 过滤
-          if (typeof m === 'object' && m.modelKey && m.modelType) {
-            return m.modelType === modelForm.modelType;
+          if (typeof m === 'object' && (m.key || m.modelKey) && (m.type || m.modelType)) {
+            const mType = m.type || m.modelType;
+            return mType === modelForm.modelType;
           }
           // 兼容旧格式(纯字符串数组),全部显示
           return typeof m === 'string';
@@ -130,7 +131,8 @@ const modelOptions = computed(() => {
 
         return filtered.map((m: any) => {
           if (typeof m === 'object') {
-            return { label: m.modelKey, value: m.modelKey };
+            const key = m.key || m.modelKey;
+            return { label: key, value: key };
           }
           return { label: m, value: m };
         });

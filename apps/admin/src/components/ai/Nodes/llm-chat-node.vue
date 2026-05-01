@@ -94,9 +94,10 @@ onMounted(() => {
                 <span class="workflow-label">{{ $t('ai.workflow_node.bind_mcp_servers') }}</span>
                 <a
                   class="cursor-pointer text-11px text-primary hover:opacity-80"
-                  @click="() => window.open('/ai/model/mcp-market', '_blank')"
+                  href="/execution/mcp-market"
+                  target="_blank"
                 >
-                  {{ $t('ai.workflow_node.goto_mcp_market') || '前往 MCP 市场' }}
+                  {{ $t('ai.workflow_node.go_to_mcp_market') || '前往 MCP 市场' }}
                 </a>
               </div>
               <NSelect

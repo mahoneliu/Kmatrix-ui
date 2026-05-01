@@ -92,7 +92,7 @@ async function handleDelete(item: Api.AI.Admin.App) {
 function handleChat(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
-    name: 'ai_app_chat',
+    name: 'app_chat',
     query: { appId: item.appId.toString() }
   });
 }
@@ -107,7 +107,7 @@ function handleSettings(item: Api.AI.Admin.App) {
 function handleCardClick(item: Api.AI.Admin.App) {
   if (!item.appId) return;
   router.push({
-    name: 'ai_app_app-detail',
+    name: 'app_app-detail',
     query: { appId: item.appId.toString() }
   });
 }
@@ -118,7 +118,7 @@ function jumpToAppSettings(appId?: CommonType.IdType, type?: string) {
   // 如果是简单对话知识库RAG应用,打开编辑弹窗，加载表单页面设置固定工作流模板
 
   router.push({
-    name: type === '2' ? 'ai_workflow_editor' : 'ai_app_app-detail',
+    name: type === '2' ? 'workflow_editor' : 'app_app-detail',
     query: { appId: appId.toString() }
   });
 }

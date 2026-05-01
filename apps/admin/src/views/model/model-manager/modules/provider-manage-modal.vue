@@ -32,10 +32,14 @@ const selectedProviderId = ref<CommonType.IdType | null>(null);
 const formData = ref<{
   providerId: CommonType.IdType | null;
   providerName: string;
-  models: Array<{ key: string; type: string }>;
+  defaultEndpoint: string | null;
+  siteUrl: string | null;
+  models: Array<{ modelKey: string; modelType: string }>;
 }>({
   providerId: null,
   providerName: '',
+  defaultEndpoint: null,
+  siteUrl: null,
   models: []
 });
 
@@ -47,27 +51,27 @@ const modelTypeOptions = [
 const columns = [
   {
     title: $t('ai.model_manager.model_key'),
-    key: 'key',
+    key: 'modelKey',
     render: (row: any, index: number) => {
       return h(NInput, {
-        value: row.key,
+        value: row.modelKey,
         placeholder: $t('ai.model_manager.model_name_placeholder'),
         onUpdateValue: (val: string) => {
-          formData.value.models[index].key = val;
+          formData.value.models[index].modelKey = val;
         }
       });
     }
   },
   {
     title: $t('ai.model_manager.model_type'),
-    key: 'type',
+    key: 'modelType',
     width: 150,
     render: (row: any, index: number) => {
       return h(NSelect, {
-        value: row.type,
+        value: row.modelType,
         options: modelTypeOptions,
         onUpdateValue: (val: string) => {
-          formData.value.models[index].type = val;
+          formData.value.models[index].modelType = val;
         }
       });
     }
@@ -124,13 +128,20 @@ async function loadProviderDetail(providerId: CommonType.IdType) {
     formData.value = {
       providerId: data.providerId,
       providerName: data.providerName,
-      models: data.models ? JSON.parse(data.models) : []
+      defaultEndpoint: data.defaultEndpoint || null,
+      siteUrl: data.siteUrl || null,
+      models: data.models
+        ? JSON.parse(data.models).map((m: any) => ({
+            modelKey: m.modelKey || m.key || (typeof m === 'string' ? m : ''),
+            modelType: m.modelType || m.type || '1'
+          }))
+        : []
     };
   }
 }
 
 function handleAddModel() {
-  formData.value.models.push({ key: '', type: '1' });
+  formData.value.models.push({ modelKey: '', modelType: '1' });
 }
 
 function handleDeleteModel(index: number) {
@@ -144,7 +155,7 @@ async function handleSubmit() {
   }
 
   // 验证模型数据
-  const hasEmpty = formData.value.models.some(m => !m.key.trim());
+  const hasEmpty = formData.value.models.some(m => !m.modelKey.trim());
   if (hasEmpty) {
     message.warning($t('ai.model_manager.fill_all_model_keys'));
     return;
@@ -153,6 +164,8 @@ async function handleSubmit() {
   loading.value = true;
   const { error } = await updateProvider({
     providerId: formData.value.providerId,
+    defaultEndpoint: formData.value.defaultEndpoint,
+    siteUrl: formData.value.siteUrl,
     models: JSON.stringify(formData.value.models)
   });
   loading.value = false;
@@ -170,6 +183,8 @@ function handleClose() {
   formData.value = {
     providerId: null,
     providerName: '',
+    defaultEndpoint: null,
+    siteUrl: null,
     models: []
   };
 }
@@ -210,6 +225,14 @@ watch(selectedProviderId, val => {
 
       <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.provider_name')">
         <NInput :value="formData.providerName" readonly />
+      </NFormItem>
+
+      <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.default_endpoint')">
+        <NInput v-model:value="formData.defaultEndpoint" :placeholder="$t('ai.model_manager.input_default_endpoint')" />
+      </NFormItem>
+
+      <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.site_url')">
+        <NInput v-model:value="formData.siteUrl" :placeholder="$t('ai.model_manager.input_site_url')" />
       </NFormItem>
 
       <NFormItem v-if="formData.providerId" :label="$t('ai.model_manager.supported_models')">

@@ -148,7 +148,7 @@ async function handleCreateApp() {
       showCreateModal.value = false;
       // 跳转到应用编辑页
       router.push({
-        name: 'ai_app_app-detail',
+        name: 'app_app-detail',
         query: { appId: res.data.toString() }
       });
     }
@@ -184,7 +184,7 @@ async function handleCopyTemplate() {
 // 跳转到工作流编排
 function handleDesign(item: WorkflowTemplate) {
   router.push({
-    name: 'ai_workflow_template-editor',
+    name: 'workflow_template-editor',
     query: { templateId: item.templateId.toString() }
   });
 }
@@ -238,7 +238,7 @@ async function handleSaveTemplate() {
       showTemplateModal.value = false;
       if (data) {
         router.push({
-          name: 'ai_workflow_template-editor',
+          name: 'workflow_template-editor',
           query: { templateId: data.toString() }
         });
       }

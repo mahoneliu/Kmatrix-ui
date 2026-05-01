@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { NAlert, NButton, NForm, NFormItem, NInput, NInputNumber, NModal } from 'naive-ui';
 import { useAiModelStore } from '@/store/modules/ai/ai-model';
 import { $t } from '@/locales';
@@ -103,22 +103,40 @@ function resetForm() {
   showAdvanced.value = false;
 }
 
-// 监听弹窗打开,自动选中兜底大语言模型
+// 选中默认大模型逻辑
+function selectDefaultModel() {
+  if (props.show && !formData.value.modelId && aiModelStore.models.length > 0) {
+    const fallback = aiModelStore.models.find(m => m.isDefault === 1 && m.modelType === '1');
+    if (fallback) {
+      formData.value.modelId = fallback.modelId;
+    }
+  }
+}
+
+// 监听弹窗打开
 watch(
   () => props.show,
   show => {
     if (show) {
-      if (!formData.value.modelId) {
-        const fallback = aiModelStore.models.find(m => m.isDefault === 1 && m.modelType === '1');
-        if (fallback) {
-          formData.value.modelId = fallback.modelId;
-        }
-      }
+      selectDefaultModel();
     } else {
       resetForm();
     }
   }
 );
+
+// 监听模型列表加载完成
+watch(
+  () => aiModelStore.models,
+  () => {
+    selectDefaultModel();
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  aiModelStore.loadModels();
+});
 </script>
 
 <template>

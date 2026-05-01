@@ -123,7 +123,7 @@ async function handleCreate() {
 
       // 跳转到应用详情页
       router.push({
-        name: 'ai_app_app-detail',
+        name: 'app_app-detail',
         query: { appId: res.data.toString() }
       });
     }

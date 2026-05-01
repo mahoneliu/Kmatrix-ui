@@ -41,7 +41,7 @@ function handleSelectSession(session: Api.AI.Chat.Session) {
 // 创建新会话
 function handleNewSession() {
   if (router) {
-    router.push({ name: 'ai_app_chat', query: { appId: props.appId } });
+    router.push({ name: 'app_chat', query: { appId: props.appId } });
   }
   emit('new');
   emit('refresh');

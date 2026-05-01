@@ -1,7 +1,7 @@
 const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   test: {
     title: '模型测试 (Playground)',
-    current_model: '当前测试模型:',
+    current_model: '当前模型:',
     chat_placeholder: '请输入消息开始测试...',
     ctrl_enter_send: 'Ctrl + Enter 发送...'
   },
@@ -27,7 +27,7 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   set_default_model: '设为兜底模型',
   set_default_confirm: '确定要将 "{name}" 设为其类型的兜底默认模型？',
   model_name: '模型名称',
-  base_model: '基础模型',
+  base_model: '模型标识',
   search_placeholder: '请输入关键词',
   add_model: '新增模型',
   no_model_data: '暂无模型数据',
@@ -39,14 +39,14 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   disable: '禁用',
   select_provider: '请选择供应商',
   input_model_name: '请输入模型名称',
-  select_base_model: '请输入或选择基础模型',
+  select_base_model: '选择基础模型或直接输入并回车',
   select_model_type: '请选择模型类型',
   select_model_source: '请选择模型来源',
   input_api_key: '请输入apiKey',
   input_api_base: '请输入apiBase 地址',
   add_model_title: '新增模型',
   edit_model_title: '编辑模型',
-  select_provider_and_model_first: '请先选择供应商和基础模型',
+  select_provider_and_model_first: '请先选择供应商和模型标识',
   test_connection_success: '连接测试成功',
   add_success: '新增成功',
   update_success: '修改成功',
@@ -54,7 +54,7 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   model_source: '模型来源',
   model_name_placeholder: '如：千问Max，方便记忆',
   model_type: '模型类型',
-  base_model_placeholder: '选择基础模型或直接输入并回车',
+  base_model_placeholder: '选择模型标识或直接输入并回车',
   no_api_key_tip: '没有 API Key？前往',
   official_website: '官网',
   get: '获取',
@@ -82,7 +82,11 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   provider_name: '提供商名称',
   supported_models: '支持模型',
   no_model_click_add: '暂无模型，点击上方添加',
-  save: '保存'
+  save: '保存',
+  default_endpoint: '默认API地址',
+  input_default_endpoint: '请输入默认API地址',
+  site_url: '官网地址',
+  input_site_url: '请输入官网地址'
 };
 
 export default {

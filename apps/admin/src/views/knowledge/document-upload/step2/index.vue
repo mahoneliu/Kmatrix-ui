@@ -198,7 +198,7 @@ async function handleSubmit() {
 
     // 返回知识库详情页
     await router.push({
-      name: 'ai_knowledge_knowledge-detail',
+      name: 'knowledge_knowledge-detail',
       query: { kbId: kbId.value }
     });
   } catch (error: any) {

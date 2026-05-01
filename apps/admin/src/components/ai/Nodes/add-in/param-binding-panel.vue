@@ -221,7 +221,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
           </div>
 
           <!-- 右侧: 参数选择器 -->
-          <div class="w-240px flex flex-shrink-0 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
+          <div class="flex flex-1 items-center justify-center gap-1 c-gray-5 dark:c-gray-4">
             <span class="text-12px font-500">{{ $t('ai.workflow_node.variable_selection') }}</span>
           </div>
         </div>
@@ -255,7 +255,7 @@ function handleRemoveParam(key: string, type: 'input' | 'output') {
           </div>
 
           <!-- 右侧: 参数选择器 -->
-          <div class="max-w-240px min-w-0 flex-1 flex-shrink-1">
+          <div class="min-w-0 flex-1">
             <ParamSelector
               :node-id="nodeId"
               :param-def="param"

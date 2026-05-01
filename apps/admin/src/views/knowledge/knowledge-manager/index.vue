@@ -149,7 +149,7 @@ async function handleDelete(item: Api.AI.KB.KnowledgeBase) {
 function handleManage(item: Api.AI.KB.KnowledgeBase) {
   if (!item.id) return;
   router.push({
-    name: 'ai_knowledge_knowledge-detail',
+    name: 'knowledge_knowledge-detail',
     query: { kbId: item.id.toString() }
   });
 }

@@ -82,7 +82,11 @@ const model_manager: App.I18n.Schema['ai']['model_manager'] = {
   provider_name: 'Provider Name',
   supported_models: 'Supported Models',
   no_model_click_add: 'No models, click above to add',
-  save: 'Save'
+  save: 'Save',
+  default_endpoint: 'Default API Endpoint',
+  input_default_endpoint: 'Please input default API endpoint',
+  site_url: 'Official Website URL',
+  input_site_url: 'Please input official website URL'
 };
 
 export default {
