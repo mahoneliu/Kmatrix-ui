@@ -31,7 +31,7 @@ function handleImport() {
 <template>
   <NDrawer v-model:show="show" :width="480" placement="right">
     <NDrawerContent :title="entry.displayName || entry.entryName" closable>
-      <NDescriptions :column="1" label-placement="left" bordered>
+      <NDescriptions :column="1" label-placement="left" bordered label-style="width: 100px">
         <NDescriptionsItem :label="$t('ai.mcp.registryBrowser.platform')">
           <NTag :type="entry.sourcePlatform === 'official' ? 'info' : 'success'" size="small">
             {{ entry.sourcePlatform === 'official' ? $t('ai.mcp.registryBrowser.filterOfficial') : 'Smithery' }}

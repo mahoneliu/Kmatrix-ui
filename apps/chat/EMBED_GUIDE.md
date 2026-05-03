@@ -61,7 +61,7 @@ server {
     
     # API 代理
     location /dev-api/ {
-        proxy_pass http://backend:8090/;
+        proxy_pass http://backend:8080/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }

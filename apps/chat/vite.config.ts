@@ -78,7 +78,7 @@ export default defineConfig(configEnv => {
       proxy: enableProxy
         ? {
             '/dev-api': {
-              target: viteEnv.VITE_SERVICE_BASE_URL || 'http://localhost:8090',
+              target: viteEnv.VITE_SERVICE_BASE_URL || 'http://localhost:8080',
               changeOrigin: true,
               rewrite: (path: string) => path.replace(/^\/dev-api/, '')
             }

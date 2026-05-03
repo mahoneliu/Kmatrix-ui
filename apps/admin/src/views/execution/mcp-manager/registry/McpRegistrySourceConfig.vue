@@ -4,7 +4,7 @@
  * @author Mahone
  */
 import { h, onMounted, ref } from 'vue';
-import { NButton, NDataTable, NInputNumber, NPopconfirm, NSpace, NSwitch, NTag, useMessage } from 'naive-ui';
+import { NButton, NDataTable, NInputNumber, NPopconfirm, NSpace, NSwitch, NTag, NTooltip, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
   deleteRegistrySource,
@@ -86,7 +86,23 @@ const columns: DataTableColumns<Api.Ai.McpRegistrySourceVo> = [
         failed: $t('ai.mcp.registryConfig.syncStatusFailed'),
         running: $t('ai.mcp.registryConfig.syncStatusRunning')
       };
-      return h(NTag, { type, size: 'small' }, { default: () => labelMap[row.lastSyncStatus!] ?? row.lastSyncStatus });
+      const tag = h(
+        NTag,
+        { type, size: 'small' },
+        { default: () => labelMap[row.lastSyncStatus!] ?? row.lastSyncStatus }
+      );
+
+      if (row.lastSyncStatus === 'failed' && row.lastSyncError) {
+        return h(
+          NTooltip,
+          { trigger: 'hover' },
+          {
+            trigger: () => tag,
+            default: () => row.lastSyncError
+          }
+        );
+      }
+      return tag;
     }
   },
   {

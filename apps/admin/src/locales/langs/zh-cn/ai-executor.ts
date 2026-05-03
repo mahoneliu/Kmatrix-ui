@@ -48,7 +48,10 @@ const mcp: App.I18n.Schema['ai']['mcp'] = {
     version: '版本',
     author: '作者',
     endpoint: '连接端点',
-    command: '启动命令'
+    command: '启动命令',
+    filterTransportType: '传输类型筛选',
+    transportRemote: '远程服务 (SSE/HTTP)',
+    transportLocal: '本地工具 (Stdio)'
   },
   registryImport: {
     title: '导入 MCP Server',

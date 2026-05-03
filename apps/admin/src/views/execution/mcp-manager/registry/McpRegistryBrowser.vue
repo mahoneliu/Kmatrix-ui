@@ -4,7 +4,7 @@
  * @author Mahone
  */
 import { computed, h, onMounted, ref, watch } from 'vue';
-import { NAlert, NButton, NDataTable, NInput, NSelect, NSpace, NSpin, NTag, useMessage } from 'naive-ui';
+import { NAlert, NButton, NDataTable, NEllipsis, NInput, NSelect, NSpace, NSpin, NTag, useMessage } from 'naive-ui';
 import type { DataTableColumns, SelectOption } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { searchRegistryEntries } from '@/service/api/ai/mcp-registry';
@@ -27,6 +27,7 @@ const total = ref(0);
 const loading = ref(false);
 const rows = ref<Api.Ai.McpRegistryEntryVo[]>([]);
 const isSyncing = ref(false);
+const transportType = ref<string | null>(null);
 
 // ── 防抖 ──────────────────────────────────────────────────
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -44,11 +45,24 @@ watch(sourcePlatform, () => {
   loadEntries();
 });
 
+watch(transportType, () => {
+  pageNum.value = 1;
+  loadEntries();
+});
+
 // ── 来源筛选选项 ──────────────────────────────────────────
 const platformOptions = computed<SelectOption[]>(() => [
   { label: $t('ai.mcp.registryBrowser.filterAll'), value: '' },
   { label: $t('ai.mcp.registryBrowser.filterOfficial'), value: 'official' },
-  { label: $t('ai.mcp.registryBrowser.filterCommunity'), value: 'smithery' }
+  { label: $t('ai.mcp.registryBrowser.filterCommunity'), value: 'smithery' },
+  { label: 'Pulsar (mcp.run)', value: 'pulsar' }
+]);
+
+const transportOptions = computed<SelectOption[]>(() => [
+  { label: $t('ai.mcp.registryBrowser.filterAll'), value: '' },
+  { label: $t('ai.mcp.registryBrowser.transportRemote'), value: 'sse' },
+  { label: 'HTTP (Remote)', value: 'streamable_http' },
+  { label: $t('ai.mcp.registryBrowser.transportLocal'), value: 'stdio' }
 ]);
 
 // ── 详情抽屉 ──────────────────────────────────────────────
@@ -64,7 +78,7 @@ const columns: DataTableColumns<Api.Ai.McpRegistryEntryVo> = [
   {
     title: () => $t('ai.mcp.serverName'),
     key: 'entryName',
-    width: 200,
+    width: 400,
     render: row =>
       h('div', { class: 'flex items-center gap-2' }, [
         row.iconUrl ? h('img', { src: row.iconUrl, class: 'w-5 h-5 rounded', alt: '' }) : null,
@@ -74,27 +88,46 @@ const columns: DataTableColumns<Api.Ai.McpRegistryEntryVo> = [
   {
     title: () => $t('ai.mcp.description'),
     key: 'description',
-    ellipsis: { tooltip: true }
+    render: row =>
+      h(NEllipsis, { tooltip: true, lineClamp: 1, style: 'min-width: 500px' }, { default: () => row.description })
   },
   {
     title: () => $t('ai.mcp.registryBrowser.platform'),
     key: 'sourcePlatform',
     width: 120,
-    render: row =>
-      h(
+    render: row => {
+      const isOfficial = row.sourcePlatform === 'official';
+      const isPulsar = row.sourcePlatform === 'pulsar';
+      let type: 'info' | 'success' | 'warning' = 'success';
+      if (isOfficial) type = 'info';
+      if (isPulsar) type = 'warning';
+
+      return h(
         NTag,
-        { type: row.sourcePlatform === 'official' ? 'info' : 'success', size: 'small' },
+        { type, size: 'small' },
         {
-          default: () => (row.sourcePlatform === 'official' ? $t('ai.mcp.registryBrowser.filterOfficial') : 'Smithery')
+          default: () => {
+            if (isOfficial) return $t('ai.mcp.registryBrowser.filterOfficial');
+            if (isPulsar) return 'Pulsar';
+            return 'Smithery';
+          }
         }
-      )
+      );
+    }
   },
   {
     title: () => $t('ai.mcp.transportType'),
     key: 'transportType',
     width: 100,
-    render: row =>
-      row.transportType ? h(NTag, { size: 'small' }, { default: () => row.transportType!.toUpperCase() }) : null
+    render: row => {
+      if (!row.transportType) return null;
+      const isRemote = row.transportType === 'sse' || row.transportType === 'streamable_http';
+      return h(
+        NTag,
+        { size: 'small', type: isRemote ? 'primary' : 'default', bordered: isRemote },
+        { default: () => (isRemote ? `${row.transportType.toUpperCase()} (Cloud)` : row.transportType.toUpperCase()) }
+      );
+    }
   },
   {
     title: () => $t('ai.mcp.registryBrowser.rating'),
@@ -108,7 +141,7 @@ const columns: DataTableColumns<Api.Ai.McpRegistryEntryVo> = [
   {
     title: () => $t('common.action'),
     key: 'actions',
-    width: 160,
+    width: 180,
     render: row =>
       h(
         NSpace,
@@ -140,6 +173,7 @@ async function loadEntries() {
     const res = await searchRegistryEntries({
       keyword: keyword.value || undefined,
       sourcePlatform: sourcePlatform.value || undefined,
+      transportType: transportType.value || undefined,
       pageNum: pageNum.value,
       pageSize: pageSize.value
     });
@@ -208,6 +242,13 @@ onMounted(() => loadEntries());
         class="w-40"
         clearable
         :placeholder="$t('ai.mcp.registryBrowser.filterAll')"
+      />
+      <NSelect
+        v-model:value="transportType"
+        :options="transportOptions"
+        class="w-56"
+        clearable
+        :placeholder="$t('ai.mcp.registryBrowser.filterTransportType')"
       />
     </div>
 

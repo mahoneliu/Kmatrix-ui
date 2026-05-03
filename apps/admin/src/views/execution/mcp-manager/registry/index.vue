@@ -5,7 +5,7 @@
  * @author Mahone
  */
 import { ref } from 'vue';
-import { NButton, NCard, NSpace, NTab, NTabs } from 'naive-ui';
+import { NButton, NCard, NSpace, NTabPane, NTabs } from 'naive-ui';
 import { SvgIcon } from '@sa/materials';
 import { $t } from '@/locales';
 import McpRegistryBrowser from './McpRegistryBrowser.vue';
@@ -39,16 +39,16 @@ function handleManualAddSuccess() {
       </template>
 
       <NTabs v-model:value="activeTab" type="line" animated>
-        <NTab name="browser" :tab="$t('ai.mcp.registryBrowser.title')">
+        <NTabPane name="browser" :tab="$t('ai.mcp.registryBrowser.title')">
           <div class="pt-4">
             <McpRegistryBrowser ref="browserRef" />
           </div>
-        </NTab>
-        <NTab name="config" :tab="$t('ai.mcp.registryConfig.title')">
+        </NTabPane>
+        <NTabPane name="config" :tab="$t('ai.mcp.registryConfig.title')">
           <div class="pt-4">
             <McpRegistrySourceConfig />
           </div>
-        </NTab>
+        </NTabPane>
       </NTabs>
     </NCard>
 

@@ -48,7 +48,10 @@ const mcp: App.I18n.Schema['ai']['mcp'] = {
     version: 'Version',
     author: 'Author',
     endpoint: 'Endpoint',
-    command: 'Command'
+    command: 'Command',
+    filterTransportType: 'Transport Type',
+    transportRemote: 'Remote Service (SSE/HTTP)',
+    transportLocal: 'Local Tool (Stdio)'
   },
   registryImport: {
     title: 'Import MCP Server',
