@@ -88,7 +88,7 @@ const {
       pageNum: String(pageNum.value),
       pageSize: String(pageSize)
     });
-    const baseUrl = config.public.apiBaseUrl || '/api/blog';
+    const baseUrl = config.public.apiBaseUrl;
     return $fetch(`${baseUrl}/api/blog/public/articles?${params.toString()}`);
   }
 );

@@ -15,7 +15,7 @@ const toggleLanguage = () => {
 
 // 加载顶层分类（parentId=0 的节点，即树的根节点）
 const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
-  `${config.public.apiBaseUrl || '/api/blog'}/api/blog/public/categories`
+  `${config.public.apiBaseUrl}/api/blog/public/categories`
 );
 
 const topCategories = computed<BlogCategory[]>(() => categoriesData.value?.data ?? []);

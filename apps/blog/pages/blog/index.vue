@@ -28,7 +28,7 @@ const { data, pending, error, refresh } = await useFetch<{ code: number; data: A
     pageSize: String(pageSize)
   });
   if (topicSlug) params.set('topicSlug', topicSlug);
-  const baseUrl = config.public.apiBaseUrl || '/api/blog';
+  const baseUrl = config.public.apiBaseUrl;
   return `${baseUrl}/api/blog/public/articles?${params.toString()}`;
 });
 

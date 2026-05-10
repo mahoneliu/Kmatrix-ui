@@ -72,7 +72,7 @@ export default defineEventHandler(async event => {
   }
 
   const config = useRuntimeConfig();
-  const backendUrl = config.public.apiBaseUrl;
+  const backendUrl = config.backendUrl;
 
   // 缓存 key
   const cacheKey = `git-content:${categoryId}:${createHash('md5').update(filePath).digest('hex')}`;

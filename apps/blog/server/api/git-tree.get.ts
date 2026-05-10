@@ -75,7 +75,7 @@ export default defineEventHandler(async event => {
   }
 
   const config = useRuntimeConfig();
-  const backendUrl = config.public.apiBaseUrl;
+  const backendUrl = config.backendUrl;
 
   // 从后端获取 Git 配置（含 token）
   let gitConfig: { token: string; owner: string; repo: string; branch: string; rootPath?: string };

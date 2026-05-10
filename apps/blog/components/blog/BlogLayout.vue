@@ -51,7 +51,7 @@ const { data: allCategoriesData } = await useFetch<{ code: number; data: BlogCat
   const params = new URLSearchParams();
   if (topicSlug) params.set('topicSlug', topicSlug);
   const qs = params.toString();
-  const baseUrl = config.public.apiBaseUrl || '/api/blog';
+  const baseUrl = config.public.apiBaseUrl;
   return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
 });
 
