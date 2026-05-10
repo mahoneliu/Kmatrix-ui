@@ -44,6 +44,15 @@ export default defineConfig(configEnv => {
     build: {
       reportCompressedSize: false,
       sourcemap: viteEnv.VITE_SOURCE_MAP === 'Y',
+      chunkSizeWarningLimit: 2000,
+      target: 'es2020',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // 移除 console
+          drop_debugger: true // 移除 debugger
+        }
+      },
       commonjsOptions: {
         ignoreTryCatch: false
       },
