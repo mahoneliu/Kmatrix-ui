@@ -98,6 +98,13 @@ export default defineEventHandler(async event => {
     if (e?.statusCode === 404) {
       throw createError({ statusCode: 404, message: '分类不存在' });
     }
+    // 构建预渲染阶段（prerender），如果连不上后端，返回空数据，防止构建直接报错退出
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error Nitro auto-injects import.meta.prerender
+    // eslint-disable-next-line n/prefer-global/process
+    if (import.meta.prerender || process.env.npm_lifecycle_event === 'generate' || process.env.npm_lifecycle_event === 'build') {
+      return [];
+    }
     throw createError({ statusCode: 502, message: '获取 Git 配置失败' });
   }
 

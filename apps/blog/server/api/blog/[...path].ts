@@ -31,6 +31,16 @@ export default defineEventHandler(async event => {
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error(`[Proxy Error] ${targetUrl}:`, err.message);
+
+    // 构建预渲染阶段（prerender），如果连不上后端（比如 EdgeOne 打包机没配后端地址），
+    // 不要抛出 HTTP 错误，而是返回空数据，防止构建直接报错退出
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error Nitro auto-injects import.meta.prerender
+    // eslint-disable-next-line n/prefer-global/process
+    if (import.meta.prerender || process.env.npm_lifecycle_event === 'generate' || process.env.npm_lifecycle_event === 'build') {
+      return { code: 502, msg: `Prerender placeholder (backend unreachable: ${err.message})`, data: [] };
+    }
+
     throw createError({
       statusCode: err.response?.status || 502,
       message: `Backend service error: ${err.message}`

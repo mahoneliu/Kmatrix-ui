@@ -19,7 +19,8 @@ const { data: categoriesData, refresh } = await useFetch<{ code: number; data: B
     const params = new URLSearchParams();
     if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
     const qs = params.toString();
-    return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+    return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
   },
   {
     // 设置一个唯一的 Key 防止冲突

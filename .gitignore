@@ -34,12 +34,11 @@ coverage
 *.njsproj
 *.sln
 *.sw?
-
+**/.output/
 package-lock.json
 yarn.lock
 
 .VSCodeCounter
 
 # 环境配置文件
-.env.*
-!.env.example
+.env.dev

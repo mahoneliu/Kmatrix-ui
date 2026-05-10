@@ -52,7 +52,7 @@ async function loadArticles() {
   try {
     const params = new URLSearchParams({ categoryId: String(props.category.id), pageSize: '50' });
     if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
-    const baseUrl = config.public.apiBaseUrl;
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
     const result = await $fetch<{ code: number; data: { rows: BlogArticle[] } }>(
       `${baseUrl}/api/blog/public/articles?${params.toString()}`
     );

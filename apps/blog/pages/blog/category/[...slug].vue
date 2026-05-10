@@ -43,12 +43,12 @@ const categorySlug = computed(() => {
 // 当前选中的 git 文件（来自 URL query）
 const selectedGitFile = computed(() => route.query.file as string | undefined);
 
-// 获取分类列表
 const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
   const params = new URLSearchParams();
   if (topicSlug) params.set('topicSlug', topicSlug);
   const qs = params.toString();
-  return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+  return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
 });
 
 const categories = computed(() => categoriesData.value?.data ?? []);
@@ -88,7 +88,7 @@ const {
       pageNum: String(pageNum.value),
       pageSize: String(pageSize)
     });
-    const baseUrl = config.public.apiBaseUrl;
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
     return $fetch(`${baseUrl}/api/blog/public/articles?${params.toString()}`);
   }
 );

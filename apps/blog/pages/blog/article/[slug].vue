@@ -19,9 +19,10 @@ const route = useRoute();
 const slug = computed(() => route.params.slug as string);
 const config = useRuntimeConfig();
 
-const { data, pending, error } = await useFetch<{ code: number; data: ArticleDetail }>(
-  () => `${config.public.apiBaseUrl}/api/blog/public/articles/${slug.value}`
-);
+const { data, pending, error } = await useFetch<{ code: number; data: ArticleDetail }>(() => {
+  const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+  return `${baseUrl}/api/blog/public/articles/${slug.value}`;
+});
 
 const article = computed(() => data.value?.data ?? null);
 
