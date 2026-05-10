@@ -1,8 +1,4 @@
 import process from 'node:process';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const theme = process.env.NUXT_THEME || 'minimal';
 // 兼容 EdgeOne：如果填了 / 则转为空字符串，防止拼接出 // 导致浏览器误认为域名
@@ -59,8 +55,8 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'zh',
     strategy: 'no_prefix',
-    langDir: resolve(__dirname, './locales/'),
-    vueI18n: resolve(__dirname, './themes/kmatrix/i18n/vue-i18n.config.ts'),
+    langDir: 'locales',
+    vueI18n: './themes/kmatrix/i18n/vue-i18n.config.ts',
     // 关闭浏览器语言自动检测，避免 SSR 与客户端语言不一致导致 hydration mismatch
     detectBrowserLanguage: false,
     compilation: {

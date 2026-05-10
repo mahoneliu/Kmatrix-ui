@@ -21,7 +21,7 @@
     "naive-ui": "2.43.2",
     "pinia": "3.0.4",
     "vue": "3.5.25",
-    "vue-i18n": "9.14.2"
+    "vue-i18n": "11.2.2"
   },
   "devDependencies": {
     "@unocss/preset-icons": "66.5.10",
