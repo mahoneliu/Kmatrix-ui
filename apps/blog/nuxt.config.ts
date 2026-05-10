@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const theme = process.env.NUXT_THEME || 'minimal';
-const API_BASE_URL = process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8090';
+const API_BASE_URL = process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 const INTERNAL_API_KEY = process.env.BLOG_INTERNAL_API_KEY || '';
 
 export default defineNuxtConfig({

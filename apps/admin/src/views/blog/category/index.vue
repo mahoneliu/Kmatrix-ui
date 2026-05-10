@@ -14,7 +14,6 @@ import {
   NRadioGroup,
   NSelect,
   NSpace,
-  NSpin,
   NTag,
   NText,
   NTooltip,
@@ -79,21 +78,34 @@ async function loadKbList() {
   }
 }
 
-async function loadDatasets(kbId: CommonType.IdType) {
+async function loadDatasets(kbId: CommonType.IdType, restoreId?: CommonType.IdType) {
   datasetLoading.value = true;
   datasetList.value = [];
-  selectedDatasetId.value = null;
+  // 如果没有指定要恢复的 ID，则清空当前选中的数据集
+  if (!restoreId) {
+    selectedDatasetId.value = null;
+  }
   try {
     const { data } = await fetchDatasetsByKbId(kbId);
     datasetList.value = data || [];
+    // 如果有指定要恢复的 ID，确保它在列表中
+    if (restoreId) {
+      selectedDatasetId.value = restoreId;
+    }
   } finally {
     datasetLoading.value = false;
   }
 }
 
-watch(selectedKbId, val => {
-  if (val) loadDatasets(val);
-  else {
+watch(selectedKbId, (val, oldVal) => {
+  // 如果是从有值变更为另一个不同的值，或者是手动清空
+  if (val && val !== oldVal) {
+    // 如果已经在 loadDatasets 中处理了，这里可能不需要重复调用
+    // 但为了保险，如果是手动切换（非 openEditModal 内部触发），我们需要清理
+    if (datasetList.value.length === 0 || datasetList.value[0]?.kbId !== val) {
+      loadDatasets(val);
+    }
+  } else if (!val) {
     datasetList.value = [];
     selectedDatasetId.value = null;
   }
@@ -233,12 +245,13 @@ async function openEditModal(row: Api.Blog.Category) {
   };
 
   // 回填知识库/数据集
-  if (row.datasetId) {
+  if (row.kbId) {
+    selectedKbId.value = row.kbId;
+    loadDatasets(row.kbId, row.datasetId);
+  } else if (row.datasetId) {
+    // 兼容老数据：如果没有 kbId 但有 datasetId，遍历查找
     selectedDatasetId.value = row.datasetId;
-    // 找到对应知识库（通过 kbList 匹配，或先加载数据集再反查）
-    // 简化处理：加载全部知识库后，逐个查询直到找到包含该 datasetId 的知识库
     if (kbList.value.length === 0) await loadKbList();
-    // 遍历知识库找到包含该数据集的知识库
     for (const kb of kbList.value) {
       // eslint-disable-next-line no-await-in-loop
       const { data } = await fetchDatasetsByKbId(kb.id!);
@@ -609,29 +622,33 @@ onMounted(() => {
         </NDivider>
 
         <NFormItem label="知识库">
-          <NSpin :show="kbLoading" :size="16">
-            <NSelect
-              v-model:value="selectedKbId"
-              :options="kbOptions"
-              placeholder="选择知识库（可选）"
-              clearable
-              filterable
-            />
-          </NSpin>
+          <NSelect
+            v-model:value="selectedKbId"
+            :options="kbOptions"
+            :loading="kbLoading"
+            placeholder="选择知识库（可选）"
+            clearable
+            filterable
+          />
         </NFormItem>
-        <NFormItem v-if="selectedKbId" label="数据集">
-          <NSpin :show="datasetLoading" :size="16">
-            <NSelect v-model:value="selectedDatasetId" :options="datasetOptions" placeholder="选择数据集" clearable>
-              <template #render-option="{ option }">
-                <div class="w-full flex items-center justify-between">
-                  <span>{{ option.label }}</span>
-                  <NTag v-if="(option as any).count > 0" size="small" type="info" :bordered="false">
-                    {{ (option as any).count }} 篇
-                  </NTag>
-                </div>
-              </template>
-            </NSelect>
-          </NSpin>
+        <NFormItem label="数据集">
+          <NSelect
+            v-model:value="selectedDatasetId"
+            :options="datasetOptions"
+            :loading="datasetLoading"
+            :disabled="!selectedKbId"
+            :placeholder="selectedKbId ? '选择数据集（可选）' : '请先选择知识库'"
+            clearable
+          >
+            <template #render-option="{ option }">
+              <div class="w-full flex items-center justify-between">
+                <span>{{ option.label }}</span>
+                <NTag v-if="(option as any).count > 0" size="small" type="info" :bordered="false">
+                  {{ (option as any).count }} 篇
+                </NTag>
+              </div>
+            </template>
+          </NSelect>
         </NFormItem>
 
         <!-- ===== 在线创建专属字段 ===== -->
