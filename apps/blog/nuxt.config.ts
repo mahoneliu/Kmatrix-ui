@@ -26,8 +26,6 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // 适配腾讯云 EdgeOne 边缘函数
-    preset: 'tencent',
     storage: {
       'git-content': {
         driver: 'memory'
