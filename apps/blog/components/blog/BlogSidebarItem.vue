@@ -71,67 +71,20 @@ const gitLoaded = ref(false);
 const gitLoading = ref(false);
 const gitExpandedPaths = ref<Set<string>>(new Set());
 
-// 加载 Git 目录树（直接在前端执行，适配静态部署）
 async function loadGitTree() {
-  if (gitLoaded.value || gitLoading.value || !props.category.id) return;
-
+  if (!isGitCategory.value) return;
+  if (gitLoaded.value || gitLoading.value) return;
   gitLoading.value = true;
   try {
-    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
-
-    // 1. 从后端获取 Git 配置和 Token
-    const resp = await $fetch<{ code: number; data: any }>(
-      `${baseUrl}/api/blog/public/git/token?categoryId=${props.category.id}`
-    );
-
-    if (!resp?.data) throw new Error('未找到 Git 配置');
-    const { owner, repo, branch, token, path } = resp.data;
-
-    // 2. 直接调用 GitHub API (前端调用)
-    const treeResp = await $fetch<any>(
-      `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
-      {
-        headers: token ? { Authorization: `token ${token}` } : {}
-      }
-    );
-
-    if (!treeResp?.tree) throw new Error('GitHub 响应异常');
-
-    // 3. 过滤和处理目录结构
-    let prefix = '';
-    if (path) {
-      prefix = path.endsWith('/') ? path : `${path}/`;
-    }
-
-    const filteredFiles = treeResp.tree
-      .filter((item: any) => item.type === 'blob' && item.path.endsWith('.md'))
-      .filter((item: any) => {
-        if (!prefix) return true;
-        return item.path.startsWith(prefix);
-      });
-
-    const flatNodes: GitFileNode[] = filteredFiles.map((item: any) => {
-      const relativePath = item.path.slice(prefix.length);
-      const fileName = relativePath.split('/').pop() || '';
-      const fileDepth = relativePath.split('/').length;
-      return {
-        path: item.path,
-        type: 'blob',
-        name: fileName,
-        depth: fileDepth
-      };
-    });
-
-    gitNodes.value = buildTree(flatNodes);
+    const flat = await $fetch<GitFileNode[]>(`/api/git-tree?categoryId=${props.category.id}`);
+    gitNodes.value = buildTree(flat ?? []);
     gitLoaded.value = true;
-
     // 默认展开第一层目录
     for (const node of gitNodes.value) {
       if (node.type === 'tree') gitExpandedPaths.value.add(node.path);
     }
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[BlogSidebarItem] Git tree load failed:', err.message);
+  } catch {
+    // ignore
   } finally {
     gitLoading.value = false;
   }

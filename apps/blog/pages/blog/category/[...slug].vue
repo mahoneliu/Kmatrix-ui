@@ -117,53 +117,20 @@ function parseTags(article: BlogArticle): string[] {
   }
 }
 
-// ===== GIT 分类：文件内容（前端直连适配） =====
+// ===== GIT 分类：文件内容 =====
 const {
   data: gitContentData,
   pending: gitContentPending,
   error: gitContentErrorObj
 } = await useAsyncData(
   'gitContent',
-  async () => {
+  () => {
     if (!currentCategory.value?.id || !selectedGitFile.value || !isGitCategory.value) {
-      return null;
+      return Promise.resolve(null);
     }
-
-    try {
-      const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
-
-      // 1. 获取 Token 和配置
-      const resp = await $fetch<{ code: number; data: any }>(
-        `${baseUrl}/api/blog/public/git/token?categoryId=${currentCategory.value.id}`
-      );
-
-      if (!resp?.data) throw new Error('未找到 Git 配置');
-      const { owner, repo, branch, token } = resp.data;
-
-      // 2. 从 GitHub 获取内容
-      const contentResp = await $fetch<any>(
-        `https://api.github.com/repos/${owner}/${repo}/contents/${selectedGitFile.value}?ref=${branch}`,
-        {
-          headers: token ? { Authorization: `token ${token}` } : {}
-        }
-      );
-
-      if (!contentResp?.content) throw new Error('获取内容失败');
-
-      // 3. Base64 解码 (处理中文 utf-8)
-      const base64 = contentResp.content.replace(/\s/g, '');
-      const binaryString = atob(base64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i += 1) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const decoder = new TextDecoder('utf-8');
-      return { content: decoder.decode(bytes), path: selectedGitFile.value };
-    } catch (err: any) {
-      // eslint-disable-next-line no-console
-      console.error('[GitContent] Load failed:', err.message);
-      throw err;
-    }
+    return $fetch<{ content: string; path: string }>(
+      `/api/git-content?categoryId=${currentCategory.value.id}&path=${encodeURIComponent(selectedGitFile.value)}`
+    );
   },
   { watch: [selectedGitFile, isGitCategory] }
 );
