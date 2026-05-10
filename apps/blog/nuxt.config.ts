@@ -24,26 +24,11 @@ export default defineNuxtConfig({
       'git-content': {
         driver: 'memory'
       }
-    },
-    // 代理 /api/blog/* 到后端，解决 Edge One 强制 HTTPS 下的 Mixed Content 问题
-    proxy: {
-      '/api/blog': {
-        target: process.env.BLOG_API_URL || 'http://localhost:8080',
-        changeOrigin: true
-      }
     }
   },
 
   vite: {
-    // 开发环境代理 /api/blog/* 到本地后端
-    server: {
-      proxy: {
-        '/api/blog': {
-          target: 'http://localhost:8080',
-          changeOrigin: true
-        }
-      }
-    }
+    // Vite config if needed
   },
 
   modules: ['@nuxtjs/i18n'],
