@@ -14,9 +14,12 @@ const toggleLanguage = () => {
 };
 
 // 加载顶层分类（parentId=0 的节点，即树的根节点）
-const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
-  `${config.public.apiBaseUrl}/api/blog/public/categories`
-);
+const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
+  const params = new URLSearchParams();
+  if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
+  const qs = params.toString();
+  return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+});
 
 const topCategories = computed<BlogCategory[]>(() => categoriesData.value?.data ?? []);
 

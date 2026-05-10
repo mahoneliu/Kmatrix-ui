@@ -1,23 +1,39 @@
-import { proxyRequest } from 'h3';
+import process from 'node:process';
 
 export default defineEventHandler(async event => {
   const config = useRuntimeConfig();
-  const backendUrl = config.backendUrl;
+  // 优先从环境变量读取，Node.js 运行时最可靠的方式
+  const backendUrl = process.env.BLOG_API_URL || config.backendUrl || 'http://localhost:8080';
 
-  // 获取剩余路径，例如 /public/categories
   const path = event.context.params?.path;
-
-  // 构造目标 URL：backendUrl + /api/blog/ + path
   const targetUrl = `${backendUrl}/api/blog/${path}`;
 
-  console.log(`[Proxy] Forwarding to: ${targetUrl}`);
+  // 获取原始请求的查询参数
+  const query = getQuery(event);
 
-  return proxyRequest(event, targetUrl, {
-    fetchOptions: {
+  // eslint-disable-next-line no-console
+  console.log(`[Proxy] SSR/API Fetching: ${targetUrl}`);
+
+  try {
+    const response = await $fetch.raw(targetUrl, {
+      method: event.method,
+      query,
       headers: {
-        // 如果有内部鉴权 Key，可以在这里统一注入
-        'X-Internal-Key': config.internalApiKey
-      }
-    }
-  });
+        'X-Internal-Key': config.internalApiKey || process.env.BLOG_INTERNAL_API_KEY || ''
+      },
+      // 如果是 POST 等请求，透传 body
+      body: event.method !== 'GET' && event.method !== 'HEAD' ? await readBody(event) : undefined
+    });
+
+    // 将后端的响应头和状态码透传给前端
+    setResponseStatus(event, response.status);
+    return response._data;
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error(`[Proxy Error] ${targetUrl}:`, err.message);
+    throw createError({
+      statusCode: err.response?.status || 502,
+      message: `Backend service error: ${err.message}`
+    });
+  }
 });
