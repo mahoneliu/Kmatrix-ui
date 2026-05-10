@@ -38,24 +38,23 @@ onMounted(() => {
         <img src="/favicon.svg" alt="Logo" style="width: 32px; height: 32px" />
         <span class="gradient-text logo-text">KMatrix</span>
       </NuxtLink>
-      <div class="nav-links">
-        <NuxtLink to="/">{{ $t('nav.home') }}</NuxtLink>
-        <NuxtLink to="/comparison">{{ $t('nav.comparison') }}</NuxtLink>
-        <NuxtLink to="/about">{{ $t('nav.about') }}</NuxtLink>
-        <NuxtLink
-          v-for="cat in topCategories"
-          :key="cat.id"
-          :to="`/blog/category${cat.path}`"
-          class="nav-link-category"
-        >
-          {{ cat.name }}
-        </NuxtLink>
-        <a href="https://gitee.com/kyxxjs/kmatrix-service" target="_blank" rel="noopener noreferrer">
-          {{ $t('nav.gitee') }}
-        </a>
-        <a href="https://github.com/mahoneliu/KMatrix-service" target="_blank" rel="noopener noreferrer">
-          {{ $t('nav.github') }}
-        </a>
+      <div class="nav-links-wrapper">
+        <div class="nav-links">
+          <NuxtLink to="/">{{ $t('nav.home') }}</NuxtLink>
+          <NuxtLink to="/comparison">{{ $t('nav.comparison') }}</NuxtLink>
+          <NuxtLink to="/about">{{ $t('nav.about') }}</NuxtLink>
+        </div>
+        <div class="nav-links nav-links-right">
+          <NuxtLink v-for="cat in topCategories" :key="cat.id" :to="`/blog/category${cat.path}`">
+            {{ cat.name }}
+          </NuxtLink>
+          <a href="https://gitee.com/kyxxjs/kmatrix-service" target="_blank" rel="noopener noreferrer">
+            {{ $t('nav.gitee') }}
+          </a>
+          <a href="https://github.com/mahoneliu/KMatrix-service" target="_blank" rel="noopener noreferrer">
+            {{ $t('nav.github') }}
+          </a>
+        </div>
       </div>
       <div class="nav-actions">
         <button class="lang-switch" @click="toggleLanguage">
@@ -127,7 +126,7 @@ onMounted(() => {
     'Segoe UI',
     Roboto,
     sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   letter-spacing: -0.02em;
   font-weight: 700;
 }
@@ -135,16 +134,34 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2rem;
+}
+.nav-links-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: space-between;
+  margin: 0 2rem;
 }
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
+}
+.nav-links-right {
+  gap: 1.5rem;
 }
 .nav-links a {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   text-decoration: none;
   color: var(--foreground);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 1rem;
   transition: color 0.2s;
 }
 .nav-links a:hover {
@@ -175,7 +192,7 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 @media (max-width: 768px) {
-  .nav-links {
+  .nav-links-wrapper {
     display: none;
   }
 }
