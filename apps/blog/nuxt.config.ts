@@ -3,7 +3,13 @@ import process from 'node:process';
 const theme = process.env.NUXT_THEME || 'minimal';
 // 兼容 EdgeOne：如果填了 / 则转为空字符串，防止拼接出 // 导致浏览器误认为域名
 const rawApiBaseUrl = process.env.NUXT_PUBLIC_API_BASE_URL || '';
-const API_BASE_URL = rawApiBaseUrl === '/' ? '' : rawApiBaseUrl;
+let API_BASE_URL = rawApiBaseUrl === '/' ? '' : rawApiBaseUrl;
+
+// 生产环境安全兜底：防止本地 localhost 配置被带到线上
+if (process.env.NODE_ENV === 'production' && API_BASE_URL.includes('localhost')) {
+  API_BASE_URL = '';
+}
+
 const BACKEND_URL = process.env.BLOG_API_URL || 'http://localhost:8080';
 const INTERNAL_API_KEY = process.env.BLOG_INTERNAL_API_KEY || '';
 
