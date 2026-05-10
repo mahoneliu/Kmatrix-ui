@@ -88,22 +88,21 @@ onUpdated(() => nextTick(notifyToc));
 </script>
 
 <template>
-  <!-- 加载中骨架屏 -->
-  <div v-if="loading" class="markdown-loading">
-    <div class="skeleton-title" />
-    <div class="skeleton-meta" />
-    <div v-for="i in 6" :key="i" class="skeleton-line" />
-  </div>
+  <div class="markdown-renderer-container">
+    <div v-if="loading" class="markdown-loading">
+      <div class="skeleton-title" />
+      <div class="skeleton-meta" />
+      <div v-for="i in 6" :key="i" class="skeleton-line" />
+    </div>
 
-  <!-- 错误状态 -->
-  <div v-else-if="error" class="markdown-error">
-    <p class="error-message">{{ error }}</p>
-    <slot name="error-action" />
-  </div>
+    <div v-else-if="error" class="markdown-error">
+      <p class="error-message">{{ error }}</p>
+      <slot name="error-action" />
+    </div>
 
-  <!-- Markdown 内容 -->
-  <!-- eslint-disable-next-line vue/no-v-html -->
-  <div v-else class="blog-markdown" v-html="renderedHtml" />
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <div v-else class="blog-markdown" v-html="renderedHtml" />
+  </div>
 </template>
 
 <style scoped>

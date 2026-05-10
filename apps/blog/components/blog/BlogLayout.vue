@@ -47,11 +47,12 @@ const topCategoryPath = computed(() => {
 });
 
 // 加载所有顶层分类（树形结构，根节点即顶层）
-const { data: allCategoriesData } = useFetch<{ code: number; data: BlogCategory[] }>(() => {
+const { data: allCategoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
   const params = new URLSearchParams();
   if (topicSlug) params.set('topicSlug', topicSlug);
   const qs = params.toString();
-  return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  const baseUrl = config.public.apiBaseUrl || '/api/blog';
+  return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
 });
 
 const allCategories = computed<BlogCategory[]>(() => allCategoriesData.value?.data ?? []);
@@ -109,10 +110,8 @@ const shouldShowToc = computed(() => props.showToc || Boolean(activeGitFile.valu
 
 <template>
   <div class="blog-layout">
-    <!-- 使用 KmatrixNavbar 共享 home 的导航栏 -->
     <KmatrixNavbar />
     <div class="blog-body" :class="{ 'has-toc': shouldShowToc }">
-      <!-- 左侧分类目录 -->
       <aside class="blog-sidebar">
         <BlogSidebar
           :categories="sidebarCategories"
@@ -123,13 +122,9 @@ const shouldShowToc = computed(() => props.showToc || Boolean(activeGitFile.valu
           @select-git-file="onSelectGitFile"
         />
       </aside>
-
-      <!-- 中间内容区 -->
       <main class="blog-main">
         <slot />
       </main>
-
-      <!-- 右侧 TOC：始终渲染，用 v-show 控制显隐，避免 SSR hydration mismatch -->
       <aside class="blog-toc" :style="{ display: shouldShowToc ? '' : 'none' }">
         <slot name="toc" />
       </aside>

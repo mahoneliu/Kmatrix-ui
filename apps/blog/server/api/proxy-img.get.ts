@@ -24,7 +24,7 @@ export default defineEventHandler(async event => {
   let response: Response;
   try {
     response = await fetch(decodedUrl, {
-      signal: AbortSignal.timeout(10000) // 10s 超时
+      signal: AbortSignal.timeout(10000) // 10s 超_时
     });
   } catch {
     throw createError({ statusCode: 502, message: '图片代理请求失败' });

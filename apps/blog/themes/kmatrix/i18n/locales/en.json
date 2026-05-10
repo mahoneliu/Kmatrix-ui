@@ -1,399 +1,395 @@
 {
-    "nav": {
-        "home": "Home",
-        "comparison": "Comparison",
-        "about": "About Us",
-        "gitee": "Gitee",
-        "github": "GitHub",
-        "tryOnline": "Online Trial",
-        "startNow": "Start Now"
-    },
-    "common": {
-        "changeLanguage": "Language"
-    },
+  "nav": {
+    "home": "Home",
+    "comparison": "Comparison",
+    "about": "About Us",
+    "gitee": "Gitee",
+    "github": "GitHub",
+    "tryOnline": "Online Trial",
+    "startNow": "Start Now"
+  },
+  "common": {
+    "changeLanguage": "Language"
+  },
+  "hero": {
+    "badge": "🚀 Empowering Enterprises, Transforming Data into Gold",
+    "title1": "KMatrix",
+    "subtitle": "Bring Your Enterprise Documents to Life",
+    "description": "More than just document management—it's your intelligent business assistant. Transform massive discrete documents into precise, efficient AI productivity through simple visual orchestration, accelerating enterprise digital transformation.",
+    "preview": "Preview AI Assistant",
+    "learnMore": "View Use Cases"
+  },
+  "features": {
+    "title": "Use Cases",
+    "subtitle": "Empowering various business scenarios, making AI truly deep into the frontline.",
+    "items": [
+      {
+        "title": "AI Customer Service",
+        "tabTitle": "AI Customer",
+        "tabIcon": "customer",
+        "desc": "Solve long-standing pain points in enterprise customer service, such as limited service hours, high labor costs, inconsistent service quality, and difficulty in document iteration.",
+        "cards": [
+          {
+            "title": "Precise Resolution",
+            "desc": "24/7 online response, improving service efficiency",
+            "icon": "check"
+          },
+          {
+            "title": "Efficiency Gain",
+            "desc": "Reduce labor input, improve service quality",
+            "icon": "trend"
+          },
+          {
+            "title": "Continuous Optimization",
+            "desc": "Knowledge iterative updates, service quality improvement",
+            "icon": "update"
+          },
+          {
+            "title": "Secure & Controllable",
+            "desc": "Private deployment, enterprise data self-control",
+            "icon": "shield"
+          }
+        ],
+        "coreList": [
+          "Rapid Deployment",
+          "Enterprise Security",
+          "Pro Tech Support",
+          "Multimedia Interaction",
+          "Vertical Domain Knowledge",
+          "Continuous Evolution"
+        ],
+        "btnText": "Learn More"
+      },
+      {
+        "title": "Smart Office Assistant",
+        "tabTitle": "Smart Office",
+        "tabIcon": "office",
+        "desc": "Break down information silos. Access internal documents, assist in document writing, and automate meeting schedules via a unified AI entry, significantly boosting daily office efficiency.",
+        "cards": [
+          {
+            "title": "Instant Search",
+            "desc": "Locate docs in milliseconds, no more tedious searches",
+            "icon": "search"
+          },
+          {
+            "title": "Document Copilot",
+            "desc": "Smart assistance in drafting and error correction",
+            "icon": "edit"
+          },
+          {
+            "title": "Schedule Mgmt",
+            "desc": "Auto-extract meeting points, rational planning",
+            "icon": "calendar"
+          },
+          {
+            "title": "Cross-Device Sync",
+            "desc": "Smooth switch between Mobile and PC",
+            "icon": "sync"
+          }
+        ],
+        "coreList": [
+          "Multi-level Permission Control",
+          "Semantic Engine",
+          "Auto Classification",
+          "Collaborative Editing",
+          "Real-time Monitoring",
+          "Offline Mode"
+        ],
+        "btnText": "Learn More"
+      },
+      {
+        "title": "Business System + AI",
+        "tabTitle": "System + AI",
+        "tabIcon": "system",
+        "desc": "Through low-code integration, seamlessly implant the AI brain into existing ERP, CRM, HR and other systems, instantly revitalizing legacy systems with intelligence.",
+        "cards": [
+          {
+            "title": "Rapid Integration",
+            "desc": "Embed with one line of code, no major refactor",
+            "icon": "link"
+          },
+          {
+            "title": "Smart Analytics",
+            "desc": "Deep dive into business data for decision support",
+            "icon": "chart"
+          },
+          {
+            "title": "Automation Flow",
+            "desc": "Break system barriers for cross-app decisions",
+            "icon": "flow"
+          },
+          {
+            "title": "Flexible Customization",
+            "desc": "Deeply adapt business logic for industry traits",
+            "icon": "settings"
+          }
+        ],
+        "coreList": [
+          "High Compatibility",
+          "Real-time Sync",
+          "High-performance Response",
+          "Plugin-based Arch",
+          "Full-link Audit Trail",
+          "Elastic Compute Dispatch"
+        ],
+        "btnText": "Learn More"
+      }
+    ],
+    "highlightsLabel": "Scenario Advantages",
+    "valueLabel": "Core Features",
+    "insights": {
+      "title": "Feature Insights",
+      "subtitle": "From knowledge ingestion to AI orchestration, every detail is refined for enterprise applications.",
+      "items": [
+        {
+          "title": "Efficient Mass Knowledge Ingestion",
+          "highlights": [
+            "Supports all formats like Office / PDF",
+            "Smartly extracts key info and FAQs",
+            "Precisely decomposes mass documents without omission"
+          ],
+          "value": "You can entrust all corporate regulations and manuals to it; it's the most diligent 'librarian' with a photographic memory."
+        },
+        {
+          "title": "Graphical Business Assistant Configuration",
+          "highlights": [
+            "Drag-and-drop canvas for clear business logic",
+            "Flexibly handles various complex business flows",
+            "What-you-see-is-what-you-get configuration"
+          ],
+          "value": "No longer dependent on programmers; business experts can build logic-capable AI tools themselves with just a mouse."
+        },
+        {
+          "title": "Instant and Reliable Search",
+          "highlights": [
+            "Deep understanding of both text and intent",
+            "Auto-compared multi-sources for authenticity",
+            "Source traceability for every answer"
+          ],
+          "value": "Say goodbye to keyword mismatches. It understands your intent like an expert and provides reliable answers with sources."
+        },
+        {
+          "title": "Seamless Integration with Existing Platforms",
+          "highlights": [
+            "Integration configuration finished in seconds",
+            "No changes needed to existing core code",
+            "Fully compatible with various web pages and apps"
+          ],
+          "value": "Let AI follow you like a floating button, giving old systems a 'new brain' at minimal cost."
+        },
+        {
+          "title": "Multi-Model Intelligent Brain",
+          "highlights": [
+            "Flexible choice of 'brain capacity' based on budget",
+            "Supports major mainstream models with easy switching",
+            "Supports fully offline environments for data privacy"
+          ],
+          "value": "We hide the complex parameter tuning. You only need to choose between the 'cost-effective' or the 'smartest' model."
+        }
+      ]
+    }
+  },
+  "about": {
     "hero": {
-        "badge": "🚀 Empowering Enterprises, Transforming Data into Gold",
-        "title1": "KMatrix",
-        "subtitle": "Bring Your Enterprise Documents to Life",
-        "description": "More than just document management—it's your intelligent business assistant. Transform massive discrete documents into precise, efficient AI productivity through simple visual orchestration, accelerating enterprise digital transformation.",
-        "preview": "Preview AI Assistant",
-        "learnMore": "View Use Cases"
+      "title": "About KY",
+      "subtitle": "Building great software with craftsmanship and passion, making data valuable"
     },
-    "features": {
-        "title": "Use Cases",
-        "subtitle": "Empowering various business scenarios, making AI truly deep into the frontline.",
-        "items": [
-            {
-                "title": "AI Customer Service",
-                "tabTitle": "AI Customer",
-                "tabIcon": "customer",
-                "desc": "Solve long-standing pain points in enterprise customer service, such as limited service hours, high labor costs, inconsistent service quality, and difficulty in document iteration.",
-                "cards": [
-                    {
-                        "title": "Precise Resolution",
-                        "desc": "24/7 online response, improving service efficiency",
-                        "icon": "check"
-                    },
-                    {
-                        "title": "Efficiency Gain",
-                        "desc": "Reduce labor input, improve service quality",
-                        "icon": "trend"
-                    },
-                    {
-                        "title": "Continuous Optimization",
-                        "desc": "Knowledge iterative updates, service quality improvement",
-                        "icon": "update"
-                    },
-                    {
-                        "title": "Secure & Controllable",
-                        "desc": "Private deployment, enterprise data self-control",
-                        "icon": "shield"
-                    }
-                ],
-                "coreList": [
-                    "Rapid Deployment",
-                    "Enterprise Security",
-                    "Pro Tech Support",
-                    "Multimedia Interaction",
-                    "Vertical Domain Knowledge",
-                    "Continuous Evolution"
-                ],
-                "btnText": "Learn More"
-            },
-            {
-                "title": "Smart Office Assistant",
-                "tabTitle": "Smart Office",
-                "tabIcon": "office",
-                "desc": "Break down information silos. Access internal documents, assist in document writing, and automate meeting schedules via a unified AI entry, significantly boosting daily office efficiency.",
-                "cards": [
-                    {
-                        "title": "Instant Search",
-                        "desc": "Locate docs in milliseconds, no more tedious searches",
-                        "icon": "search"
-                    },
-                    {
-                        "title": "Document Copilot",
-                        "desc": "Smart assistance in drafting and error correction",
-                        "icon": "edit"
-                    },
-                    {
-                        "title": "Schedule Mgmt",
-                        "desc": "Auto-extract meeting points, rational planning",
-                        "icon": "calendar"
-                    },
-                    {
-                        "title": "Cross-Device Sync",
-                        "desc": "Smooth switch between Mobile and PC",
-                        "icon": "sync"
-                    }
-                ],
-                "coreList": [
-                    "Multi-level Permission Control",
-                    "Semantic Engine",
-                    "Auto Classification",
-                    "Collaborative Editing",
-                    "Real-time Monitoring",
-                    "Offline Mode"
-                ],
-                "btnText": "Learn More"
-            },
-            {
-                "title": "Business System + AI",
-                "tabTitle": "System + AI",
-                "tabIcon": "system",
-                "desc": "Through low-code integration, seamlessly implant the AI brain into existing ERP, CRM, HR and other systems, instantly revitalizing legacy systems with intelligence.",
-                "cards": [
-                    {
-                        "title": "Rapid Integration",
-                        "desc": "Embed with one line of code, no major refactor",
-                        "icon": "link"
-                    },
-                    {
-                        "title": "Smart Analytics",
-                        "desc": "Deep dive into business data for decision support",
-                        "icon": "chart"
-                    },
-                    {
-                        "title": "Automation Flow",
-                        "desc": "Break system barriers for cross-app decisions",
-                        "icon": "flow"
-                    },
-                    {
-                        "title": "Flexible Customization",
-                        "desc": "Deeply adapt business logic for industry traits",
-                        "icon": "settings"
-                    }
-                ],
-                "coreList": [
-                    "High Compatibility",
-                    "Real-time Sync",
-                    "High-performance Response",
-                    "Plugin-based Arch",
-                    "Full-link Audit Trail",
-                    "Elastic Compute Dispatch"
-                ],
-                "btnText": "Learn More"
-            }
-        ],
-        "highlightsLabel": "Scenario Advantages",
-        "valueLabel": "Core Features",
-        "insights": {
-            "title": "Feature Insights",
-            "subtitle": "From knowledge ingestion to AI orchestration, every detail is refined for enterprise applications.",
-            "items": [
-                {
-                    "title": "Efficient Mass Knowledge Ingestion",
-                    "highlights": [
-                        "Supports all formats like Office / PDF",
-                        "Smartly extracts key info and FAQs",
-                        "Precisely decomposes mass documents without omission"
-                    ],
-                    "value": "You can entrust all corporate regulations and manuals to it; it's the most diligent 'librarian' with a photographic memory."
-                },
-                {
-                    "title": "Graphical Business Assistant Configuration",
-                    "highlights": [
-                        "Drag-and-drop canvas for clear business logic",
-                        "Flexibly handles various complex business flows",
-                        "What-you-see-is-what-you-get configuration"
-                    ],
-                    "value": "No longer dependent on programmers; business experts can build logic-capable AI tools themselves with just a mouse."
-                },
-                {
-                    "title": "Instant and Reliable Search",
-                    "highlights": [
-                        "Deep understanding of both text and intent",
-                        "Auto-compared multi-sources for authenticity",
-                        "Source traceability for every answer"
-                    ],
-                    "value": "Say goodbye to keyword mismatches. It understands your intent like an expert and provides reliable answers with sources."
-                },
-                {
-                    "title": "Seamless Integration with Existing Platforms",
-                    "highlights": [
-                        "Integration configuration finished in seconds",
-                        "No changes needed to existing core code",
-                        "Fully compatible with various web pages and apps"
-                    ],
-                    "value": "Let AI follow you like a floating button, giving old systems a 'new brain' at minimal cost."
-                },
-                {
-                    "title": "Multi-Model Intelligent Brain",
-                    "highlights": [
-                        "Flexible choice of 'brain capacity' based on budget",
-                        "Supports major mainstream models with easy switching",
-                        "Supports fully offline environments for data privacy"
-                    ],
-                    "value": "We hide the complex parameter tuning. You only need to choose between the 'cost-effective' or the 'smartest' model."
-                }
-            ]
+    "story": {
+      "title": "Our Story",
+      "p1": "We are <strong>Guangzhou Keyi Information Technology Co., Ltd.</strong> Our core team has deep roots in IT and software development for over a decade, gathering elite enthusiasts passionate about technology.",
+      "p2": "<strong>KMatrix Knowledge Base</strong> is our flagship product. More than just a file-based intelligent knowledge base, it's a masterpiece refined over four years and validated by hundreds of enterprises.",
+      "p3": "From general to industry-specific versions, we stick to the principle of 'quick deployment, quick launch', helping enterprises move steadily and efficiently towards digital transformation."
+    },
+    "values": {
+      "title": "Core Philosophy",
+      "items": [
+        {
+          "icon": "💎",
+          "title": "Craftsmanship",
+          "desc": "Focus on details, a decade of industry expertise, writing technical excellence through code."
+        },
+        {
+          "icon": "🚀",
+          "title": "Customer First",
+          "desc": "Demand-driven, providing rapid deployment and launch support to ensure customer success."
+        },
+        {
+          "icon": "🛡️",
+          "title": "Secure & Reliable",
+          "desc": "Professional security scanning creates a financial-grade stable knowledge management platform."
         }
-    },
-    "about": {
-        "hero": {
-            "title": "About KY",
-            "subtitle": "Building great software with craftsmanship and passion, making data valuable"
-        },
-        "story": {
-            "title": "Our Story",
-            "p1": "We are <strong>Guangzhou Keyi Information Technology Co., Ltd.</strong> Our core team has deep roots in IT and software development for over a decade, gathering elite enthusiasts passionate about technology.",
-            "p2": "<strong>KMatrix Knowledge Base</strong> is our flagship product. More than just a file-based intelligent knowledge base, it's a masterpiece refined over four years and validated by hundreds of enterprises.",
-            "p3": "From general to industry-specific versions, we stick to the principle of 'quick deployment, quick launch', helping enterprises move steadily and efficiently towards digital transformation."
-        },
-        "values": {
-            "title": "Core Philosophy",
-            "items": [
-                {
-                    "icon": "💎",
-                    "title": "Craftsmanship",
-                    "desc": "Focus on details, a decade of industry expertise, writing technical excellence through code."
-                },
-                {
-                    "icon": "🚀",
-                    "title": "Customer First",
-                    "desc": "Demand-driven, providing rapid deployment and launch support to ensure customer success."
-                },
-                {
-                    "icon": "🛡️",
-                    "title": "Secure & Reliable",
-                    "desc": "Professional security scanning creates a financial-grade stable knowledge management platform."
-                }
-            ]
-        },
-        "tech": {
-            "title": "Tech & Service",
-            "p1": "We believe in <strong>Service First</strong>. For customers, we provide more than just products; we deliver comprehensive customized solutions and technical support.",
-            "p2": "Scanned by the CodeSec platform, our code is secure and bug-free. Combined with cutting-edge LLM and RAG technology, we ensure every delivered system is high-performance and extremely secure.",
-            "stats": {
-                "exp": "Years Tech Accumulation",
-                "iter": "Years Product Iteration",
-                "clients": "Enterprises Served"
-            }
-        },
-        "contact": {
-            "title": "Contact Us",
-            "address": "Address",
-            "addrText": "31853, 3rd Floor, No. 113 Chebei Road, Tianhe District, Guangzhou",
-            "business": "Business Inquiry",
-            "support": "Tech Support"
-        }
-    },
-    "comparison": {
-        "title": "Feature Comparison",
-        "subtitle": "Choose the best version for your business, start a new era of AI productivity",
-        "headers": [
-            "Features",
-            "Community (Open Source)",
-            "Commercial (Planning)"
-        ],
-        "items": [
-            {
-                "feature": "Vector Retrieval (RAG) QA",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Full-text & Multi-dim Search",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Visual Workflow (Vue Flow)",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Multi-Model Access (LLM)",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Private Deployment Support",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Enterprise Auth (Sa-Token)",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "One-click Web Embed",
-                "community": true,
-                "commercial": true
-            },
-            {
-                "feature": "Large-scale Concurrency Opt",
-                "community": false,
-                "commercial": true,
-                "isAdvanced": true
-            },
-            {
-                "feature": "Custom Model Fine-tuning API",
-                "community": false,
-                "commercial": true,
-                "isAdvanced": true
-            },
-            {
-                "feature": "Dedicated Tech Support & SLA",
-                "community": false,
-                "commercial": true,
-                "isAdvanced": true
-            },
-            {
-                "feature": "Multi-Org/Multi-Tenant Mgmt",
-                "community": false,
-                "commercial": true,
-                "isAdvanced": true
-            }
-        ],
-        "advanced": "Adv.",
-        "footer": "* Commercial version is currently in planning and small-scale testing. Follow our official website and WeChat for updates.",
-        "downloadCta": "Go to Gitee for Community Edition"
-    },
-    "stats": {
-        "items": [
-            {
-                "label": "Enterprises Served",
-                "value": "300+"
-            },
-            {
-                "label": "Managed Documents",
-                "value": "100M+"
-            },
-            {
-                "label": "AI Accuracy",
-                "value": "99%"
-            },
-            {
-                "label": "Open Source Stars",
-                "value": "2.5k"
-            }
-        ]
-    },
-    "feats": {
-        "title": "Core Advantages",
-        "subtitle": "Full-stack AI tech, building your exclusive enterprise brain",
-        "items": [
-            {
-                "icon": "🎨",
-                "title": "Zero-Code Orchestration",
-                "desc": "No coding background needed. Define business logic or AI decision flows simply through drag-and-drop, just like drawing flowcharts."
-            },
-            {
-                "icon": "🎯",
-                "title": "Precise QA Instant Recovery",
-                "desc": "Deeply understands your professional docs, responding with the most accurate answers in seconds, solving enterprise data lookup pain points."
-            },
-            {
-                "icon": "🤖",
-                "title": "Your Intelligent Expert",
-                "desc": "Rapidly incubate smart customer service, onboarding assistants, or doc analysts, placing AI deep into your business frontline 24/7."
-            },
-            {
-                "icon": "🔌",
-                "title": "One-click Embedding",
-                "desc": "Embed AI assistants perfectly into your existing corporate portals, ERP, or CRM systems with just one line of code."
-            },
-            {
-                "icon": "🛡️",
-                "title": "Enterprise-Grade Security",
-                "desc": "Supports private deployment with strict security auditing to ensure enterprise knowledge assets never leak."
-            },
-            {
-                "icon": "🌓",
-                "title": "Elegant User Experience",
-                "desc": "Extreme responsiveness and multi-device support, with dark/light mode toggles to make every workday a visual delight."
-            }
-        ]
+      ]
     },
     "tech": {
-        "badge": "Official AI Evaluation",
-        "title": "Technical Solution: High Standard & Best Fit",
-        "quote": "“Gitee fully integrates code analysis evaluation... Our Kmatrix knowledge base is highly rated. Thanks Gitee for the recognition.”",
-        "stats": [
-            {
-                "val": "High",
-                "lab": "Consistency Evaluation"
-            },
-            {
-                "val": "Strong",
-                "lab": "Arch Flexibility"
-            },
-            {
-                "val": "Exc",
-                "lab": "Security Design"
-            }
-        ]
+      "title": "Tech & Service",
+      "p1": "We believe in <strong>Service First</strong>. For customers, we provide more than just products; we deliver comprehensive customized solutions and technical support.",
+      "p2": "Scanned by the CodeSec platform, our code is secure and bug-free. Combined with cutting-edge LLM and RAG technology, we ensure every delivered system is high-performance and extremely secure.",
+      "stats": {
+        "exp": "Years Tech Accumulation",
+        "iter": "Years Product Iteration",
+        "clients": "Enterprises Served"
+      }
     },
-    "footer": {
-        "slogan": "Making Knowledge Create Value",
-        "resources": "Resources",
-        "docs": "Tech Docs",
-        "changelog": "Changelog",
-        "donate": "Donate & Support",
-        "contact": "Contact Us",
-        "qqGroup": "QQ Group",
-        "bottom": "MIT Licensed. Built on Spring Boot 3 & LangChain4j"
+    "contact": {
+      "title": "Contact Us",
+      "address": "Address",
+      "addrText": "31853, 3rd Floor, No. 113 Chebei Road, Tianhe District, Guangzhou",
+      "business": "Business Inquiry",
+      "support": "Tech Support"
     }
+  },
+  "comparison": {
+    "title": "Feature Comparison",
+    "subtitle": "Choose the best version for your business, start a new era of AI productivity",
+    "headers": ["Features", "Community (Open Source)", "Commercial (Planning)"],
+    "items": [
+      {
+        "feature": "Vector Retrieval (RAG) QA",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Full-text & Multi-dim Search",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Visual Workflow (Vue Flow)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Multi-Model Access (LLM)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Private Deployment Support",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Enterprise Auth (Sa-Token)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "One-click Web Embed",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Large-scale Concurrency Opt",
+        "community": false,
+        "commercial": true,
+        "isAdvanced": true
+      },
+      {
+        "feature": "Custom Model Fine-tuning API",
+        "community": false,
+        "commercial": true,
+        "isAdvanced": true
+      },
+      {
+        "feature": "Dedicated Tech Support & SLA",
+        "community": false,
+        "commercial": true,
+        "isAdvanced": true
+      },
+      {
+        "feature": "Multi-Org/Multi-Tenant Mgmt",
+        "community": false,
+        "commercial": true,
+        "isAdvanced": true
+      }
+    ],
+    "advanced": "Adv.",
+    "footer": "* Commercial version is currently in planning and small-scale testing. Follow our official website and WeChat for updates.",
+    "downloadCta": "Go to Gitee for Community Edition"
+  },
+  "stats": {
+    "items": [
+      {
+        "label": "Enterprises Served",
+        "value": "300+"
+      },
+      {
+        "label": "Managed Documents",
+        "value": "100M+"
+      },
+      {
+        "label": "AI Accuracy",
+        "value": "99%"
+      },
+      {
+        "label": "Open Source Stars",
+        "value": "2.5k"
+      }
+    ]
+  },
+  "feats": {
+    "title": "Core Advantages",
+    "subtitle": "Full-stack AI tech, building your exclusive enterprise brain",
+    "items": [
+      {
+        "icon": "🎨",
+        "title": "Zero-Code Orchestration",
+        "desc": "No coding background needed. Define business logic or AI decision flows simply through drag-and-drop, just like drawing flowcharts."
+      },
+      {
+        "icon": "🎯",
+        "title": "Precise QA Instant Recovery",
+        "desc": "Deeply understands your professional docs, responding with the most accurate answers in seconds, solving enterprise data lookup pain points."
+      },
+      {
+        "icon": "🤖",
+        "title": "Your Intelligent Expert",
+        "desc": "Rapidly incubate smart customer service, onboarding assistants, or doc analysts, placing AI deep into your business frontline 24/7."
+      },
+      {
+        "icon": "🔌",
+        "title": "One-click Embedding",
+        "desc": "Embed AI assistants perfectly into your existing corporate portals, ERP, or CRM systems with just one line of code."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Enterprise-Grade Security",
+        "desc": "Supports private deployment with strict security auditing to ensure enterprise knowledge assets never leak."
+      },
+      {
+        "icon": "🌓",
+        "title": "Elegant User Experience",
+        "desc": "Extreme responsiveness and multi-device support, with dark/light mode toggles to make every workday a visual delight."
+      }
+    ]
+  },
+  "tech": {
+    "badge": "Official AI Evaluation",
+    "title": "Technical Solution: High Standard & Best Fit",
+    "quote": "“Gitee fully integrates code analysis evaluation... Our Kmatrix knowledge base is highly rated. Thanks Gitee for the recognition.”",
+    "stats": [
+      {
+        "val": "High",
+        "lab": "Consistency Evaluation"
+      },
+      {
+        "val": "Strong",
+        "lab": "Arch Flexibility"
+      },
+      {
+        "val": "Exc",
+        "lab": "Security Design"
+      }
+    ]
+  },
+  "footer": {
+    "slogan": "Making Knowledge Create Value",
+    "resources": "Resources",
+    "docs": "Tech Docs",
+    "changelog": "Changelog",
+    "donate": "Donate & Support",
+    "contact": "Contact Us",
+    "qqGroup": "QQ Group",
+    "bottom": "MIT Licensed. Built on Spring Boot 3 & LangChain4j"
+  }
 }

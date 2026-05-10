@@ -50,84 +50,94 @@ function parseTags(tags?: string[] | string): string[] {
 </script>
 
 <template>
-  <BlogLayout :show-toc="true" :active-category-id="article?.categoryId" :active-slug="slug">
-    <div class="article-page">
-      <!-- 加载中 -->
-      <div v-if="pending" class="loading-state">
-        <div class="skeleton-title" />
-        <div class="skeleton-meta" />
-        <div v-for="i in 8" :key="i" class="skeleton-line" />
-      </div>
+  <div class="article-page-wrapper">
+    <Suspense>
+      <BlogLayout :show-toc="true" :active-category-id="article?.categoryId" :active-slug="slug">
+        <template #toc>
+          <div style="display: none" data-hydration-fix="true"></div>
+        </template>
+        <template #default>
+          <div class="article-page">
+            <!-- 加载中 -->
+            <div v-if="pending" class="loading-state">
+              <div class="skeleton-title" />
+              <div class="skeleton-meta" />
+              <div v-for="i in 8" :key="i" class="skeleton-line" />
+            </div>
 
-      <!-- 错误 -->
-      <div v-else-if="error" class="error-state">
-        <p>加载文章失败</p>
-        <NuxtLink to="/blog" class="retry-btn">返回首页</NuxtLink>
-      </div>
+            <!-- 错误 -->
+            <div v-else-if="error" class="error-state">
+              <p>加载文章失败</p>
+              <NuxtLink to="/blog" class="retry-btn">返回首页</NuxtLink>
+            </div>
 
-      <!-- 文章内容 -->
-      <template v-else-if="article">
-        <!-- 文章头部 -->
-        <header class="article-header">
-          <div v-if="article.categoryPath" class="article-category">
-            <NuxtLink :to="`/blog/category/${article.categoryPath.replace(/^\//, '')}`" class="category-link">
-              {{ article.categoryPath }}
-            </NuxtLink>
+            <!-- 文章内容 -->
+            <template v-else-if="article">
+              <!-- 文章头部 -->
+              <header class="article-header">
+                <div v-if="article.categoryPath" class="article-category">
+                  <NuxtLink :to="`/blog/category/${article.categoryPath.replace(/^\//, '')}`" class="category-link">
+                    {{ article.categoryPath }}
+                  </NuxtLink>
+                </div>
+
+                <h1 class="article-title">{{ article.title }}</h1>
+
+                <p v-if="article.description" class="article-desc">{{ article.description }}</p>
+
+                <div class="article-meta">
+                  <span v-if="article.publishedAt" class="meta-date">📅 {{ formatDate(article.publishedAt) }}</span>
+                  <span v-if="article.viewCount" class="meta-views">👁 {{ article.viewCount }} 次阅读</span>
+                </div>
+
+                <div v-if="parseTags(article.tags).length > 0" class="article-tags">
+                  <span v-for="tag in parseTags(article.tags)" :key="tag" class="tag">{{ tag }}</span>
+                </div>
+
+                <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="article-cover" />
+              </header>
+
+              <!-- Markdown 内容 -->
+              <div class="article-body">
+                <BlogMarkdownRenderer v-if="article.content" :content="article.content" @toc-update="onTocUpdate" />
+                <div v-else class="no-content">暂无内容</div>
+              </div>
+
+              <!-- 上下篇导航 -->
+              <nav class="article-nav" aria-label="上下篇导航">
+                <NuxtLink
+                  v-if="article.prevArticle"
+                  :to="`/blog/article/${article.prevArticle.slug}`"
+                  class="nav-item nav-prev"
+                >
+                  <span class="nav-label">← 上一篇</span>
+                  <span class="nav-title">{{ article.prevArticle.title }}</span>
+                </NuxtLink>
+                <div v-else class="nav-item nav-placeholder" />
+
+                <NuxtLink
+                  v-if="article.nextArticle"
+                  :to="`/blog/article/${article.nextArticle.slug}`"
+                  class="nav-item nav-next"
+                >
+                  <span class="nav-label">下一篇 →</span>
+                  <span class="nav-title">{{ article.nextArticle.title }}</span>
+                </NuxtLink>
+                <div v-else class="nav-item nav-placeholder" />
+              </nav>
+            </template>
+
+            <!-- 404 -->
+            <div v-else class="error-state">
+              <p>文章不存在</p>
+              <NuxtLink to="/blog" class="retry-btn">返回首页</NuxtLink>
+            </div>
           </div>
-
-          <h1 class="article-title">{{ article.title }}</h1>
-
-          <p v-if="article.description" class="article-desc">{{ article.description }}</p>
-
-          <div class="article-meta">
-            <span v-if="article.publishedAt" class="meta-date">📅 {{ formatDate(article.publishedAt) }}</span>
-            <span v-if="article.viewCount" class="meta-views">👁 {{ article.viewCount }} 次阅读</span>
-          </div>
-
-          <div v-if="parseTags(article.tags).length > 0" class="article-tags">
-            <span v-for="tag in parseTags(article.tags)" :key="tag" class="tag">{{ tag }}</span>
-          </div>
-
-          <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="article-cover" />
-        </header>
-
-        <!-- Markdown 内容 -->
-        <div class="article-body">
-          <BlogMarkdownRenderer v-if="article.content" :content="article.content" @toc-update="onTocUpdate" />
-          <div v-else class="no-content">暂无内容</div>
-        </div>
-
-        <!-- 上下篇导航 -->
-        <nav class="article-nav" aria-label="上下篇导航">
-          <NuxtLink
-            v-if="article.prevArticle"
-            :to="`/blog/article/${article.prevArticle.slug}`"
-            class="nav-item nav-prev"
-          >
-            <span class="nav-label">← 上一篇</span>
-            <span class="nav-title">{{ article.prevArticle.title }}</span>
-          </NuxtLink>
-          <div v-else class="nav-item nav-placeholder" />
-
-          <NuxtLink
-            v-if="article.nextArticle"
-            :to="`/blog/article/${article.nextArticle.slug}`"
-            class="nav-item nav-next"
-          >
-            <span class="nav-label">下一篇 →</span>
-            <span class="nav-title">{{ article.nextArticle.title }}</span>
-          </NuxtLink>
-          <div v-else class="nav-item nav-placeholder" />
-        </nav>
-      </template>
-
-      <!-- 404 -->
-      <div v-else class="error-state">
-        <p>文章不存在</p>
-        <NuxtLink to="/blog" class="retry-btn">返回首页</NuxtLink>
-      </div>
-    </div>
-  </BlogLayout>
+          <div style="display: none" data-hydration-fix="true"></div>
+        </template>
+      </BlogLayout>
+    </Suspense>
+  </div>
 </template>
 
 <style scoped>

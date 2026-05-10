@@ -88,32 +88,44 @@ export default defineEventHandler(async event => {
   // 从后端获取 Git 配置
   let gitConfig: { token: string; owner: string; repo: string; branch: string; rootPath?: string };
   try {
-    const resp = await $fetch<{ code: number; data: typeof gitConfig }>(
-      `${backendUrl}/api/blog/public/git/token?categoryId=${categoryId}`,
-      { headers: { 'X-Internal-Key': config.internalApiKey } }
-    );
+    const tokenUrl = `${backendUrl}/api/blog/public/git/token?categoryId=${categoryId}`;
+    console.log('[git-content] Fetching token from:', tokenUrl);
+    const resp = await $fetch<{ code: number; data: typeof gitConfig }>(tokenUrl, {
+      headers: { 'X-Internal-Key': config.internalApiKey }
+    });
     if (!resp?.data) throw createError({ statusCode: 404, message: '分类不存在' });
     gitConfig = resp.data;
-  } catch {
-    throw createError({ statusCode: 502, message: '获取 Git 配置失败' });
+  } catch (err: any) {
+    console.error('[git-content] Failed to fetch token from backend:', err?.message || err);
+    throw createError({ statusCode: 502, message: `获取 Git 配置失败: ${err?.message || '后端连接异常'}` });
   }
 
   const { owner, repo, branch, token, rootPath } = gitConfig;
 
-  // 拼接 rawUrl（含 rootPath，确保无双斜杠）
-  const pathParts = [owner, repo, branch || 'main'];
-  if (rootPath) pathParts.push(rootPath);
-  pathParts.push(filePath);
-  const rawUrl = `https://raw.githubusercontent.com/${pathParts.join('/')}`;
+  // 拼接 rawUrl：确保对中文路径进行编码
+  const cleanRootPath = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
+  const cleanFilePath = filePath.replace(/^\/+/, '');
+
+  // 对路径的每一部分进行编码，防止中文导致 fetch failed
+  const fullPath = [cleanRootPath, cleanFilePath]
+    .filter(Boolean)
+    .join('/')
+    .split('/')
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+
+  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch || 'master'}/${fullPath}`;
 
   // 获取 Markdown 内容
   let markdownContent: string;
   try {
+    console.log('[git-content] Fetching content from GitHub:', rawUrl);
     markdownContent = await $fetch<string>(rawUrl, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
-  } catch {
-    throw createError({ statusCode: 502, message: '获取 Markdown 内容失败' });
+  } catch (err: any) {
+    console.error('[git-content] Failed to fetch from GitHub:', err?.message || err, 'URL:', rawUrl);
+    throw createError({ statusCode: 502, message: `GitHub 内容获取失败: ${err?.message || '网络异常'}` });
   }
 
   // 替换图片路径

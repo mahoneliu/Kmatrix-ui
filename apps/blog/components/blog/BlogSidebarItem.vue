@@ -50,8 +50,11 @@ async function loadArticles() {
   if (articlesLoaded.value || articlesLoading.value) return;
   articlesLoading.value = true;
   try {
+    const params = new URLSearchParams({ categoryId: String(props.category.id), pageSize: '50' });
+    if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
+    const baseUrl = config.public.apiBaseUrl || '/api/blog';
     const result = await $fetch<{ code: number; data: { rows: BlogArticle[] } }>(
-      `${config.public.apiBaseUrl}/api/blog/public/articles?categoryId=${props.category.id}&pageSize=50`
+      `${baseUrl}/api/blog/public/articles?${params.toString()}`
     );
     articles.value = result?.data?.rows ?? [];
     articlesLoaded.value = true;

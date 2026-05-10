@@ -28,7 +28,8 @@ const { data, pending, error, refresh } = await useFetch<{ code: number; data: A
     pageSize: String(pageSize)
   });
   if (topicSlug) params.set('topicSlug', topicSlug);
-  return `${config.public.apiBaseUrl}/api/blog/public/articles?${params.toString()}`;
+  const baseUrl = config.public.apiBaseUrl || '/api/blog';
+  return `${baseUrl}/api/blog/public/articles?${params.toString()}`;
 });
 
 const articles = computed(() => data.value?.data?.rows ?? []);

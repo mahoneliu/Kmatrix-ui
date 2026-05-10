@@ -10,7 +10,7 @@
   --border: #e2e8f0;
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
-  
+
   /* Advanced Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -39,7 +39,13 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background-color: var(--background);
   color: var(--foreground);
   line-height: 1.5;
@@ -128,12 +134,28 @@ section {
 }
 
 /* 以下规则仅作用于首页 .app-wrapper 内，避免污染博客 markdown 内容 */
-.app-wrapper h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; }
-.app-wrapper h2 { font-size: 2.5rem; margin-bottom: 1.25rem; }
-.app-wrapper p { font-size: 1.125rem; color: var(--muted-foreground); }
+.app-wrapper h1 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+.app-wrapper h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+.app-wrapper p {
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+}
 
 @media (max-width: 768px) {
-  .app-wrapper h1 { font-size: 2.5rem; }
-  .app-wrapper h2 { font-size: 2rem; }
-  section { padding: 60px 0; }
+  .app-wrapper h1 {
+    font-size: 2.5rem;
+  }
+  .app-wrapper h2 {
+    font-size: 2rem;
+  }
+  section {
+    padding: 60px 0;
+  }
 }

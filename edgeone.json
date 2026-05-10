@@ -1,0 +1,7 @@
+{
+  "installCommand": "corepack enable && pnpm install",
+  "buildCommand": "pnpm --filter @km/blog build",
+  "outputDirectory": "apps/blog/.output",
+  "description": "EdgeOne Pages deployment configuration for KMatrix Blog",
+  "nodeVersion": "22.11.0"
+}

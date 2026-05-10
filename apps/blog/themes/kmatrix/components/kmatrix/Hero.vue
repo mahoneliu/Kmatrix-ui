@@ -3,7 +3,7 @@
     <div class="hero-grid container">
       <div class="hero-text">
         <div class="badge">{{ $t('hero.badge') }}</div>
-        <h1 class="font-bold">{{ $t('hero.title1') }}</h1>
+        <h1>{{ $t('hero.title1') }}</h1>
         <h2 class="subtitle">{{ $t('hero.subtitle') }}</h2>
         <p class="description">
           {{ $t('hero.description') }}
@@ -58,7 +58,16 @@
   color: var(--primary);
 }
 h1 {
-  font-size: 5rem;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.1;
   margin-bottom: 0.5rem;
   background: linear-gradient(135deg, var(--foreground) 60%, var(--primary));
   -webkit-background-clip: text;

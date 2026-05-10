@@ -77,15 +77,21 @@ const {
   pending: articlesLoading,
   error: articlesError,
   refresh: refreshArticles
-} = await useFetch<{ code: number; data: ArticleListResponse }>(() => {
-  if (!currentCategory.value?.id || isGitCategory.value) return null as unknown as string;
-  const params = new URLSearchParams({
-    categoryId: String(currentCategory.value.id),
-    pageNum: String(pageNum.value),
-    pageSize: String(pageSize)
-  });
-  return `${config.public.apiBaseUrl}/api/blog/public/articles?${params.toString()}`;
-});
+} = await useAsyncData<{ code: number; data: ArticleListResponse }>(
+  `articles-${categorySlug.value}-${pageNum.value}`,
+  () => {
+    if (!currentCategory.value?.id || isGitCategory.value) {
+      return Promise.resolve({ code: 200, data: { rows: [], total: 0 } as ArticleListResponse });
+    }
+    const params = new URLSearchParams({
+      categoryId: String(currentCategory.value.id),
+      pageNum: String(pageNum.value),
+      pageSize: String(pageSize)
+    });
+    const baseUrl = config.public.apiBaseUrl || '/api/blog';
+    return $fetch(`${baseUrl}/api/blog/public/articles?${params.toString()}`);
+  }
+);
 
 const articles = computed(() => articlesData.value?.data?.rows ?? []);
 const total = computed(() => articlesData.value?.data?.total ?? 0);
@@ -112,40 +118,27 @@ function parseTags(article: BlogArticle): string[] {
 }
 
 // ===== GIT 分类：文件内容 =====
-const gitContent = ref<string | null>(null);
-const gitContentLoading = ref(false);
-const gitContentError = ref<string | null>(null);
-const tocHeadings = ref<TocHeading[]>([]);
-
-async function loadGitContent(filePath: string) {
-  if (!currentCategory.value?.id) return;
-  gitContent.value = null;
-  gitContentError.value = null;
-  gitContentLoading.value = true;
-  try {
-    const result = await $fetch<{ content: string; path: string }>(
-      `/api/git-content?categoryId=${currentCategory.value.id}&path=${encodeURIComponent(filePath)}`
-    );
-    gitContent.value = result.content;
-  } catch {
-    gitContentError.value = '加载内容失败，请稍后重试';
-  } finally {
-    gitContentLoading.value = false;
-  }
-}
-
-// 监听 URL query 变化，自动加载对应文件
-watch(
-  selectedGitFile,
-  filePath => {
-    if (filePath && isGitCategory.value) loadGitContent(filePath);
-    else {
-      gitContent.value = null;
-      gitContentError.value = null;
+const {
+  data: gitContentData,
+  pending: gitContentPending,
+  error: gitContentErrorObj
+} = await useAsyncData(
+  'gitContent',
+  () => {
+    if (!currentCategory.value?.id || !selectedGitFile.value || !isGitCategory.value) {
+      return Promise.resolve(null);
     }
+    return $fetch<{ content: string; path: string }>(
+      `/api/git-content?categoryId=${currentCategory.value.id}&path=${encodeURIComponent(selectedGitFile.value)}`
+    );
   },
-  { immediate: true }
+  { watch: [selectedGitFile, isGitCategory] }
 );
+
+const gitContent = computed(() => gitContentData.value?.content || null);
+const gitContentLoading = computed(() => gitContentPending.value);
+const gitContentError = computed(() => (gitContentErrorObj.value ? '加载内容失败，请稍后重试' : null));
+const tocHeadings = ref<TocHeading[]>([]);
 
 // TOC 更新回调
 function onTocUpdate(headings: TocHeading[]) {
@@ -154,99 +147,102 @@ function onTocUpdate(headings: TocHeading[]) {
 </script>
 
 <template>
-  <BlogLayout :show-toc="isGitCategory && !!selectedGitFile" :active-category-id="currentCategory?.id">
-    <!-- TOC 插槽 -->
-    <template v-if="isGitCategory && selectedGitFile" #toc>
-      <div class="toc-container">
-        <div class="toc-title">本文目录</div>
-        <nav v-if="tocHeadings.length > 0">
-          <a
-            v-for="h in tocHeadings"
-            :key="h.id"
-            :href="`#${h.id}`"
-            class="toc-item"
-            :style="{ paddingLeft: `${(h.level - 1) * 0.75}rem` }"
-          >
-            {{ h.text }}
-          </a>
-        </nav>
-        <div v-else class="toc-empty">暂无目录</div>
-      </div>
-    </template>
-
-    <div class="category-page">
-      <!-- 页头 -->
-      <div class="page-header">
-        <h1 class="page-title">
-          {{ selectedGitFile ? selectedGitFile.split('/').pop() : (currentCategory?.name ?? categorySlug) }}
-        </h1>
-        <p v-if="isGitCategory && !selectedGitFile" class="page-subtitle git-badge">
-          <span class="git-icon">⎇</span>
-          Git 仓库内容 · 请从左侧目录选择文件
-        </p>
-      </div>
-
-      <!-- GIT 分类：文件内容 -->
-      <template v-if="isGitCategory">
-        <div v-if="!selectedGitFile" class="git-empty-hint">
-          <p>← 请从左侧目录树选择一篇文章</p>
-        </div>
-        <div v-else-if="gitContentLoading" class="loading-state">
-          <div class="skeleton-title" />
-          <div class="skeleton-meta" />
-          <div v-for="i in 8" :key="i" class="skeleton-line" />
-        </div>
-        <div v-else-if="gitContentError" class="error-state">
-          <p>{{ gitContentError }}</p>
-          <button class="retry-btn" @click="selectedGitFile && loadGitContent(selectedGitFile)">重试</button>
-        </div>
-        <BlogMarkdownRenderer v-else-if="gitContent" :content="gitContent" @toc-update="onTocUpdate" />
-      </template>
-
-      <!-- 普通分类：文章列表 -->
-      <template v-else>
-        <div v-if="articlesLoading" class="loading-state">
-          <div v-for="i in 5" :key="i" class="article-skeleton" />
-        </div>
-        <div v-else-if="articlesError" class="error-state">
-          <p>加载失败</p>
-          <button class="retry-btn" @click="loadArticles(pageNum)">重试</button>
-        </div>
-        <div v-else-if="articles.length > 0" class="article-list">
-          <article v-for="article in articles" :key="article.id" class="article-item">
-            <div class="article-content">
-              <h2 class="article-title">
-                <NuxtLink :to="`/blog/article/${article.slug}`" class="article-title-link">
-                  {{ article.title }}
-                </NuxtLink>
-              </h2>
-              <p v-if="article.description" class="article-desc">{{ article.description }}</p>
-              <div class="article-footer">
-                <div class="article-tags">
-                  <span v-for="tag in parseTags(article).slice(0, 4)" :key="tag" class="tag">{{ tag }}</span>
-                </div>
-                <div class="article-meta">
-                  <span v-if="article.publishedAt" class="meta-date">{{ formatDate(article.publishedAt) }}</span>
-                  <span v-if="article.viewCount" class="meta-views">👁 {{ article.viewCount }}</span>
-                </div>
-              </div>
+  <div class="category-page-wrapper">
+    <Suspense>
+      <BlogLayout :show-toc="isGitCategory && !!selectedGitFile" :active-category-id="currentCategory?.id">
+        <template v-if="isGitCategory && selectedGitFile" #toc>
+          <div class="toc-container">
+            <div class="toc-title">本文目录</div>
+            <nav v-if="tocHeadings.length > 0">
+              <a
+                v-for="h in tocHeadings"
+                :key="h.id"
+                :href="`#${h.id}`"
+                class="toc-item"
+                :style="{ paddingLeft: `${(h.level - 1) * 0.75}rem` }"
+              >
+                {{ h.text }}
+              </a>
+            </nav>
+            <div v-else class="toc-empty">暂无目录</div>
+          </div>
+          <div style="display: none" data-hydration-fix="true"></div>
+        </template>
+        <template #default>
+          <div class="category-page">
+            <div class="page-header">
+              <h1 class="page-title">
+                {{ selectedGitFile ? selectedGitFile.split('/').pop() : (currentCategory?.name ?? categorySlug) }}
+              </h1>
+              <p v-if="isGitCategory && !selectedGitFile" class="page-subtitle git-badge">
+                <span class="git-icon">⎇</span>
+                Git 仓库内容 · 请从左侧目录选择文件
+              </p>
             </div>
-            <NuxtLink v-if="article.coverImage" :to="`/blog/article/${article.slug}`" class="article-cover-link">
-              <img :src="article.coverImage" :alt="article.title" class="article-cover" loading="lazy" />
-            </NuxtLink>
-          </article>
-        </div>
-        <div v-else class="empty-state"><p>该分类下暂无文章</p></div>
-        <div v-if="total > pageSize" class="pagination">
-          <button class="page-btn" :disabled="pageNum <= 1" @click="loadArticles(pageNum - 1)">上一页</button>
-          <span class="page-info">第 {{ pageNum }} 页 · 共 {{ total }} 篇</span>
-          <button class="page-btn" :disabled="pageNum * pageSize >= total" @click="loadArticles(pageNum + 1)">
-            下一页
-          </button>
-        </div>
-      </template>
-    </div>
-  </BlogLayout>
+
+            <template v-if="isGitCategory">
+              <div v-if="!selectedGitFile" class="git-empty-hint">
+                <p>← 请从左侧目录树选择一篇文章</p>
+              </div>
+              <div v-else-if="gitContentLoading" class="loading-state">
+                <div class="skeleton-title" />
+                <div class="skeleton-meta" />
+                <div v-for="i in 8" :key="i" class="skeleton-line" />
+              </div>
+              <div v-else-if="gitContentError" class="error-state">
+                <p>{{ gitContentError }}</p>
+                <button class="retry-btn" @click="selectedGitFile && loadGitContent(selectedGitFile)">重试</button>
+              </div>
+              <BlogMarkdownRenderer v-else-if="gitContent" :content="gitContent" @toc-update="onTocUpdate" />
+            </template>
+
+            <template v-else>
+              <div v-if="articlesLoading" class="loading-state">
+                <div v-for="i in 5" :key="i" class="article-skeleton" />
+              </div>
+              <div v-else-if="articlesError" class="error-state">
+                <p>加载失败</p>
+                <button class="retry-btn" @click="loadArticles(pageNum)">重试</button>
+              </div>
+              <div v-else-if="articles.length > 0" class="article-list">
+                <article v-for="article in articles" :key="article.id" class="article-item">
+                  <div class="article-content">
+                    <h2 class="article-title">
+                      <NuxtLink :to="`/blog/article/${article.slug}`" class="article-title-link">
+                        {{ article.title }}
+                      </NuxtLink>
+                    </h2>
+                    <p v-if="article.description" class="article-desc">{{ article.description }}</p>
+                    <div class="article-footer">
+                      <div class="article-tags">
+                        <span v-for="tag in parseTags(article).slice(0, 4)" :key="tag" class="tag">{{ tag }}</span>
+                      </div>
+                      <div class="article-meta">
+                        <span v-if="article.publishedAt" class="meta-date">{{ formatDate(article.publishedAt) }}</span>
+                        <span v-if="article.viewCount" class="meta-views">👁 {{ article.viewCount }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <NuxtLink v-if="article.coverImage" :to="`/blog/article/${article.slug}`" class="article-cover-link">
+                    <img :src="article.coverImage" :alt="article.title" class="article-cover" loading="lazy" />
+                  </NuxtLink>
+                </article>
+              </div>
+              <div v-else class="empty-state"><p>该分类下暂无文章</p></div>
+              <div v-if="total > pageSize" class="pagination">
+                <button class="page-btn" :disabled="pageNum <= 1" @click="loadArticles(pageNum - 1)">上一页</button>
+                <span class="page-info">第 {{ pageNum }} 页 · 共 {{ total }} 篇</span>
+                <button class="page-btn" :disabled="pageNum * pageSize >= total" @click="loadArticles(pageNum + 1)">
+                  下一页
+                </button>
+              </div>
+            </template>
+          </div>
+          <div style="display: none" data-hydration-fix="true"></div>
+        </template>
+      </BlogLayout>
+    </Suspense>
+  </div>
 </template>
 
 <style scoped>

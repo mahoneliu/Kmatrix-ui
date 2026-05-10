@@ -14,8 +14,8 @@ const toggleLanguage = () => {
 };
 
 // 加载顶层分类（parentId=0 的节点，即树的根节点）
-const { data: categoriesData } = useFetch<{ code: number; data: BlogCategory[] }>(
-  `${config.public.apiBaseUrl}/api/blog/public/categories`
+const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
+  `${config.public.apiBaseUrl || '/api/blog'}/api/blog/public/categories`
 );
 
 const topCategories = computed<BlogCategory[]>(() => categoriesData.value?.data ?? []);
@@ -36,23 +36,20 @@ onMounted(() => {
     <div class="nav-content container">
       <NuxtLink to="/" class="logo">
         <img src="/favicon.svg" alt="Logo" style="width: 32px; height: 32px" />
-        <span class="gradient-text" style="font-size: 1.75rem; letter-spacing: -0.02em; font-weight: 800">KMatrix</span>
+        <span class="gradient-text logo-text">KMatrix</span>
       </NuxtLink>
       <div class="nav-links">
         <NuxtLink to="/">{{ $t('nav.home') }}</NuxtLink>
         <NuxtLink to="/comparison">{{ $t('nav.comparison') }}</NuxtLink>
         <NuxtLink to="/about">{{ $t('nav.about') }}</NuxtLink>
-        <!-- 顶层 blog 分类菜单：仅客户端渲染，避免 SSR hydration mismatch -->
-        <ClientOnly>
-          <NuxtLink
-            v-for="cat in topCategories"
-            :key="cat.id"
-            :to="`/blog/category${cat.path}`"
-            class="nav-link-category"
-          >
-            {{ cat.name }}
-          </NuxtLink>
-        </ClientOnly>
+        <NuxtLink
+          v-for="cat in topCategories"
+          :key="cat.id"
+          :to="`/blog/category${cat.path}`"
+          class="nav-link-category"
+        >
+          {{ cat.name }}
+        </NuxtLink>
         <a href="https://gitee.com/kyxxjs/kmatrix-service" target="_blank" rel="noopener noreferrer">
           {{ $t('nav.gitee') }}
         </a>
@@ -121,6 +118,18 @@ onMounted(() => {
   gap: 0.75rem;
   cursor: pointer;
   text-decoration: none;
+}
+.logo-text {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  font-weight: 700;
 }
 .nav-content {
   display: flex;
