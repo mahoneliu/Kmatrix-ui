@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const theme = process.env.NUXT_THEME || 'minimal';
-const API_BASE_URL = process.env.NUXT_PUBLIC_API_BASE_URL || '';
+// 兼容 EdgeOne：如果填了 / 则转为空字符串，防止拼接出 // 导致浏览器误认为域名
+const rawApiBaseUrl = process.env.NUXT_PUBLIC_API_BASE_URL || '';
+const API_BASE_URL = rawApiBaseUrl === '/' ? '' : rawApiBaseUrl;
 const BACKEND_URL = process.env.BLOG_API_URL || 'http://localhost:8080';
 const INTERNAL_API_KEY = process.env.BLOG_INTERNAL_API_KEY || '';
 
