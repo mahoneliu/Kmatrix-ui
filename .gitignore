@@ -14,6 +14,12 @@ dist-ssr
 coverage
 *.local
 
+# Nuxt 自动生成的目录
+.nuxt/
+
+# 如果你使用的是 Nitro 引擎
+.nitro/
+
 /cypress/videos/
 /cypress/screenshots/
 

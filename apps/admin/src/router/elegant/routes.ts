@@ -102,6 +102,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'blog',
+    path: '/blog',
+    component: 'layout.base',
+    meta: {
+      title: 'blog',
+      i18nKey: 'route.blog'
+    },
+    children: [
+      {
+        name: 'blog_article',
+        path: '/blog/article',
+        component: 'view.blog_article',
+        meta: {
+          title: 'blog_article',
+          i18nKey: 'route.blog_article'
+        }
+      },
+      {
+        name: 'blog_category',
+        path: '/blog/category',
+        component: 'view.blog_category',
+        meta: {
+          title: 'blog_category',
+          i18nKey: 'route.blog_category'
+        }
+      }
+    ]
+  },
+  {
     name: 'demo',
     path: '/demo',
     component: 'layout.base',
@@ -142,6 +171,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       {
         name: 'execution_mcp-manager',
         path: '/execution/mcp-manager',
+        component: 'view.execution_mcp-manager',
         meta: {
           title: 'execution_mcp-manager',
           i18nKey: 'route.execution_mcp-manager'
@@ -232,6 +262,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       {
         name: 'knowledge_document-upload',
         path: '/knowledge/document-upload',
+        component: 'view.knowledge_document-upload',
         meta: {
           title: 'knowledge_document-upload',
           i18nKey: 'route.knowledge_document-upload',

@@ -1,0 +1,24 @@
+{
+  "name": "@km/blog",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@km/shared": "workspace:*",
+    "@nuxtjs/i18n": "^10.3.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.0.0",
+    "nuxt": "^3.13.0",
+    "pinia": "3.0.4",
+    "vue": "3.5.25"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

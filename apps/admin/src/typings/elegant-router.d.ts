@@ -30,6 +30,9 @@ declare module "@elegant-router/types" {
     "app_app-manager": "/app/app-manager";
     "app_chat": "/app/chat";
     "app_rate-limit": "/app/rate-limit";
+    "blog": "/blog";
+    "blog_article": "/blog/article";
+    "blog_category": "/blog/category";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
     "demo_tree": "/demo/tree";
@@ -121,6 +124,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "about"
     | "app"
+    | "blog"
     | "demo"
     | "execution"
     | "home"
@@ -163,6 +167,8 @@ declare module "@elegant-router/types" {
     | "app_app-manager"
     | "app_chat"
     | "app_rate-limit"
+    | "blog_article"
+    | "blog_category"
     | "demo_demo"
     | "demo_tree"
     | "execution_mcp-manager"

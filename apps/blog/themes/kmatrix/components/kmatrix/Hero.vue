@@ -1,0 +1,132 @@
+<template>
+  <section class="hero">
+    <div class="hero-grid container">
+      <div class="hero-text">
+        <div class="badge">{{ $t('hero.badge') }}</div>
+        <h1 class="font-bold">{{ $t('hero.title1') }}</h1>
+        <h2 class="subtitle">{{ $t('hero.subtitle') }}</h2>
+        <p class="description">
+          {{ $t('hero.description') }}
+        </p>
+        <div class="hero-btns">
+          <a
+            href="https://gitee.com/kyxxjs/kmatrix-service"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary btn-lg"
+          >
+            {{ $t('hero.preview') }}
+          </a>
+          <a href="#features" class="btn btn-secondary btn-lg">{{ $t('hero.learnMore') }}</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="image-wrapper glass">
+          <div class="scene-image-mask" role="img" :aria-label="$t('hero.subtitle')">
+            <img src="/kmatrix-images/hero-mockup.png" :alt="$t('hero.subtitle')" class="mockup-img" loading="eager" />
+          </div>
+          <div class="glow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.hero {
+  padding-top: 160px;
+  padding-bottom: 100px;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 4rem;
+  align-items: center;
+}
+.badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+h1 {
+  font-size: 5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--foreground) 60%, var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+  font-weight: 500;
+}
+.description {
+  font-size: 1.25rem;
+  margin-bottom: 3rem;
+  max-width: 540px;
+}
+.hero-btns {
+  display: flex;
+  gap: 1.5rem;
+}
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+.hero-visual {
+  position: relative;
+}
+.image-wrapper {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.5s ease;
+}
+.image-wrapper:hover {
+  transform: translateY(-10px) rotateX(2deg);
+}
+.mockup-img {
+  width: 100%;
+  display: block;
+}
+.glow {
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+  filter: blur(60px);
+  opacity: 0.3;
+  z-index: -1;
+}
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    text-align: center;
+  }
+  .description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-btns {
+    justify-content: center;
+  }
+  h1 {
+    font-size: 4rem;
+  }
+}
+</style>
