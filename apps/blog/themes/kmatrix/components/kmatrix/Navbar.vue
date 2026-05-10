@@ -14,14 +14,29 @@ const toggleLanguage = () => {
 };
 
 // 加载顶层分类（parentId=0 的节点，即树的根节点）
-const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
-  const params = new URLSearchParams();
-  if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
-  const qs = params.toString();
-  return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
-});
+const { data: categoriesData, refresh } = await useFetch<{ code: number; data: BlogCategory[] }>(
+  () => {
+    const params = new URLSearchParams();
+    if (config.public.topicSlug) params.set('topicSlug', config.public.topicSlug);
+    const qs = params.toString();
+    return `${config.public.apiBaseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  },
+  {
+    // 设置一个唯一的 Key 防止冲突
+    key: 'navbar-categories'
+  }
+);
 
 const topCategories = computed<BlogCategory[]>(() => categoriesData.value?.data ?? []);
+
+// 客户端兜底：如果 SSR 没拿到数据，在浏览器端再试一次
+onMounted(() => {
+  if (topCategories.value.length === 0) {
+    // eslint-disable-next-line no-console
+    console.log('[Navbar] SSR data empty, retrying on client...');
+    refresh();
+  }
+});
 
 // 滚动后加深 navbar 背景
 const scrolled = ref(false);
