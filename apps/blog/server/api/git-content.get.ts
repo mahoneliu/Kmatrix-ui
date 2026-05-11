@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { dirname, join, normalize } from 'node:path';
+import process from 'node:process';
 
 interface ReplaceImagePathsOptions {
   owner: string;
@@ -17,18 +18,12 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
   const fileDir = dirname(filePath) === '.' ? '' : dirname(filePath);
 
   function buildRawUrl(imgPath: string): string {
-    // 绝对 URL 不替换
     if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
       return imgPath;
     }
 
-    // 计算相对路径
-    let relativePart = imgPath;
-    if (imgPath.startsWith('./')) {
-      relativePart = imgPath.slice(2);
-    }
+    const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
 
-    // 拼接绝对路径（含 rootPath）
     let absolutePath: string;
     if (rootPath) {
       absolutePath = normalize(join(rootPath, fileDir, relativePart)).replace(/\\/g, '/');
@@ -36,30 +31,53 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
       absolutePath = normalize(join(fileDir, relativePart)).replace(/\\/g, '/');
     }
 
-    // 去除开头的 ./
     absolutePath = absolutePath.replace(/^\.\//, '');
 
     const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
     return `/api/proxy-img?url=${encodeURIComponent(rawUrl)}`;
   }
 
-  // 替换 Markdown 图片语法 ![alt](path)
   let result = markdownContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, path) => {
-    const newPath = buildRawUrl(path);
-    return `![${alt}](${newPath})`;
+    return `![${alt}](${buildRawUrl(path)})`;
   });
 
-  // 替换 HTML img 标签 <img src="path" />
   result = result.replace(
     /<img\s+([^>]*?)src="([^"]+)"([^>]*?)>/g,
     // eslint-disable-next-line max-params
-    (_match, before, src, after) => {
-      const newSrc = buildRawUrl(src);
-      return `<img ${before}src="${newSrc}"${after}>`;
-    }
+    (_match, before, src, after) => `<img ${before}src="${buildRawUrl(src)}"${after}>`
   );
 
   return result;
+}
+
+interface GitConfig {
+  token: string;
+  owner: string;
+  repo: string;
+  branch: string;
+  rootPath?: string;
+}
+
+function isBuildPhase(): boolean {
+  const event = process.env.npm_lifecycle_event;
+  return event === 'generate' || event === 'build';
+}
+
+async function fetchGitConfig(backendUrl: string, categoryId: string): Promise<GitConfig> {
+  const tokenUrl = `${backendUrl}/api/blog/public/git/token?categoryId=${categoryId}`;
+  // eslint-disable-next-line no-console
+  console.log('[git-content] Fetching token from:', tokenUrl);
+  const resp = await $fetch<{ code: number; data: GitConfig }>(tokenUrl);
+  if (!resp?.data) throw createError({ statusCode: 404, message: '分类不存在' });
+  return resp.data;
+}
+
+async function fetchMarkdownContent(rawUrl: string, token: string): Promise<string> {
+  // eslint-disable-next-line no-console
+  console.log('[git-content] Fetching content from GitHub:', rawUrl);
+  return await $fetch<string>(rawUrl, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
 }
 
 export default defineEventHandler(async event => {
@@ -74,46 +92,38 @@ export default defineEventHandler(async event => {
   const config = useRuntimeConfig();
   const backendUrl = config.backendUrl;
 
-  // 缓存 key
+  // 缓存 key（仅作为同一实例内的短路优化，EdgeOne 无状态环境下不跨请求共享）
   const cacheKey = `git-content:${categoryId}:${createHash('md5').update(filePath).digest('hex')}`;
   const storage = useStorage('git-content');
 
-  // 尝试读取缓存
-  const cached = await storage.getItem<string>(cacheKey);
-  if (cached) {
-    setHeader(event, 'X-Cache', 'HIT');
-    return { content: cached, path: filePath };
+  try {
+    const cached = await storage.getItem<string>(cacheKey);
+    if (cached) {
+      setHeader(event, 'X-Cache', 'HIT');
+      return { content: cached, path: filePath };
+    }
+  } catch {
+    // storage 不可用时静默跳过
   }
 
   // 从后端获取 Git 配置
-  let gitConfig: { token: string; owner: string; repo: string; branch: string; rootPath?: string };
+  let gitConfig: GitConfig;
   try {
-    const tokenUrl = `${backendUrl}/api/blog/public/git/token?categoryId=${categoryId}`;
-    console.log('[git-content] Fetching token from:', tokenUrl);
-    const resp = await $fetch<{ code: number; data: typeof gitConfig }>(tokenUrl, {
-      headers: { 'X-Internal-Key': config.internalApiKey }
-    });
-    if (!resp?.data) throw createError({ statusCode: 404, message: '分类不存在' });
-    gitConfig = resp.data;
+    gitConfig = await fetchGitConfig(backendUrl, categoryId);
   } catch (err: any) {
-    // 构建预渲染阶段（prerender），如果连不上后端，返回空数据，防止构建直接报错退出
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error Nitro auto-injects import.meta.prerender
-    // eslint-disable-next-line n/prefer-global/process
-    if (import.meta.prerender || process.env.npm_lifecycle_event === 'generate' || process.env.npm_lifecycle_event === 'build') {
+    if (isBuildPhase()) {
       return { content: '', path: '', sha: '' };
     }
+    // eslint-disable-next-line no-console
     console.error('[git-content] Failed to fetch token from backend:', err?.message || err);
     throw createError({ statusCode: 502, message: `获取 Git 配置失败: ${err?.message || '后端连接异常'}` });
   }
 
   const { owner, repo, branch, token, rootPath } = gitConfig;
 
-  // 拼接 rawUrl：确保对中文路径进行编码
+  // 对路径每段编码，防止中文导致 fetch failed
   const cleanRootPath = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
   const cleanFilePath = filePath.replace(/^\/+/, '');
-
-  // 对路径的每一部分进行编码，防止中文导致 fetch failed
   const fullPath = [cleanRootPath, cleanFilePath]
     .filter(Boolean)
     .join('/')
@@ -123,19 +133,15 @@ export default defineEventHandler(async event => {
 
   const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch || 'master'}/${fullPath}`;
 
-  // 获取 Markdown 内容
   let markdownContent: string;
   try {
-    console.log('[git-content] Fetching content from GitHub:', rawUrl);
-    markdownContent = await $fetch<string>(rawUrl, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {}
-    });
+    markdownContent = await fetchMarkdownContent(rawUrl, token);
   } catch (err: any) {
+    // eslint-disable-next-line no-console
     console.error('[git-content] Failed to fetch from GitHub:', err?.message || err, 'URL:', rawUrl);
     throw createError({ statusCode: 502, message: `GitHub 内容获取失败: ${err?.message || '网络异常'}` });
   }
 
-  // 替换图片路径
   const processedContent = replaceImagePaths(markdownContent, {
     owner,
     repo,
@@ -144,8 +150,11 @@ export default defineEventHandler(async event => {
     rootPath
   });
 
-  // 写入缓存（TTL 3600s）
-  await storage.setItem(cacheKey, processedContent, { ttl: 3600 });
+  try {
+    await storage.setItem(cacheKey, processedContent);
+  } catch {
+    // storage 写入失败时静默跳过
+  }
   setHeader(event, 'X-Cache', 'MISS');
 
   return { content: processedContent, path: filePath };

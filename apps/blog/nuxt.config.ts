@@ -11,26 +11,39 @@ if (process.env.NODE_ENV === 'production' && API_BASE_URL.includes('localhost'))
 }
 
 const BACKEND_URL = process.env.BLOG_API_URL || 'http://localhost:8080';
-const INTERNAL_API_KEY = process.env.BLOG_INTERNAL_API_KEY || '';
 
 export default defineNuxtConfig({
   extends: [`./themes/${theme}`],
 
   runtimeConfig: {
+    // 服务端专用，不暴露给浏览器
     backendUrl: BACKEND_URL,
-    internalApiKey: INTERNAL_API_KEY,
     public: {
+      // 浏览器端走相对路径，不需要配置
       apiBaseUrl: API_BASE_URL,
       topicSlug: process.env.NUXT_PUBLIC_TOPIC_SLUG || ''
     }
   },
 
   nitro: {
+    // EdgeOne Node Functions 无状态环境下，memory driver 不跨请求共享。
+    // 使用 memory 仅作为单次请求内的临时缓冲，真正的缓存依赖 ISR/SWR 层。
     storage: {
       'git-content': {
         driver: 'memory'
       }
     }
+  },
+
+  // ISR/SWR 路由规则：告知 EdgeOne 哪些路由需要动态渲染 + 缓存多久
+  routeRules: {
+    // 文章详情页：ISR，5 分钟重新验证（内容更新不频繁）
+    '/blog/article/**': { swr: 300 },
+    // 博客首页和分类页：ISR，2 分钟重新验证
+    '/blog': { swr: 120 },
+    '/blog/category/**': { swr: 120 },
+    // Server API 路由：纯动态，不缓存（由 git-content 内部缓存控制）
+    '/api/**': { cache: false }
   },
 
   vite: {
