@@ -21,10 +21,13 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
 
   function resolveAbsolutePath(imgPath: string): string {
     if (imgPath.startsWith('/')) {
+      // 绝对路径：相对于仓库根目录
       return imgPath.replace(/^\/+/, '');
     }
     const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
-    const base = rootPath ? normalize(join(rootPath, fileDir, relativePart)) : normalize(join(fileDir, relativePart));
+    // 图片路径相对于 rootPath（文档根目录），不叠加 fileDir
+    // 因为文档作者通常以 rootPath 为基准写图片路径，而非以文件所在目录为基准
+    const base = rootPath ? normalize(join(rootPath, relativePart)) : normalize(join(fileDir, relativePart));
     return base.replace(/\\/g, '/').replace(/^\.\//, '');
   }
 
