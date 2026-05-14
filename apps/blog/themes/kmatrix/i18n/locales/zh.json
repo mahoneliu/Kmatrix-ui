@@ -12,11 +12,11 @@
     "changeLanguage": "语言切换"
   },
   "hero": {
-    "badge": "🚀 赋能企业，点石成金",
+    "badge": "🚀 可视化 AI 工作流平台",
     "title1": "KMatrix",
-    "subtitle": "让您的企业文档“活”起来",
-    "description": "不仅仅是文档管理，更是您的智能业务助手。通过简单的可视化编排，将海量离散文档转化为精准、高效的 AI 生产力，助力企业智能化转型。",
-    "preview": "立即预览智能助手",
+    "subtitle": "让知识驱动业务自动化",
+    "description": "不只是 RAG 问答，更是可视化 AI 工作流平台。用拖拽画布编排复杂 AI 业务逻辑，结合混合检索引擎与 MCP 工具市场，让企业知识库真正驱动业务自动化。",
+    "preview": "前往 Gitee 获取",
     "learnMore": "了解应用场景"
   },
   "features": {
@@ -124,47 +124,47 @@
     "highlightsLabel": "场景优势",
     "valueLabel": "核心特性",
     "insights": {
-      "title": "功能内幕",
+      "title": "功能详解",
       "subtitle": "从知识收录到 AI 编排，每一个细节都为企业级应用打磨",
       "items": [
         {
           "title": "海量知识高效收录",
           "highlights": ["支持 Office / PDF 等全格式识别", "智能提取关键信息与常见问题", "精准拆解海量文档，毫无遗漏"],
-          "value": "您可以将企业所有规章制度、操作说明放心交给它，它是最勤奋且过目不忘的“资料员”。"
+          "value": "您可以将企业所有规章制度、操作说明放心交给它，它是最勤奋且过目不忘的「资料员」。"
         },
         {
-          "title": "图形化业务助手配置",
-          "highlights": ["拖拽式画布，业务逻辑一目了然", "灵活应对各类复杂业务流", "所见即所得的配置体验"],
+          "title": "可视化 AI 工作流编排",
+          "highlights": ["基于 LangGraph4j 的有状态 Multi-Agent 工作流", "支持循环、条件分支、状态持久化", "拖拽画布，业务逻辑一目了然"],
           "value": "不再依赖程序员开发，业务专家自己就能通过鼠标构建具有逻辑判断能力的 AI 工具。"
         },
         {
-          "title": "“秒回”且靠谱的搜索",
-          "highlights": ["懂文字也懂意思的深度理解", "自动比对多方来源，确保真实", "提供搜索来源溯源，有理有据"],
+          "title": "混合检索，秒回且靠谱",
+          "highlights": ["pgvector 向量检索 + PGroonga 全文检索", "RRF 融合排序，检索质量远超单一向量", "提供搜索来源溯源，有理有据"],
           "value": "彻底告别关键词词不达意的尴尬，它能像专家一样理解您的意图，并给出带来源的可靠答案。"
         },
         {
-          "title": "无感接入现有平台",
-          "highlights": ["仅需数秒即可完成集成配置", "无需改动现有系统核心代码", "全方位兼容各种网页与应用"],
-          "value": "让 AI 像浮动按钮一样如影随形，极低成本赋予老系统“新大脑”。"
+          "title": "MCP 工具市场集成",
+          "highlights": ["标准 MCP 协议，一键接入数百个外部工具", "连接数据库、API、文件系统等数据源", "让 AI 工作流真正连接外部世界"],
+          "value": "通过 MCP 市场，AI 工作流不再局限于知识库问答，可直接调用外部工具完成复杂业务动作。"
         },
         {
           "title": "多模型智慧大脑",
           "highlights": ["根据预算灵活选择不同脑容量", "支持各大主流模型，自由切换", "支持完全离线环境，数据闭环"],
-          "value": "帮您屏蔽底层复杂的参数调整，您只需关注它是选“最省钱”的还是“最聪明”的模型。"
+          "value": "帮您屏蔽底层复杂的参数调整，您只需关注它是选「最省钱」的还是「最聪明」的模型。"
         }
       ]
     }
   },
   "about": {
     "hero": {
-      "title": "关于科亿",
+      "title": "关于 KMatrix",
       "subtitle": "以匠心和激情打造好软件，让数据产生价值"
     },
     "story": {
       "title": "我们的故事",
       "p1": "我们是<strong>广州科亿信息技术有限公司</strong>。核心团队在信息技术和软件开发领域深耕十余年，汇聚了一群对技术充满热情的精英。",
-      "p2": "<strong>科亿知识库</strong>是我们重点打造的核心产品。它不仅是一款基于文件的智能知识库，更是我们四年多来持续打磨、历经数百家企业实际验证的匠心之作。",
-      "p3": "从通用版到行业专用版，我们始终坚持“快速部署、快速上线”原则，助力企业在智能化转型的道路上平稳、高效前行。"
+      "p2": "<strong>KMatrix</strong> 是我们重点打造的核心产品。它不仅是一款基于文件的智能知识库，更是我们四年多来持续打磨、历经数百家企业实际验证的匠心之作。",
+      "p3": "从通用版到行业专用版，我们始终坚持「快速部署、快速上线」原则，助力企业在智能化转型的道路上平稳、高效前行。"
     },
     "values": {
       "title": "核心理念",
@@ -207,7 +207,7 @@
   "comparison": {
     "title": "版本功能对比",
     "subtitle": "选择最适合您业务的版本，开启 AI 办公新时代",
-    "headers": ["功能特性", "社区版 (开源)", "商业版 (规划中)"],
+    "headers": ["功能特性", "社区版 (开源)", "商业版 (即将推出)"],
     "items": [
       {
         "feature": "向量检索 (RAG) 问答",
@@ -215,12 +215,22 @@
         "commercial": true
       },
       {
-        "feature": "全文检索 & 多维检索",
+        "feature": "全文检索 & 混合检索 (RRF)",
         "community": true,
         "commercial": true
       },
       {
         "feature": "可视化工作流 (Vue Flow)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "有状态 Multi-Agent (LangGraph4j)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "MCP 工具市场集成",
         "community": true,
         "commercial": true
       },
@@ -251,12 +261,6 @@
         "isAdvanced": true
       },
       {
-        "feature": "自定义模型精调微调接口",
-        "community": false,
-        "commercial": true,
-        "isAdvanced": true
-      },
-      {
         "feature": "专属技术支持与 SLA 保障",
         "community": false,
         "commercial": true,
@@ -270,22 +274,22 @@
       }
     ],
     "advanced": "高级",
-    "footer": "* 商业版目前处于规划与小范围测试阶段，敬请关注官网及公众号更新。",
+    "footer": "* 商业版即将推出，欢迎加入等待列表，第一时间获取内测资格。",
     "downloadCta": "前往 Gitee 下载社区版"
   },
   "stats": {
     "items": [
       {
-        "label": "服务客户",
-        "value": "300+"
+        "label": "支持 LLM 模型",
+        "value": "20+"
       },
       {
-        "label": "管理文档",
-        "value": "100M+"
+        "label": "支持文档格式",
+        "value": "15+"
       },
       {
-        "label": "智能准确率",
-        "value": "99%"
+        "label": "工作流节点类型",
+        "value": "30+"
       },
       {
         "label": "开源 Star",
@@ -295,7 +299,7 @@
   },
   "feats": {
     "title": "核心优势",
-    "subtitle": "全方位 AI 技术栈，打造企业专属智囊型知识管家",
+    "subtitle": "不只是 RAG，是完整的企业级 AI 工作流平台",
     "items": [
       {
         "icon": "🎨",
@@ -304,18 +308,18 @@
       },
       {
         "icon": "🎯",
-        "title": "极速精准问答",
-        "desc": "深度理解您的专业文档，秒级响应并给出最懂您的答案，彻底解决内部资料查找慢、回复难的痛点。"
+        "title": "混合检索引擎",
+        "desc": "pgvector 向量检索 + PGroonga 全文检索 + RRF 融合排序，检索质量远超单一向量方案，答案更准确。"
       },
       {
         "icon": "🤖",
-        "title": "您的专属智能专家",
-        "desc": "快速孵化智能客服、入职助手或文档分析员，让 AI 深入业务一线，全天候为您效劳。"
+        "title": "有状态 Multi-Agent",
+        "desc": "基于 LangGraph4j 构建有状态工作流，支持循环、条件分支、状态持久化，实现真正的复杂 AI 业务编排。"
       },
       {
         "icon": "🔌",
-        "title": "一键嵌入业务系统",
-        "desc": "一小行代码即可将 AI 助手完美植入您现有的企业官网、ERP 或 CRM 系统，即刻拥有 AI 能力。"
+        "title": "MCP 工具市场",
+        "desc": "通过标准 MCP 协议一键接入数百个外部工具和数据源，让 AI 工作流连接外部世界，不再局限于知识库。"
       },
       {
         "icon": "🛡️",
@@ -323,16 +327,16 @@
         "desc": "支持本地私有化部署，数据仅为您所用，严密的安全审计技术确保企业知识资产绝不外泄。"
       },
       {
-        "icon": "🌓",
-        "title": "优雅流畅的使用体验",
-        "desc": "极致的响应速度与多端支持，默认提供暗色/亮色外观切换，让每一次办公都成为一种视觉享受。"
+        "icon": "🌐",
+        "title": "一键嵌入业务系统",
+        "desc": "一小行代码即可将 AI 助手完美植入您现有的企业官网、ERP 或 CRM 系统，即刻拥有 AI 能力。"
       }
     ]
   },
   "tech": {
-    "badge": "官方 AI 评估",
-    "title": "技术方案不仅合适，更是高标杆",
-    "quote": "“gitee全面集成代码分析评估功能... 咱们的Kmatrix知识库，评价还是蛮高的，感谢gitee给面子。”",
+    "badge": "技术架构",
+    "title": "现代化全栈 AI 技术底座",
+    "quote": "基于 Spring Boot 3 + LangGraph4j + pgvector + Vue Flow，构建企业级 AI 工作流平台的最佳实践。",
     "stats": [
       {
         "val": "高",
@@ -346,6 +350,24 @@
         "val": "优",
         "lab": "安全性设计"
       }
+    ],
+    "stack": [
+      {
+        "layer": "AI 编排层",
+        "items": ["LangGraph4j", "LangChain4j", "MCP Protocol"]
+      },
+      {
+        "layer": "检索层",
+        "items": ["pgvector", "PGroonga", "RRF 混合检索"]
+      },
+      {
+        "layer": "前端层",
+        "items": ["Vue Flow", "Naive UI", "Nuxt 3"]
+      },
+      {
+        "layer": "基础设施",
+        "items": ["Spring Boot 3", "Sa-Token", "PostgreSQL"]
+      }
     ]
   },
   "footer": {
@@ -357,6 +379,6 @@
     "contact": "联系我们",
     "qqGroup": "QQ交流群",
     "wechat": "官方微信",
-    "bottom": "MIT Licensed. 基于 Spring Boot 3 & LangChain4j 构建"
+    "bottom": "MIT Licensed. 基于 Spring Boot 3 & LangGraph4j 构建"
   }
 }

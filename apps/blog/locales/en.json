@@ -3,20 +3,20 @@
     "home": "Home",
     "comparison": "Comparison",
     "about": "About Us",
+    "docs": "Docs",
     "gitee": "Gitee",
     "github": "GitHub",
-    "tryOnline": "Online Trial",
-    "startNow": "Start Now"
+    "tryOnline": "Online Trial"
   },
   "common": {
     "changeLanguage": "Language"
   },
   "hero": {
-    "badge": "🚀 Empowering Enterprises, Transforming Data into Gold",
+    "badge": "🚀 Visual AI Workflow Platform",
     "title1": "KMatrix",
-    "subtitle": "Bring Your Enterprise Documents to Life",
-    "description": "More than just document management—it's your intelligent business assistant. Transform massive discrete documents into precise, efficient AI productivity through simple visual orchestration, accelerating enterprise digital transformation.",
-    "preview": "Preview AI Assistant",
+    "subtitle": "Let Knowledge Drive Business Automation",
+    "description": "More than RAG Q&A — a visual AI workflow platform. Orchestrate complex AI business logic with a drag-and-drop canvas, powered by hybrid retrieval and MCP tool marketplace.",
+    "preview": "Get on Gitee",
     "learnMore": "View Use Cases"
   },
   "features": {
@@ -138,7 +138,7 @@
     "highlightsLabel": "Scenario Advantages",
     "valueLabel": "Core Features",
     "insights": {
-      "title": "Feature Insights",
+      "title": "Feature Deep Dive",
       "subtitle": "From knowledge ingestion to AI orchestration, every detail is refined for enterprise applications.",
       "items": [
         {
@@ -151,31 +151,31 @@
           "value": "You can entrust all corporate regulations and manuals to it; it's the most diligent 'librarian' with a photographic memory."
         },
         {
-          "title": "Graphical Business Assistant Configuration",
+          "title": "Visual AI Workflow Orchestration",
           "highlights": [
-            "Drag-and-drop canvas for clear business logic",
-            "Flexibly handles various complex business flows",
-            "What-you-see-is-what-you-get configuration"
+            "Stateful Multi-Agent workflow powered by LangGraph4j",
+            "Supports loops, conditional branches, state persistence",
+            "Drag-and-drop canvas for clear business logic"
           ],
           "value": "No longer dependent on programmers; business experts can build logic-capable AI tools themselves with just a mouse."
         },
         {
-          "title": "Instant and Reliable Search",
+          "title": "Hybrid Retrieval — Fast & Reliable",
           "highlights": [
-            "Deep understanding of both text and intent",
-            "Auto-compared multi-sources for authenticity",
+            "pgvector vector search + PGroonga full-text search",
+            "RRF fusion ranking, far superior to single-vector retrieval",
             "Source traceability for every answer"
           ],
           "value": "Say goodbye to keyword mismatches. It understands your intent like an expert and provides reliable answers with sources."
         },
         {
-          "title": "Seamless Integration with Existing Platforms",
+          "title": "MCP Tool Marketplace",
           "highlights": [
-            "Integration configuration finished in seconds",
-            "No changes needed to existing core code",
-            "Fully compatible with various web pages and apps"
+            "Standard MCP protocol, one-click access to hundreds of tools",
+            "Connect databases, APIs, file systems and more",
+            "Let AI workflows truly connect to the external world"
           ],
-          "value": "Let AI follow you like a floating button, giving old systems a 'new brain' at minimal cost."
+          "value": "Through the MCP marketplace, AI workflows go beyond knowledge base Q&A to directly invoke external tools for complex business actions."
         },
         {
           "title": "Multi-Model Intelligent Brain",
@@ -191,13 +191,13 @@
   },
   "about": {
     "hero": {
-      "title": "About KY",
+      "title": "About KMatrix",
       "subtitle": "Building great software with craftsmanship and passion, making data valuable"
     },
     "story": {
       "title": "Our Story",
       "p1": "We are <strong>Guangzhou Keyi Information Technology Co., Ltd.</strong> Our core team has deep roots in IT and software development for over a decade, gathering elite enthusiasts passionate about technology.",
-      "p2": "<strong>KMatrix Knowledge Base</strong> is our flagship product. More than just a file-based intelligent knowledge base, it's a masterpiece refined over four years and validated by hundreds of enterprises.",
+      "p2": "<strong>KMatrix</strong> is our flagship product. More than just a file-based intelligent knowledge base, it's a masterpiece refined over four years and validated by hundreds of enterprises.",
       "p3": "From general to industry-specific versions, we stick to the principle of 'quick deployment, quick launch', helping enterprises move steadily and efficiently towards digital transformation."
     },
     "values": {
@@ -241,7 +241,7 @@
   "comparison": {
     "title": "Feature Comparison",
     "subtitle": "Choose the best version for your business, start a new era of AI productivity",
-    "headers": ["Features", "Community (Open Source)", "Commercial (Planning)"],
+    "headers": ["Features", "Community (Open Source)", "Commercial (Coming Soon)"],
     "items": [
       {
         "feature": "Vector Retrieval (RAG) QA",
@@ -249,12 +249,22 @@
         "commercial": true
       },
       {
-        "feature": "Full-text & Multi-dim Search",
+        "feature": "Full-text & Hybrid Search (RRF)",
         "community": true,
         "commercial": true
       },
       {
         "feature": "Visual Workflow (Vue Flow)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "Stateful Multi-Agent (LangGraph4j)",
+        "community": true,
+        "commercial": true
+      },
+      {
+        "feature": "MCP Tool Marketplace",
         "community": true,
         "commercial": true
       },
@@ -285,12 +295,6 @@
         "isAdvanced": true
       },
       {
-        "feature": "Custom Model Fine-tuning API",
-        "community": false,
-        "commercial": true,
-        "isAdvanced": true
-      },
-      {
         "feature": "Dedicated Tech Support & SLA",
         "community": false,
         "commercial": true,
@@ -304,22 +308,22 @@
       }
     ],
     "advanced": "Adv.",
-    "footer": "* Commercial version is currently in planning and small-scale testing. Follow our official website and WeChat for updates.",
+    "footer": "* Commercial version coming soon. Join the waitlist to get early access.",
     "downloadCta": "Go to Gitee for Community Edition"
   },
   "stats": {
     "items": [
       {
-        "label": "Enterprises Served",
-        "value": "300+"
+        "label": "LLM Models Supported",
+        "value": "20+"
       },
       {
-        "label": "Managed Documents",
-        "value": "100M+"
+        "label": "Document Formats",
+        "value": "15+"
       },
       {
-        "label": "AI Accuracy",
-        "value": "99%"
+        "label": "Workflow Node Types",
+        "value": "30+"
       },
       {
         "label": "Open Source Stars",
@@ -329,7 +333,7 @@
   },
   "feats": {
     "title": "Core Advantages",
-    "subtitle": "Full-stack AI tech, building your exclusive enterprise brain",
+    "subtitle": "Not just RAG — a complete enterprise-grade AI workflow platform",
     "items": [
       {
         "icon": "🎨",
@@ -338,18 +342,18 @@
       },
       {
         "icon": "🎯",
-        "title": "Precise QA Instant Recovery",
-        "desc": "Deeply understands your professional docs, responding with the most accurate answers in seconds, solving enterprise data lookup pain points."
+        "title": "Hybrid Retrieval Engine",
+        "desc": "pgvector vector search + PGroonga full-text + RRF fusion ranking. Retrieval quality far exceeds single-vector solutions for more accurate answers."
       },
       {
         "icon": "🤖",
-        "title": "Your Intelligent Expert",
-        "desc": "Rapidly incubate smart customer service, onboarding assistants, or doc analysts, placing AI deep into your business frontline 24/7."
+        "title": "Stateful Multi-Agent",
+        "desc": "Built on LangGraph4j for stateful workflows with loops, conditional branches, and state persistence — enabling truly complex AI business orchestration."
       },
       {
         "icon": "🔌",
-        "title": "One-click Embedding",
-        "desc": "Embed AI assistants perfectly into your existing corporate portals, ERP, or CRM systems with just one line of code."
+        "title": "MCP Tool Marketplace",
+        "desc": "One-click access to hundreds of external tools via standard MCP protocol. Connect AI workflows to the external world beyond knowledge base Q&A."
       },
       {
         "icon": "🛡️",
@@ -357,28 +361,46 @@
         "desc": "Supports private deployment with strict security auditing to ensure enterprise knowledge assets never leak."
       },
       {
-        "icon": "🌓",
-        "title": "Elegant User Experience",
-        "desc": "Extreme responsiveness and multi-device support, with dark/light mode toggles to make every workday a visual delight."
+        "icon": "🌐",
+        "title": "One-click Embedding",
+        "desc": "Embed AI assistants perfectly into your existing corporate portals, ERP, or CRM systems with just one line of code."
       }
     ]
   },
   "tech": {
-    "badge": "Official AI Evaluation",
-    "title": "Technical Solution: High Standard & Best Fit",
-    "quote": "“Gitee fully integrates code analysis evaluation... Our Kmatrix knowledge base is highly rated. Thanks Gitee for the recognition.”",
+    "badge": "Tech Stack",
+    "title": "Modern Full-Stack AI Foundation",
+    "quote": "Built on Spring Boot 3 + LangGraph4j + pgvector + Vue Flow — the best practice for enterprise AI workflow platforms.",
     "stats": [
       {
         "val": "High",
-        "lab": "Consistency Evaluation"
+        "lab": "Consistency"
       },
       {
         "val": "Strong",
-        "lab": "Arch Flexibility"
+        "lab": "Flexibility"
       },
       {
         "val": "Exc",
-        "lab": "Security Design"
+        "lab": "Security"
+      }
+    ],
+    "stack": [
+      {
+        "layer": "AI Orchestration",
+        "items": ["LangGraph4j", "LangChain4j", "MCP Protocol"]
+      },
+      {
+        "layer": "Retrieval Layer",
+        "items": ["pgvector", "PGroonga", "RRF Hybrid Search"]
+      },
+      {
+        "layer": "Frontend",
+        "items": ["Vue Flow", "Naive UI", "Nuxt 3"]
+      },
+      {
+        "layer": "Infrastructure",
+        "items": ["Spring Boot 3", "Sa-Token", "PostgreSQL"]
       }
     ]
   },
@@ -390,6 +412,7 @@
     "donate": "Donate & Support",
     "contact": "Contact Us",
     "qqGroup": "QQ Group",
-    "bottom": "MIT Licensed. Built on Spring Boot 3 & LangChain4j"
+    "wechat": "WeChat",
+    "bottom": "MIT Licensed. Built on Spring Boot 3 & LangGraph4j"
   }
 }
