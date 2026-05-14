@@ -37,11 +37,11 @@ export default defineNuxtConfig({
 
   // ISR/SWR 路由规则：告知 EdgeOne 哪些路由需要动态渲染 + 缓存多久
   routeRules: {
-    // 文章详情页：ISR，5 分钟重新验证（内容更新不频繁）
-    '/blog/article/**': { swr: 300 },
-    // 博客首页和分类页：ISR，2 分钟重新验证
-    '/blog': { swr: 120 },
-    '/blog/category/**': { swr: 120 },
+    // 文章详情页：ISR，1小时重新验证
+    '/blog/article/**': { swr: 3600 },
+    // 博客首页和分类页：ISR，1小时重新验证
+    '/blog': { swr: 3600 },
+    '/blog/category/**': { swr: 3600 },
     // Server API 路由：纯动态，不缓存（由 git-content 内部缓存控制）
     '/api/**': { cache: false }
   },

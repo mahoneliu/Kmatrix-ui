@@ -228,7 +228,9 @@ function onTocUpdate(headings: TocHeading[]) {
                   </NuxtLink>
                 </article>
               </div>
-              <div v-else class="empty-state"><p>该分类下暂无文章</p></div>
+              <div v-else class="empty-state">
+                <p>该分类下暂无文章</p>
+              </div>
               <div v-if="total > pageSize" class="pagination">
                 <button class="page-btn" :disabled="pageNum <= 1" @click="loadArticles(pageNum - 1)">上一页</button>
                 <span class="page-info">第 {{ pageNum }} 页 · 共 {{ total }} 篇</span>
@@ -266,12 +268,14 @@ function onTocUpdate(headings: TocHeading[]) {
   margin: 0;
   font-size: 0.875rem;
 }
+
 .git-badge {
   display: flex;
   align-items: center;
   gap: 0.375rem;
   color: #7c3aed;
 }
+
 .git-icon {
   font-size: 1rem;
 }
@@ -289,6 +293,7 @@ function onTocUpdate(headings: TocHeading[]) {
 .toc-container {
   font-size: 0.875rem;
 }
+
 .toc-title {
   font-weight: 600;
   color: #374151;
@@ -297,6 +302,7 @@ function onTocUpdate(headings: TocHeading[]) {
   border-bottom: 1px solid #e5e7eb;
   font-size: 0.9375rem;
 }
+
 .toc-item {
   display: block;
   padding: 0.375rem 0;
@@ -308,9 +314,11 @@ function onTocUpdate(headings: TocHeading[]) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .toc-item:hover {
   color: #2563eb;
 }
+
 .toc-empty {
   color: #9ca3af;
   font-size: 0.875rem;
@@ -322,6 +330,7 @@ function onTocUpdate(headings: TocHeading[]) {
   flex-direction: column;
   gap: 0.75rem;
 }
+
 .skeleton-title {
   height: 2rem;
   width: 60%;
@@ -330,6 +339,7 @@ function onTocUpdate(headings: TocHeading[]) {
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
 }
+
 .skeleton-meta {
   height: 1rem;
   width: 35%;
@@ -338,6 +348,7 @@ function onTocUpdate(headings: TocHeading[]) {
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
 }
+
 .skeleton-line,
 .article-skeleton {
   height: 0.875rem;
@@ -346,14 +357,17 @@ function onTocUpdate(headings: TocHeading[]) {
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
 }
+
 .article-skeleton {
   height: 120px;
   border-radius: 8px;
 }
+
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -365,6 +379,7 @@ function onTocUpdate(headings: TocHeading[]) {
   flex-direction: column;
   gap: 1rem;
 }
+
 .article-item {
   display: flex;
   gap: 1.25rem;
@@ -374,9 +389,11 @@ function onTocUpdate(headings: TocHeading[]) {
   border-radius: 10px;
   transition: box-shadow 0.2s;
 }
+
 .article-item:hover {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
+
 .article-content {
   flex: 1;
   min-width: 0;
@@ -384,20 +401,24 @@ function onTocUpdate(headings: TocHeading[]) {
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .article-title {
   font-size: 1.0625rem;
   font-weight: 600;
   margin: 0;
   line-height: 1.4;
 }
+
 .article-title-link {
   color: #111827;
   text-decoration: none;
   transition: color 0.15s;
 }
+
 .article-title-link:hover {
   color: #2563eb;
 }
+
 .article-desc {
   font-size: 0.875rem;
   color: #6b7280;
@@ -409,6 +430,7 @@ function onTocUpdate(headings: TocHeading[]) {
   overflow: hidden;
   flex: 1;
 }
+
 .article-footer {
   display: flex;
   align-items: center;
@@ -416,11 +438,13 @@ function onTocUpdate(headings: TocHeading[]) {
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+
 .article-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
 }
+
 .tag {
   font-size: 0.7rem;
   padding: 0.15rem 0.5rem;
@@ -428,6 +452,7 @@ function onTocUpdate(headings: TocHeading[]) {
   color: #4b5563;
   border-radius: 20px;
 }
+
 .article-meta {
   display: flex;
   align-items: center;
@@ -436,9 +461,11 @@ function onTocUpdate(headings: TocHeading[]) {
   color: #9ca3af;
   flex-shrink: 0;
 }
+
 .article-cover-link {
   flex-shrink: 0;
 }
+
 .article-cover {
   width: 120px;
   height: 90px;
@@ -452,6 +479,7 @@ function onTocUpdate(headings: TocHeading[]) {
   padding: 3rem 0;
   color: #9ca3af;
 }
+
 .retry-btn {
   margin-top: 0.75rem;
   padding: 0.5rem 1.25rem;
@@ -472,6 +500,7 @@ function onTocUpdate(headings: TocHeading[]) {
   padding-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
 }
+
 .page-btn {
   padding: 0.5rem 1.25rem;
   background: #fff;
@@ -484,14 +513,17 @@ function onTocUpdate(headings: TocHeading[]) {
     background 0.15s,
     border-color 0.15s;
 }
+
 .page-btn:hover:not(:disabled) {
   background: #f3f4f6;
   border-color: #d1d5db;
 }
+
 .page-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
 .page-info {
   font-size: 0.875rem;
   color: #6b7280;
@@ -501,6 +533,7 @@ function onTocUpdate(headings: TocHeading[]) {
   .article-item {
     flex-direction: column;
   }
+
   .article-cover {
     width: 100%;
     height: 160px;
