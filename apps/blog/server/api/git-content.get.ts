@@ -8,38 +8,35 @@ interface ReplaceImagePathsOptions {
   branch: string;
   filePath: string;
   rootPath: string | null | undefined;
+  platform?: string; // 'github' | 'gitee'，默认 github
 }
 
 /**
  * 替换 Markdown 中的相对图片路径为代理 URL
  */
 export function replaceImagePaths(markdownContent: string, options: ReplaceImagePathsOptions): string {
-  const { owner, repo, branch, filePath, rootPath } = options;
+  const { owner, repo, branch, filePath, rootPath, platform } = options;
   const fileDir = dirname(filePath) === '.' ? '' : dirname(filePath);
+  const isGitee = platform === 'gitee';
+
+  function resolveAbsolutePath(imgPath: string): string {
+    if (imgPath.startsWith('/')) {
+      return imgPath.replace(/^\/+/, '');
+    }
+    const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
+    const base = rootPath ? normalize(join(rootPath, fileDir, relativePart)) : normalize(join(fileDir, relativePart));
+    return base.replace(/\\/g, '/').replace(/^\.\//, '');
+  }
 
   function buildRawUrl(imgPath: string): string {
     if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
       return imgPath;
     }
-
-    let absolutePath: string;
-
-    if (imgPath.startsWith('/')) {
-      // 绝对路径：相对于仓库根目录，直接去掉前导 /
-      absolutePath = imgPath.replace(/^\/+/, '');
-    } else {
-      const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
-
-      if (rootPath) {
-        absolutePath = normalize(join(rootPath, fileDir, relativePart)).replace(/\\/g, '/');
-      } else {
-        absolutePath = normalize(join(fileDir, relativePart)).replace(/\\/g, '/');
-      }
-      absolutePath = absolutePath.replace(/^\.\//, '');
+    const absolutePath = resolveAbsolutePath(imgPath);
+    if (isGitee) {
+      return `https://gitee.com/${owner}/${repo}/raw/${branch}/${absolutePath}`;
     }
-
-    // 使用 Gitee raw URL（国内可直接访问）
-    return `https://gitee.com/${owner}/${repo}/raw/${branch}/${absolutePath}`;
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
   }
 
   let result = markdownContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, path) => {
@@ -61,6 +58,7 @@ interface GitConfig {
   repo: string;
   branch: string;
   rootPath?: string;
+  platform?: string; // 'github' | 'gitee'，默认 github
 }
 
 function isBuildPhase(): boolean {
@@ -85,7 +83,47 @@ async function fetchMarkdownContent(rawUrl: string, token: string): Promise<stri
   });
 }
 
-export default defineEventHandler(async event => {
+function buildFileRawUrl(gitConfig: GitConfig, filePath: string): string {
+  const { owner, repo, branch, rootPath, platform } = gitConfig;
+  const cleanRootPath = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
+  const cleanFilePath = filePath.replace(/^\/+/, '');
+  const fullPath = [cleanRootPath, cleanFilePath]
+    .filter(Boolean)
+    .join('/')
+    .split('/')
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+  const b = branch || 'master';
+  return platform === 'gitee'
+    ? `https://gitee.com/${owner}/${repo}/raw/${b}/${fullPath}`
+    : `https://raw.githubusercontent.com/${owner}/${repo}/${b}/${fullPath}`;
+}
+
+async function fetchAndProcess(gitConfig: GitConfig, filePath: string): Promise<string> {
+  const { owner, repo, branch, token, rootPath, platform } = gitConfig;
+  const rawUrl = buildFileRawUrl(gitConfig, filePath);
+  let markdownContent: string;
+  try {
+    markdownContent = await fetchMarkdownContent(rawUrl, token);
+  } catch (err: any) {
+    const platformName = platform === 'gitee' ? 'Gitee' : 'GitHub';
+    // eslint-disable-next-line no-console
+    console.error(`[git-content] Failed to fetch from ${platformName}:`, err?.message || err, 'URL:', rawUrl);
+    throw createError({ statusCode: 502, message: `${platformName} 内容获取失败: ${err?.message || '网络异常'}` });
+  }
+  return replaceImagePaths(markdownContent, {
+    owner,
+    repo,
+    branch: branch || 'main',
+    filePath,
+    rootPath,
+    platform
+  });
+}
+
+async function handleGitContent(
+  event: Parameters<typeof defineEventHandler>[0] extends (e: infer E) => unknown ? E : never
+) {
   const query = getQuery(event);
   const categoryId = query.categoryId as string;
   const filePath = query.path as string;
@@ -96,8 +134,6 @@ export default defineEventHandler(async event => {
 
   const config = useRuntimeConfig();
   const backendUrl = config.backendUrl;
-
-  // 缓存 key（仅作为同一实例内的短路优化，EdgeOne 无状态环境下不跨请求共享）
   const cacheKey = `git-content:${categoryId}:${createHash('md5').update(filePath).digest('hex')}`;
   const storage = useStorage('git-content');
 
@@ -111,49 +147,17 @@ export default defineEventHandler(async event => {
     // storage 不可用时静默跳过
   }
 
-  // 从后端获取 Git 配置
   let gitConfig: GitConfig;
   try {
     gitConfig = await fetchGitConfig(backendUrl, categoryId);
   } catch (err: any) {
-    if (isBuildPhase()) {
-      return { content: '', path: '', sha: '' };
-    }
+    if (isBuildPhase()) return { content: '', path: '', sha: '' };
     // eslint-disable-next-line no-console
     console.error('[git-content] Failed to fetch token from backend:', err?.message || err);
     throw createError({ statusCode: 502, message: `获取 Git 配置失败: ${err?.message || '后端连接异常'}` });
   }
 
-  const { owner, repo, branch, token, rootPath } = gitConfig;
-
-  // 对路径每段编码，防止中文导致 fetch failed
-  const cleanRootPath = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
-  const cleanFilePath = filePath.replace(/^\/+/, '');
-  const fullPath = [cleanRootPath, cleanFilePath]
-    .filter(Boolean)
-    .join('/')
-    .split('/')
-    .map(segment => encodeURIComponent(segment))
-    .join('/');
-
-  const rawUrl = `https://gitee.com/${owner}/${repo}/raw/${branch || 'master'}/${fullPath}`;
-
-  let markdownContent: string;
-  try {
-    markdownContent = await fetchMarkdownContent(rawUrl, token);
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[git-content] Failed to fetch from Gitee:', err?.message || err, 'URL:', rawUrl);
-    throw createError({ statusCode: 502, message: `Gitee 内容获取失败: ${err?.message || '网络异常'}` });
-  }
-
-  const processedContent = replaceImagePaths(markdownContent, {
-    owner,
-    repo,
-    branch: branch || 'main',
-    filePath,
-    rootPath
-  });
+  const processedContent = await fetchAndProcess(gitConfig, filePath);
 
   try {
     await storage.setItem(cacheKey, processedContent);
@@ -161,6 +165,7 @@ export default defineEventHandler(async event => {
     // storage 写入失败时静默跳过
   }
   setHeader(event, 'X-Cache', 'MISS');
-
   return { content: processedContent, path: filePath };
-});
+}
+
+export default defineEventHandler(event => handleGitContent(event));
