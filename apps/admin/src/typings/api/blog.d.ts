@@ -82,6 +82,8 @@ declare namespace Api {
       gitRootPath?: string;
       /** GIT 类型专属：是否已配置 Token */
       hasToken?: boolean;
+      /** GIT 类型专属：平台（github / gitee） */
+      gitPlatform?: 'github' | 'gitee';
     }
 
     /** 分类新增/修改 BO */
@@ -110,6 +112,8 @@ declare namespace Api {
       gitRootPath?: string;
       /** Git Token（明文，保存时加密） */
       gitToken?: string;
+      /** Git 平台（github / gitee） */
+      gitPlatform?: 'github' | 'gitee';
     }
 
     /** Git 分类配置 VO（不含 token 明文） */

@@ -144,14 +144,13 @@ const gitExtra = ref({
   gitRepo: '',
   gitBranch: 'main',
   gitRootPath: '',
-  gitToken: ''
+  gitToken: '',
+  gitPlatform: 'github' as 'github' | 'gitee'
 });
 
 const gitHasExistingToken = ref(false);
 const gitTokenPlaceholder = computed(() =>
-  isEditing.value && gitHasExistingToken.value
-    ? '已配置（留空则不修改，填写则覆盖）'
-    : '请输入 GitHub Personal Access Token'
+  isEditing.value && gitHasExistingToken.value ? '已配置（留空则不修改，填写则覆盖）' : '请输入 Personal Access Token'
 );
 
 // ========== 表单校验 ==========
@@ -216,7 +215,15 @@ const parentOptions = computed(() => [
 function resetForm() {
   commonData.value = { name: '', path: '', orderNum: 0, topicSlug: '' };
   onlineExtra.value = { parentId: 0 as CommonType.IdType, customDomain: '' };
-  gitExtra.value = { repoUrl: '', gitOwner: '', gitRepo: '', gitBranch: 'main', gitRootPath: '', gitToken: '' };
+  gitExtra.value = {
+    repoUrl: '',
+    gitOwner: '',
+    gitRepo: '',
+    gitBranch: 'main',
+    gitRootPath: '',
+    gitToken: '',
+    gitPlatform: 'github'
+  };
   gitHasExistingToken.value = false;
   selectedKbId.value = null;
   selectedDatasetId.value = null;
@@ -273,7 +280,8 @@ async function openEditModal(row: Api.Blog.Category) {
       gitRepo: row.gitRepo || '',
       gitBranch: row.gitBranch || 'main',
       gitRootPath: row.gitRootPath || '',
-      gitToken: ''
+      gitToken: '',
+      gitPlatform: (row.gitPlatform as 'github' | 'gitee') || 'github'
     };
   } else {
     categoryType.value = 'online';
@@ -290,7 +298,15 @@ function onTypeChange(val: CategoryType) {
   if (isEditing.value) return;
   categoryType.value = val;
   if (val === 'git') {
-    gitExtra.value = { repoUrl: '', gitOwner: '', gitRepo: '', gitBranch: 'main', gitRootPath: '', gitToken: '' };
+    gitExtra.value = {
+      repoUrl: '',
+      gitOwner: '',
+      gitRepo: '',
+      gitBranch: 'main',
+      gitRootPath: '',
+      gitToken: '',
+      gitPlatform: 'github'
+    };
     isTopicNode.value = true;
   } else {
     onlineExtra.value = { parentId: 0 as CommonType.IdType, customDomain: '' };
@@ -302,10 +318,16 @@ function onTypeChange(val: CategoryType) {
 function onRepoUrlBlur() {
   const url = gitExtra.value.repoUrl?.trim();
   if (!url) return;
-  const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
-  if (match) {
-    gitExtra.value.gitOwner = match[1];
-    gitExtra.value.gitRepo = match[2].replace(/\.git$/, '');
+  const githubMatch = url.match(/github\.com\/([^/]+)\/([^/]+)/);
+  const giteeMatch = url.match(/gitee\.com\/([^/]+)\/([^/]+)/);
+  if (githubMatch) {
+    gitExtra.value.gitOwner = githubMatch[1];
+    gitExtra.value.gitRepo = githubMatch[2].replace(/\.git$/, '');
+    gitExtra.value.gitPlatform = 'github';
+  } else if (giteeMatch) {
+    gitExtra.value.gitOwner = giteeMatch[1];
+    gitExtra.value.gitRepo = giteeMatch[2].replace(/\.git$/, '');
+    gitExtra.value.gitPlatform = 'gitee';
   }
 }
 
@@ -688,10 +710,32 @@ onMounted(() => {
             <NText depth="3" class="text-xs">Git 仓库配置</NText>
           </NDivider>
 
+          <NFormItem label="平台">
+            <NRadioGroup v-model:value="gitExtra.gitPlatform" size="small">
+              <NSpace>
+                <NRadio value="github">
+                  <div class="flex items-center gap-1">
+                    <SvgIcon icon="mdi:github" class="text-16px" />
+                    GitHub
+                  </div>
+                </NRadio>
+                <NRadio value="gitee">
+                  <div class="flex items-center gap-1">
+                    <SvgIcon icon="simple-icons:gitee" class="text-16px text-red-500" />
+                    Gitee
+                  </div>
+                </NRadio>
+              </NSpace>
+            </NRadioGroup>
+          </NFormItem>
           <NFormItem label="仓库 URL">
             <NInput
               v-model:value="gitExtra.repoUrl"
-              placeholder="https://github.com/owner/repo（填写后自动解析）"
+              :placeholder="
+                gitExtra.gitPlatform === 'gitee'
+                  ? 'https://gitee.com/owner/repo（填写后自动解析）'
+                  : 'https://github.com/owner/repo（填写后自动解析）'
+              "
               maxlength="500"
               @blur="onRepoUrlBlur"
             />
