@@ -22,20 +22,24 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
       return imgPath;
     }
 
-    const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
-
     let absolutePath: string;
-    if (rootPath) {
-      absolutePath = normalize(join(rootPath, fileDir, relativePart)).replace(/\\/g, '/');
+
+    if (imgPath.startsWith('/')) {
+      // 绝对路径：相对于仓库根目录，直接去掉前导 /
+      absolutePath = imgPath.replace(/^\/+/, '');
     } else {
-      absolutePath = normalize(join(fileDir, relativePart)).replace(/\\/g, '/');
+      const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
+
+      if (rootPath) {
+        absolutePath = normalize(join(rootPath, fileDir, relativePart)).replace(/\\/g, '/');
+      } else {
+        absolutePath = normalize(join(fileDir, relativePart)).replace(/\\/g, '/');
+      }
+      absolutePath = absolutePath.replace(/^\.\//, '');
     }
 
-    absolutePath = absolutePath.replace(/^\.\//, '');
-
-    // 通过后端服务器代理 GitHub 图片，解决 EdgeOne Node Function 无法访问 GitHub 的问题
-    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
-    return `/api/blog/public/proxy-img?url=${encodeURIComponent(rawUrl)}`;
+    // 使用 Gitee raw URL（国内可直接访问）
+    return `https://gitee.com/${owner}/${repo}/raw/${branch}/${absolutePath}`;
   }
 
   let result = markdownContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, path) => {
@@ -75,7 +79,7 @@ async function fetchGitConfig(backendUrl: string, categoryId: string): Promise<G
 
 async function fetchMarkdownContent(rawUrl: string, token: string): Promise<string> {
   // eslint-disable-next-line no-console
-  console.log('[git-content] Fetching content from GitHub:', rawUrl);
+  console.log('[git-content] Fetching content from Gitee:', rawUrl);
   return await $fetch<string>(rawUrl, {
     headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
@@ -132,15 +136,15 @@ export default defineEventHandler(async event => {
     .map(segment => encodeURIComponent(segment))
     .join('/');
 
-  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch || 'master'}/${fullPath}`;
+  const rawUrl = `https://gitee.com/${owner}/${repo}/raw/${branch || 'master'}/${fullPath}`;
 
   let markdownContent: string;
   try {
     markdownContent = await fetchMarkdownContent(rawUrl, token);
   } catch (err: any) {
     // eslint-disable-next-line no-console
-    console.error('[git-content] Failed to fetch from GitHub:', err?.message || err, 'URL:', rawUrl);
-    throw createError({ statusCode: 502, message: `GitHub 内容获取失败: ${err?.message || '网络异常'}` });
+    console.error('[git-content] Failed to fetch from Gitee:', err?.message || err, 'URL:', rawUrl);
+    throw createError({ statusCode: 502, message: `Gitee 内容获取失败: ${err?.message || '网络异常'}` });
   }
 
   const processedContent = replaceImagePaths(markdownContent, {

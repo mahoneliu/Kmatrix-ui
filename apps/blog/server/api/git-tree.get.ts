@@ -106,14 +106,16 @@ interface FetchTreeOptions {
 }
 
 async function fetchGitTree({ owner, repo, branch, token }: FetchTreeOptions) {
-  const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch || 'HEAD'}?recursive=1`;
-  return await $fetch<{ tree: RawTreeItem[]; truncated?: boolean }>(treeUrl, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  });
+  // 先获取 branch 对应的最新 commit SHA
+  const branchUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/branches/${branch || 'master'}${token ? `?access_token=${token}` : ''}`;
+  const branchData = await $fetch<{ commit: { sha: string } }>(branchUrl);
+  const sha = branchData?.commit?.sha;
+  if (!sha) throw new Error('无法获取分支 SHA');
+
+  // 用 SHA 获取完整文件树
+  const treeUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/git/trees/${sha}?recursive=1${token ? `&access_token=${token}` : ''}`;
+  const data = await $fetch<{ tree: RawTreeItem[] }>(treeUrl);
+  return { tree: data.tree ?? [], truncated: false };
 }
 
 export default defineEventHandler(async event => {
@@ -146,12 +148,12 @@ export default defineEventHandler(async event => {
   } catch (err: unknown) {
     const e = err as { status?: number; statusCode?: number };
     const status = e?.status || e?.statusCode;
-    if (status === 401) throw createError({ statusCode: 502, message: 'GitHub Token 无效或已过期' });
+    if (status === 401) throw createError({ statusCode: 502, message: 'Gitee Token 无效或已过期' });
     if (status === 404) throw createError({ statusCode: 404, message: '仓库不存在或无访问权限' });
     if (status === 403 || status === 429) {
-      throw createError({ statusCode: 503, message: 'GitHub API rate limit exceeded', data: { retryAfter: 60 } });
+      throw createError({ statusCode: 503, message: 'Gitee API rate limit exceeded', data: { retryAfter: 60 } });
     }
-    throw createError({ statusCode: 502, message: 'GitHub API 调用失败' });
+    throw createError({ statusCode: 502, message: 'Gitee API 调用失败' });
   }
 
   return buildGitTree(treeData.tree, rootPath);
