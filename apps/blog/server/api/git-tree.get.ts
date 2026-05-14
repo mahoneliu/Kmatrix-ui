@@ -121,12 +121,16 @@ async function fetchGitTreeGitHub({ owner, repo, branch, token }: FetchTreeOptio
 async function fetchGitTreeGitee({ owner, repo, branch, token }: FetchTreeOptions) {
   // 先获取 branch 对应的最新 commit SHA
   const branchUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/branches/${branch || 'master'}${token ? `?access_token=${token}` : ''}`;
+  // eslint-disable-next-line no-console
+  console.log('[git-tree] Gitee branch URL:', branchUrl.replace(/access_token=[^&]+/, 'access_token=***'));
   const branchData = await $fetch<{ commit: { sha: string } }>(branchUrl);
   const sha = branchData?.commit?.sha;
   if (!sha) throw new Error('无法获取分支 SHA');
 
   // 用 SHA 获取完整文件树
   const treeUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/git/trees/${sha}?recursive=1${token ? `&access_token=${token}` : ''}`;
+  // eslint-disable-next-line no-console
+  console.log('[git-tree] Gitee tree URL:', treeUrl.replace(/access_token=[^&]+/, 'access_token=***'));
   const data = await $fetch<{ tree: RawTreeItem[] }>(treeUrl);
   return { tree: data.tree ?? [], truncated: false };
 }
@@ -135,7 +139,30 @@ async function fetchGitTree(options: FetchTreeOptions) {
   return options.platform === 'gitee' ? fetchGitTreeGitee(options) : fetchGitTreeGitHub(options);
 }
 
-export default defineEventHandler(async event => {
+function throwTreeApiError(platform: string | undefined, err: unknown): never {
+  const e = err as { status?: number; statusCode?: number; message?: string; data?: unknown };
+  const status = e?.status || e?.statusCode;
+  const platformName = platform === 'gitee' ? 'Gitee' : 'GitHub';
+  // eslint-disable-next-line no-console
+  console.error(
+    `[git-tree] ${platformName} API error: status=${status}, msg=${e?.message}, data=`,
+    JSON.stringify(e?.data ?? null)
+  );
+  if (status === 401) throw createError({ statusCode: 502, message: `${platformName} Token 无效或已过期` });
+  if (status === 404) throw createError({ statusCode: 404, message: '仓库不存在或无访问权限' });
+  if (status === 403 || status === 429) {
+    throw createError({
+      statusCode: 503,
+      message: `${platformName} API rate limit exceeded`,
+      data: { retryAfter: 60 }
+    });
+  }
+  throw createError({ statusCode: 502, message: `${platformName} API 调用失败: ${e?.message ?? '未知错误'}` });
+}
+
+async function handleGitTree(
+  event: Parameters<typeof defineEventHandler>[0] extends (e: infer E) => unknown ? E : never
+) {
   const query = getQuery(event);
   const categoryId = query.categoryId as string;
 
@@ -163,20 +190,10 @@ export default defineEventHandler(async event => {
   try {
     treeData = await fetchGitTree({ owner, repo, branch, token, platform });
   } catch (err: unknown) {
-    const e = err as { status?: number; statusCode?: number };
-    const status = e?.status || e?.statusCode;
-    const platformName = platform === 'gitee' ? 'Gitee' : 'GitHub';
-    if (status === 401) throw createError({ statusCode: 502, message: `${platformName} Token 无效或已过期` });
-    if (status === 404) throw createError({ statusCode: 404, message: '仓库不存在或无访问权限' });
-    if (status === 403 || status === 429) {
-      throw createError({
-        statusCode: 503,
-        message: `${platformName} API rate limit exceeded`,
-        data: { retryAfter: 60 }
-      });
-    }
-    throw createError({ statusCode: 502, message: `${platformName} API 调用失败` });
+    throwTreeApiError(platform, err);
   }
 
   return buildGitTree(treeData.tree, rootPath);
-});
+}
+
+export default defineEventHandler(event => handleGitTree(event));
