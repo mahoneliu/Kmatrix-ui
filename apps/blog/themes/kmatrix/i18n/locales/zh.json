@@ -3,10 +3,10 @@
     "home": "首页",
     "comparison": "版本对比",
     "about": "关于我们",
+    "docs": "技术文档",
     "gitee": "Gitee",
     "github": "GitHub",
-    "tryOnline": "在线试用",
-    "startNow": "立即开始"
+    "tryOnline": "在线试用"
   },
   "common": {
     "changeLanguage": "语言切换"

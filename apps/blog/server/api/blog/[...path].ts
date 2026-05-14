@@ -1,5 +1,19 @@
 import process from 'node:process';
 
+// 需要过滤掉的请求头前缀（EdgeOne/SCF 内部头，不应透传给后端）
+const BLOCKED_HEADER_PREFIXES = ['x-scf-', 'x-cube-', 'eo-', 'cdn-loop', 'x-tencent-'];
+
+function filterHeaders(headers: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    const lower = key.toLowerCase();
+    if (!BLOCKED_HEADER_PREFIXES.some(prefix => lower.startsWith(prefix))) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 export default defineEventHandler(async event => {
   const config = useRuntimeConfig();
   const backendUrl = config.backendUrl || 'http://localhost:8080';
@@ -7,17 +21,16 @@ export default defineEventHandler(async event => {
   const path = event.context.params?.path;
   const targetUrl = `${backendUrl}/api/blog/${path}`;
   const query = getQuery(event);
-  const incomingHeaders = getRequestHeaders(event);
+  const filteredHeaders = filterHeaders(getRequestHeaders(event));
 
   // eslint-disable-next-line no-console
   console.log(`[Proxy] Fetching: ${targetUrl}`);
-  // eslint-disable-next-line no-console
-  console.log(`[Proxy] Incoming headers:`, JSON.stringify(incomingHeaders));
 
   try {
     const response = await $fetch.raw(targetUrl, {
       method: event.method,
       query,
+      headers: filteredHeaders,
       body: event.method !== 'GET' && event.method !== 'HEAD' ? await readBody(event) : undefined
     });
 
