@@ -67,13 +67,17 @@ const filePath = computed(() => {
 });
 
 // 加载分类列表，找到对应分类
-const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
-  const params = new URLSearchParams();
-  if (topicSlug) params.set('topicSlug', topicSlug);
-  const qs = params.toString();
-  const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
-  return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
-});
+// 使用与 BlogLayout 相同的 key，Nuxt 会自动复用已有请求结果，不会重复发起网络请求
+const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
+  () => {
+    const params = new URLSearchParams();
+    if (topicSlug) params.set('topicSlug', topicSlug);
+    const qs = params.toString();
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+    return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  },
+  { key: `blog-layout-categories-${topicSlug}` }
+);
 
 const allCategories = computed<BlogCategory[]>(() => categoriesData.value?.data ?? []);
 

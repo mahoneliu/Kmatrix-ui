@@ -84,13 +84,16 @@ const topCategoryPath = computed(() => {
 });
 
 // 加载所有顶层分类（树形结构，根节点即顶层）
-const { data: allCategoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
-  const params = new URLSearchParams();
-  if (topicSlug) params.set('topicSlug', topicSlug);
-  const qs = params.toString();
-  const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
-  return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
-});
+const { data: allCategoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
+  () => {
+    const params = new URLSearchParams();
+    if (topicSlug) params.set('topicSlug', topicSlug);
+    const qs = params.toString();
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+    return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  },
+  { key: `blog-layout-categories-${topicSlug}` }
+);
 
 const allCategories = computed<BlogCategory[]>(() => allCategoriesData.value?.data ?? []);
 

@@ -33,8 +33,8 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
 
     absolutePath = absolutePath.replace(/^\.\//, '');
 
-    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
-    return `/api/proxy-img?url=${encodeURIComponent(rawUrl)}`;
+    // 使用 gitmirror 镜像直接返回图片 URL，避免 EdgeOne Node Function 无法访问 GitHub
+    return `https://raw.gitmirror.com/${owner}/${repo}/${branch}/${absolutePath}`;
   }
 
   let result = markdownContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, path) => {

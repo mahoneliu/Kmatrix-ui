@@ -34,13 +34,16 @@ const categorySlug = computed(() => {
   return Array.isArray(p) ? p.join('/') : (p ?? '');
 });
 
-const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
-  const params = new URLSearchParams();
-  if (topicSlug) params.set('topicSlug', topicSlug);
-  const qs = params.toString();
-  const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
-  return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
-});
+const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(
+  () => {
+    const params = new URLSearchParams();
+    if (topicSlug) params.set('topicSlug', topicSlug);
+    const qs = params.toString();
+    const baseUrl = config.public.apiBaseUrl === '/' ? '' : config.public.apiBaseUrl;
+    return `${baseUrl}/api/blog/public/categories${qs ? `?${qs}` : ''}`;
+  },
+  { key: `blog-layout-categories-${topicSlug}` }
+);
 
 const categories = computed(() => categoriesData.value?.data ?? []);
 
