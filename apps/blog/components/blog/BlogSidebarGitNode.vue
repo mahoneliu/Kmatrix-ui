@@ -52,7 +52,7 @@ function onChildSelect(path: string) {
       <!-- 文件：缩进占位 -->
       <span v-else class="git-file-indent" />
 
-      <span class="git-node-icon">{{ isDir ? (isExpanded ? '📂' : '📁') : '📄' }}</span>
+      <!-- <span class="git-node-icon">{{ isDir ? (isExpanded ? '📂' : '📁') : '📄' }}</span> -->
       <span class="git-node-name">{{ node.name }}</span>
     </div>
 

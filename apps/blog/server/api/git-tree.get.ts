@@ -23,17 +23,33 @@ function isMarkdown(path: string): boolean {
 
 /**
  * 构建 Git 目录树（过滤非 .md 文件和隐藏文件，截断 rootPath 前缀）
+ * GitHub API 对含中文的路径会返回 URL 编码字符串，这里统一 decode 为可读字符。
  */
 export function buildGitTree(rawTree: RawTreeItem[], rootPath: string | null | undefined): GitTreeNode[] {
-  const normalizedRoot = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
+  // rootPath 也可能含编码字符，统一 decode
+  let decodedRoot = rootPath ?? '';
+  try {
+    decodedRoot = decodeURIComponent(decodedRoot);
+  } catch {
+    // keep as-is
+  }
+  const normalizedRoot = decodedRoot ? decodedRoot.replace(/^\/+|\/+$/g, '') : '';
   const prefix = normalizedRoot ? `${normalizedRoot}/` : '';
   const nodes: GitTreeNode[] = [];
 
   for (const item of rawTree) {
-    if (prefix && !item.path.startsWith(prefix)) {
+    // GitHub API 对中文路径返回 URL 编码字符串，统一 decode
+    let rawPath: string;
+    try {
+      rawPath = decodeURIComponent(item.path);
+    } catch {
+      rawPath = item.path;
+    }
+
+    if (prefix && !rawPath.startsWith(prefix)) {
       // skip items outside rootPath
     } else {
-      const displayPath = prefix ? item.path.slice(prefix.length) : item.path;
+      const displayPath = prefix ? rawPath.slice(prefix.length) : rawPath;
       const isHidden = displayPath.startsWith('.');
       const isNonMarkdownBlob = item.type === 'blob' && !isMarkdown(displayPath);
 

@@ -134,15 +134,12 @@
             }
         }
     `;
-  document.head.appendChild(style);
-
   // 创建按钮
   const btn = document.createElement('button');
   btn.id = 'km-embed-btn';
   btn.title = 'AI 助手';
   btn.innerHTML =
     '<svg viewBox="0 0 24 24"><path d="M12 3c5.5 0 10 3.58 10 8s-4.5 8-10 8c-1.24 0-2.43-.18-3.53-.5C5.55 21 2 21 2 21c2.33-2.33 2.7-3.9 2.75-4.5C3.05 15.07 2 13.13 2 11c0-4.42 4.5-8 10-8z"/></svg>';
-  document.body.appendChild(btn);
 
   // 创建容器
   const container = document.createElement('div');
@@ -157,7 +154,19 @@
   iframe.src = finalChatUrl;
   iframe.allow = 'microphone;clipboard-write';
   container.appendChild(iframe);
-  document.body.appendChild(container);
+
+  // 将样式、按钮、容器挂载到 DOM，兼容 SSR/Nuxt 等 body 可能尚未就绪的场景
+  function mountElements() {
+    (document.head || document.documentElement).appendChild(style);
+    document.body.appendChild(btn);
+    document.body.appendChild(container);
+  }
+
+  if (document.body) {
+    mountElements();
+  } else {
+    document.addEventListener('DOMContentLoaded', mountElements);
+  }
 
   // 状态变量
   let isOpen = false;

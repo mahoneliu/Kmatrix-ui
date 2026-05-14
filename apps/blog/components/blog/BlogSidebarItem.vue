@@ -40,6 +40,9 @@ const isOpen = ref(depth < 2);
 
 const isGitCategory = computed(() => props.category.source === 'GIT');
 
+// 从 BlogLayout 注入的跨路由 git tree 缓存
+const gitTreeCache = inject<Map<number, GitFileNode[]>>('gitTreeCache', new Map());
+
 // ===== 普通分类：文章列表 =====
 const articles = ref<BlogArticle[]>([]);
 const articlesLoaded = ref(false);
@@ -74,11 +77,25 @@ const gitExpandedPaths = ref<Set<string>>(new Set());
 async function loadGitTree() {
   if (!isGitCategory.value) return;
   if (gitLoaded.value || gitLoading.value) return;
+
+  // 命中缓存，直接使用，不重新请求
+  const cached = gitTreeCache.get(props.category.id);
+  if (cached) {
+    gitNodes.value = cached;
+    gitLoaded.value = true;
+    for (const node of gitNodes.value) {
+      if (node.type === 'tree') gitExpandedPaths.value.add(node.path);
+    }
+    return;
+  }
+
   gitLoading.value = true;
   try {
     const flat = await $fetch<GitFileNode[]>(`/api/git-tree?categoryId=${props.category.id}`);
     gitNodes.value = buildTree(flat ?? []);
     gitLoaded.value = true;
+    // 写入缓存
+    gitTreeCache.set(props.category.id, gitNodes.value);
     // 默认展开第一层目录
     for (const node of gitNodes.value) {
       if (node.type === 'tree') gitExpandedPaths.value.add(node.path);

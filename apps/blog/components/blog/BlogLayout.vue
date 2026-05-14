@@ -13,11 +13,13 @@ const props = withDefaults(
     showToc?: boolean;
     activeSlug?: string;
     activeCategoryId?: number;
+    activeGitFile?: string; // doc 页面直接传入，避免从路由重复解析
   }>(),
   {
     showToc: false,
     activeSlug: undefined,
-    activeCategoryId: undefined
+    activeCategoryId: undefined,
+    activeGitFile: undefined
   }
 );
 
@@ -26,24 +28,59 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const topicSlug = config.public.topicSlug;
 
+// 跨路由共享的 git tree 缓存，key 为 categoryId。
+// 使用模块级单例（useGitTreeCache），不随 BlogLayout 重新挂载而重置。
+// 当侧边栏组件（BlogSidebarGitRoot/BlogSidebarItem）重新挂载时，
+// 直接从缓存读取 git tree，不重新发起网络请求，避免目录树闪烁刷新。
+provide('gitTreeCache', useGitTreeCache());
+
 const currentSlug = computed(() => {
   if (props.activeSlug) return props.activeSlug;
   const slug = route.params.slug;
   return Array.isArray(slug) ? slug.join('/') : ((slug as string) ?? '');
 });
 
-// 当前选中的 git 文件（从 URL query 读取）
-const activeGitFile = computed(() => route.query.file as string | undefined);
+// 当前选中的 git 文件：
+// - /blog/doc/... 页面：由 prop 传入（从 path 参数解析）
+// - 旧的 /blog/category/...?file=... 路由：从 query 读取（兼容过渡期）
+const activeGitFile = computed(() => props.activeGitFile ?? (route.query.file as string | undefined));
 
-// 从路由中解析当前顶层 category 的 path（第一段）
-// 例如 /blog/category/docs/sub 中，顶层 path 为 /docs
+/**
+ * 彻底 decode 可能被多次编码的字符串（防御双重编码 %25E5 → %E5 → 中文）
+ */
+function fullyDecode(s: string): string {
+  let prev = s;
+  for (let i = 0; i < 5; i += 1) {
+    try {
+      const next = decodeURIComponent(prev);
+      if (next === prev) break;
+      prev = next;
+    } catch {
+      break;
+    }
+  }
+  return prev;
+}
+
+// 从路由中解析当前顶层 category path（第一段），兼容三种路由：
+//   /blog/category/docs/sub  → /docs
+//   /blog/doc/docs/文件路径   → /docs
+//   /blog/article/slug       → null（由 activeCategoryId 处理）
+// route.params 在不同环境可能含单次或双重编码，用 fullyDecode 统一处理。
 const topCategoryPath = computed(() => {
+  // doc 页面
+  const docPath = route.params.path;
+  if (docPath) {
+    const first = Array.isArray(docPath) ? docPath[0] : docPath;
+    if (first) return `/${fullyDecode(first)}`;
+    return null;
+  }
+  // category 页面
   const slug = currentSlug.value;
   if (!slug) return null;
-  // slug 可能是 "docs/sub" 或 "/docs/sub"，取第一段
   const normalized = slug.startsWith('/') ? slug : `/${slug}`;
   const parts = normalized.split('/').filter(Boolean);
-  return parts.length > 0 ? `/${parts[0]}` : null;
+  return parts.length > 0 ? `/${fullyDecode(parts[0])}` : null;
 });
 
 // 加载所有顶层分类（树形结构，根节点即顶层）
@@ -86,7 +123,7 @@ const sidebarTitle = computed<string>(() => {
   return currentTopCategory.value?.name ?? '';
 });
 
-// 点击 git 文件：跳转到对应分类页面，file 作为 query 参数
+// 点击 git 文件：跳转到 /blog/doc/{categoryPath}/{filePath（去掉 .md 后缀）}
 function onSelectGitFile(categoryId: number, filePath: string) {
   function findCatPath(cats: BlogCategory[], id: number): string | null {
     for (const c of cats) {
@@ -99,9 +136,16 @@ function onSelectGitFile(categoryId: number, filePath: string) {
     return null;
   }
   const catPath = findCatPath(allCategories.value, categoryId);
-  if (catPath) {
-    router.push({ path: `/blog/category${catPath}`, query: { file: filePath } });
-  }
+  if (!catPath) return;
+
+  // 彻底 decode 到纯中文，确保不含任何 % 编码字符
+  const catSegment = fullyDecode(catPath.replace(/^\//, ''));
+  const fileSegment = fullyDecode(filePath).replace(/\.md$/i, '');
+
+  // 用具名路由 + params 数组形式跳转，Vue Router 不会对 params 做额外编码，
+  // 避免中文路径被双重编码（字符串拼接形式会触发 Vue Router 的 path 编码）
+  const pathParams = [catSegment, ...fileSegment.split('/')];
+  router.push({ name: 'blog-doc-path', params: { path: pathParams } });
 }
 
 // 是否显示 TOC（文章详情页 或 git 文件已选中）

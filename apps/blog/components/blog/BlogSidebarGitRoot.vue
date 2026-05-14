@@ -2,6 +2,9 @@
 /**
  * GIT 类型顶层分类的侧边栏渲染组件
  * 直接展示 git 文件树，跳过顶层节点行（不显示分类名称行）
+ *
+ * git tree 数据通过 BlogLayout provide 的缓存 Map 共享，
+ * 路由切换导致组件重新挂载时直接从缓存读取，不重新请求。
  */
 interface GitFileNode {
   path: string;
@@ -20,6 +23,9 @@ const emit = defineEmits<{
   selectGitFile: [categoryId: number, filePath: string];
 }>();
 
+// 从 BlogLayout 注入的跨路由 git tree 缓存
+const gitTreeCache = inject<Map<number, GitFileNode[]>>('gitTreeCache', new Map());
+
 const gitNodes = ref<GitFileNode[]>([]);
 const gitLoaded = ref(false);
 const gitLoading = ref(false);
@@ -27,11 +33,25 @@ const gitExpandedPaths = ref<Set<string>>(new Set());
 
 async function loadGitTree() {
   if (gitLoaded.value || gitLoading.value) return;
+
+  // 命中缓存，直接使用，不重新请求
+  const cached = gitTreeCache.get(props.categoryId);
+  if (cached) {
+    gitNodes.value = cached;
+    gitLoaded.value = true;
+    for (const node of gitNodes.value) {
+      if (node.type === 'tree') gitExpandedPaths.value.add(node.path);
+    }
+    return;
+  }
+
   gitLoading.value = true;
   try {
     const flat = await $fetch<GitFileNode[]>(`/api/git-tree?categoryId=${props.categoryId}`);
     gitNodes.value = buildTree(flat ?? []);
     gitLoaded.value = true;
+    // 写入缓存
+    gitTreeCache.set(props.categoryId, gitNodes.value);
     // 默认展开第一层目录
     for (const node of gitNodes.value) {
       if (node.type === 'tree') gitExpandedPaths.value.add(node.path);

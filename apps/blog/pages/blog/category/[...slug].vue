@@ -24,12 +24,6 @@ interface ArticleListResponse {
   total: number;
 }
 
-interface TocHeading {
-  id: string;
-  text: string;
-  level: number;
-}
-
 const route = useRoute();
 const config = useRuntimeConfig();
 const topicSlug = config.public.topicSlug;
@@ -39,9 +33,6 @@ const categorySlug = computed(() => {
   const p = route.params.slug;
   return Array.isArray(p) ? p.join('/') : (p ?? '');
 });
-
-// 当前选中的 git 文件（来自 URL query）
-const selectedGitFile = computed(() => route.query.file as string | undefined);
 
 const { data: categoriesData } = await useFetch<{ code: number; data: BlogCategory[] }>(() => {
   const params = new URLSearchParams();
@@ -116,84 +107,26 @@ function parseTags(article: BlogArticle): string[] {
     return [];
   }
 }
-
-// ===== GIT 分类：文件内容 =====
-const {
-  data: gitContentData,
-  pending: gitContentPending,
-  error: gitContentErrorObj
-} = await useAsyncData(
-  'gitContent',
-  () => {
-    if (!currentCategory.value?.id || !selectedGitFile.value || !isGitCategory.value) {
-      return Promise.resolve(null);
-    }
-    return $fetch<{ content: string; path: string }>(
-      `/api/git-content?categoryId=${currentCategory.value.id}&path=${encodeURIComponent(selectedGitFile.value)}`
-    );
-  },
-  { watch: [selectedGitFile, isGitCategory] }
-);
-
-const gitContent = computed(() => gitContentData.value?.content || null);
-const gitContentLoading = computed(() => gitContentPending.value);
-const gitContentError = computed(() => (gitContentErrorObj.value ? '加载内容失败，请稍后重试' : null));
-const tocHeadings = ref<TocHeading[]>([]);
-
-// TOC 更新回调
-function onTocUpdate(headings: TocHeading[]) {
-  tocHeadings.value = headings;
-}
 </script>
 
 <template>
   <div class="category-page-wrapper">
     <Suspense>
-      <BlogLayout :show-toc="isGitCategory && !!selectedGitFile" :active-category-id="currentCategory?.id">
-        <template v-if="isGitCategory && selectedGitFile" #toc>
-          <div class="toc-container">
-            <div class="toc-title">本文目录</div>
-            <nav v-if="tocHeadings.length > 0">
-              <a
-                v-for="h in tocHeadings"
-                :key="h.id"
-                :href="`#${h.id}`"
-                class="toc-item"
-                :style="{ paddingLeft: `${(h.level - 1) * 0.75}rem` }"
-              >
-                {{ h.text }}
-              </a>
-            </nav>
-            <div v-else class="toc-empty">暂无目录</div>
-          </div>
-          <div style="display: none" data-hydration-fix="true"></div>
-        </template>
+      <BlogLayout :active-category-id="currentCategory?.id">
         <template #default>
           <div class="category-page">
             <div class="page-header">
-              <h1 class="page-title">
-                {{ selectedGitFile ? selectedGitFile.split('/').pop() : (currentCategory?.name ?? categorySlug) }}
-              </h1>
-              <p v-if="isGitCategory && !selectedGitFile" class="page-subtitle git-badge">
+              <h1 class="page-title">{{ currentCategory?.name ?? categorySlug }}</h1>
+              <p v-if="isGitCategory" class="page-subtitle git-badge">
                 <span class="git-icon">⎇</span>
                 Git 仓库内容 · 请从左侧目录选择文件
               </p>
             </div>
 
             <template v-if="isGitCategory">
-              <div v-if="!selectedGitFile" class="git-empty-hint">
+              <div class="git-empty-hint">
                 <p>← 请从左侧目录树选择一篇文章</p>
               </div>
-              <div v-else-if="gitContentLoading" class="loading-state">
-                <div class="skeleton-title" />
-                <div class="skeleton-meta" />
-                <div v-for="i in 8" :key="i" class="skeleton-line" />
-              </div>
-              <div v-else-if="gitContentError" class="error-state">
-                <p>{{ gitContentError }}</p>
-                <button class="retry-btn" @click="selectedGitFile && loadGitContent(selectedGitFile)">重试</button>
-              </div>
-              <BlogMarkdownRenderer v-else-if="gitContent" :content="gitContent" @toc-update="onTocUpdate" />
             </template>
 
             <template v-else>

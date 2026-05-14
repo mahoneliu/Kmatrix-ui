@@ -39,9 +39,17 @@ export default defineNuxtConfig({
   routeRules: {
     // 文章详情页：ISR，1小时重新验证
     '/blog/article/**': { swr: 3600 },
-    // 博客首页和分类页：ISR，1小时重新验证
+    // 博客首页：ISR，1小时重新验证
     '/blog': { swr: 3600 },
+    // 分类列表页：ISR，1小时重新验证。
+    // 分类页不再承载 git 文件内容（已迁移到 /blog/doc/**），
+    // URL 中无 query 参数，SWR 缓存键唯一，可以安全启用缓存。
     '/blog/category/**': { swr: 3600 },
+    // Git 文件内容页：CSR 模式。
+    // 内容依赖动态 git 数据，URL 含中文路径段，SSR 阶段 route.params 编码状态
+    // 与客户端不一致，导致 hydration mismatch。改为 CSR 后由客户端直接渲染，
+    // 避免 SSR/客户端状态不一致问题。SEO meta 通过 useHead 在客户端设置。
+    '/blog/doc/**': { ssr: false },
     // Server API 路由：纯动态，不缓存（由 git-content 内部缓存控制）
     '/api/**': { cache: false }
   },
