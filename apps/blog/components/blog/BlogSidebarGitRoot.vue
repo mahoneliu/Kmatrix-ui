@@ -26,10 +26,15 @@ const emit = defineEmits<{
 // 从 BlogLayout 注入的跨路由 git tree 缓存
 const gitTreeCache = inject<Map<number, GitFileNode[]>>('gitTreeCache', new Map());
 
+// 跨路由共享的展开状态缓存，路由切换重新挂载后恢复展开状态
+const gitExpandedCache = useGitExpandedCache();
+
 const gitNodes = ref<GitFileNode[]>([]);
 const gitLoaded = ref(false);
 const gitLoading = ref(false);
-const gitExpandedPaths = ref<Set<string>>(new Set());
+
+// 从缓存恢复展开状态，若无缓存则初始化为空 Set（loadGitTree 后再填充）
+const gitExpandedPaths = ref<Set<string>>(gitExpandedCache.get(props.categoryId) ?? new Set());
 
 async function loadGitTree() {
   if (gitLoaded.value || gitLoading.value) return;
@@ -39,8 +44,14 @@ async function loadGitTree() {
   if (cached) {
     gitNodes.value = cached;
     gitLoaded.value = true;
-    for (const node of gitNodes.value) {
-      if (node.type === 'tree') gitExpandedPaths.value.add(node.path);
+    // 若展开状态缓存也存在，直接用（已在 ref 初始化时恢复），否则默认展开第一层
+    if (!gitExpandedCache.has(props.categoryId)) {
+      const expanded = new Set<string>();
+      for (const node of gitNodes.value) {
+        if (node.type === 'tree') expanded.add(node.path);
+      }
+      gitExpandedPaths.value = expanded;
+      gitExpandedCache.set(props.categoryId, expanded);
     }
     return;
   }
@@ -50,12 +61,15 @@ async function loadGitTree() {
     const flat = await $fetch<GitFileNode[]>(`/api/git-tree?categoryId=${props.categoryId}`);
     gitNodes.value = buildTree(flat ?? []);
     gitLoaded.value = true;
-    // 写入缓存
+    // 写入 tree 缓存
     gitTreeCache.set(props.categoryId, gitNodes.value);
-    // 默认展开第一层目录
+    // 默认展开第一层目录，并写入展开状态缓存
+    const expanded = new Set<string>();
     for (const node of gitNodes.value) {
-      if (node.type === 'tree') gitExpandedPaths.value.add(node.path);
+      if (node.type === 'tree') expanded.add(node.path);
     }
+    gitExpandedPaths.value = expanded;
+    gitExpandedCache.set(props.categoryId, expanded);
   } catch {
     // ignore
   } finally {
@@ -82,13 +96,21 @@ function buildTree(flat: GitFileNode[]): GitFileNode[] {
 }
 
 function toggleGitDir(path: string) {
-  if (gitExpandedPaths.value.has(path)) gitExpandedPaths.value.delete(path);
-  else gitExpandedPaths.value.add(path);
+  const next = new Set(gitExpandedPaths.value);
+  if (next.has(path)) next.delete(path);
+  else next.add(path);
+  gitExpandedPaths.value = next;
+  // 同步到跨路由缓存
+  gitExpandedCache.set(props.categoryId, next);
 }
 
 function selectGitFile(filePath: string) {
   emit('selectGitFile', props.categoryId, filePath);
 }
+
+// 通过 provide 将回调注入所有子孙节点，避免逐层 emit 导致多次触发
+provide('gitToggle', toggleGitDir);
+provide('gitSelect', selectGitFile);
 
 onMounted(() => {
   loadGitTree();
@@ -106,8 +128,6 @@ onMounted(() => {
         :depth="0"
         :expanded-paths="gitExpandedPaths"
         :active-file="activeGitFile"
-        @toggle="toggleGitDir"
-        @select="selectGitFile"
       />
     </ul>
     <div v-else-if="gitLoaded" class="git-empty">暂无文件</div>

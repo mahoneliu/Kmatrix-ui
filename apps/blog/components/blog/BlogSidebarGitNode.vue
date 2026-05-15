@@ -14,26 +14,18 @@ const props = defineProps<{
   activeFile?: string;
 }>();
 
-const emit = defineEmits<{
-  toggle: [path: string];
-  select: [path: string];
-}>();
-
 const isDir = computed(() => props.node.type === 'tree');
 const isExpanded = computed(() => props.expandedPaths.has(props.node.path));
 const isActive = computed(() => props.activeFile === props.node.path);
 
+// 直接从根组件注入回调，避免逐层 emit 导致每层都触发一次 toggle
+const rootToggle = inject<(path: string) => void>('gitToggle')!;
+const rootSelect = inject<(path: string) => void>('gitSelect')!;
+
 function handleClick(e: MouseEvent) {
   e.stopPropagation();
-  if (isDir.value) emit('toggle', props.node.path);
-  else emit('select', props.node.path);
-}
-
-function onChildToggle(path: string) {
-  emit('toggle', path);
-}
-function onChildSelect(path: string) {
-  emit('select', path);
+  if (isDir.value) rootToggle(props.node.path);
+  else rootSelect(props.node.path);
 }
 </script>
 
@@ -52,7 +44,6 @@ function onChildSelect(path: string) {
       <!-- 文件：缩进占位 -->
       <span v-else class="git-file-indent" />
 
-      <!-- <span class="git-node-icon">{{ isDir ? (isExpanded ? '📂' : '📁') : '📄' }}</span> -->
       <span class="git-node-name">{{ node.name }}</span>
     </div>
 
@@ -65,8 +56,6 @@ function onChildSelect(path: string) {
         :depth="depth + 1"
         :expanded-paths="expandedPaths"
         :active-file="activeFile"
-        @toggle="onChildToggle"
-        @select="onChildSelect"
       />
     </ul>
   </li>
@@ -105,9 +94,17 @@ function onChildSelect(path: string) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 16px;
+  width: 20px;
+  height: 20px;
   color: #9ca3af;
   font-size: 0.55rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.git-collapse-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #6b7280;
 }
 
 .git-collapse-icon {
@@ -121,11 +118,6 @@ function onChildSelect(path: string) {
 
 .git-file-indent {
   width: 16px;
-  flex-shrink: 0;
-}
-
-.git-node-icon {
-  font-size: 0.8rem;
   flex-shrink: 0;
 }
 
