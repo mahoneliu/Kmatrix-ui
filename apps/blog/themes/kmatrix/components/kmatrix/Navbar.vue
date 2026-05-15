@@ -80,7 +80,7 @@ function scheduleCloseDocsDropdown() {
           <NuxtLink to="/comparison">{{ $t('nav.comparison') }}</NuxtLink>
           <NuxtLink to="/about">{{ $t('nav.about') }}</NuxtLink>
 
-          <!-- 技术文档下拉菜单 -->
+          <!-- 技术文档下拉菜单（有分类数据时显示，提供细分导航；无数据时不显示） -->
           <div
             v-if="topCategories.length > 0"
             class="docs-dropdown-wrapper"
@@ -226,9 +226,10 @@ function scheduleCloseDocsDropdown() {
 }
 
 .logo-img {
-  width: 32px;
-  height: 32px;
+  width: 29px;
+  height: 29px;
   display: block;
+  flex-shrink: 0;
 }
 
 .logo-text {
@@ -239,9 +240,8 @@ function scheduleCloseDocsDropdown() {
     'Segoe UI',
     Roboto,
     sans-serif;
-  /* 与 logo-img 高度一致：32px */
-  font-size: 1.375rem;
-  line-height: 32px;
+  font-size: 29px;
+  line-height: 1;
   letter-spacing: -0.02em;
   font-weight: 700;
 }
@@ -448,5 +448,35 @@ function scheduleCloseDocsDropdown() {
   .nav-links-wrapper {
     display: none;
   }
+}
+
+/* 固定文档直链 */
+.docs-fixed-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  text-decoration: none;
+  color: var(--foreground);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.docs-fixed-link:hover {
+  color: var(--primary);
+}
+
+.external-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+  flex-shrink: 0;
 }
 </style>

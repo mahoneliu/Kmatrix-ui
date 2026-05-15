@@ -10,6 +10,15 @@ const techStack = computed(() => {
   }));
 });
 
+const giteeStats = computed(() => {
+  const raw = tm('tech.giteeStats');
+  if (!Array.isArray(raw)) return [];
+  return (raw as any[]).map((item: any) => ({
+    val: rt(item.val),
+    lab: rt(item.lab)
+  }));
+});
+
 const layerColors = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981'];
 const layerIcons = [
   // AI 编排层
@@ -27,9 +36,9 @@ const layerIcons = [
   <section class="tech-advantages">
     <div class="container">
       <div class="section-header">
-        <div class="badge-row">
-          <span class="tech-badge">{{ $t('tech.badge') }}</span>
-        </div>
+        <!--        <div class="badge-row">-->
+        <!--          <span class="tech-badge">{{ $t('tech.badge') }}</span>-->
+        <!--        </div>-->
         <h2 class="gradient-text font-bold">{{ $t('tech.title') }}</h2>
         <p class="tech-quote">{{ $t('tech.quote') }}</p>
       </div>
@@ -69,31 +78,23 @@ const layerIcons = [
               />
             </svg>
             <span class="gitee-name">Gitee</span>
-            <span class="eval-badge">官方 AI 评估</span>
+            <span class="eval-badge">{{ $t('tech.giteeEvalBadge') }}</span>
           </div>
-          <p class="quote-text">
-            "gitee 全面集成代码分析评估功能... 咱们的 KMatrix 知识库，评价还是蛮高的，感谢 gitee 给面子。"
-          </p>
+          <p class="quote-text">{{ $t('tech.giteeQuote') }}</p>
         </div>
         <div class="quote-stats">
-          <div class="q-stat">
-            <span class="q-val">高</span>
-            <span class="q-lab">一致性评价</span>
-          </div>
-          <div class="q-stat">
-            <span class="q-val">强</span>
-            <span class="q-lab">架构灵活性</span>
-          </div>
-          <div class="q-stat">
-            <span class="q-val">优</span>
-            <span class="q-lab">安全性设计</span>
+          <div v-for="stat in giteeStats" :key="stat.lab" class="q-stat">
+            <span class="q-val">{{ stat.val }}</span>
+            <span class="q-lab">{{ stat.lab }}</span>
           </div>
         </div>
       </div>
 
-      <div class="gitee-screenshot">
+      <!--
+ <div class="gitee-screenshot">
         <img src="/kmatrix-images/技术优势/DM_20260227155130_002.png" alt="Gitee AI 评估截图" loading="lazy" />
-      </div>
+      </div> 
+-->
     </div>
   </section>
 </template>

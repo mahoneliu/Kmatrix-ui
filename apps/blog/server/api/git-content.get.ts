@@ -25,21 +25,32 @@ export function replaceImagePaths(markdownContent: string, options: ReplaceImage
       return imgPath.replace(/^\/+/, '');
     }
     const relativePart = imgPath.startsWith('./') ? imgPath.slice(2) : imgPath;
-    // 图片路径相对于 rootPath（文档根目录），不叠加 fileDir
-    // 因为文档作者通常以 rootPath 为基准写图片路径，而非以文件所在目录为基准
-    const base = rootPath ? normalize(join(rootPath, relativePart)) : normalize(join(fileDir, relativePart));
+
+    // 优先用 rootPath + fileDir 组合作为基准目录
+    // filePath 已被截断（去掉了 rootPath 前缀），所以需要把 rootPath 补回来
+    // 例：rootPath='docs', filePath='guide/README.md', fileDir='guide'
+    //     → base = 'docs/guide'，图片 'images/x.gif' → 'docs/guide/images/x.gif'
+    // 例：rootPath='docs', filePath='README.md', fileDir=''
+    //     → base = 'docs'，图片 'images/x.gif' → 'docs/images/x.gif'
+    const cleanRoot = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') : '';
+    const baseDir = [cleanRoot, fileDir].filter(Boolean).join('/');
+    const base = baseDir ? normalize(join(baseDir, relativePart)) : normalize(relativePart);
     return base.replace(/\\/g, '/').replace(/^\.\//, '');
   }
 
   function buildRawUrl(imgPath: string): string {
     if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
-      return imgPath;
+      // 已是绝对 URL，直接走代理（解决 CORS 问题）
+      return `/api/proxy-img?url=${encodeURIComponent(imgPath)}`;
     }
     const absolutePath = resolveAbsolutePath(imgPath);
+    let rawUrl: string;
     if (isGitee) {
-      return `https://gitee.com/${owner}/${repo}/raw/${branch}/${absolutePath}`;
+      rawUrl = `https://gitee.com/${owner}/${repo}/raw/${branch}/${absolutePath}`;
+    } else {
+      rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
     }
-    return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${absolutePath}`;
+    return `/api/proxy-img?url=${encodeURIComponent(rawUrl)}`;
   }
 
   let result = markdownContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt, path) => {

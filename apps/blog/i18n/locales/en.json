@@ -12,7 +12,7 @@
     "changeLanguage": "Language"
   },
   "hero": {
-    "badge": "🚀 Visual AI Workflow Platform",
+    "badge": "Visual AI Workflow Platform",
     "title1": "KMatrix",
     "subtitle": "Let Knowledge Drive Business Automation",
     "description": "More than RAG Q&A — a visual AI workflow platform. Orchestrate complex AI business logic with a drag-and-drop canvas, powered by hybrid retrieval and MCP tool marketplace.",
@@ -146,7 +146,7 @@
           "highlights": [
             "Supports all formats like Office / PDF",
             "Smartly extracts key info and FAQs",
-            "Precisely decomposes mass documents without omission"
+            "Supports automatic folder scanning and monitoring"
           ],
           "value": "You can entrust all corporate regulations and manuals to it; it's the most diligent 'librarian' with a photographic memory."
         },
@@ -155,7 +155,7 @@
           "highlights": [
             "Stateful Multi-Agent workflow powered by LangGraph4j",
             "Supports loops, conditional branches, state persistence",
-            "Drag-and-drop canvas for clear business logic"
+            "Drag-and-drop canvas with clear logic and instant WYSIWYG debugging"
           ],
           "value": "No longer dependent on programmers; business experts can build logic-capable AI tools themselves with just a mouse."
         },
@@ -227,7 +227,7 @@
       "stats": {
         "exp": "Years Tech Accumulation",
         "iter": "Years Product Iteration",
-        "clients": "Enterprises Served"
+        "stars": "Open Source Stars"
       }
     },
     "contact": {
@@ -235,6 +235,8 @@
       "address": "Address",
       "addrText": "31853, 3rd Floor, No. 113 Chebei Road, Tianhe District, Guangzhou",
       "business": "Business Inquiry",
+      "businessText": "Scan WeChat QR to contact",
+      "wechat": "WeChat QR Code",
       "support": "Tech Support"
     }
   },
@@ -371,6 +373,13 @@
     "badge": "Tech Stack",
     "title": "Modern Full-Stack AI Foundation",
     "quote": "Built on Spring Boot 3 + LangGraph4j + pgvector + Vue Flow — the best practice for enterprise AI workflow platforms.",
+    "giteeEvalBadge": "Gitee AI Code Review",
+    "giteeQuote": "After comprehensive scanning by Gitee's AI code analysis platform, KMatrix received excellent ratings across code quality, security vulnerability detection, and architectural design — a high-quality representative among similar projects on Gitee.",
+    "giteeStats": [
+      { "val": "A", "lab": "Code Quality" },
+      { "val": "0", "lab": "Security Issues" },
+      { "val": "Exc.", "lab": "Architecture" }
+    ],
     "stats": [
       {
         "val": "High",

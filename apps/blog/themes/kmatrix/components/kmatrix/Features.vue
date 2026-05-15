@@ -89,7 +89,7 @@ const getSpecialIcon = (_idx: number) => null;
 }
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2.5rem;
 }
 .feature-card {

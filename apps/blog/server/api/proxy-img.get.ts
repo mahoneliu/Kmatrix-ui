@@ -1,4 +1,4 @@
-const ALLOWED_DOMAIN = 'https://raw.githubusercontent.com/';
+const ALLOWED_DOMAINS = ['https://raw.githubusercontent.com/', 'https://gitee.com/'];
 
 export default defineEventHandler(async event => {
   const query = getQuery(event);
@@ -16,15 +16,15 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, message: 'Invalid URL encoding' });
   }
 
-  if (!decodedUrl.startsWith(ALLOWED_DOMAIN)) {
-    throw createError({ statusCode: 400, message: 'Only raw.githubusercontent.com URLs are allowed' });
+  if (!ALLOWED_DOMAINS.some(domain => decodedUrl.startsWith(domain))) {
+    throw createError({ statusCode: 400, message: 'Only raw.githubusercontent.com and gitee.com URLs are allowed' });
   }
 
-  // 代理请求 GitHub 图片
+  // 代理请求图片
   let response: Response;
   try {
     response = await fetch(decodedUrl, {
-      signal: AbortSignal.timeout(10000) // 10s 超_时
+      signal: AbortSignal.timeout(10000) // 10s 超时
     });
   } catch {
     throw createError({ statusCode: 502, message: '图片代理请求失败' });

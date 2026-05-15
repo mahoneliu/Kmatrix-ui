@@ -230,6 +230,35 @@ function resetForm() {
   datasetList.value = [];
 }
 
+/** 填充知识库和数据集回显 */
+async function fillKbAndDataset(row: Api.Blog.Category) {
+  if (row.kbId) {
+    selectedKbId.value = row.kbId;
+    loadDatasets(row.kbId, row.datasetId);
+  } else if (row.datasetId) {
+    // 兼容老数据：如果没有 kbId 但有 datasetId，遍历查找
+    selectedDatasetId.value = row.datasetId;
+    if (kbList.value.length === 0) await loadKbList();
+    for (const kb of kbList.value) {
+      // eslint-disable-next-line no-await-in-loop
+      const { data } = await fetchDatasetsByKbId(kb.id!);
+      const found = (data || []).find(ds => ds.id === row.datasetId);
+      if (found) {
+        selectedKbId.value = kb.id!;
+        datasetList.value = data || [];
+        break;
+      }
+    }
+  }
+}
+
+/** 获取仓库回显 URL */
+function getRepoUrl(row: Api.Blog.Category) {
+  if (!row.gitOwner || !row.gitRepo) return '';
+  const domain = row.gitPlatform === 'gitee' ? 'gitee.com' : 'github.com';
+  return `https://${domain}/${row.gitOwner}/${row.gitRepo}`;
+}
+
 function openAddModal(parentId: CommonType.IdType = 0 as CommonType.IdType) {
   editingId.value = null;
   categoryType.value = 'online';
@@ -252,30 +281,13 @@ async function openEditModal(row: Api.Blog.Category) {
   };
 
   // 回填知识库/数据集
-  if (row.kbId) {
-    selectedKbId.value = row.kbId;
-    loadDatasets(row.kbId, row.datasetId);
-  } else if (row.datasetId) {
-    // 兼容老数据：如果没有 kbId 但有 datasetId，遍历查找
-    selectedDatasetId.value = row.datasetId;
-    if (kbList.value.length === 0) await loadKbList();
-    for (const kb of kbList.value) {
-      // eslint-disable-next-line no-await-in-loop
-      const { data } = await fetchDatasetsByKbId(kb.id!);
-      const found = (data || []).find(ds => ds.id === row.datasetId);
-      if (found) {
-        selectedKbId.value = kb.id!;
-        datasetList.value = data || [];
-        break;
-      }
-    }
-  }
+  await fillKbAndDataset(row);
 
   if (row.source === 'GIT') {
     categoryType.value = 'git';
     gitHasExistingToken.value = row.hasToken ?? false;
     gitExtra.value = {
-      repoUrl: row.gitOwner && row.gitRepo ? `https://github.com/${row.gitOwner}/${row.gitRepo}` : '',
+      repoUrl: getRepoUrl(row),
       gitOwner: row.gitOwner || '',
       gitRepo: row.gitRepo || '',
       gitBranch: row.gitBranch || 'main',
@@ -312,6 +324,14 @@ function onTypeChange(val: CategoryType) {
     onlineExtra.value = { parentId: 0 as CommonType.IdType, customDomain: '' };
     isTopicNode.value = onlineExtra.value.parentId === 0;
   }
+}
+
+// 切换平台时同步更新 repoUrl（如果 owner/repo 已填写）
+function onPlatformChange(platform: 'github' | 'gitee') {
+  const { gitOwner, gitRepo } = gitExtra.value;
+  if (!gitOwner || !gitRepo) return;
+  gitExtra.value.repoUrl =
+    platform === 'gitee' ? `https://gitee.com/${gitOwner}/${gitRepo}` : `https://github.com/${gitOwner}/${gitRepo}`;
 }
 
 // 仓库 URL 失焦自动解析
@@ -711,7 +731,7 @@ onMounted(() => {
           </NDivider>
 
           <NFormItem label="平台">
-            <NRadioGroup v-model:value="gitExtra.gitPlatform" size="small">
+            <NRadioGroup v-model:value="gitExtra.gitPlatform" size="small" @update:value="onPlatformChange">
               <NSpace>
                 <NRadio value="github">
                   <div class="flex items-center gap-1">

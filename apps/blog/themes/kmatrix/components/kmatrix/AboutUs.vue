@@ -64,16 +64,16 @@ const values = computed(() =>
             <p v-html="$t('about.tech.p2')"></p>
             <div class="stats-grid">
               <div class="stat-item">
-                <span class="num">10+</span>
+                <span class="num">20+</span>
                 <span class="label">{{ $t('about.tech.stats.exp') }}</span>
               </div>
               <div class="stat-item">
-                <span class="num">4+</span>
+                <span class="num">6+</span>
                 <span class="label">{{ $t('about.tech.stats.iter') }}</span>
               </div>
               <div class="stat-item">
-                <span class="num">100+</span>
-                <span class="label">{{ $t('about.tech.stats.clients') }}</span>
+                <span class="num">2.5k+</span>
+                <span class="label">{{ $t('about.tech.stats.stars') }}</span>
               </div>
             </div>
           </div>
@@ -99,7 +99,15 @@ const values = computed(() =>
               <span class="icon">💼</span>
               <div>
                 <p class="label">{{ $t('about.contact.business') }}</p>
-                <p class="text">17702074054 (微信同号)</p>
+                <p class="text">{{ $t('about.contact.businessText') }}</p>
+                <div class="qr-container glass">
+                  <img
+                    src="/kmatrix-images/wechat.png"
+                    :alt="$t('about.contact.wechat')"
+                    class="qr-image"
+                    @error="e => ((e.target as HTMLImageElement).style.display = 'none')"
+                  />
+                </div>
               </div>
             </div>
             <div class="contact-item">
@@ -278,5 +286,19 @@ p {
   .hero-content h1 {
     font-size: 3rem;
   }
+}
+
+.qr-container {
+  width: 120px;
+  height: 120px;
+  padding: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+.qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 </style>

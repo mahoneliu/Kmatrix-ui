@@ -2,7 +2,26 @@
   <section class="hero">
     <div class="hero-grid container">
       <div class="hero-text">
-        <div class="badge">{{ $t('hero.badge') }}</div>
+        <div class="badge">
+          <svg class="badge-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
+            <path
+              d="M6.5 10.5L9 13L13.5 7.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M10 3v1M10 16v1M3 10h1M16 10h1"
+              stroke="currentColor"
+              stroke-width="1.2"
+              stroke-linecap="round"
+              opacity="0.5"
+            />
+          </svg>
+          {{ $t('hero.badge') }}
+        </div>
         <h1>{{ $t('hero.title1') }}</h1>
         <h2 class="subtitle">{{ $t('hero.subtitle') }}</h2>
         <p class="description">
@@ -47,7 +66,9 @@
   align-items: center;
 }
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.5rem 1rem;
   background: var(--muted);
   border: 1px solid var(--border);
@@ -55,6 +76,12 @@
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 2rem;
+  color: var(--primary);
+}
+.badge-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
   color: var(--primary);
 }
 h1 {

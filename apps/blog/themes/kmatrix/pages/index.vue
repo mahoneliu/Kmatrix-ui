@@ -7,7 +7,6 @@
     <KmatrixNavbar />
     <main>
       <KmatrixHero />
-      <KmatrixStats />
       <KmatrixFeatures />
       <KmatrixCoreFeatures />
       <KmatrixFeatureInsights />

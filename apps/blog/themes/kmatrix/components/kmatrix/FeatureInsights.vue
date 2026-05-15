@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import imgIngestion from '/kmatrix-images/知识库/m_4f7845929889d366c057a65ad6b219a1_r.png';
 import imgConfig from '/kmatrix-images/工作流编排/DM_20260226180243_001.png';
 import imgSearch from '/kmatrix-images/检索测试/m_2c73cd220018544782ae625d35f11658_r.png';
-import imgIntegration from '/kmatrix-images/快速开始/DM_20260227153446_004.png';
+import imgIntegration from '/kmatrix-images/mcp-market.png';
 import imgBrain from '/kmatrix-images/模型管理/m_481e1a27d19c3c3787167eb26ad79a59_r.png';
 
 const { tm, rt } = useI18n();
